@@ -42,7 +42,7 @@ async function Page() {
 
       <Text className="mb-8">
         Define a new configuration below! This config will determine how
-        CHP Bot behaves in the specified channels.
+        VanguardAI Bot behaves in the specified channels.
       </Text>
 
       <SlackBotCreationForm documentSets={documentSets} personas={personas} />

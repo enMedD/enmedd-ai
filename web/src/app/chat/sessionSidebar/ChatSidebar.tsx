@@ -70,7 +70,7 @@ export const ChatSidebar = ({
           >
             <div className="flex w-full">
               <div className="h-[32px] w-full flex justify-center align-center">
-                <img src="/logo-brand.png" alt="Logo" className="w-auto h-full" />
+                <img src="/logo.png" alt="Logo" className="w-auto h-full" />
               </div>
             </div>
           </Link>

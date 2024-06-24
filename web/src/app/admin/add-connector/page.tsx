@@ -49,8 +49,8 @@ export default function Page() {
       />
 
       <Text>
-        Connect enMedD CHP to your organization&apos;s knowledge sources.
-        We&apos;ll automatically sync your data into enMedD CHP, so you can find
+        Connect VanguardAI to your organization&apos;s knowledge sources.
+        We&apos;ll automatically sync your data into VanguardAI, so you can find
         exactly what you&apos;re looking for in one place.
       </Text>
 

@@ -67,12 +67,12 @@ if __name__ == "__main__":
         "--danswer-url",
         type=str,
         default="http://localhost:80",
-        help="enMedD CHP URL, should point to enMedD CHP nginx.",
+        help="VanguardAI URL, should point to VanguardAI nginx.",
     )
     parser.add_argument(
         "--test-question",
         type=str,
-        default="What is enMedD CHP?",
+        default="What is VanguardAI?",
         help="Test question for new Chat Session.",
     )
 

@@ -33,7 +33,7 @@ export function Header({ user }: HeaderProps) {
           }
         >
           <div className="flex h-full">
-            <img src="/logo-brand.png" alt="Logo Brand" className="h-full"/>
+            <img src="/logo.png" alt="Logo Brand" className="h-full"/>
           </div>
         </Link>
 

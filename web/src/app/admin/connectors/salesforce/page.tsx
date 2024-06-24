@@ -237,9 +237,9 @@ const MainSection = () => {
                     {" "}
                     here{" "}
                   </a>
-                  for an example of how enMedD CHP uses the objects. <br />
+                  for an example of how VanguardAI uses the objects. <br />
                   <br />
-                  If unsure, don&apos;t specify any objects and enMedD CHP will
+                  If unsure, don&apos;t specify any objects and VanguardAI will
                   default to indexing by &apos;Account&apos;.
                   <br />
                   <br />
