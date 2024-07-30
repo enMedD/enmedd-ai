@@ -224,8 +224,8 @@ export const SearchSection = ({
   }
 
   return (
-    <div className="relative max-w-[2000px] xl:max-w-[1430px] mx-auto">
-      <div className="absolute left-0 hidden 2xl:block w-52 3xl:w-64">
+    <div className="w-full flex gap-3 grid-cols-2 justify-between">
+      <div className="w-52 3xl:w-64">
         {(ccPairs.length > 0 || documentSets.length > 0) && (
           <SourceSelector
             {...filterManager}
