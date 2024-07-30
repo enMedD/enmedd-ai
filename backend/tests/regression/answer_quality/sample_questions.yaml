@@ -19,7 +19,7 @@ metadata:
 
 questions:
   - id: 1
-    question: "What is enMedD CHP?"
+    question: "What is Vanguard AI?"
     expected_answer: "VanguardAI is an open source question-answering system."
     notes: "This comes directly from the docs, the actual answer should be more informative"
 

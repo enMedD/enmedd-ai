@@ -44,7 +44,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isHeader, handleClose }) => {
       }`}
     >
       <div className="flex items-center justify-between w-full h-16 px-6 py-4 border-b lg:hidden">
-        <Image src={enmeddLogo} alt="enmedd-logo" width={112} />
+        <Image src={enmeddLogo} alt="vanguard-ai-logo" width={112} />
         <FiX onClick={handleClose} />
       </div>
 
@@ -240,15 +240,15 @@ export const SideBar: React.FC<SideBarProps> = ({ isHeader, handleClose }) => {
                       ),
                       link: "/admin/performance/query-history",
                     },
-                    {
-                      name: (
-                        <div className="flex">
-                          <FiBarChart2 size={18} />
-                          <div className="ml-1">Custom Analytics</div>
-                        </div>
-                      ),
-                      link: "/admin/performance/custom-analytics",
-                    },
+                    // {
+                    //   name: (
+                    //     <div className="flex">
+                    //       <FiBarChart2 size={18} />
+                    //       <div className="ml-1">Custom Analytics</div>
+                    //     </div>
+                    //   ),
+                    //   link: "/admin/performance/custom-analytics",
+                    // },
                   ],
                 },
               ]

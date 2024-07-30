@@ -85,7 +85,7 @@ export default function Navbar() {
       <Wrapper>
         <div className="relative flex items-center justify-between w-full py-4">
           <Link href="/">
-            <Image src={enmeddLogo} alt="enmedd-logo" width={150} />
+            <Image src={enmeddLogo} alt="vanguard-ai-logo" width={150} />
           </Link>
 
           <ul className="hidden gap-10 xl:flex">

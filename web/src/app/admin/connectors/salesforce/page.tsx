@@ -75,7 +75,7 @@ const MainSection = () => {
       <Text>
         The Salesforce connector allows you to index and search through your
         Salesforce data. Once setup, all indicated Salesforce data will be will
-        be queryable within enMedD CHP.
+        be queryable within Vanguard AI.
       </Text>
 
       <Title className="mb-2 mt-6 ml-auto mr-auto">

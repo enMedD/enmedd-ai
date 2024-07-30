@@ -52,7 +52,6 @@ export function Header({ user }: HeaderProps) {
           <div className="flex my-auto">
             <div className="my-auto mr-1">
               {/* TODO: Remove Enterprise Settings */}
-              {/* TODO: Replace with the Vanguard AI Logo */}
               <Image src={Logo} alt="Logo" className="w-28" />
             </div>
             <div className="my-auto">
@@ -102,12 +101,12 @@ export function Header({ user }: HeaderProps) {
             </Link>
           </>
         )}
-
+{/* 
         <div className="flex flex-col h-full ml-auto">
           <div className="my-auto">
             <UserDropdown user={user} hideChatAndSearch />
           </div>
-        </div>
+        </div> */}
       </div>
     </HeaderWrapper>
   );

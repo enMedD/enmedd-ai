@@ -5,6 +5,7 @@ import { useChatContext } from "@/components/context/ChatContext";
 import { Tooltip } from "@/components/tooltip/Tooltip";
 import { FilterManager, LlmOverrideManager } from "@/lib/hooks";
 import { getFinalLLM } from "@/lib/llm/utils";
+import { Button } from "@tremor/react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaBrain } from "react-icons/fa";
 import {
@@ -402,21 +403,12 @@ export function ChatInputBar({
                 />
               </div>
               <div>
-                <div
-                  className="flex flex-row items-center content-center w-auto gap-2 px-2.5 py-2.5 text-white truncate bg-blue-700 border rounded-full cursor-pointer sm:px-4 sm:py-2 sm:rounded-xl"
-                  onClick={() => {
-                    if (!isStreaming) {
-                      if (message) {
-                        onSubmit();
-                      }
-                    } else {
-                      setIsCancelled(true);
-                    }
-                  }}
+                <Button
+                  icon={FiSend}
+                  className="flex flex-row items-center w-auto gap-2"
                 >
-                  <FiSend size={11} color="white" className="w-4 h-4" />
-                  <p className="hidden font-light sm:flex">Send message</p>
-                </div>
+                  Send Message
+                </Button>
               </div>
             </div>
           </div>

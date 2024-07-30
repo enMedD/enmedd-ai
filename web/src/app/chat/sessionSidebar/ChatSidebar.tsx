@@ -91,7 +91,7 @@ export const ChatSidebar = ({
           >
             <div className="flex items-center w-full px-4">
               <div className="flex items-center justify-between w-full">
-                <Image src={Logo} alt="enmedd-logo" width={112} />
+                <Image className="mx-auto" src={Logo} alt="enmedd-logo" width={112} />
                 <FiX onClick={handleClose} className="lg:hidden" />
               </div>
 
@@ -103,7 +103,7 @@ export const ChatSidebar = ({
 
                   {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
                     <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD CHP
+                      Powered by Vanguard AI
                     </p>
                   )}
                 </div>

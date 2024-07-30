@@ -23,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
       : buildClientUrl("/vanguard-ai.ico");
 
   return {
-    title: dynamicSettings.enterpriseSettings?.application_name ?? "enMedD CHP",
-    description: "enMedD Conversational Health Platform",
+    title: dynamicSettings.enterpriseSettings?.application_name ?? "Vanguard AI",
+    description: "Normark Defense: Vanguard AI",
     icons: {
       icon: logoLocation,
     },

@@ -14,7 +14,7 @@ export default function Menu() {
       <div className="relative w-full">
         <Image
           src={enmeddLogo}
-          alt="enmedd-logo"
+          alt="vanguard-ai-logo"
           width={50}
           height={50}
           className="fixed top-4"
