@@ -91,7 +91,12 @@ export const ChatSidebar = ({
           >
             <div className="flex items-center w-full px-4">
               <div className="flex items-center justify-between w-full">
-                <Image className="mx-auto" src={Logo} alt="enmedd-logo" width={112} />
+                <Image
+                  className="mx-auto"
+                  src={Logo}
+                  alt="enmedd-logo"
+                  width={112}
+                />
                 <FiX onClick={handleClose} className="lg:hidden" />
               </div>
 

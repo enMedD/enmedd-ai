@@ -1,11 +1,11 @@
 "use client";
 
+import { InitializingLoader } from "@/components/InitializingLoader";
+import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { usePopup } from "@/components/admin/connectors/Popup";
 import { useChatContext } from "@/components/context/ChatContext";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { InitializingLoader } from "@/components/InitializingLoader";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
 import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 import { computeAvailableFilters } from "@/lib/filters";
@@ -25,6 +25,7 @@ import { ChatBanner } from "./ChatBanner";
 import { ChatIntro } from "./ChatIntro";
 import { ChatPersonaSelector } from "./ChatPersonaSelector";
 import { ChatPopup } from "./ChatPopup";
+import { StarterMessage } from "./StarterMessage";
 import { DocumentSidebar } from "./documentSidebar/DocumentSidebar";
 import { ChatInputBar } from "./input/ChatInputBar";
 import {
@@ -41,6 +42,7 @@ import {
   ToolCallMetadata,
 } from "./interfaces";
 import {
+  PacketType,
   buildChatUrl,
   buildLatestMessageChain,
   checkAnyAssistantHasSearch,
@@ -50,7 +52,6 @@ import {
   getLastSuccessfulMessageId,
   handleChatFeedback,
   nameChatSession,
-  PacketType,
   personaIncludesRetrieval,
   processRawChatHistory,
   removeMessage,
@@ -61,12 +62,11 @@ import {
   useScrollonStream,
 } from "./lib";
 import { AIMessage, HumanMessage } from "./message/Messages";
-import { ConfigurationModal } from "./modal/configuration/ConfigurationModal";
 import { FeedbackModal } from "./modal/FeedbackModal";
 import { ShareChatSessionModal } from "./modal/ShareChatSessionModal";
+import { ConfigurationModal } from "./modal/configuration/ConfigurationModal";
 import { SEARCH_PARAM_NAMES, shouldSubmitOnLoad } from "./searchParams";
 import { ChatSidebar } from "./sessionSidebar/ChatSidebar";
-import { StarterMessage } from "./StarterMessage";
 import { FeedbackType } from "./types";
 import { useDocumentSelection } from "./useDocumentSelection";
 

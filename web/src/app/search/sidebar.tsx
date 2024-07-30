@@ -1,21 +1,11 @@
 "use client";
 
-import { BasicClickable } from "@/components/BasicClickable";
+import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect } from "react";
-import {
-  FiEdit,
-  FiFolderPlus,
-  FiMessageSquare,
-  FiSearch,
-  FiX,
-} from "react-icons/fi";
-import {
-  NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED,
-  NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA,
-} from "@/lib/constants";
+import { useContext } from "react";
+import { FiMessageSquare, FiSearch, FiX } from "react-icons/fi";
 
 import { usePopup } from "@/components/admin/connectors/Popup";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
@@ -24,16 +14,15 @@ import { FaHeadset } from "react-icons/fa";
 /* import { Logo } from "@/components/Logo"; */
 import { UserSettingsButton } from "@/components/UserSettingsButton";
 import { HeaderTitle } from "@/components/header/Header";
-import Logo from '../../../public/logo-brand.png'
-import { useChatContext } from "@/components/context/ChatContext";
 import { User } from "@/lib/types";
+import Logo from "../../../public/logo-brand.png";
 
 export const SearchSidebar = ({
   user,
   handleClose,
   openSidebar,
 }: {
-  user : User | null;
+  user: User | null;
   handleClose?: () => void;
   openSidebar?: boolean;
 }) => {
@@ -72,7 +61,12 @@ export const SearchSidebar = ({
           >
             <div className="flex items-center w-full px-4">
               <div className="flex items-center justify-between w-full">
-                <Image className="mx-auto" src={Logo} alt="enmedd-logo" width={112} />
+                <Image
+                  className="mx-auto"
+                  src={Logo}
+                  alt="enmedd-logo"
+                  width={112}
+                />
                 <FiX onClick={handleClose} className="lg:hidden" />
               </div>
 

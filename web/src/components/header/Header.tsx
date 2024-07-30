@@ -9,7 +9,6 @@ import Image from "next/image";
 import { FiMenu, FiMessageSquare, FiSearch } from "react-icons/fi";
 import Logo from "../../../public/logo-brand.png";
 import { SideBar } from "../SideBar";
-import { UserDropdown } from "../UserDropdown";
 import { SettingsContext } from "../settings/SettingsProvider";
 import { HeaderWrapper } from "./HeaderWrapper";
 
@@ -101,7 +100,7 @@ export function Header({ user }: HeaderProps) {
             </Link>
           </>
         )}
-{/* 
+        {/* 
         <div className="flex flex-col h-full ml-auto">
           <div className="my-auto">
             <UserDropdown user={user} hideChatAndSearch />
