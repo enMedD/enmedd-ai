@@ -1,5 +1,4 @@
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
-import { Header } from "@/components/header/Header";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
@@ -24,6 +23,7 @@ import { Persona } from "../admin/assistants/interfaces";
 import { personaComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
 import { ChatPopup } from "../chat/ChatPopup";
+import { SearchSidebar } from "./sidebar";
 
 export default async function Home() {
   // Disable caching so we always get the up to date connector / document set / persona info
@@ -148,8 +148,8 @@ export default async function Home() {
     !shouldShowWelcomeModal;
 
   return (
-    <>
-      <Header user={user} />
+    <div className="relative flex overflow-x-hidden bg-background text-default">
+      <SearchSidebar user={user} />
       <div className="m-3">
         <HealthCheckBanner />
       </div>
@@ -182,6 +182,6 @@ export default async function Home() {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -28,7 +28,7 @@ import { DanswerApiKeyForm } from "./DanswerApiKeyForm";
 import { deleteApiKey, regenerateApiKey } from "./lib";
 
 const API_KEY_TEXT = `
-API Keys allow you to access Danswer APIs programmatically. Click the button below to generate a new API Key.
+API Keys allow you to access Vanguard AI APIs programmatically. Click the button below to generate a new API Key.
 `;
 
 function NewApiKeyModal({
