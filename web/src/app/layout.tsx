@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
     dynamicSettings.enterpriseSettings &&
     dynamicSettings.enterpriseSettings?.use_custom_logo
       ? "/api/enterprise-settings/logo"
-      : buildClientUrl("/enmedd-chp.ico");
+      : buildClientUrl("/vanguard-ai.ico");
 
   return {
     title: dynamicSettings.enterpriseSettings?.application_name ?? "enMedD CHP",
