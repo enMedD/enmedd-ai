@@ -1,13 +1,18 @@
 "use client";
 
-import * as Yup from "yup";
-import { GoogleDriveIcon } from "@/components/icons/icons";
-import useSWR, { useSWRConfig } from "swr";
-import { FetchError, errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import {
+  BooleanFormField,
+  TextArrayFieldBuilder,
+} from "@/components/admin/connectors/Field";
 import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { GoogleDriveIcon } from "@/components/icons/icons";
+import { FetchError, errorHandlingFetcher } from "@/lib/fetcher";
+import { usePublicCredentials } from "@/lib/hooks";
 import {
   ConnectorIndexingStatus,
   Credential,
@@ -15,18 +20,12 @@ import {
   GoogleDriveCredentialJson,
   GoogleDriveServiceAccountCredentialJson,
 } from "@/lib/types";
-import { linkCredential } from "@/lib/credential";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
-import {
-  BooleanFormField,
-  TextArrayFieldBuilder,
-} from "@/components/admin/connectors/Field";
+import { Card, Divider, Text, Title } from "@tremor/react";
+import useSWR, { useSWRConfig } from "swr";
+import * as Yup from "yup";
+import { DriveJsonUploadSection, DriveOAuthSection } from "./Credential";
 import { GoogleDriveConnectorsTable } from "./GoogleDriveConnectorsTable";
 import { googleDriveConnectorNameBuilder } from "./utils";
-import { DriveOAuthSection, DriveJsonUploadSection } from "./Credential";
-import { usePublicCredentials } from "@/lib/hooks";
-import { AdminPageTitle } from "@/components/admin/Title";
-import { Card, Divider, Text, Title } from "@tremor/react";
 
 interface GoogleDriveConnectorManagementProps {
   googleDrivePublicCredential?: Credential<GoogleDriveCredentialJson>;

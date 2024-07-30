@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@tremor/react";
-import { FiTrash } from "react-icons/fi";
-import { deletePersona } from "../lib";
 import { useRouter } from "next/navigation";
+import { FiTrash } from "react-icons/fi";
 import { SuccessfulPersonaUpdateRedirectType } from "../enums";
+import { deletePersona } from "../lib";
 
 export function DeletePersonaButton({
   personaId,

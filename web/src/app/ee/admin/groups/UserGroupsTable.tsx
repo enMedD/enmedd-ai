@@ -1,24 +1,24 @@
 "use client";
 
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-} from "@tremor/react";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
+import { DeleteButton } from "@/components/DeleteButton";
 import { LoadingAnimation } from "@/components/Loading";
 import { BasicTable } from "@/components/admin/connectors/BasicTable";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { TrashIcon } from "@/components/icons/icons";
-import { deleteUserGroup } from "./lib";
+import { User, UserGroup } from "@/lib/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@tremor/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiEdit2, FiUser } from "react-icons/fi";
-import { User, UserGroup } from "@/lib/types";
-import Link from "next/link";
-import { DeleteButton } from "@/components/DeleteButton";
+import { deleteUserGroup } from "./lib";
 
 const MAX_USERS_TO_DISPLAY = 6;
 

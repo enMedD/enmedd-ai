@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Folder } from "./interfaces";
-import { ChatSessionDisplay } from "../sessionSidebar/ChatSessionDisplay"; // Ensure this is correctly imported
+import { BasicSelectable } from "@/components/BasicClickable";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { CHAT_SESSION_ID_KEY } from "@/lib/drag/constants";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import {
+  FiCheck,
   FiChevronDown,
   FiChevronRight,
-  FiFolder,
   FiEdit2,
-  FiCheck,
+  FiFolder,
+  FiTrash,
   FiX,
-  FiTrash, // Import the trash icon
 } from "react-icons/fi";
-import { BasicSelectable } from "@/components/BasicClickable";
+import { ChatSessionDisplay } from "../sessionSidebar/ChatSessionDisplay"; // Ensure this is correctly imported
 import {
   addChatToFolder,
   deleteFolder,
   updateFolderName,
 } from "./FolderManagement";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { useRouter } from "next/navigation";
-import { CHAT_SESSION_ID_KEY } from "@/lib/drag/constants";
-import Cookies from "js-cookie";
+import { Folder } from "./interfaces";
 
 const FolderItem = ({
   folder,

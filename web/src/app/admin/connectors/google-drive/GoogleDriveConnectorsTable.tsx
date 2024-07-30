@@ -1,26 +1,24 @@
-import { Button } from "@/components/Button";
 import { BasicTable } from "@/components/admin/connectors/BasicTable";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { StatusRow } from "@/components/admin/connectors/table/ConnectorsTable";
+import { DeleteColumn } from "@/components/admin/connectors/table/DeleteColumn";
 import { EditIcon } from "@/components/icons/icons";
-import { deleteConnector } from "@/lib/connector";
 import {
-  GoogleDriveConfig,
   ConnectorIndexingStatus,
+  GoogleDriveConfig,
   GoogleDriveCredentialJson,
 } from "@/lib/types";
-import { useSWRConfig } from "swr";
-import { useState } from "react";
-import { ConnectorEditPopup } from "./ConnectorEditPopup";
-import { DeleteColumn } from "@/components/admin/connectors/table/DeleteColumn";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
 } from "@tremor/react";
+import { useState } from "react";
+import { useSWRConfig } from "swr";
+import { ConnectorEditPopup } from "./ConnectorEditPopup";
 
 interface EditableColumnProps {
   connectorIndexingStatus: ConnectorIndexingStatus<

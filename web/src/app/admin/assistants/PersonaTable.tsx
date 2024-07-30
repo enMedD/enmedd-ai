@@ -1,16 +1,16 @@
 "use client";
 
-import { Text } from "@tremor/react";
-import { Persona } from "./interfaces";
-import { useRouter } from "next/navigation";
 import { CustomCheckbox } from "@/components/CustomCheckbox";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
-import { UniqueIdentifier } from "@dnd-kit/core";
-import { DraggableTable } from "@/components/table/DraggableTable";
-import { deletePersona, personaComparator } from "./lib";
-import { FiEdit2 } from "react-icons/fi";
 import { TrashIcon } from "@/components/icons/icons";
+import { DraggableTable } from "@/components/table/DraggableTable";
+import { UniqueIdentifier } from "@dnd-kit/core";
+import { Text } from "@tremor/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FiEdit2 } from "react-icons/fi";
+import { Persona } from "./interfaces";
+import { deletePersona, personaComparator } from "./lib";
 
 function PersonaTypeDisplay({ persona }: { persona: Persona }) {
   if (persona.default_persona) {

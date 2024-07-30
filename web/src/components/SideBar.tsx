@@ -1,3 +1,6 @@
+import { SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED } from "@/lib/constants";
+import Image from "next/image";
+import Link from "next/link";
 import {
   FiActivity,
   FiBarChart2,
@@ -8,10 +11,11 @@ import {
   FiSearch,
   FiSettings,
   FiShield,
-  FiSlack,
   FiTool,
   FiX,
 } from "react-icons/fi";
+import enmeddLogo from "../../public/logo-brand.png";
+import { AdminSidebar } from "./admin/connectors/AdminSidebar";
 import {
   BookmarkIcon,
   ConnectorIcon,
@@ -24,11 +28,6 @@ import {
   UsersIcon,
   ZoomInIcon,
 } from "./icons/icons";
-import enmeddLogo from "../../public/logo-brand.png";
-import { SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED } from "@/lib/constants";
-import { AdminSidebar } from "./admin/connectors/AdminSidebar";
-import Image from "next/image";
-import Link from "next/link";
 
 interface SideBarProps {
   isHeader?: boolean;

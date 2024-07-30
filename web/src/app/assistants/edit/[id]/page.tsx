@@ -1,10 +1,10 @@
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { Card, Text, Title } from "@tremor/react";
-import { HeaderWrapper } from "@/components/header/HeaderWrapper";
 import { AssistantEditor } from "@/app/admin/assistants/AssistantEditor";
-import { SuccessfulPersonaUpdateRedirectType } from "@/app/admin/assistants/enums";
-import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchPersonaEditorInfoSS";
 import { DeletePersonaButton } from "@/app/admin/assistants/[id]/DeletePersonaButton";
+import { SuccessfulPersonaUpdateRedirectType } from "@/app/admin/assistants/enums";
+import { ErrorCallout } from "@/components/ErrorCallout";
+import { HeaderWrapper } from "@/components/header/HeaderWrapper";
+import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchPersonaEditorInfoSS";
+import { Card, Text, Title } from "@tremor/react";
 import { LargeBackButton } from "../../LargeBackButton";
 
 export default async function Page({ params }: { params: { id: string } }) {

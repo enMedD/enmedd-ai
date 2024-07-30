@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@tremor/react";
-import { CCPairFullInfo } from "./types";
 import { usePopup } from "@/components/admin/connectors/Popup";
 import { disableConnector } from "@/lib/connector";
+import { Button } from "@tremor/react";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
+import { CCPairFullInfo } from "./types";
 
 export function ModifyStatusButtonCluster({
   ccPair,

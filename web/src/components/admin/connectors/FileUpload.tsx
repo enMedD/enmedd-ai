@@ -1,5 +1,4 @@
 import { FC, useState } from "react";
-import React from "react";
 import Dropzone from "react-dropzone";
 
 interface FileUploadProps {

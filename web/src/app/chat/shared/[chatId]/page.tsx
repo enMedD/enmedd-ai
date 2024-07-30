@@ -1,3 +1,4 @@
+import { Header } from "@/components/header/Header";
 import { User } from "@/lib/types";
 import {
   AuthTypeMetadata,
@@ -7,7 +8,6 @@ import {
 import { fetchSS } from "@/lib/utilsSS";
 import { redirect } from "next/navigation";
 import { BackendChatSession } from "../../interfaces";
-import { Header } from "@/components/header/Header";
 import { SharedChatDisplay } from "./SharedChatDisplay";
 
 async function getSharedChat(chatId: string) {

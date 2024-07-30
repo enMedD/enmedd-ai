@@ -1,4 +1,11 @@
 import { LoadingAnimation } from "@/components/Loading";
+import {
+  Label,
+  SubLabel,
+  TextArrayField,
+  TextFormField,
+} from "@/components/admin/connectors/Field";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { Button, Divider, Text } from "@tremor/react";
 import {
   ArrayHelpers,
@@ -8,20 +15,13 @@ import {
   Form,
   Formik,
 } from "formik";
-import { FiPlus, FiTrash, FiX } from "react-icons/fi";
-import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
-import {
-  Label,
-  SubLabel,
-  TextArrayField,
-  TextFormField,
-} from "@/components/admin/connectors/Field";
-import { useState } from "react";
-import { useSWRConfig } from "swr";
-import { FullLLMProvider } from "./interfaces";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import * as Yup from "yup";
 import isEqual from "lodash/isEqual";
+import { useState } from "react";
+import { FiPlus, FiTrash, FiX } from "react-icons/fi";
+import { useSWRConfig } from "swr";
+import * as Yup from "yup";
+import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
+import { FullLLMProvider } from "./interfaces";
 
 function customConfigProcessing(customConfigsList: [string, string][]) {
   const customConfig: { [key: string]: string } = {};

@@ -1,10 +1,10 @@
-import { AssistantEditor } from "../AssistantEditor";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { RobotIcon } from "@/components/icons/icons";
 import { BackButton } from "@/components/BackButton";
-import { Card } from "@tremor/react";
+import { ErrorCallout } from "@/components/ErrorCallout";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { RobotIcon } from "@/components/icons/icons";
 import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchPersonaEditorInfoSS";
+import { Card } from "@tremor/react";
+import { AssistantEditor } from "../AssistantEditor";
 import { SuccessfulPersonaUpdateRedirectType } from "../enums";
 
 export default async function Page() {

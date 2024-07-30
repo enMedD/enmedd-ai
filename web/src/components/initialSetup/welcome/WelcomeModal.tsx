@@ -1,18 +1,18 @@
 "use client";
 
-import { Button, Divider, Text } from "@tremor/react";
-import { Modal } from "../../Modal";
-import Link from "next/link";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import { COMPLETED_WELCOME_FLOW_COOKIE } from "./constants";
-import { FiCheckCircle, FiMessageSquare, FiShare2 } from "react-icons/fi";
-import { useEffect, useState } from "react";
+import { WellKnownLLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { BackButton } from "@/components/BackButton";
 import { ApiKeyForm } from "@/components/llm/ApiKeyForm";
-import { WellKnownLLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
-import { checkLlmProvider } from "./lib";
 import { User } from "@/lib/types";
+import { Button, Divider, Text } from "@tremor/react";
+import Cookies from "js-cookie";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { FiCheckCircle, FiMessageSquare, FiShare2 } from "react-icons/fi";
+import { Modal } from "../../Modal";
+import { COMPLETED_WELCOME_FLOW_COOKIE } from "./constants";
+import { checkLlmProvider } from "./lib";
 
 function setWelcomeFlowComplete() {
   Cookies.set(COMPLETED_WELCOME_FLOW_COOKIE, "true", { expires: 365 });
@@ -117,8 +117,8 @@ export function _WelcomeModal({ user }: { user: User | null }) {
               <Text>
                 Connectors are the way that VanguardAI gets data from your
                 organization&apos;s various data sources. Once setup, we&apos;ll
-                automatically sync data from your apps and docs into VanguardAI, so
-                you can search through all of them in one place.
+                automatically sync data from your apps and docs into VanguardAI,
+                so you can search through all of them in one place.
               </Text>
 
               <div className="flex mt-3">

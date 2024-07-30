@@ -1,10 +1,10 @@
 "use client";
 
-import { Modal } from "../../Modal";
-import Link from "next/link";
-import { useEffect, useState } from "react";
 import { CCPairBasicInfo } from "@/lib/types";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Modal } from "../../Modal";
 
 export function NoCompleteSourcesModal({
   ccPairs,
@@ -42,9 +42,9 @@ export function NoCompleteSourcesModal({
           <div>
             You&apos;ve connected some sources, but none of them have finished
             syncing. Depending on the size of the knowledge base(s) you&apos;ve
-            connected to VanguardAI, it can take anywhere between 30 seconds to a
-            few days for the initial sync to complete. So far we&apos;ve synced{" "}
-            <b>{totalDocs}</b> documents.
+            connected to VanguardAI, it can take anywhere between 30 seconds to
+            a few days for the initial sync to complete. So far we&apos;ve
+            synced <b>{totalDocs}</b> documents.
             <br />
             <br />
             To view the status of your syncing connectors, head over to the{" "}

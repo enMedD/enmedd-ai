@@ -1,27 +1,26 @@
 "use client";
 
-import * as Yup from "yup";
-import { GmailIcon } from "@/components/icons/icons";
-import useSWR, { useSWRConfig } from "swr";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { GmailIcon } from "@/components/icons/icons";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { usePublicCredentials } from "@/lib/hooks";
 import {
   ConnectorIndexingStatus,
   Credential,
+  GmailConfig,
   GmailCredentialJson,
   GmailServiceAccountCredentialJson,
-  GmailConfig,
 } from "@/lib/types";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { Card, Divider, Text, Title } from "@tremor/react";
+import useSWR, { useSWRConfig } from "swr";
+import * as Yup from "yup";
+import { GmailJsonUploadSection, GmailOAuthSection } from "./Credential";
 import { GmailConnectorsTable } from "./GmailConnectorsTable";
 import { gmailConnectorNameBuilder } from "./utils";
-import { GmailOAuthSection, GmailJsonUploadSection } from "./Credential";
-import { usePublicCredentials } from "@/lib/hooks";
-import { AdminPageTitle } from "@/components/admin/Title";
-import { Card, Divider, Text, Title } from "@tremor/react";
 
 interface GmailConnectorManagementProps {
   gmailPublicCredential?: Credential<GmailCredentialJson>;

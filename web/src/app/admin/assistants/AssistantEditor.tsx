@@ -1,6 +1,6 @@
 "use client";
 
-import { CCPairBasicInfo, DocumentSet, User, UserGroup } from "@/lib/types";
+import { CCPairBasicInfo, DocumentSet, User } from "@/lib/types";
 import { Button, Divider, Italic, Text } from "@tremor/react";
 import {
   ArrayHelpers,
@@ -11,33 +11,32 @@ import {
   Formik,
 } from "formik";
 
-import * as Yup from "yup";
-import { buildFinalPrompt, createPersona, updatePersona } from "./lib";
-import { useRouter } from "next/navigation";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { Persona, StarterMessage } from "./interfaces";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Bubble } from "@/components/Bubble";
+import { Option } from "@/components/Dropdown";
 import {
   BooleanFormField,
   SelectorFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { HidableSection } from "./HidableSection";
-import { FiPlus, FiX } from "react-icons/fi";
-import { useUserGroups } from "@/lib/hooks";
-import { Bubble } from "@/components/Bubble";
-import { GroupsIcon } from "@/components/icons/icons";
-import { SuccessfulPersonaUpdateRedirectType } from "./enums";
+import { usePopup } from "@/components/admin/connectors/Popup";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
-import { FullLLMProvider } from "../models/llm/interfaces";
-import { Option } from "@/components/Dropdown";
+import { GroupsIcon } from "@/components/icons/icons";
+import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { addAssistantToList } from "@/lib/assistants/updateAssistantPreferences";
+import { useUserGroups } from "@/lib/hooks";
+import { checkLLMSupportsImageInput } from "@/lib/llm/utils";
 import { ToolSnapshot } from "@/lib/tools/interfaces";
 import { checkUserIsNoAuthUser } from "@/lib/user";
-import { addAssistantToList } from "@/lib/assistants/updateAssistantPreferences";
-import { checkLLMSupportsImageInput } from "@/lib/llm/utils";
-import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { FiPlus, FiX } from "react-icons/fi";
+import * as Yup from "yup";
+import { FullLLMProvider } from "../models/llm/interfaces";
+import { HidableSection } from "./HidableSection";
+import { SuccessfulPersonaUpdateRedirectType } from "./enums";
+import { Persona, StarterMessage } from "./interfaces";
+import { buildFinalPrompt, createPersona, updatePersona } from "./lib";
 
 function findSearchTool(tools: ToolSnapshot[]) {
   return tools.find((tool) => tool.in_code_tool_id === "SearchTool");

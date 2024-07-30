@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { Modal } from "@/components/Modal";
-import { MinimalUserSnapshot, User } from "@/lib/types";
-import { Button, Divider, Text } from "@tremor/react";
-import { FiPlus, FiX } from "react-icons/fi";
 import { Persona } from "@/app/admin/assistants/interfaces";
+import { Bubble } from "@/components/Bubble";
 import { SearchMultiSelectDropdown } from "@/components/Dropdown";
+import { Modal } from "@/components/Modal";
+import { Spinner } from "@/components/Spinner";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { UsersIcon } from "@/components/icons/icons";
-import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
 import {
   addUsersToAssistantSharedList,
   removeUsersFromAssistantSharedList,
 } from "@/lib/assistants/shareAssistant";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { Bubble } from "@/components/Bubble";
+import { MinimalUserSnapshot, User } from "@/lib/types";
+import { Button, Text } from "@tremor/react";
 import { useRouter } from "next/navigation";
-import { AssistantIcon } from "@/components/assistants/AssistantIcon";
-import { Spinner } from "@/components/Spinner";
+import { useState } from "react";
+import { FiPlus, FiX } from "react-icons/fi";
+import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
 
 interface AssistantSharingModalProps {
   assistant: Persona;

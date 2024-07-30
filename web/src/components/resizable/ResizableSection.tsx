@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
 import { DOCUMENT_SIDEBAR_WIDTH_COOKIE_NAME } from "./contants";
 
 function applyMinAndMax(

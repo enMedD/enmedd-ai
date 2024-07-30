@@ -1,17 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { EnterpriseSettings } from "@/app/admin/settings/interfaces";
-import { useContext, useState } from "react";
-import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
 import {
   Label,
   SubLabel,
   TextFormField,
 } from "@/components/admin/connectors/Field";
+import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Button, Divider } from "@tremor/react";
+import { Form, Formik } from "formik";
+import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
+import * as Yup from "yup";
 import { ImageUpload } from "./ImageUpload";
 
 export function WhitelabelingForm() {

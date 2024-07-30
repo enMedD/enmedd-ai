@@ -1,8 +1,8 @@
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
+import { AuthType } from "./constants";
 import { User } from "./types";
 import { buildUrl } from "./utilsSS";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { AuthType } from "./constants";
 
 export interface AuthTypeMetadata {
   authType: AuthType;

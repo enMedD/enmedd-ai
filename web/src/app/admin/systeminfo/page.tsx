@@ -1,5 +1,5 @@
 import { NotebookIcon } from "@/components/icons/icons";
-import { getWebVersion, getBackendVersion } from "@/lib/version";
+import { getBackendVersion, getWebVersion } from "@/lib/version";
 
 const Page = async () => {
   let web_version: string | null = null;

@@ -1,20 +1,19 @@
 "use client";
 
-import {
-  Text,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-} from "@tremor/react";
-import { ToolSnapshot } from "@/lib/tools/interfaces";
-import { useRouter } from "next/navigation";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { FiCheckCircle, FiEdit2, FiXCircle } from "react-icons/fi";
 import { TrashIcon } from "@/components/icons/icons";
 import { deleteCustomTool } from "@/lib/tools/edit";
+import { ToolSnapshot } from "@/lib/tools/interfaces";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@tremor/react";
+import { useRouter } from "next/navigation";
+import { FiCheckCircle, FiEdit2, FiXCircle } from "react-icons/fi";
 
 export function ToolsTable({ tools }: { tools: ToolSnapshot[] }) {
   const router = useRouter();

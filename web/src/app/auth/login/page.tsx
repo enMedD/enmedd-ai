@@ -1,20 +1,19 @@
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { User } from "@/lib/types";
 import {
-  getCurrentUserSS,
-  getAuthUrlSS,
-  getAuthTypeMetadataSS,
   AuthTypeMetadata,
+  getAuthTypeMetadataSS,
+  getAuthUrlSS,
+  getCurrentUserSS,
 } from "@/lib/userSS";
-import { redirect } from "next/navigation";
-import { SignInButton } from "./SignInButton";
-import { EmailPasswordForm } from "./EmailPasswordForm";
-import { Card, Title, Text } from "@tremor/react";
-import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { LoginText } from "./LoginText";
-import LoginImage from "../../../../public/login_page_img.webp";
+import { Text } from "@tremor/react";
 import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import LoginImage from "../../../../public/login_page_img.webp";
+import { EmailPasswordForm } from "./EmailPasswordForm";
+import { LoginText } from "./LoginText";
+import { SignInButton } from "./SignInButton";
 
 const Page = async ({
   searchParams,
@@ -74,7 +73,7 @@ const Page = async ({
         <div>
           {authUrl && authTypeMetadata && (
             <>
-            {/* TODO: replace into Vanguard AI */}
+              {/* TODO: replace into Vanguard AI */}
               <LoginText />
               <SignInButton
                 authorizeUrl={authUrl}

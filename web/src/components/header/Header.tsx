@@ -2,18 +2,16 @@
 
 import { User } from "@/lib/types";
 import Link from "next/link";
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 
-import { FiMenu, FiMessageSquare, FiSearch } from "react-icons/fi";
-import { HeaderWrapper } from "./HeaderWrapper";
-import { SettingsContext } from "../settings/SettingsProvider";
-import { UserDropdown } from "../UserDropdown";
-import Logo from "../../../public/logo-brand.png";
 import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED } from "@/lib/constants";
-import { ConnectorIcon, NotebookIcon } from "../icons/icons";
-import { AdminSidebar } from "../admin/connectors/AdminSidebar";
-import { SideBar } from "../SideBar";
 import Image from "next/image";
+import { FiMenu, FiMessageSquare, FiSearch } from "react-icons/fi";
+import Logo from "../../../public/logo-brand.png";
+import { SideBar } from "../SideBar";
+import { UserDropdown } from "../UserDropdown";
+import { SettingsContext } from "../settings/SettingsProvider";
+import { HeaderWrapper } from "./HeaderWrapper";
 
 export function HeaderTitle({ children }: { children: JSX.Element | string }) {
   return <h1 className="flex text-2xl font-bold text-strong">{children}</h1>;

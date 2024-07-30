@@ -1,14 +1,14 @@
 "use client";
 
+import { ThreeDotsLoader } from "@/components/Loading";
 import {
-  Card,
   AreaChart,
-  Title,
-  Text,
+  Card,
   DateRangePickerValue,
+  Text,
+  Title,
 } from "@tremor/react";
 import { getDatesList, useQueryAnalytics, useUserAnalytics } from "../lib";
-import { ThreeDotsLoader } from "@/components/Loading";
 
 export function QueryPerformanceChart({
   timeRange,

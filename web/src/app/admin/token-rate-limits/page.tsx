@@ -1,6 +1,8 @@
 "use client";
 
 import { AdminPageTitle } from "@/components/admin/Title";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import {
   Button,
   Tab,
@@ -12,17 +14,15 @@ import {
 } from "@tremor/react";
 import { useState } from "react";
 import { FiGlobe, FiShield, FiUser, FiUsers } from "react-icons/fi";
+import { mutate } from "swr";
+import { CreateRateLimitModal } from "./CreateRateLimitModal";
+import { GenericTokenRateLimitTable } from "./TokenRateLimitTables";
 import {
   insertGlobalTokenRateLimit,
   insertGroupTokenRateLimit,
   insertUserTokenRateLimit,
 } from "./lib";
 import { Scope, TokenRateLimit } from "./types";
-import { GenericTokenRateLimitTable } from "./TokenRateLimitTables";
-import { mutate } from "swr";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { CreateRateLimitModal } from "./CreateRateLimitModal";
-import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 
 const BASE_URL = "/api/admin/token-rate-limits";
 const GLOBAL_TOKEN_FETCH_URL = `${BASE_URL}/global`;

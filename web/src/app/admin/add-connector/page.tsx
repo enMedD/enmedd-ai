@@ -3,7 +3,7 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { ConnectorIcon } from "@/components/icons/icons";
 import { SourceCategory, SourceMetadata } from "@/lib/search/interfaces";
 import { listSourceMetadata } from "@/lib/sources";
-import { Title, Text } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import Link from "next/link";
 
 function SourceTile({ sourceMetadata }: { sourceMetadata: SourceMetadata }) {

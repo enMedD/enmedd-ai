@@ -1,23 +1,22 @@
-import { BasicTable } from "@/components/admin/connectors/BasicTable";
+import { CustomCheckbox } from "@/components/CustomCheckbox";
+import { HoverPopup } from "@/components/HoverPopup";
+import { PageSelector } from "@/components/PageSelector";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
+import { getErrorMsg } from "@/lib/fetchUtils";
+import { DocumentBoostStatus } from "@/lib/types";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
 } from "@tremor/react";
-import { PageSelector } from "@/components/PageSelector";
-import { DocumentBoostStatus } from "@/lib/types";
+import { useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ScoreSection } from "../ScoreEditor";
 import { updateHiddenStatus } from "../lib";
 import { numToDisplay } from "./constants";
-import { FiEye, FiEyeOff } from "react-icons/fi";
-import { getErrorMsg } from "@/lib/fetchUtils";
-import { HoverPopup } from "@/components/HoverPopup";
-import { CustomCheckbox } from "@/components/CustomCheckbox";
-import { ScoreSection } from "../ScoreEditor";
 
 const IsVisibleSection = ({
   document,

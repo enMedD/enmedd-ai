@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Wrapper } from "./wrapper";
 import placeholder from "../../../public/placeholder.svg";
+import { Wrapper } from "./wrapper";
 
 export default function Models() {
   return (

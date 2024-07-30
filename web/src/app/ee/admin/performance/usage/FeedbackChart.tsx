@@ -1,12 +1,12 @@
 import { ThreeDotsLoader } from "@/components/Loading";
-import { getDatesList, useQueryAnalytics } from "../lib";
 import {
   AreaChart,
   Card,
-  Title,
-  Text,
   DateRangePickerValue,
+  Text,
+  Title,
 } from "@tremor/react";
+import { getDatesList, useQueryAnalytics } from "../lib";
 
 export function FeedbackChart({
   timeRange,

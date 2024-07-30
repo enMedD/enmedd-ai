@@ -1,11 +1,11 @@
 "use client";
 
-import { Button, Divider, Text } from "@tremor/react";
-import { Modal } from "../../Modal";
-import Link from "next/link";
-import { FiMessageSquare, FiShare2 } from "react-icons/fi";
-import { useContext, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { Button, Divider, Text } from "@tremor/react";
+import Link from "next/link";
+import { useContext, useState } from "react";
+import { FiMessageSquare, FiShare2 } from "react-icons/fi";
+import { Modal } from "../../Modal";
 
 export function NoSourcesModal() {
   const settings = useContext(SettingsContext);
@@ -40,7 +40,8 @@ export function NoSourcesModal() {
             <Text>
               Or, if you&apos;re looking for a pure ChatGPT-like experience
               without any organization specific knowledge, then you can head
-              over to the Chat page and start chatting with VanguardAI right away!
+              over to the Chat page and start chatting with VanguardAI right
+              away!
             </Text>
             <Link href="/chat">
               <Button className="mt-3" size="xs" icon={FiMessageSquare}>

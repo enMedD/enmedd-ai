@@ -1,8 +1,8 @@
-import { Quote } from "@/lib/search/interfaces";
-import { ResponseSection, StatusOptions } from "./ResponseSection";
-import { CheckmarkIcon, CopyIcon } from "@/components/icons/icons";
-import { useState } from "react";
 import { SourceIcon } from "@/components/SourceIcon";
+import { CheckmarkIcon, CopyIcon } from "@/components/icons/icons";
+import { Quote } from "@/lib/search/interfaces";
+import { useState } from "react";
+import { ResponseSection, StatusOptions } from "./ResponseSection";
 
 const QuoteDisplay = ({ quoteInfo }: { quoteInfo: Quote }) => {
   const [detailIsOpen, setDetailIsOpen] = useState(false);

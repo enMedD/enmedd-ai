@@ -1,20 +1,19 @@
+import { ChatSession } from "@/app/chat/interfaces";
+import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import {
   ConnectorIndexingStatus,
   Credential,
   DocumentBoostStatus,
   Tag,
-  User,
   UserGroup,
 } from "@/lib/types";
+import { DateRangePickerValue } from "@tremor/react";
+import { useState } from "react";
 import useSWR, { mutate, useSWRConfig } from "swr";
 import { errorHandlingFetcher } from "./fetcher";
-import { useState } from "react";
-import { DateRangePickerValue } from "@tremor/react";
-import { SourceMetadata } from "./search/interfaces";
 import { destructureValue } from "./llm/utils";
-import { ChatSession } from "@/app/chat/interfaces";
+import { SourceMetadata } from "./search/interfaces";
 import { UsersResponse } from "./users/interfaces";
-import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 
 const CREDENTIAL_URL = "/api/manage/admin/credential";
 

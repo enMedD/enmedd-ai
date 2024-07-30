@@ -66,12 +66,12 @@ export default function Navbar() {
 } */
 "use client";
 
-import Link from "next/link";
-import enmeddLogo from "../../../public/logo-brand.png";
 import Image from "next/image";
-import { Wrapper } from "./wrapper";
+import Link from "next/link";
 import { useState } from "react";
+import enmeddLogo from "../../../public/logo-brand.png";
 import Menu from "./menu";
+import { Wrapper } from "./wrapper";
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState(false);

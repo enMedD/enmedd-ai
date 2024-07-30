@@ -1,7 +1,7 @@
 import { AdminPageTitle } from "@/components/admin/Title";
+import { Text } from "@tremor/react";
 import { FiSettings } from "react-icons/fi";
 import { SettingsForm } from "./SettingsForm";
-import { Text } from "@tremor/react";
 
 export default async function Page() {
   return (

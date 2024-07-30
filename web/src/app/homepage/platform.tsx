@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Wrapper } from "./wrapper";
 import heroImg from "./assets/usecase.png";
+import { Wrapper } from "./wrapper";
 
 import { platformData } from "./data/platform";
 

@@ -1,14 +1,18 @@
 "use client";
 
+import { DeleteButton } from "@/components/DeleteButton";
+import { ErrorCallout } from "@/components/ErrorCallout";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { Modal } from "@/components/Modal";
+import { Spinner } from "@/components/Spinner";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { usePopup } from "@/components/admin/connectors/Popup";
 import { KeyIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import useSWR, { mutate } from "swr";
 import {
   Button,
   Divider,
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -17,15 +21,11 @@ import {
   Text,
   Title,
 } from "@tremor/react";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { useState } from "react";
-import { Table } from "@tremor/react";
-import { DeleteButton } from "@/components/DeleteButton";
 import { FiCopy, FiEdit2, FiRefreshCw, FiX } from "react-icons/fi";
-import { Modal } from "@/components/Modal";
-import { Spinner } from "@/components/Spinner";
-import { deleteApiKey, regenerateApiKey } from "./lib";
+import useSWR, { mutate } from "swr";
 import { DanswerApiKeyForm } from "./DanswerApiKeyForm";
+import { deleteApiKey, regenerateApiKey } from "./lib";
 
 const API_KEY_TEXT = `
 API Keys allow you to access Danswer APIs programmatically. Click the button below to generate a new API Key.

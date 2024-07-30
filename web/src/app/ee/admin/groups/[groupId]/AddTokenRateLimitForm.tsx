@@ -1,8 +1,8 @@
 import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { CreateRateLimitModal } from "../../../../admin/token-rate-limits/CreateRateLimitModal";
-import { Scope } from "../../../../admin/token-rate-limits/types";
-import { insertGroupTokenRateLimit } from "../../../../admin/token-rate-limits/lib";
 import { mutate } from "swr";
+import { CreateRateLimitModal } from "../../../../admin/token-rate-limits/CreateRateLimitModal";
+import { insertGroupTokenRateLimit } from "../../../../admin/token-rate-limits/lib";
+import { Scope } from "../../../../admin/token-rate-limits/types";
 
 interface AddMemberFormProps {
   isOpen: boolean;

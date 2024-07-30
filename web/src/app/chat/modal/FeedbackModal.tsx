@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FeedbackType } from "../types";
 import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
+import { FeedbackType } from "../types";
 import { ModalWrapper } from "./ModalWrapper";
 
 const predefinedPositiveFeedbackOptions =

@@ -1,9 +1,9 @@
 import { Modal } from "@/components/Modal";
-import { updateUserGroup } from "./lib";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { User, UserGroup } from "@/lib/types";
-import { UserEditor } from "../UserEditor";
 import { useState } from "react";
+import { UserEditor } from "../UserEditor";
+import { updateUserGroup } from "./lib";
 
 interface AddMemberFormProps {
   users: User[];

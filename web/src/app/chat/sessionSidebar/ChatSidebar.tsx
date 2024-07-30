@@ -1,19 +1,17 @@
 "use client";
 
+import { BasicClickable } from "@/components/BasicClickable";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect } from "react";
 import {
-  FiBook,
   FiEdit,
   FiFolderPlus,
   FiMessageSquare,
-  FiPlusSquare,
   FiSearch,
   FiX,
 } from "react-icons/fi";
-import { useContext, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { BasicClickable, BasicSelectable } from "@/components/BasicClickable";
 import { ChatSession } from "../interfaces";
 
 import {
@@ -21,19 +19,18 @@ import {
   NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA,
 } from "@/lib/constants";
 
-import { ChatTab } from "./ChatTab";
-import { Folder } from "../folders/interfaces";
-import { createFolder } from "../folders/FolderManagement";
 import { usePopup } from "@/components/admin/connectors/Popup";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { createFolder } from "../folders/FolderManagement";
+import { Folder } from "../folders/interfaces";
+import { ChatTab } from "./ChatTab";
 
-import React from "react";
-import { FaBrain, FaHeadset } from "react-icons/fa";
+import { FaHeadset } from "react-icons/fa";
 /* import { Logo } from "@/components/Logo"; */
-import Logo from "../../../../public/logo-brand.png";
-import { HeaderTitle } from "@/components/header/Header";
 import { UserSettingsButton } from "@/components/UserSettingsButton";
 import { useChatContext } from "@/components/context/ChatContext";
+import { HeaderTitle } from "@/components/header/Header";
+import Logo from "../../../../public/logo-brand.png";
 
 export const ChatSidebar = ({
   existingChats,

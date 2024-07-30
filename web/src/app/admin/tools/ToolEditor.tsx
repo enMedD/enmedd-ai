@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { MethodSpec, ToolSnapshot } from "@/lib/tools/interfaces";
 import { TextFormField } from "@/components/admin/connectors/Field";
-import { Button, Divider } from "@tremor/react";
+import { usePopup } from "@/components/admin/connectors/Popup";
 import {
   createCustomTool,
   updateCustomTool,
   validateToolDefinition,
 } from "@/lib/tools/edit";
-import { usePopup } from "@/components/admin/connectors/Popup";
+import { MethodSpec, ToolSnapshot } from "@/lib/tools/interfaces";
+import { Button, Divider } from "@tremor/react";
+import { ErrorMessage, Form, Formik } from "formik";
 import debounce from "lodash/debounce";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import * as Yup from "yup";
 
 function parseJsonWithTrailingCommas(jsonString: string) {
   // Regular expression to remove trailing commas before } or ]

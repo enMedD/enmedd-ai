@@ -1,18 +1,18 @@
 "use client";
 
-import { ArrayHelpers, FieldArray, Form, Formik } from "formik";
-import * as Yup from "yup";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { createDocumentSet, updateDocumentSet } from "./lib";
-import { ConnectorIndexingStatus, DocumentSet, UserGroup } from "@/lib/types";
+import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import {
   BooleanFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { Button, Divider, Text } from "@tremor/react";
-import { FiUsers } from "react-icons/fi";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { ConnectorIndexingStatus, DocumentSet, UserGroup } from "@/lib/types";
+import { Button, Divider, Text } from "@tremor/react";
+import { ArrayHelpers, FieldArray, Form, Formik } from "formik";
+import { FiUsers } from "react-icons/fi";
+import * as Yup from "yup";
+import { createDocumentSet, updateDocumentSet } from "./lib";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];

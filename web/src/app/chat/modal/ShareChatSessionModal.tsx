@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { ModalWrapper } from "./ModalWrapper";
-import { Button, Callout, Divider, Text } from "@tremor/react";
-import { Spinner } from "@/components/Spinner";
-import { ChatSessionSharedStatus } from "../interfaces";
-import { FiCopy, FiX } from "react-icons/fi";
 import { CopyButton } from "@/components/CopyButton";
+import { Spinner } from "@/components/Spinner";
+import { Button, Callout, Divider, Text } from "@tremor/react";
+import { useState } from "react";
+import { FiCopy, FiX } from "react-icons/fi";
+import { ChatSessionSharedStatus } from "../interfaces";
+import { ModalWrapper } from "./ModalWrapper";
 
 function buildShareLink(chatSessionId: number) {
   const baseUrl = `${window.location.protocol}//${window.location.host}`;

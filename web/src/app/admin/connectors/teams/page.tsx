@@ -1,29 +1,29 @@
 "use client";
 
-import * as Yup from "yup";
-import { TrashIcon, TeamsIcon } from "@/components/icons/icons";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import useSWR, { useSWRConfig } from "swr";
+import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import {
-  TeamsConfig,
-  TeamsCredentialJson,
-  ConnectorIndexingStatus,
-  Credential,
-} from "@/lib/types"; // Modify or create these types as required
-import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import {
-  TextFormField,
   TextArrayFieldBuilder,
+  TextFormField,
 } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { TeamsIcon, TrashIcon } from "@/components/icons/icons";
+import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher } from "@/lib/fetcher";
 import { usePublicCredentials } from "@/lib/hooks";
-import { AdminPageTitle } from "@/components/admin/Title";
+import {
+  ConnectorIndexingStatus,
+  Credential,
+  TeamsConfig,
+  TeamsCredentialJson,
+} from "@/lib/types"; // Modify or create these types as required
 import { Card, Text, Title } from "@tremor/react";
-import { ErrorCallout } from "@/components/ErrorCallout";
+import useSWR, { useSWRConfig } from "swr";
+import * as Yup from "yup";
 
 const MainSection = () => {
   const { mutate } = useSWRConfig();

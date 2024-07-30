@@ -1,5 +1,4 @@
 import { Persona } from "@/app/admin/assistants/interfaces";
-import React from "react";
 
 export function generatePastelColorFromId(id: string): string {
   const hash = Array.from(id).reduce(

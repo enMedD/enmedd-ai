@@ -1,5 +1,5 @@
-import { HealthCheckBanner } from "../health/healthcheck";
 import { Divider } from "@tremor/react";
+import { HealthCheckBanner } from "../health/healthcheck";
 
 export function AdminPageTitle({
   icon,

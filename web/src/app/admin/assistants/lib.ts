@@ -1,4 +1,4 @@
-import { Persona, Prompt, StarterMessage } from "./interfaces";
+import { Persona, StarterMessage } from "./interfaces";
 
 interface PersonaCreationRequest {
   name: string;

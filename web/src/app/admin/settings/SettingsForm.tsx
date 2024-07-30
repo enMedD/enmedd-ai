@@ -1,16 +1,14 @@
 "use client";
 
+import { DefaultDropdown, Option } from "@/components/Dropdown";
 import { Label, SubLabel } from "@/components/admin/connectors/Field";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { Title } from "@tremor/react";
-import { Settings } from "./interfaces";
-import { useRouter } from "next/navigation";
-import { DefaultDropdown, Option } from "@/components/Dropdown";
-import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import React, { useState, useEffect } from "react";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
-import { Button } from "@tremor/react";
+import { Button, Title } from "@tremor/react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
+import { Settings } from "./interfaces";
 
 function Checkbox({
   label,

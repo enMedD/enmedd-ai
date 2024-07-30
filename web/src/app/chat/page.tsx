@@ -1,12 +1,12 @@
-import { redirect } from "next/navigation";
-import { unstable_noStore as noStore } from "next/cache";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
+import { ChatProvider } from "@/components/context/ChatContext";
+import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { WelcomeModal } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
 import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
-import { ChatPage } from "./ChatPage";
-import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
-import { ChatProvider } from "@/components/context/ChatContext";
 import { fetchChatData } from "@/lib/chat/fetchChatData";
+import { unstable_noStore as noStore } from "next/cache";
+import { redirect } from "next/navigation";
+import { ChatPage } from "./ChatPage";
 
 export default async function Page({
   searchParams,

@@ -1,19 +1,19 @@
-import { ConnectorIndexingStatus, Credential } from "@/lib/types";
 import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
+import { AttachCredentialButtonForTable } from "@/components/admin/connectors/buttons/AttachCredentialButtonForTable";
 import { LinkBreakIcon, LinkIcon } from "@/components/icons/icons";
 import { disableConnector } from "@/lib/connector";
-import { AttachCredentialButtonForTable } from "@/components/admin/connectors/buttons/AttachCredentialButtonForTable";
-import { DeleteColumn } from "./DeleteColumn";
+import { ConnectorIndexingStatus, Credential } from "@/lib/types";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
 } from "@tremor/react";
+import { useState } from "react";
 import { FiCheck, FiXCircle } from "react-icons/fi";
+import { DeleteColumn } from "./DeleteColumn";
 
 interface StatusRowProps<ConnectorConfigType, ConnectorCredentialType> {
   connectorIndexingStatus: ConnectorIndexingStatus<

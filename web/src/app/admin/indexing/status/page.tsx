@@ -86,13 +86,13 @@ export default function Status() {
 import useSWR from "swr";
 
 import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
 import { NotebookIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ConnectorIndexingStatus } from "@/lib/types";
-import { CCPairIndexingStatusTable } from "./CCPairIndexingStatusTable";
-import { AdminPageTitle } from "@/components/admin/Title";
-import Link from "next/link";
 import { Button, Text } from "@tremor/react";
+import Link from "next/link";
+import { CCPairIndexingStatusTable } from "./CCPairIndexingStatusTable";
 
 function Main() {
   const {

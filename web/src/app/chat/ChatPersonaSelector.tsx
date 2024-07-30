@@ -1,9 +1,9 @@
 import { Persona } from "@/app/admin/assistants/interfaces";
-import { FiCheck, FiChevronDown, FiPlusSquare, FiEdit2 } from "react-icons/fi";
 import { CustomDropdown, DefaultDropdownElement } from "@/components/Dropdown";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { checkUserIdOwnsAssistant } from "@/lib/assistants/checkOwnership";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FiCheck, FiChevronDown, FiEdit2, FiPlusSquare } from "react-icons/fi";
 
 function PersonaItem({
   id,

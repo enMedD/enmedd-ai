@@ -4,22 +4,21 @@ import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 
 import { LoadingAnimation } from "@/components/Loading";
-import { GoogleSitesIcon } from "@/components/icons/icons";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { ConnectorIndexingStatus, GoogleSitesConfig } from "@/lib/types";
-import { Form, Formik } from "formik";
-import { useState } from "react";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { createConnector, runConnector } from "@/lib/connector";
-import { linkCredential } from "@/lib/credential";
-import { FileUpload } from "@/components/admin/connectors/FileUpload";
-import { SingleUseConnectorsTable } from "@/components/admin/connectors/table/SingleUseConnectorsTable";
 import { Spinner } from "@/components/Spinner";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { TextFormField } from "@/components/admin/connectors/Field";
+import { FileUpload } from "@/components/admin/connectors/FileUpload";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { SingleUseConnectorsTable } from "@/components/admin/connectors/table/SingleUseConnectorsTable";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { GoogleSitesIcon } from "@/components/icons/icons";
+import { createConnector, runConnector } from "@/lib/connector";
+import { linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { ConnectorIndexingStatus, GoogleSitesConfig } from "@/lib/types";
 import { Button, Card, Text, Title } from "@tremor/react";
+import { Form, Formik } from "formik";
+import { useState } from "react";
 
 export default function GoogleSites() {
   const { mutate } = useSWRConfig();

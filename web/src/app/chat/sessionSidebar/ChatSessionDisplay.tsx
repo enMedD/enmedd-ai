@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ChatSession } from "../interfaces";
-import { useState, useEffect } from "react";
-import { deleteChatSession, renameChatSession } from "../lib";
-import { DeleteChatModal } from "../modal/DeleteChatModal";
 import { BasicSelectable } from "@/components/BasicClickable";
+import { DefaultDropdownElement } from "@/components/Dropdown";
+import { Popover } from "@/components/popover/Popover";
+import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   FiCheck,
   FiEdit2,
@@ -15,10 +15,10 @@ import {
   FiTrash,
   FiX,
 } from "react-icons/fi";
-import { DefaultDropdownElement } from "@/components/Dropdown";
-import { Popover } from "@/components/popover/Popover";
+import { ChatSession } from "../interfaces";
+import { deleteChatSession, renameChatSession } from "../lib";
+import { DeleteChatModal } from "../modal/DeleteChatModal";
 import { ShareChatSessionModal } from "../modal/ShareChatSessionModal";
-import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
 
 export function ChatSessionDisplay({
   chatSession,

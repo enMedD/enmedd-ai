@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import "./loading.css";
+import React, { useEffect, useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
+import "./loading.css";
 
 interface LoadingAnimationProps {
   text?: string;

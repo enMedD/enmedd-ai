@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ApiKeyForm } from "./ApiKeyForm";
-import { Modal } from "../Modal";
 import { WellKnownLLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
-import { checkLlmProvider } from "../initialSetup/welcome/lib";
 import { User } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Modal } from "../Modal";
+import { checkLlmProvider } from "../initialSetup/welcome/lib";
+import { ApiKeyForm } from "./ApiKeyForm";
 
 export const ApiKeyModal = ({ user }: { user: User | null }) => {
   const router = useRouter();
@@ -45,9 +45,9 @@ export const ApiKeyModal = ({ user }: { user: User | null }) => {
       <div className="max-h-[75vh] overflow-y-auto flex flex-col px-4">
         <div>
           <div className="mb-5 text-sm">
-            Please setup an LLM below in order to start using VanguardAI Search or
-            VanguardAI Chat. Don&apos;t worry, you can always change this later in
-            the Admin Panel.
+            Please setup an LLM below in order to start using VanguardAI Search
+            or VanguardAI Chat. Don&apos;t worry, you can always change this
+            later in the Admin Panel.
             <br />
             <br />
             Or if you&apos;d rather look around first,{" "}

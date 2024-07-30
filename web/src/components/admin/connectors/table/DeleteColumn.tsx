@@ -1,12 +1,9 @@
-import { InfoIcon, TrashIcon } from "@/components/icons/icons";
-import {
-  deleteCCPair,
-  scheduleDeletionJobForConnector,
-} from "@/lib/documentDeletion";
-import { ConnectorIndexingStatus } from "@/lib/types";
-import { PopupSpec } from "../Popup";
-import { useState } from "react";
 import { DeleteButton } from "@/components/DeleteButton";
+import { InfoIcon } from "@/components/icons/icons";
+import { deleteCCPair } from "@/lib/documentDeletion";
+import { ConnectorIndexingStatus } from "@/lib/types";
+import { useState } from "react";
+import { PopupSpec } from "../Popup";
 
 interface Props<ConnectorConfigType, ConnectorCredentialType> {
   connectorIndexingStatus: ConnectorIndexingStatus<

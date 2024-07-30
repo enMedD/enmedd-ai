@@ -1,18 +1,18 @@
 "use client";
 
-import { GroupsIcon } from "@/components/icons/icons";
-import { UserGroupsTable } from "./UserGroupsTable";
-import { UserGroupCreationForm } from "./UserGroupCreationForm";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { GroupsIcon } from "@/components/icons/icons";
 import {
   useConnectorCredentialIndexingStatus,
   useUserGroups,
   useUsers,
 } from "@/lib/hooks";
-import { AdminPageTitle } from "@/components/admin/Title";
 import { Button, Divider } from "@tremor/react";
+import { useState } from "react";
+import { UserGroupCreationForm } from "./UserGroupCreationForm";
+import { UserGroupsTable } from "./UserGroupsTable";
 
 const Main = () => {
   const { popup, setPopup } = usePopup();

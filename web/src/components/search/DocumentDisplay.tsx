@@ -1,12 +1,12 @@
-import { DanswerDocument } from "@/lib/search/interfaces";
-import { DocumentFeedbackBlock } from "./DocumentFeedbackBlock";
-import { useState } from "react";
-import { PopupSpec } from "../admin/connectors/Popup";
 import { HoverPopup } from "@/components/HoverPopup";
-import { DocumentUpdatedAtBadge } from "./DocumentUpdatedAtBadge";
+import { DanswerDocument } from "@/lib/search/interfaces";
+import { useState } from "react";
 import { FiInfo, FiRadio, FiTag } from "react-icons/fi";
-import { SourceIcon } from "../SourceIcon";
 import { MetadataBadge } from "../MetadataBadge";
+import { SourceIcon } from "../SourceIcon";
+import { PopupSpec } from "../admin/connectors/Popup";
+import { DocumentFeedbackBlock } from "./DocumentFeedbackBlock";
+import { DocumentUpdatedAtBadge } from "./DocumentUpdatedAtBadge";
 
 export const buildDocumentSummaryDisplay = (
   matchHighlights: string[],

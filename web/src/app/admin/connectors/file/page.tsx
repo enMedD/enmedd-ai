@@ -3,29 +3,25 @@
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 
-import { FileIcon } from "@/components/icons/icons";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { ConnectorIndexingStatus, FileConfig } from "@/lib/types";
-import { createCredential, linkCredential } from "@/lib/credential";
-import { useState } from "react";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { createConnector, runConnector } from "@/lib/connector";
-import { Spinner } from "@/components/Spinner";
-import { SingleUseConnectorsTable } from "@/components/admin/connectors/table/SingleUseConnectorsTable";
 import { LoadingAnimation } from "@/components/Loading";
-import { Form, Formik } from "formik";
-import {
-  BooleanFormField,
-  TextFormField,
-} from "@/components/admin/connectors/Field";
-import { FileUpload } from "@/components/admin/connectors/FileUpload";
-import { getNameFromPath } from "@/lib/fileUtils";
-import { Button, Card, Divider, Text } from "@tremor/react";
+import { Spinner } from "@/components/Spinner";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { TextFormField } from "@/components/admin/connectors/Field";
+import { FileUpload } from "@/components/admin/connectors/FileUpload";
 import IsPublicField from "@/components/admin/connectors/IsPublicField";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { SingleUseConnectorsTable } from "@/components/admin/connectors/table/SingleUseConnectorsTable";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { FileIcon } from "@/components/icons/icons";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { createConnector, runConnector } from "@/lib/connector";
+import { createCredential, linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { getNameFromPath } from "@/lib/fileUtils";
+import { ConnectorIndexingStatus, FileConfig } from "@/lib/types";
+import { Button, Card, Divider, Text } from "@tremor/react";
+import { Form, Formik } from "formik";
+import { useState } from "react";
 
 const Main = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);

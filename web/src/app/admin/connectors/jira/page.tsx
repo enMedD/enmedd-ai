@@ -1,30 +1,30 @@
 "use client";
 
-import * as Yup from "yup";
-import { JiraIcon, TrashIcon } from "@/components/icons/icons";
-import {
-  TextFormField,
-  TextArrayFieldBuilder,
-} from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { ErrorCallout } from "@/components/ErrorCallout";
+import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import {
+  TextArrayFieldBuilder,
+  TextFormField,
+} from "@/components/admin/connectors/Field";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { JiraIcon, TrashIcon } from "@/components/icons/icons";
+import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { usePublicCredentials } from "@/lib/hooks";
+import {
+  ConnectorIndexingStatus,
   JiraConfig,
   JiraCredentialJson,
   JiraServerCredentialJson,
-  ConnectorIndexingStatus,
 } from "@/lib/types";
-import useSWR, { useSWRConfig } from "swr";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { LoadingAnimation } from "@/components/Loading";
-import { adminDeleteCredential, linkCredential } from "@/lib/credential";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
-import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { usePublicCredentials } from "@/lib/hooks";
-import { AdminPageTitle } from "@/components/admin/Title";
 import { Card, Divider, Text, Title } from "@tremor/react";
+import useSWR, { useSWRConfig } from "swr";
+import * as Yup from "yup";
 
 // Copied from the `extract_jira_project` function
 const extractJiraProject = (url: string): string | null => {

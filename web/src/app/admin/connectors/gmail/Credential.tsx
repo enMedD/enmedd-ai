@@ -1,21 +1,21 @@
 import { Button } from "@/components/Button";
+import { TextFormField } from "@/components/admin/connectors/Field";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
-import { useSWRConfig } from "swr";
-import * as Yup from "yup";
-import { useRouter } from "next/navigation";
+import { GMAIL_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
+import { adminDeleteCredential } from "@/lib/credential";
+import { setupGmailOAuth } from "@/lib/gmail";
 import {
   Credential,
   GmailCredentialJson,
   GmailServiceAccountCredentialJson,
 } from "@/lib/types";
-import { adminDeleteCredential } from "@/lib/credential";
-import { setupGmailOAuth } from "@/lib/gmail";
-import { GMAIL_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
-import Cookies from "js-cookie";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { Form, Formik } from "formik";
 import { Card } from "@tremor/react";
+import { Form, Formik } from "formik";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useSWRConfig } from "swr";
+import * as Yup from "yup";
 
 type GmailCredentialJsonTypes = "authorized_user" | "service_account";
 
@@ -316,8 +316,8 @@ export const GmailOAuthSection = ({
     return (
       <div>
         <p className="text-sm mb-2">
-          When using a Gmail Service Account, you can either have VanguardAI act as
-          the service account itself OR you can specify an account for the
+          When using a Gmail Service Account, you can either have VanguardAI act
+          as the service account itself OR you can specify an account for the
           service account to impersonate.
           <br />
           <br />

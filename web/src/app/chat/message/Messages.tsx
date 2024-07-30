@@ -1,46 +1,44 @@
 "use client";
 
+import { CopyButton } from "@/components/CopyButton";
+import { Hoverable } from "@/components/Hoverable";
+import { SourceIcon } from "@/components/SourceIcon";
+import { DanswerDocument } from "@/lib/search/interfaces";
+import { useEffect, useRef, useState } from "react";
 import {
-  FiCpu,
+  FiChevronLeft,
+  FiChevronRight,
+  FiEdit2,
   FiImage,
   FiThumbsDown,
   FiThumbsUp,
-  FiUser,
-  FiEdit2,
-  FiChevronRight,
-  FiChevronLeft,
   FiTool,
+  FiUser,
 } from "react-icons/fi";
-import { FeedbackType } from "../types";
-import { useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { DanswerDocument } from "@/lib/search/interfaces";
-import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
-import { SourceIcon } from "@/components/SourceIcon";
 import { ThreeDots } from "react-loader-spinner";
-import { SkippedSearch } from "./SkippedSearch";
+import ReactMarkdown from "react-markdown";
+import rehypePrism from "rehype-prism-plus";
 import remarkGfm from "remark-gfm";
-import { CopyButton } from "@/components/CopyButton";
+import { DocumentPreview } from "../files/documents/DocumentPreview";
+import { InMessageImage } from "../files/images/InMessageImage";
 import { ChatFileType, FileDescriptor, ToolCallMetadata } from "../interfaces";
+import { ToolRunDisplay } from "../tools/ToolRunningAnimation";
 import {
   IMAGE_GENERATION_TOOL_NAME,
   SEARCH_TOOL_NAME,
 } from "../tools/constants";
-import { ToolRunDisplay } from "../tools/ToolRunningAnimation";
-import { Hoverable } from "@/components/Hoverable";
-import { DocumentPreview } from "../files/documents/DocumentPreview";
-import { InMessageImage } from "../files/images/InMessageImage";
+import { FeedbackType } from "../types";
 import { CodeBlock } from "./CodeBlock";
-import rehypePrism from "rehype-prism-plus";
+import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
+import { SkippedSearch } from "./SkippedSearch";
 
 // Prism stuff
 import Prism from "prismjs";
 
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import "prismjs/themes/prism-tomorrow.css";
 import "./custom-code-styles.css";
-import { Persona } from "@/app/admin/assistants/interfaces";
-import { Button } from "@tremor/react";
-import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 
 const TOOLS_WITH_CUSTOM_HANDLING = [
   SEARCH_TOOL_NAME,

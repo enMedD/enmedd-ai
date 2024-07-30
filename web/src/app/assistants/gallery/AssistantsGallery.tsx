@@ -1,20 +1,20 @@
 "use client";
 
 import { Persona } from "@/app/admin/assistants/interfaces";
+import { usePopup } from "@/components/admin/connectors/Popup";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
-import { User } from "@/lib/types";
-import { Button } from "@tremor/react";
-import Link from "next/link";
-import { useState } from "react";
-import { FiMinus, FiPlus, FiX } from "react-icons/fi";
-import { NavigationButton } from "../NavigationButton";
-import { AssistantsPageTitle } from "../AssistantsPageTitle";
 import {
   addAssistantToList,
   removeAssistantFromList,
 } from "@/lib/assistants/updateAssistantPreferences";
-import { usePopup } from "@/components/admin/connectors/Popup";
+import { User } from "@/lib/types";
+import { Button } from "@tremor/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FiMinus, FiPlus } from "react-icons/fi";
+import { AssistantsPageTitle } from "../AssistantsPageTitle";
+import { NavigationButton } from "../NavigationButton";
 import { ToolsDisplay } from "../ToolsDisplay";
 
 export function AssistantsGallery({

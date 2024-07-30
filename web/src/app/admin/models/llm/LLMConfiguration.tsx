@@ -1,17 +1,17 @@
 "use client";
 
+import { ThreeDotsLoader } from "@/components/Loading";
 import { Modal } from "@/components/Modal";
+import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { Button, Callout, Text, Title } from "@tremor/react";
 import { useState } from "react";
 import useSWR from "swr";
-import { Button, Callout, Text, Title } from "@tremor/react";
-import { ThreeDotsLoader } from "@/components/Loading";
-import { FullLLMProvider, WellKnownLLMProviderDescriptor } from "./interfaces";
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
+import { ConfiguredLLMProviderDisplay } from "./ConfiguredLLMProviderDisplay";
+import { CustomLLMProviderUpdateForm } from "./CustomLLMProviderUpdateForm";
 import { LLMProviderUpdateForm } from "./LLMProviderUpdateForm";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
-import { CustomLLMProviderUpdateForm } from "./CustomLLMProviderUpdateForm";
-import { ConfiguredLLMProviderDisplay } from "./ConfiguredLLMProviderDisplay";
+import { FullLLMProvider, WellKnownLLMProviderDescriptor } from "./interfaces";
 
 function LLMProviderUpdateModal({
   llmProviderDescriptor,

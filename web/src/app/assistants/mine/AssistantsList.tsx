@@ -1,20 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { MinimalUserSnapshot, User } from "@/lib/types";
 import { Persona } from "@/app/admin/assistants/interfaces";
-import { Divider, Text } from "@tremor/react";
-import {
-  FiArrowDown,
-  FiArrowUp,
-  FiEdit2,
-  FiMoreHorizontal,
-  FiPlus,
-  FiSearch,
-  FiX,
-  FiShare2,
-} from "react-icons/fi";
-import Link from "next/link";
+import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
+import { AssistantIcon } from "@/components/assistants/AssistantIcon";
+import { DefaultPopover } from "@/components/popover/DefaultPopover";
+import { checkUserOwnsAssistant } from "@/lib/assistants/checkOwnership";
 import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
 import {
   addAssistantToList,
@@ -22,18 +12,28 @@ import {
   moveAssistantUp,
   removeAssistantFromList,
 } from "@/lib/assistants/updateAssistantPreferences";
-import { AssistantIcon } from "@/components/assistants/AssistantIcon";
-import { DefaultPopover } from "@/components/popover/DefaultPopover";
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
-import { useRouter } from "next/navigation";
-import { NavigationButton } from "../NavigationButton";
-import { AssistantsPageTitle } from "../AssistantsPageTitle";
-import { checkUserOwnsAssistant } from "@/lib/assistants/checkOwnership";
-import { AssistantSharingModal } from "./AssistantSharingModal";
-import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
-import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { MinimalUserSnapshot, User } from "@/lib/types";
+import { Divider, Text } from "@tremor/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  FiArrowDown,
+  FiArrowUp,
+  FiEdit2,
+  FiMoreHorizontal,
+  FiPlus,
+  FiSearch,
+  FiShare2,
+  FiX,
+} from "react-icons/fi";
+import useSWR from "swr";
+import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
+import { AssistantsPageTitle } from "../AssistantsPageTitle";
+import { NavigationButton } from "../NavigationButton";
 import { ToolsDisplay } from "../ToolsDisplay";
+import { AssistantSharingModal } from "./AssistantSharingModal";
 
 function AssistantListItem({
   assistant,

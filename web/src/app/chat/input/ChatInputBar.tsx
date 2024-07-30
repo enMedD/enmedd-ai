@@ -1,32 +1,25 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  FiSend,
-  FiFilter,
-  FiPlusCircle,
-  FiCpu,
-  FiX,
-  FiPlus,
-  FiInfo,
-} from "react-icons/fi";
-import ChatInputOption from "./ChatInputOption";
-import { FaBrain } from "react-icons/fa";
 import { Persona } from "@/app/admin/assistants/interfaces";
-import { FilterManager, LlmOverrideManager } from "@/lib/hooks";
-import { SelectedFilterDisplay } from "./SelectedFilterDisplay";
-import { useChatContext } from "@/components/context/ChatContext";
-import { getFinalLLM } from "@/lib/llm/utils";
-import { FileDescriptor } from "../interfaces";
-import { InputBarPreview } from "../files/InputBarPreview";
-import { RobotIcon } from "@/components/icons/icons";
 import { Hoverable } from "@/components/Hoverable";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
+import { useChatContext } from "@/components/context/ChatContext";
 import { Tooltip } from "@/components/tooltip/Tooltip";
+import { FilterManager, LlmOverrideManager } from "@/lib/hooks";
+import { getFinalLLM } from "@/lib/llm/utils";
+import React, { useEffect, useRef, useState } from "react";
+import { FaBrain } from "react-icons/fa";
+import {
+  FiCpu,
+  FiFilter,
+  FiInfo,
+  FiPlus,
+  FiPlusCircle,
+  FiSend,
+  FiX,
+} from "react-icons/fi";
+import { InputBarPreview } from "../files/InputBarPreview";
+import { FileDescriptor } from "../interfaces";
+import ChatInputOption from "./ChatInputOption";
+import { SelectedFilterDisplay } from "./SelectedFilterDisplay";
 const MAX_INPUT_HEIGHT = 200;
 
 export function ChatInputBar({

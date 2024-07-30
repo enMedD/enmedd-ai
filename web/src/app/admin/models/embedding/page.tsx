@@ -1,26 +1,26 @@
 "use client";
 
+import { ErrorCallout } from "@/components/ErrorCallout";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { Modal } from "@/components/Modal";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { Connector, ConnectorIndexingStatus } from "@/lib/types";
 import { Button, Card, Text, Title } from "@tremor/react";
+import Link from "next/link";
+import { useState } from "react";
 import { FiPackage } from "react-icons/fi";
 import useSWR, { mutate } from "swr";
-import { ModelOption, ModelSelector } from "./ModelSelector";
-import { useState } from "react";
+import { CustomModelForm } from "./CustomModelForm";
 import { ModelSelectionConfirmaionModal } from "./ModelSelectionConfirmation";
+import { ModelOption, ModelSelector } from "./ModelSelector";
 import { ReindexingProgressTable } from "./ReindexingProgressTable";
-import { Modal } from "@/components/Modal";
 import {
   AVAILABLE_MODELS,
   EmbeddingModelDescriptor,
   INVALID_OLD_MODEL,
   fillOutEmeddingModelDescriptor,
 } from "./embeddingModels";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { Connector, ConnectorIndexingStatus } from "@/lib/types";
-import Link from "next/link";
-import { CustomModelForm } from "./CustomModelForm";
 
 function Main() {
   const [tentativeNewEmbeddingModel, setTentativeNewEmbeddingModel] =
@@ -159,8 +159,8 @@ function Main() {
               <br />
               Connectors are the way that VanguardAI gets data from your
               organization&apos;s various data sources. Once setup, we&apos;ll
-              automatically sync data from your apps and docs into VanguardAI, so
-              you can search all through all of them in one place.
+              automatically sync data from your apps and docs into VanguardAI,
+              so you can search all through all of them in one place.
             </div>
             <div className="flex">
               <Link className="mx-auto mt-2 w-fit" href="/admin/add-connector">
@@ -277,9 +277,9 @@ function Main() {
               </a>
               .
               <br />
-              <b>NOTE:</b> not all models listed will work with VanguardAI, since
-              some have unique interfaces or special requirements. If in doubt,
-              reach out to the VanguardAI team.
+              <b>NOTE:</b> not all models listed will work with VanguardAI,
+              since some have unique interfaces or special requirements. If in
+              doubt, reach out to the VanguardAI team.
             </Text>
 
             <div className="flex w-full">

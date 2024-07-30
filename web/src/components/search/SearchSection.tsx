@@ -1,30 +1,30 @@
 "use client";
 
-import { useContext, useRef, useState } from "react";
-import { SearchBar } from "./SearchBar";
-import { SearchResultsDisplay } from "./SearchResultsDisplay";
-import { SourceSelector } from "./filtering/Filters";
-import { CCPairBasicInfo, Connector, DocumentSet, Tag } from "@/lib/types";
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { computeAvailableFilters } from "@/lib/filters";
+import { useFilters, useObjectState } from "@/lib/hooks";
+import { CancellationToken, cancellable } from "@/lib/search/cancellable";
 import {
   DanswerDocument,
-  Quote,
-  SearchResponse,
   FlowType,
-  SearchType,
+  Quote,
   SearchDefaultOverrides,
   SearchRequestOverrides,
+  SearchResponse,
+  SearchType,
   ValidQuestionResponse,
 } from "@/lib/search/interfaces";
 import { searchRequestStreamed } from "@/lib/search/streamingQa";
-import { SearchHelper } from "./SearchHelper";
-import { CancellationToken, cancellable } from "@/lib/search/cancellable";
-import { useFilters, useObjectState } from "@/lib/hooks";
 import { questionValidationStreamed } from "@/lib/search/streamingQuestionValidation";
-import { Persona } from "@/app/admin/assistants/interfaces";
-import { PersonaSelector } from "./PersonaSelector";
-import { computeAvailableFilters } from "@/lib/filters";
+import { CCPairBasicInfo, DocumentSet, Tag } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { useContext, useRef, useState } from "react";
 import { SettingsContext } from "../settings/SettingsProvider";
+import { PersonaSelector } from "./PersonaSelector";
+import { SearchBar } from "./SearchBar";
+import { SearchHelper } from "./SearchHelper";
+import { SearchResultsDisplay } from "./SearchResultsDisplay";
+import { SourceSelector } from "./filtering/Filters";
 
 const SEARCH_DEFAULT_OVERRIDES_START: SearchDefaultOverrides = {
   forceDisplayQA: false,

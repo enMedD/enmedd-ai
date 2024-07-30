@@ -1,13 +1,12 @@
 import { Button } from "@/components/Button";
 import { SearchMultiSelectDropdown } from "@/components/Dropdown";
 import { Modal } from "@/components/Modal";
-import { UsersIcon } from "@/components/icons/icons";
+import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
+import { Connector, ConnectorIndexingStatus, UserGroup } from "@/lib/types";
 import { useState } from "react";
 import { FiPlus, FiX } from "react-icons/fi";
 import { updateUserGroup } from "./lib";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { Connector, ConnectorIndexingStatus, UserGroup } from "@/lib/types";
-import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 
 interface AddConnectorFormProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];

@@ -2,8 +2,12 @@
 
 import { errorHandlingFetcher } from "@/lib/fetcher";
 
-import { FiDownload, FiDownloadCloud } from "react-icons/fi";
+import { ErrorCallout } from "@/components/ErrorCallout";
+import { ThreeDotsLoader } from "@/components/Loading";
+import { PageSelector } from "@/components/PageSelector";
+import { humanReadableFormat, humanReadableFormatWithTime } from "@/lib/time";
 import {
+  Button,
   DateRangePicker,
   DateRangePickerItem,
   DateRangePickerValue,
@@ -17,15 +21,11 @@ import {
   Text,
   Title,
 } from "@tremor/react";
-import useSWR from "swr";
-import { Button } from "@tremor/react";
-import { useState } from "react";
-import { UsageReport } from "./types";
-import { ThreeDotsLoader } from "@/components/Loading";
 import Link from "next/link";
-import { humanReadableFormat, humanReadableFormatWithTime } from "@/lib/time";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { PageSelector } from "@/components/PageSelector";
+import { useState } from "react";
+import { FiDownload, FiDownloadCloud } from "react-icons/fi";
+import useSWR from "swr";
+import { UsageReport } from "./types";
 
 function GenerateReportInput() {
   const [dateRange, setDateRange] = useState<DateRangePickerValue | undefined>(

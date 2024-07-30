@@ -1,13 +1,11 @@
-import { getSourceMetadataForSources, listSourceMetadata } from "@/lib/sources";
-import { ValidSources } from "@/lib/types";
-import Image from "next/image";
-import { Persona } from "../admin/assistants/interfaces";
-import { Divider } from "@tremor/react";
-import { FiBookmark, FiCpu, FiInfo, FiX, FiZoomIn } from "react-icons/fi";
 import { HoverPopup } from "@/components/HoverPopup";
-import { Modal } from "@/components/Modal";
-import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { getSourceMetadataForSources } from "@/lib/sources";
+import { ValidSources } from "@/lib/types";
+import { Divider } from "@tremor/react";
+import { useState } from "react";
+import { FiBookmark, FiInfo } from "react-icons/fi";
+import { Persona } from "../admin/assistants/interfaces";
 
 const MAX_PERSONAS_TO_DISPLAY = 4;
 

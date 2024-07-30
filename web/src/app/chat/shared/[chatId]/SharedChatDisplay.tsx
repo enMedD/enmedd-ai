@@ -1,6 +1,9 @@
 "use client";
 
+import { useChatContext } from "@/components/context/ChatContext";
 import { humanReadableFormat } from "@/lib/time";
+import { Button, Callout, Divider } from "@tremor/react";
+import { useRouter } from "next/navigation";
 import { BackendChatSession } from "../../interfaces";
 import {
   buildLatestMessageChain,
@@ -8,9 +11,6 @@ import {
   processRawChatHistory,
 } from "../../lib";
 import { AIMessage, HumanMessage } from "../../message/Messages";
-import { Button, Callout, Divider } from "@tremor/react";
-import { useRouter } from "next/navigation";
-import { useChatContext } from "@/components/context/ChatContext";
 
 function BackToDanswerButton() {
   const router = useRouter();

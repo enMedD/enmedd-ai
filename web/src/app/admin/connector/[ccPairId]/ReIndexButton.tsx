@@ -1,13 +1,12 @@
 "use client";
 
+import { Modal } from "@/components/Modal";
 import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { runConnector } from "@/lib/connector";
 import { Button, Divider, Text } from "@tremor/react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
-import { useState } from "react";
-import { Modal } from "@/components/Modal";
 
 function ReIndexPopup({
   connectorId,

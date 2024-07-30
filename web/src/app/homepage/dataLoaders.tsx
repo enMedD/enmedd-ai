@@ -1,15 +1,14 @@
-import { enterpriseData } from "./data/enterprise";
 import { Wrapper } from "./wrapper";
 
-import aws from "./assets/aws.webp";
-import onedrive from "./assets/onedrive-logo.webp";
-import googleCloud from "./assets/google_cloud.webp";
-import sharepoint from "./assets/sharepoint.svg";
-import bigquery from "./assets/bigquery-logo-no-letters.webp";
-import azure from "./assets/azure-no-letters.webp";
-import notion from "./assets/notion.webp";
-import snowflake from "./assets/snowflake.svg";
 import Image from "next/image";
+import aws from "./assets/aws.webp";
+import azure from "./assets/azure-no-letters.webp";
+import bigquery from "./assets/bigquery-logo-no-letters.webp";
+import googleCloud from "./assets/google_cloud.webp";
+import notion from "./assets/notion.webp";
+import onedrive from "./assets/onedrive-logo.webp";
+import sharepoint from "./assets/sharepoint.svg";
+import snowflake from "./assets/snowflake.svg";
 
 const icons = [
   aws,

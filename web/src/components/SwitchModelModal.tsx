@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, Text } from "@tremor/react";
-import { Modal } from "./Modal";
 import Link from "next/link";
+import { Modal } from "./Modal";
 
 export function SwitchModelModal({
   embeddingModelName,

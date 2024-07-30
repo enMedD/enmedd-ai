@@ -1,3 +1,4 @@
+import { DefaultDropdown, StringOrNumberOption } from "@/components/Dropdown";
 import { Button } from "@tremor/react";
 import {
   ArrayHelpers,
@@ -7,10 +8,9 @@ import {
   useField,
   useFormikContext,
 } from "formik";
+import { FiPlus, FiX } from "react-icons/fi";
 import * as Yup from "yup";
 import { FormBodyBuilder } from "./types";
-import { DefaultDropdown, StringOrNumberOption } from "@/components/Dropdown";
-import { FiPlus, FiX } from "react-icons/fi";
 
 export function SectionHeader({
   children,

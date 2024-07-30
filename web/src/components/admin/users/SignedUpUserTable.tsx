@@ -1,19 +1,19 @@
-import { type User, UserStatus } from "@/lib/types";
-import CenteredPageSelector from "./CenteredPageSelector";
-import { type PageSelectorProps } from "@/components/PageSelector";
 import { HidableSection } from "@/app/admin/assistants/HidableSection";
+import { type PageSelectorProps } from "@/components/PageSelector";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
-import useSWRMutation from "swr/mutation";
+import { UserStatus, type User } from "@/lib/types";
 import {
+  Button,
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
-  Button,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
 } from "@tremor/react";
+import useSWRMutation from "swr/mutation";
+import CenteredPageSelector from "./CenteredPageSelector";
 
 interface Props {
   users: Array<User>;

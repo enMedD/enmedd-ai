@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { Modal } from "../../../../components/Modal";
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { FilterManager, LlmOverrideManager } from "@/lib/hooks";
-import { FiltersTab } from "./FiltersTab";
-import { FiCpu, FiFilter, FiX } from "react-icons/fi";
+import { useEffect } from "react";
 import { IconType } from "react-icons";
 import { FaBrain } from "react-icons/fa";
+import { FiCpu, FiFilter, FiX } from "react-icons/fi";
+import { Modal } from "../../../../components/Modal";
 import { AssistantsTab } from "./AssistantsTab";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { FiltersTab } from "./FiltersTab";
 import { LlmTab } from "./LlmTab";
-import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 
 const TabButton = ({
   label,

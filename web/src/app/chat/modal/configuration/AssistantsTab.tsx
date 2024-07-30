@@ -3,7 +3,6 @@ import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { Bubble } from "@/components/Bubble";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { getFinalLLM } from "@/lib/llm/utils";
-import React from "react";
 import { FiBookmark, FiImage, FiSearch } from "react-icons/fi";
 
 interface AssistantsTabProps {

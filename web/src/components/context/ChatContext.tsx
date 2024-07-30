@@ -1,17 +1,11 @@
 "use client";
 
-import React, { createContext, useContext } from "react";
-import {
-  CCPairBasicInfo,
-  DocumentSet,
-  Tag,
-  User,
-  ValidSources,
-} from "@/lib/types";
-import { ChatSession } from "@/app/chat/interfaces";
 import { Persona } from "@/app/admin/assistants/interfaces";
 import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { Folder } from "@/app/chat/folders/interfaces";
+import { ChatSession } from "@/app/chat/interfaces";
+import { DocumentSet, Tag, User, ValidSources } from "@/lib/types";
+import React, { createContext, useContext } from "react";
 
 interface ChatContextProps {
   user: User | null;

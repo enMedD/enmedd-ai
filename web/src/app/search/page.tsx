@@ -1,28 +1,28 @@
-import { SearchSection } from "@/components/search/SearchSection";
+import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { Header } from "@/components/header/Header";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
+import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
+import {
+  WelcomeModal,
+  hasCompletedWelcomeFlowSS,
+} from "@/components/initialSetup/welcome/WelcomeModalWrapper";
+import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
+import { SearchSection } from "@/components/search/SearchSection";
+import { SearchType } from "@/lib/search/interfaces";
+import { CCPairBasicInfo, DocumentSet, Tag, User } from "@/lib/types";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
-import { redirect } from "next/navigation";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { fetchSS } from "@/lib/utilsSS";
-import { CCPairBasicInfo, DocumentSet, Tag, User } from "@/lib/types";
-import { cookies } from "next/headers";
-import { SearchType } from "@/lib/search/interfaces";
-import { Persona } from "../admin/assistants/interfaces";
-import {
-  WelcomeModal,
-  hasCompletedWelcomeFlowSS,
-} from "@/components/initialSetup/welcome/WelcomeModalWrapper";
 import { unstable_noStore as noStore } from "next/cache";
-import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Persona } from "../admin/assistants/interfaces";
 import { personaComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
-import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
-import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { ChatPopup } from "../chat/ChatPopup";
 
 export default async function Home() {

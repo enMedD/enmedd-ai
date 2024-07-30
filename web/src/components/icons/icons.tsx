@@ -1,62 +1,62 @@
 "use client";
 
 import {
-  Notebook,
-  Key,
-  Trash,
-  XSquare,
-  LinkBreak,
-  Link,
-  Plug,
-  Brain,
-  X,
-  Question,
-  Gear,
   ArrowSquareOut,
+  Brain,
+  Gear,
+  Key,
+  Link,
+  LinkBreak,
+  Notebook,
+  Plug,
+  Question,
+  Trash,
+  X,
+  XSquare,
 } from "@phosphor-icons/react";
+import Image from "next/image";
+import { FaRobot } from "react-icons/fa";
 import {
+  FiAlertCircle,
+  FiAlertTriangle,
+  FiBarChart2,
+  FiBookmark,
   FiCheck,
+  FiChevronDown,
+  FiChevronLeft,
+  FiChevronRight,
+  FiChevronUp,
   FiChevronsDown,
   FiChevronsUp,
+  FiCopy,
+  FiCpu,
+  FiDatabase,
   FiEdit2,
   FiFile,
   FiGlobe,
+  FiInfo,
   FiThumbsDown,
   FiThumbsUp,
-  FiChevronDown,
-  FiChevronUp,
-  FiAlertCircle,
-  FiChevronRight,
-  FiChevronLeft,
-  FiAlertTriangle,
-  FiZoomIn,
-  FiCopy,
-  FiBookmark,
-  FiCpu,
-  FiInfo,
   FiUploadCloud,
   FiUser,
   FiUsers,
-  FiBarChart2,
-  FiDatabase,
+  FiZoomIn,
 } from "react-icons/fi";
 import { SiBookstack } from "react-icons/si";
-import Image from "next/image";
-import jiraSVG from "../../../public/Jira.svg";
 import confluenceSVG from "../../../public/Confluence.svg";
-import OCIStorageSVG from "../../../public/OCI.svg";
-import googleCloudStorageIcon from "../../../public/GoogleCloudStorage.png";
-import hubSpotIcon from "../../../public/HubSpot.png";
-import googleSitesIcon from "../../../public/GoogleSites.png";
-import zendeskIcon from "../../../public/Zendesk.svg";
 import dropboxIcon from "../../../public/Dropbox.png";
+import googleCloudStorageIcon from "../../../public/GoogleCloudStorage.png";
+import googleSheets from "../../../public/GoogleSheets.svg";
+import googleSitesIcon from "../../../public/GoogleSites.png";
+import hubSpotIcon from "../../../public/HubSpot.png";
+import jiraSVG from "../../../public/Jira.svg";
+import OCIStorageSVG from "../../../public/OCI.svg";
 import s3Icon from "../../../public/S3.png";
-import r2Icon from "../../../public/r2.webp";
 import salesforceIcon from "../../../public/Salesforce.png";
 import sharepointIcon from "../../../public/Sharepoint.png";
-import googleSheets from "../../../public/GoogleSheets.svg";
 import teamsIcon from "../../../public/Teams.png";
-import { FaRobot } from "react-icons/fa";
+import zendeskIcon from "../../../public/Zendesk.svg";
+import r2Icon from "../../../public/r2.webp";
 
 interface IconProps {
   size?: number;

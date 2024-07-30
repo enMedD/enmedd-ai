@@ -1,6 +1,6 @@
+import { EditableValue } from "@/components/EditableValue";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { updateBoost } from "./lib";
-import { EditableValue } from "@/components/EditableValue";
 
 export const ScoreSection = ({
   documentId,

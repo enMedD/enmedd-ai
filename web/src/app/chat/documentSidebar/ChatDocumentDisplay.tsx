@@ -1,15 +1,13 @@
 import { HoverPopup } from "@/components/HoverPopup";
 import { SourceIcon } from "@/components/SourceIcon";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { DocumentFeedbackBlock } from "@/components/search/DocumentFeedbackBlock";
-import { DocumentUpdatedAtBadge } from "@/components/search/DocumentUpdatedAtBadge";
-import { DanswerDocument } from "@/lib/search/interfaces";
-import { FiInfo, FiRadio } from "react-icons/fi";
-import { DocumentSelector } from "./DocumentSelector";
 import {
   DocumentMetadataBlock,
   buildDocumentSummaryDisplay,
 } from "@/components/search/DocumentDisplay";
+import { DanswerDocument } from "@/lib/search/interfaces";
+import { FiInfo, FiRadio } from "react-icons/fi";
+import { DocumentSelector } from "./DocumentSelector";
 
 interface DocumentDisplayProps {
   document: DanswerDocument;

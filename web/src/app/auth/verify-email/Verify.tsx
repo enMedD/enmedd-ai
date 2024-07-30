@@ -1,12 +1,12 @@
 "use client";
 
+import { Logo } from "@/components/Logo";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { User } from "@/lib/types";
+import { Text } from "@tremor/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Text } from "@tremor/react";
 import { RequestNewVerificationEmail } from "../waiting-on-verification/RequestNewVerificationEmail";
-import { User } from "@/lib/types";
-import { Logo } from "@/components/Logo";
 
 export function Verify({ user }: { user: User | null }) {
   const searchParams = useSearchParams();

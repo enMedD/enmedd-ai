@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import enmeddLogo from "../../../public/logo.png";
-import Image from "next/image";
 
 export default function Menu() {
   return (

@@ -1,10 +1,10 @@
-import { Form, Formik } from "formik";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { createApiKey, updateApiKey } from "./lib";
 import { Modal } from "@/components/Modal";
+import { TextFormField } from "@/components/admin/connectors/Field";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { XIcon } from "@/components/icons/icons";
 import { Button, Divider, Text } from "@tremor/react";
+import { Form, Formik } from "formik";
+import { createApiKey, updateApiKey } from "./lib";
 
 interface DanswerApiKeyFormProps {
   onClose: () => void;

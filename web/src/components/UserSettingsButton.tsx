@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useRef, useContext } from "react";
-import { FiSearch, FiMessageSquare, FiTool, FiLogOut } from "react-icons/fi";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { BasicClickable } from "@/components/BasicClickable";
+import { LOGOUT_DISABLED } from "@/lib/constants";
 import { User } from "@/lib/types";
 import { checkUserIsNoAuthUser, logout } from "@/lib/user";
-import { BasicClickable, BasicSelectable } from "@/components/BasicClickable";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { FiLogOut, FiTool } from "react-icons/fi";
 import { Popover } from "./popover/Popover";
-import { FaBrain } from "react-icons/fa";
-import { LOGOUT_DISABLED } from "@/lib/constants";
-import { Settings } from "@/app/admin/settings/interfaces";
-import { SettingsContext } from "./settings/SettingsProvider";
 
 export function UserSettingsButton({ user }: { user: User | null }) {
   const [userInfoVisible, setUserInfoVisible] = useState(false);

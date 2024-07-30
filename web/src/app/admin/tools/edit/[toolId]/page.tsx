@@ -1,11 +1,11 @@
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { Card, Text, Title } from "@tremor/react";
 import { ToolEditor } from "@/app/admin/tools/ToolEditor";
-import { fetchToolByIdSS } from "@/lib/tools/fetchTools";
-import { DeleteToolButton } from "./DeleteToolButton";
-import { FiTool } from "react-icons/fi";
-import { AdminPageTitle } from "@/components/admin/Title";
 import { BackButton } from "@/components/BackButton";
+import { ErrorCallout } from "@/components/ErrorCallout";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { fetchToolByIdSS } from "@/lib/tools/fetchTools";
+import { Card, Text, Title } from "@tremor/react";
+import { FiTool } from "react-icons/fi";
+import { DeleteToolButton } from "./DeleteToolButton";
 
 export default async function Page({ params }: { params: { toolId: string } }) {
   const tool = await fetchToolByIdSS(params.toolId);

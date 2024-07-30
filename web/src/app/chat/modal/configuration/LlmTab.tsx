@@ -1,13 +1,12 @@
-import { useChatContext } from "@/components/context/ChatContext";
-import { LlmOverride, LlmOverrideManager } from "@/lib/hooks";
-import React, { useCallback, useRef, useState } from "react";
-import { debounce } from "lodash";
-import { DefaultDropdown } from "@/components/Dropdown";
-import { Text } from "@tremor/react";
 import { Persona } from "@/app/admin/assistants/interfaces";
+import { DefaultDropdown } from "@/components/Dropdown";
+import { useChatContext } from "@/components/context/ChatContext";
+import { LlmOverrideManager } from "@/lib/hooks";
 import { destructureValue, getFinalLLM, structureValue } from "@/lib/llm/utils";
+import { Text } from "@tremor/react";
+import { debounce } from "lodash";
+import { useCallback, useState } from "react";
 import { updateModelOverrideForChatSession } from "../../lib";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 
 export function LlmTab({
   llmOverrideManager,

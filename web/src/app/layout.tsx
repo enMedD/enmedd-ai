@@ -1,11 +1,11 @@
 import "./globals.css";
 
-import { Inter } from "next/font/google";
+import { SettingsProvider } from "@/components/settings/SettingsProvider";
 import { getCombinedSettings } from "@/components/settings/lib";
 import { CUSTOM_ANALYTICS_ENABLED } from "@/lib/constants";
-import { SettingsProvider } from "@/components/settings/SettingsProvider";
-import { Metadata } from "next";
 import { buildClientUrl } from "@/lib/utilsSS";
+import { Metadata } from "next";
+import { Inter } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],

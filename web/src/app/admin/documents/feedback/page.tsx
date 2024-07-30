@@ -1,12 +1,12 @@
 "use client";
 
 import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
 import { ThumbsUpIcon } from "@/components/icons/icons";
 import { useMostReactedToDocuments } from "@/lib/hooks";
+import { Title } from "@tremor/react";
 import { DocumentFeedbackTable } from "./DocumentFeedbackTable";
 import { numPages, numToDisplay } from "./constants";
-import { AdminPageTitle } from "@/components/admin/Title";
-import { Title } from "@tremor/react";
 
 const Main = () => {
   const {

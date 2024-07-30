@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
-import { ChevronDownIcon } from "./icons/icons";
 import { FiCheck, FiChevronDown } from "react-icons/fi";
+import { ChevronDownIcon } from "./icons/icons";
 import { Popover } from "./popover/Popover";
 
 export interface Option<T> {

@@ -1,8 +1,8 @@
 "use client";
 
-import { errorHandlingFetcher, FetchError, RedirectError } from "@/lib/fetcher";
-import useSWR from "swr";
+import { errorHandlingFetcher, RedirectError } from "@/lib/fetcher";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import { Modal } from "../Modal";
 
 export const HealthCheckBanner = () => {
@@ -39,12 +39,13 @@ export const HealthCheckBanner = () => {
       <div className="text-xs mx-auto bg-gradient-to-r from-red-900 to-red-700 p-2 rounded-sm border-hidden text-light">
         <p className="font-bold pb-1">The backend is currently unavailable.</p>
 
-      <p className="px-1">
-        If this is your initial setup or you just updated your VanguardAI
-        deployment, this is likely because the backend is still starting up.
-        Give it a minute or two, and then refresh the page. If that does not
-        work, make sure the backend is setup and/or contact an administrator.
-      </p>
-    </div>
-  );
+        <p className="px-1">
+          If this is your initial setup or you just updated your VanguardAI
+          deployment, this is likely because the backend is still starting up.
+          Give it a minute or two, and then refresh the page. If that does not
+          work, make sure the backend is setup and/or contact an administrator.
+        </p>
+      </div>
+    );
+  }
 };

@@ -1,22 +1,22 @@
 "use client";
 
+import { CustomCheckbox } from "@/components/CustomCheckbox";
+import { DeleteButton } from "@/components/DeleteButton";
+import { ThreeDotsLoader } from "@/components/Loading";
+import { errorHandlingFetcher } from "@/lib/fetcher";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
-  Title,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
   Text,
+  Title,
 } from "@tremor/react";
-import { DeleteButton } from "@/components/DeleteButton";
-import { deleteTokenRateLimit, updateTokenRateLimit } from "./lib";
-import { ThreeDotsLoader } from "@/components/Loading";
-import { TokenRateLimitDisplay } from "./types";
-import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR, { mutate } from "swr";
-import { CustomCheckbox } from "@/components/CustomCheckbox";
+import { deleteTokenRateLimit, updateTokenRateLimit } from "./lib";
+import { TokenRateLimitDisplay } from "./types";
 
 type TokenRateLimitTableArgs = {
   tokenRateLimits: TokenRateLimitDisplay[];

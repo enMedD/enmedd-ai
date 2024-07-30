@@ -1,23 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import { Popup, usePopup } from "./Popup";
+import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { deleteConnectorIfExistsAndIsUnlinked } from "@/lib/connector";
+import { createCredential, linkCredential } from "@/lib/credential";
 import {
   Connector,
   ConnectorBase,
   ValidInputTypes,
   ValidSources,
 } from "@/lib/types";
-import { deleteConnectorIfExistsAndIsUnlinked } from "@/lib/connector";
-import { FormBodyBuilder, RequireAtLeastOne } from "./types";
-import { BooleanFormField, TextFormField } from "./Field";
-import { createCredential, linkCredential } from "@/lib/credential";
-import { useSWRConfig } from "swr";
 import { Button, Divider } from "@tremor/react";
+import { Form, Formik } from "formik";
+import { useState } from "react";
+import { useSWRConfig } from "swr";
+import * as Yup from "yup";
+import { TextFormField } from "./Field";
 import IsPublicField from "./IsPublicField";
-import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { Popup, usePopup } from "./Popup";
+import { FormBodyBuilder, RequireAtLeastOne } from "./types";
 
 const BASE_CONNECTOR_URL = "/api/manage/admin/connector";
 

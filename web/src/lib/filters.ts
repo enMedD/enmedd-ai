@@ -1,6 +1,6 @@
 import { Persona } from "@/app/admin/assistants/interfaces";
-import { DocumentSet, ValidSources } from "./types";
 import { getSourcesForPersona } from "./sources";
+import { DocumentSet, ValidSources } from "./types";
 
 export function computeAvailableFilters({
   selectedPersona,

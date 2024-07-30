@@ -1,23 +1,22 @@
 "use client";
+import { Modal } from "@/components/Modal";
 import InvitedUserTable from "@/components/admin/users/InvitedUserTable";
 import SignedUpUserTable from "@/components/admin/users/SignedUpUserTable";
 import { SearchBar } from "@/components/search/SearchBar";
 import { useState } from "react";
 import { FiPlusSquare } from "react-icons/fi";
-import { Modal } from "@/components/Modal";
 
-import { Button, Text } from "@tremor/react";
+import { HidableSection } from "@/app/admin/assistants/HidableSection";
+import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { usePopup, PopupSpec } from "@/components/admin/connectors/Popup";
+import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
+import BulkAdd from "@/components/admin/users/BulkAdd";
 import { UsersIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { type User, UserStatus } from "@/lib/types";
-import useSWR, { mutate } from "swr";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { HidableSection } from "@/app/admin/assistants/HidableSection";
-import BulkAdd from "@/components/admin/users/BulkAdd";
 import { UsersResponse } from "@/lib/users/interfaces";
+import { Button, Text } from "@tremor/react";
+import useSWR, { mutate } from "swr";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {

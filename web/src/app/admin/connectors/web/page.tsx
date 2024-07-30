@@ -4,22 +4,21 @@ import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 
 import { LoadingAnimation } from "@/components/Loading";
-import {
-  GlobeIcon,
-  GearIcon,
-  ArrowSquareOutIcon,
-} from "@/components/icons/icons";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import {
   SelectorFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { ConnectorIndexingStatus, WebConfig } from "@/lib/types";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
-import { AdminPageTitle } from "@/components/admin/Title";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import {
+  ArrowSquareOutIcon,
+  GearIcon,
+  GlobeIcon,
+} from "@/components/icons/icons";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { ConnectorIndexingStatus, WebConfig } from "@/lib/types";
 import { Card, Title } from "@tremor/react";
 
 const SCRAPE_TYPE_TO_PRETTY_NAME = {

@@ -1,37 +1,38 @@
 "use client";
 
+import { DeleteButton } from "@/components/DeleteButton";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { PageSelector } from "@/components/PageSelector";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
+import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { BookmarkIcon, InfoIcon } from "@/components/icons/icons";
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-  Title,
-  Divider,
-  Badge,
-} from "@tremor/react";
 import { useConnectorCredentialIndexingStatus } from "@/lib/hooks";
 import { ConnectorIndexingStatus, DocumentSet } from "@/lib/types";
+import {
+  Badge,
+  Button,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  Text,
+  Title,
+} from "@tremor/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useDocumentSets } from "./hooks";
-import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { deleteDocumentSet } from "./lib";
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
-import { AdminPageTitle } from "@/components/admin/Title";
-import { Button, Text } from "@tremor/react";
 import {
   FiAlertTriangle,
   FiCheckCircle,
   FiClock,
   FiEdit2,
 } from "react-icons/fi";
-import { DeleteButton } from "@/components/DeleteButton";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useDocumentSets } from "./hooks";
+import { deleteDocumentSet } from "./lib";
 
 const numToDisplay = 50;
 

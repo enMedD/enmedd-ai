@@ -1,21 +1,21 @@
 import { Button } from "@/components/Button";
+import { TextFormField } from "@/components/admin/connectors/Field";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
-import { useSWRConfig } from "swr";
-import * as Yup from "yup";
-import { useRouter } from "next/navigation";
+import { GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
+import { adminDeleteCredential } from "@/lib/credential";
+import { setupGoogleDriveOAuth } from "@/lib/googleDrive";
 import {
   Credential,
   GoogleDriveCredentialJson,
   GoogleDriveServiceAccountCredentialJson,
 } from "@/lib/types";
-import { adminDeleteCredential } from "@/lib/credential";
-import { setupGoogleDriveOAuth } from "@/lib/googleDrive";
-import { GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
-import Cookies from "js-cookie";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { Form, Formik } from "formik";
 import { Card } from "@tremor/react";
+import { Form, Formik } from "formik";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useSWRConfig } from "swr";
+import * as Yup from "yup";
 
 type GoogleDriveCredentialJsonTypes = "authorized_user" | "service_account";
 
@@ -322,9 +322,9 @@ export const DriveOAuthSection = ({
     return (
       <div>
         <p className="text-sm mb-2">
-          When using a Google Drive Service Account, you can either have VanguardAI
-          act as the service account itself OR you can specify an account for
-          the service account to impersonate.
+          When using a Google Drive Service Account, you can either have
+          VanguardAI act as the service account itself OR you can specify an
+          account for the service account to impersonate.
           <br />
           <br />
           If you want to use the service account itself, leave the{" "}

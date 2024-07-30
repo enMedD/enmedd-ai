@@ -1,9 +1,9 @@
 "use client";
 
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { requestEmailVerification } from "../lib";
 import { Spinner } from "@/components/Spinner";
+import { usePopup } from "@/components/admin/connectors/Popup";
 import { useState } from "react";
+import { requestEmailVerification } from "../lib";
 
 export function RequestNewVerificationEmail({
   children,

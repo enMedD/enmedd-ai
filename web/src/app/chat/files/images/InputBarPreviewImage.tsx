@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { buildImgUrl } from "./utils";
 import { FullImageModal } from "./FullImageModal";
+import { buildImgUrl } from "./utils";
 
 export function InputBarPreviewImage({ fileId }: { fileId: string }) {
   const [fullImageShowing, setFullImageShowing] = useState(false);

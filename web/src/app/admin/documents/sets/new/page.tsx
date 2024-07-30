@@ -1,19 +1,18 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+import { ErrorCallout } from "@/components/ErrorCallout";
+import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { usePopup } from "@/components/admin/connectors/Popup";
 import { BookmarkIcon } from "@/components/icons/icons";
-import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import {
   useConnectorCredentialIndexingStatus,
   useUserGroups,
 } from "@/lib/hooks";
-import { ThreeDotsLoader } from "@/components/Loading";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { Card } from "@tremor/react";
-import { BackButton } from "@/components/BackButton";
-import { ErrorCallout } from "@/components/ErrorCallout";
 import { useRouter } from "next/navigation";
-import { UserGroup } from "@/lib/types";
+import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import { refreshDocumentSets } from "../hooks";
 
 function Main() {

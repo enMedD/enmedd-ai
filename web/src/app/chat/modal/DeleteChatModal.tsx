@@ -1,6 +1,6 @@
+import { BasicClickable } from "@/components/BasicClickable";
 import { FiTrash, FiX } from "react-icons/fi";
 import { ModalWrapper } from "./ModalWrapper";
-import { BasicClickable } from "@/components/BasicClickable";
 
 export const DeleteChatModal = ({
   chatSessionName,

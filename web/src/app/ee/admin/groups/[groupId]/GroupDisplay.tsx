@@ -1,29 +1,29 @@
 "use client";
 
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
-import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { AddMemberForm } from "./AddMemberForm";
-import { updateUserGroup } from "./lib";
+import { GenericTokenRateLimitTable } from "@/app/admin/token-rate-limits/TokenRateLimitTables";
+import { Bubble } from "@/components/Bubble";
+import { DeleteButton } from "@/components/DeleteButton";
 import { LoadingAnimation } from "@/components/Loading";
+import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { BookmarkIcon, RobotIcon } from "@/components/icons/icons";
 import { ConnectorIndexingStatus, User, UserGroup } from "@/lib/types";
-import { AddConnectorForm } from "./AddConnectorForm";
 import {
+  Button,
+  Divider,
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
-  Divider,
-  Button,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
   Text,
 } from "@tremor/react";
-import { DeleteButton } from "@/components/DeleteButton";
-import { Bubble } from "@/components/Bubble";
-import { BookmarkIcon, RobotIcon } from "@/components/icons/icons";
+import { useState } from "react";
+import { AddConnectorForm } from "./AddConnectorForm";
+import { AddMemberForm } from "./AddMemberForm";
 import { AddTokenRateLimitForm } from "./AddTokenRateLimitForm";
-import { GenericTokenRateLimitTable } from "@/app/admin/token-rate-limits/TokenRateLimitTables";
+import { updateUserGroup } from "./lib";
 
 interface GroupDisplayProps {
   users: User[];

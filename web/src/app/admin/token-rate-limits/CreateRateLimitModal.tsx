@@ -1,17 +1,17 @@
 "use client";
 
-import * as Yup from "yup";
-import { Button } from "@tremor/react";
-import { useEffect, useState } from "react";
 import { Modal } from "@/components/Modal";
-import { Form, Formik } from "formik";
 import {
   SelectorFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { UserGroup } from "@/lib/types";
-import { Scope } from "./types";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
+import { UserGroup } from "@/lib/types";
+import { Button } from "@tremor/react";
+import { Form, Formik } from "formik";
+import { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { Scope } from "./types";
 
 interface CreateRateLimitModalProps {
   isOpen: boolean;

@@ -1,22 +1,22 @@
 "use client";
 
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-} from "@tremor/react";
-import { CCPairStatus, IndexAttemptStatus } from "@/components/Status";
-import { useEffect, useState } from "react";
 import { PageSelector } from "@/components/PageSelector";
+import { CCPairStatus, IndexAttemptStatus } from "@/components/Status";
+import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
+import { isCurrentlyDeleting } from "@/lib/documentDeletion";
+import { getDocsProcessedPerMinute } from "@/lib/indexAttempt";
 import { timeAgo } from "@/lib/time";
 import { ConnectorIndexingStatus } from "@/lib/types";
-import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { getDocsProcessedPerMinute } from "@/lib/indexAttempt";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@tremor/react";
 import { useRouter } from "next/navigation";
-import { isCurrentlyDeleting } from "@/lib/documentDeletion";
+import { useEffect, useState } from "react";
 import { FiCheck, FiEdit2, FiXCircle } from "react-icons/fi";
 
 const NUM_IN_PAGE = 20;

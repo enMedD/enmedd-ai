@@ -1,5 +1,5 @@
-import { ConnectorIndexingStatus } from "@/lib/types";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
+import { ConnectorIndexingStatus } from "@/lib/types";
 
 interface ConnectorEditorProps {
   selectedCCPairIds: number[];

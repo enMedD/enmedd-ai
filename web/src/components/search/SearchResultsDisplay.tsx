@@ -1,22 +1,21 @@
 "use client";
 
-import React from "react";
+import { removeDuplicateDocs } from "@/lib/documentUtils";
 import {
   DanswerDocument,
-  SearchResponse,
-  Quote,
   FlowType,
+  Quote,
   SearchDefaultOverrides,
+  SearchResponse,
   ValidQuestionResponse,
 } from "@/lib/search/interfaces";
-import { QAFeedbackBlock } from "./QAFeedback";
-import { DocumentDisplay } from "./DocumentDisplay";
-import { QuotesSection } from "./results/QuotesSection";
-import { AnswerSection } from "./results/AnswerSection";
 import { ThreeDots } from "react-loader-spinner";
 import { usePopup } from "../admin/connectors/Popup";
 import { AlertIcon } from "../icons/icons";
-import { removeDuplicateDocs } from "@/lib/documentUtils";
+import { DocumentDisplay } from "./DocumentDisplay";
+import { QAFeedbackBlock } from "./QAFeedback";
+import { AnswerSection } from "./results/AnswerSection";
+import { QuotesSection } from "./results/QuotesSection";
 
 const getSelectedDocumentIds = (
   documents: DanswerDocument[],

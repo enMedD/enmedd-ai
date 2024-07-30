@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { TableCell, TableRow } from "@tremor/react";
 import { CSS } from "@dnd-kit/utilities";
+import { TableCell, TableRow } from "@tremor/react";
 import { DragHandle } from "./DragHandle";
 import { Row } from "./interfaces";
 

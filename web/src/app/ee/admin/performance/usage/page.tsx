@@ -1,14 +1,13 @@
 "use client";
 
+import { AdminPageTitle } from "@/components/admin/Title";
+import { Divider } from "@tremor/react";
+import { FiActivity } from "react-icons/fi";
 import { DateRangeSelector } from "../DateRangeSelector";
+import { useTimeRange } from "../lib";
 import { FeedbackChart } from "./FeedbackChart";
 import { QueryPerformanceChart } from "./QueryPerformanceChart";
-import { BarChartIcon } from "@/components/icons/icons";
-import { useTimeRange } from "../lib";
-import { AdminPageTitle } from "@/components/admin/Title";
-import { FiActivity } from "react-icons/fi";
 import UsageReports from "./UsageReports";
-import { Divider } from "@tremor/react";
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useTimeRange();

@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@tremor/react";
-import { CCPairFullInfo } from "./types";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { FiTrash } from "react-icons/fi";
 import { deleteCCPair } from "@/lib/documentDeletion";
+import { Button } from "@tremor/react";
+import { FiTrash } from "react-icons/fi";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
+import { CCPairFullInfo } from "./types";
 
 export function DeletionButton({ ccPair }: { ccPair: CCPairFullInfo }) {
   const { popup, setPopup } = usePopup();

@@ -1,15 +1,15 @@
 "use client";
 
-import { Bold, Text, Card, Title, Divider } from "@tremor/react";
-import { ChatSessionSnapshot, MessageSnapshot } from "../../usage/types";
-import { FiBook } from "react-icons/fi";
-import { timestampToReadableDate } from "@/lib/dateUtils";
 import { BackButton } from "@/components/BackButton";
-import { FeedbackBadge } from "../FeedbackBadge";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import useSWR from "swr";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { timestampToReadableDate } from "@/lib/dateUtils";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { Bold, Card, Divider, Text, Title } from "@tremor/react";
+import { FiBook } from "react-icons/fi";
+import useSWR from "swr";
+import { ChatSessionSnapshot, MessageSnapshot } from "../../usage/types";
+import { FeedbackBadge } from "../FeedbackBadge";
 
 function MessageDisplay({ message }: { message: MessageSnapshot }) {
   return (

@@ -1,22 +1,22 @@
 "use client";
 
-import { adminSearch } from "./lib";
-import { MagnifyingGlass } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
-import { DanswerDocument } from "@/lib/search/interfaces";
-import { buildDocumentSummaryDisplay } from "@/components/search/DocumentDisplay";
 import { CustomCheckbox } from "@/components/CustomCheckbox";
-import { updateHiddenStatus } from "../lib";
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
-import { getErrorMsg } from "@/lib/fetchUtils";
-import { ScoreSection } from "../ScoreEditor";
-import { useRouter } from "next/navigation";
-import { HorizontalFilters } from "@/components/search/filtering/Filters";
-import { useFilters } from "@/lib/hooks";
-import { buildFilters } from "@/lib/search/utils";
-import { DocumentUpdatedAtBadge } from "@/components/search/DocumentUpdatedAtBadge";
-import { Connector, DocumentSet } from "@/lib/types";
 import { SourceIcon } from "@/components/SourceIcon";
+import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
+import { buildDocumentSummaryDisplay } from "@/components/search/DocumentDisplay";
+import { DocumentUpdatedAtBadge } from "@/components/search/DocumentUpdatedAtBadge";
+import { HorizontalFilters } from "@/components/search/filtering/Filters";
+import { getErrorMsg } from "@/lib/fetchUtils";
+import { useFilters } from "@/lib/hooks";
+import { DanswerDocument } from "@/lib/search/interfaces";
+import { buildFilters } from "@/lib/search/utils";
+import { Connector, DocumentSet } from "@/lib/types";
+import { MagnifyingGlass } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ScoreSection } from "../ScoreEditor";
+import { updateHiddenStatus } from "../lib";
+import { adminSearch } from "./lib";
 
 const DocumentDisplay = ({
   document,

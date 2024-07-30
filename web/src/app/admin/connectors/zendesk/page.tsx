@@ -1,27 +1,27 @@
 "use client";
 
-import * as Yup from "yup";
-import { TrashIcon, ZendeskIcon } from "@/components/icons/icons";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
-import {
-  ZendeskCredentialJson,
-  ZendeskConfig,
-  ConnectorIndexingStatus,
-  Credential,
-} from "@/lib/types";
-import useSWR, { useSWRConfig } from "swr";
-import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
-import { adminDeleteCredential, linkCredential } from "@/lib/credential";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
-import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Card, Divider, Text, Title } from "@tremor/react";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
+import { TextFormField } from "@/components/admin/connectors/Field";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { TrashIcon, ZendeskIcon } from "@/components/icons/icons";
+import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { usePublicCredentials } from "@/lib/hooks";
+import {
+  ConnectorIndexingStatus,
+  Credential,
+  ZendeskConfig,
+  ZendeskCredentialJson,
+} from "@/lib/types";
+import { Card, Text, Title } from "@tremor/react";
+import useSWR, { useSWRConfig } from "swr";
+import * as Yup from "yup";
 
 const Main = () => {
   const { popup, setPopup } = usePopup();

@@ -1,16 +1,16 @@
+import { Bubble } from "@/components/Bubble";
 import { useChatContext } from "@/components/context/ChatContext";
+import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
+import { getXDaysAgo } from "@/lib/dateUtils";
 import { FilterManager } from "@/lib/hooks";
 import { listSourceMetadata } from "@/lib/sources";
-import { useRef, useState } from "react";
 import {
   DateRangePicker,
   DateRangePickerItem,
   Divider,
   Text,
 } from "@tremor/react";
-import { getXDaysAgo } from "@/lib/dateUtils";
-import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
-import { Bubble } from "@/components/Bubble";
+import { useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
 
 export function FiltersTab({

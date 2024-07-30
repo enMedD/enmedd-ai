@@ -1,10 +1,10 @@
+import { User } from "@/lib/types";
 import { cookies } from "next/headers";
 import {
   _CompletedWelcomeFlowDummyComponent,
   _WelcomeModal,
 } from "./WelcomeModal";
 import { COMPLETED_WELCOME_FLOW_COOKIE } from "./constants";
-import { User } from "@/lib/types";
 
 export function hasCompletedWelcomeFlowSS() {
   const cookieStore = cookies();

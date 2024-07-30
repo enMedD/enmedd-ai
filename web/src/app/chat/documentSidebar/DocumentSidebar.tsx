@@ -1,16 +1,15 @@
+import { BasicSelectable } from "@/components/BasicClickable";
+import { HoverPopup } from "@/components/HoverPopup";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { removeDuplicateDocs } from "@/lib/documentUtils";
 import { DanswerDocument } from "@/lib/search/interfaces";
 import { Text } from "@tremor/react";
-import { ChatDocumentDisplay } from "./ChatDocumentDisplay";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { FiAlertTriangle, FiFileText } from "react-icons/fi";
-import { SelectedDocumentDisplay } from "./SelectedDocumentDisplay";
-import { removeDuplicateDocs } from "@/lib/documentUtils";
-import { BasicSelectable } from "@/components/BasicClickable";
-import { Message, RetrievalType } from "../interfaces";
-import { SIDEBAR_WIDTH } from "@/lib/constants";
-import { HoverPopup } from "@/components/HoverPopup";
-import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
 import { ForwardedRef, forwardRef } from "react";
+import { FiAlertTriangle, FiFileText } from "react-icons/fi";
+import { TbLayoutSidebarLeftExpand } from "react-icons/tb";
+import { Message, RetrievalType } from "../interfaces";
+import { ChatDocumentDisplay } from "./ChatDocumentDisplay";
+import { SelectedDocumentDisplay } from "./SelectedDocumentDisplay";
 
 function SectionHeader({
   name,
