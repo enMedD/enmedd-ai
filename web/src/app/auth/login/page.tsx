@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import LoginImage from "../../../../public/login_page_img.webp";
+import LogoBrand from "../../../../public/logo-brand.png"
 import { EmailPasswordForm } from "./EmailPasswordForm";
 import { LoginText } from "./LoginText";
 import { SignInButton } from "./SignInButton";
@@ -99,7 +100,7 @@ const Page = async ({
           )}
         </div>
         <Image
-          src={LoginImage}
+          src={LogoBrand}
           alt="LoginImage"
           className="hidden w-1/2 h-auto md:flex"
         />
