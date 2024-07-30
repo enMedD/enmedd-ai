@@ -367,8 +367,6 @@ auth:
     oauth_client_secret: ""
     oauth_cookie_secret: ""
     gen_ai_api_key: ""
-    danswer_bot_slack_app_token: ""
-    danswer_bot_slack_bot_token: ""
   # will be overridden by the existingSecret if set
   secretName: "danswer-secrets"
   # set values as strings, they will be base64 encoded
@@ -379,8 +377,6 @@ auth:
     oauth_client_secret: ""
     oauth_cookie_secret: ""
     gen_ai_api_key: ""
-    danswer_bot_slack_app_token: ""
-    danswer_bot_slack_bot_token: ""
 
 configMap:
   AUTH_TYPE: "disabled"  # Change this for production uses unless Danswer is only accessible behind VPN
@@ -411,7 +407,11 @@ configMap:
   HYBRID_ALPHA: ""
   EDIT_KEYWORD_QUERY: ""
   MULTILINGUAL_QUERY_EXPANSION: ""
+  LANGUAGE_HINT: ""
+  LANGUAGE_CHAT_NAMING_HINT: ""
   QA_PROMPT_OVERRIDE: ""
+  # Internet Search Tool
+  BING_API_KEY: ""
   # Don't change the NLP models unless you know what you're doing
   DOCUMENT_ENCODER_MODEL: ""
   NORMALIZE_EMBEDDINGS: ""
@@ -429,16 +429,7 @@ configMap:
   EXPERIMENTAL_CHECKPOINTING_ENABLED: ""
   CONFLUENCE_CONNECTOR_LABELS_TO_SKIP: ""
   JIRA_API_VERSION: ""
-  GONG_CONNECTOR_START_TIME: ""
   NOTION_CONNECTOR_ENABLE_RECURSIVE_PAGE_LOOKUP: ""
-  # DanswerBot SlackBot Configs
-  # DANSWER_BOT_SLACK_APP_TOKEN: ""
-  # DANSWER_BOT_SLACK_BOT_TOKEN: ""
-  DANSWER_BOT_DISABLE_DOCS_ONLY_ANSWER: ""
-  DANSWER_BOT_DISPLAY_ERROR_MSGS: ""
-  DANSWER_BOT_RESPOND_EVERY_CHANNEL: ""
-  DANSWER_BOT_DISABLE_COT: ""  # Currently unused
-  NOTIFY_SLACKBOT_NO_ANSWER: ""
   # Logging
   # Optional Telemetry, please keep it on (nothing sensitive is collected)? <3
   # https://docs.danswer.dev/more/telemetry

@@ -4,6 +4,10 @@ import urllib.parse
 
 from danswer.configs.constants import AuthType
 from danswer.configs.constants import DocumentIndexType
+from danswer.file_processing.enums import HtmlBasedConnectorTransformLinksStrategy
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #####
 # App Configs
@@ -45,12 +49,13 @@ DISABLE_AUTH = AUTH_TYPE == AuthType.DISABLED
 # Encryption key secret is used to encrypt connector credentials, api keys, and other sensitive
 # information. This provides an extra layer of security on top of Postgres access controls
 # and is available in Danswer EE
-ENCRYPTION_KEY_SECRET = os.environ.get("ENCRYPTION_KEY_SECRET")
+ENCRYPTION_KEY_SECRET = os.environ.get("ENCRYPTION_KEY_SECRET") or ""
 
 # Turn off mask if admin users should see full credentials for data connectors.
 MASK_CREDENTIAL_PREFIX = (
     os.environ.get("MASK_CREDENTIAL_PREFIX", "True").lower() != "false"
 )
+
 
 SESSION_EXPIRE_TIME_SECONDS = int(
     os.environ.get("SESSION_EXPIRE_TIME_SECONDS") or 86400 * 7
@@ -160,6 +165,11 @@ WEB_CONNECTOR_OAUTH_CLIENT_SECRET = os.environ.get("WEB_CONNECTOR_OAUTH_CLIENT_S
 WEB_CONNECTOR_OAUTH_TOKEN_URL = os.environ.get("WEB_CONNECTOR_OAUTH_TOKEN_URL")
 WEB_CONNECTOR_VALIDATE_URLS = os.environ.get("WEB_CONNECTOR_VALIDATE_URLS")
 
+HTML_BASED_CONNECTOR_TRANSFORM_LINKS_STRATEGY = os.environ.get(
+    "HTML_BASED_CONNECTOR_TRANSFORM_LINKS_STRATEGY",
+    HtmlBasedConnectorTransformLinksStrategy.STRIP,
+)
+
 NOTION_CONNECTOR_ENABLE_RECURSIVE_PAGE_LOOKUP = (
     os.environ.get("NOTION_CONNECTOR_ENABLE_RECURSIVE_PAGE_LOOKUP", "").lower()
     == "true"
@@ -176,6 +186,12 @@ CONFLUENCE_CONNECTOR_LABELS_TO_SKIP = [
 # Avoid to get archived pages
 CONFLUENCE_CONNECTOR_INDEX_ONLY_ACTIVE_PAGES = (
     os.environ.get("CONFLUENCE_CONNECTOR_INDEX_ONLY_ACTIVE_PAGES", "").lower() == "true"
+)
+
+# Save pages labels as Danswer metadata tags
+# The reason to skip this would be to reduce the number of calls to Confluence due to rate limit concerns
+CONFLUENCE_CONNECTOR_SKIP_LABEL_INDEXING = (
+    os.environ.get("CONFLUENCE_CONNECTOR_SKIP_LABEL_INDEXING", "").lower() == "true"
 )
 
 JIRA_CONNECTOR_LABELS_TO_SKIP = [
@@ -200,6 +216,15 @@ EXPERIMENTAL_CHECKPOINTING_ENABLED = (
 )
 
 DEFAULT_PRUNING_FREQ = 60 * 60 * 24  # Once a day
+
+PREVENT_SIMULTANEOUS_PRUNING = (
+    os.environ.get("PREVENT_SIMULTANEOUS_PRUNING", "").lower() == "true"
+)
+
+# This is the maxiumum rate at which documents are queried for a pruning job. 0 disables the limitation.
+MAX_PRUNING_DOCUMENT_RETRIEVAL_PER_MINUTE = int(
+    os.environ.get("MAX_PRUNING_DOCUMENT_RETRIEVAL_PER_MINUTE", 0)
+)
 
 
 #####
@@ -265,4 +290,14 @@ TOKEN_BUDGET_GLOBALLY_ENABLED = (
 # Format: list of strings
 CUSTOM_ANSWER_VALIDITY_CONDITIONS = json.loads(
     os.environ.get("CUSTOM_ANSWER_VALIDITY_CONDITIONS", "[]")
+)
+
+
+#####
+# Enterprise Edition Configs
+#####
+# NOTE: this should only be enabled if you have purchased an enterprise license.
+
+ENTERPRISE_EDITION_ENABLED = (
+    os.environ.get("ENABLE_PAID_ENTERPRISE_EDITION_FEATURES", "").lower() == "true"
 )

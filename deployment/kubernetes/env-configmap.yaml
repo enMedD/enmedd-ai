@@ -33,10 +33,14 @@ data:
   HYBRID_ALPHA: ""
   EDIT_KEYWORD_QUERY: ""
   MULTILINGUAL_QUERY_EXPANSION: ""
+  LANGUAGE_HINT: ""
+  LANGUAGE_CHAT_NAMING_HINT: ""
   QA_PROMPT_OVERRIDE: ""
   # Other Services
   POSTGRES_HOST: "relational-db-service"
   VESPA_HOST: "document-index-service"
+  # Internet Search Tool
+  BING_API_KEY: ""
   # Don't change the NLP models unless you know what you're doing
   DOCUMENT_ENCODER_MODEL: ""
   NORMALIZE_EMBEDDINGS: ""
@@ -58,16 +62,7 @@ data:
   CONFLUENCE_CONNECTOR_LABELS_TO_SKIP: ""
   JIRA_API_VERSION: ""
   WEB_CONNECTOR_VALIDATE_URLS: ""
-  GONG_CONNECTOR_START_TIME: ""
   NOTION_CONNECTOR_ENABLE_RECURSIVE_PAGE_LOOKUP: ""
-  # DanswerBot SlackBot Configs
-  DANSWER_BOT_SLACK_APP_TOKEN: ""
-  DANSWER_BOT_SLACK_BOT_TOKEN: ""
-  DANSWER_BOT_DISABLE_DOCS_ONLY_ANSWER: ""
-  DANSWER_BOT_DISPLAY_ERROR_MSGS: ""
-  DANSWER_BOT_RESPOND_EVERY_CHANNEL: ""
-  DANSWER_BOT_DISABLE_COT: ""  # Currently unused
-  NOTIFY_SLACKBOT_NO_ANSWER: ""
   # Logging
   # Optional Telemetry, please keep it on (nothing sensitive is collected)? <3
   # https://docs.danswer.dev/more/telemetry

@@ -15,16 +15,26 @@ function SourceTile({ sourceMetadata }: { sourceMetadata: SourceMetadata }) {
         justify-center 
         p-4 
         rounded-lg 
-        w-40 
-        cursor-pointer
-        bg-hover-light
-        shadow-md
-        hover:bg-hover
+        w-40
+        ${
+          sourceMetadata.category == "Coming Soon"
+            ? `bg-gray-200
+          cursor-not-allowed
+          grayscale
+          border-1
+          border-gray-400
+          `
+            : `
+          shadow-md 
+          cursor-pointer 
+         bg-hover-light
+         hover:bg-hover`
+        }
       `}
       href={sourceMetadata.adminUrl}
     >
       <SourceIcon sourceType={sourceMetadata.internalName} iconSize={24} />
-      <Text className="font-medium text-sm mt-2">
+      <Text className="mt-2 text-sm font-medium">
         {sourceMetadata.displayName}
       </Text>
     </Link>
@@ -40,9 +50,12 @@ export default function Page() {
   const appConnectionSources = sources.filter(
     (source) => source.category === SourceCategory.AppConnection
   );
+  const comingSoonSources = sources.filter(
+    (source) => source.category === SourceCategory.ComingSoon
+  );
 
   return (
-    <div className="mx-auto container">
+    <div className="container mx-auto">
       <AdminPageTitle
         icon={<ConnectorIcon size={32} />}
         title="Add Connector"
@@ -62,7 +75,7 @@ export default function Page() {
         files, scrape websites, or connect to your organization&apos;s Google
         Site.
       </Text>
-      <div className="flex flex-wrap gap-4 p-4">
+      <div className="flex flex-wrap gap-4 py-4 md:p-4">
         {importedKnowledgeSources.map((source) => {
           return (
             <SourceTile key={source.internalName} sourceMetadata={source} />
@@ -78,8 +91,22 @@ export default function Page() {
         services. Unless otherwise specified during the connector setup, we will
         pull in the latest updates from the source every 10 minutes.
       </Text>
-      <div className="flex flex-wrap gap-4 p-4">
+      <div className="flex flex-wrap gap-4 py-4 md:p-4">
         {appConnectionSources.map((source) => {
+          return (
+            <SourceTile key={source.internalName} sourceMetadata={source} />
+          );
+        })}
+      </div>
+
+      <div className="flex mt-8">
+        <Title>Coming soon...</Title>
+      </div>
+      <Text>
+        These are the connectors that we are currently working on. Stay tuned!
+      </Text>
+      <div className="flex flex-wrap gap-4 py-4 md:p-4">
+        {comingSoonSources.map((source) => {
           return (
             <SourceTile key={source.internalName} sourceMetadata={source} />
           );

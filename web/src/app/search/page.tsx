@@ -23,6 +23,7 @@ import { personaComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
+import { ChatPopup } from "../chat/ChatPopup";
 
 export default async function Home() {
   // Disable caching so we always get the up to date connector / document set / persona info
@@ -89,6 +90,7 @@ export default async function Home() {
   }
 
   let personas: Persona[] = [];
+
   if (personaResponse?.ok) {
     personas = await personaResponse.json();
   } else {
@@ -163,9 +165,13 @@ export default async function Home() {
         <NoCompleteSourcesModal ccPairs={ccPairs} />
       )}
 
+      {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
+      Only used in the EE version of the app. */}
+      <ChatPopup />
+
       <InstantSSRAutoRefresh />
 
-      <div className="px-24 pt-10 flex flex-col items-center min-h-screen">
+      <div className="flex flex-col items-center min-h-screen px-6 pt-10 lg:px-24">
         <div className="w-full">
           <SearchSection
             ccPairs={ccPairs}

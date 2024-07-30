@@ -7,11 +7,14 @@ import {
   AuthTypeMetadata,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import { SignInButton } from "./SignInButton";
 import { EmailPasswordForm } from "./EmailPasswordForm";
 import { Card, Title, Text } from "@tremor/react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
+import { LoginText } from "./LoginText";
+import LoginImage from "../../../../public/login_page_img.webp";
+import Image from "next/image";
 
 const Page = async ({
   searchParams,
@@ -63,21 +66,16 @@ const Page = async ({
   }
 
   return (
-    <main>
-      <div className="absolute top-10x w-full">
+    <main className="flex justify-center">
+      <div className="absolute w-full top-10x">
         <HealthCheckBanner />
       </div>
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between w-full min-h-screen px-6 md:w-2/3 md:px-0">
         <div>
-          <div className="h-16 w-16 mx-auto">
-            <Image src="/logo.png" alt="Logo" width="1419" height="1520" />
-          </div>
           {authUrl && authTypeMetadata && (
             <>
-              <h2 className="text-center text-xl text-strong font-bold mt-6">
-                Log In to VanguardAI
-              </h2>
-
+            {/* TODO: replace into Vanguard AI */}
+              <LoginText />
               <SignInButton
                 authorizeUrl={authUrl}
                 authType={authTypeMetadata?.authType}
@@ -85,24 +83,27 @@ const Page = async ({
             </>
           )}
           {authTypeMetadata?.authType === "basic" && (
-            <Card className="mt-4 w-96">
-              <div className="flex">
-                <Title className="mb-2 mx-auto font-bold">
-                  Log In to VanguardAI
-                </Title>
+            <div className="md:w-96">
+              <LoginText />
+              <div className="my-6">
+                <EmailPasswordForm />
               </div>
-              <EmailPasswordForm />
               <div className="flex">
-                <Text className="mt-4 mx-auto">
+                <Text className="mx-auto mt-4">
                   Don&apos;t have an account?{" "}
-                  <Link href="/auth/signup" className="text-link font-medium">
+                  <Link href="/auth/signup" className="font-medium text-link">
                     Create an account
                   </Link>
                 </Text>
               </div>
-            </Card>
+            </div>
           )}
         </div>
+        <Image
+          src={LoginImage}
+          alt="LoginImage"
+          className="hidden w-1/2 h-auto md:flex"
+        />
       </div>
     </main>
   );

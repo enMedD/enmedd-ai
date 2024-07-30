@@ -12,7 +12,6 @@ from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from danswer.auth.schemas import UserRole
-from danswer.db.constants import SLACK_BOT_PERSONA_PREFIX
 from danswer.db.document_set import get_document_sets_by_ids
 from danswer.db.engine import get_sqlalchemy_engine
 from danswer.db.models import DocumentSet
@@ -173,7 +172,6 @@ def get_personas(
     user_id: UUID | None,
     db_session: Session,
     include_default: bool = True,
-    include_slack_bot_personas: bool = False,
     include_deleted: bool = False,
 ) -> Sequence[Persona]:
     stmt = select(Persona).distinct()
@@ -201,8 +199,6 @@ def get_personas(
 
     if not include_default:
         stmt = stmt.where(Persona.default_persona.is_(False))
-    if not include_slack_bot_personas:
-        stmt = stmt.where(not_(Persona.name.startswith(SLACK_BOT_PERSONA_PREFIX)))
     if not include_deleted:
         stmt = stmt.where(Persona.deleted.is_(False))
 
@@ -537,12 +533,22 @@ def get_persona_by_id(
     user: User | None,
     db_session: Session,
     include_deleted: bool = False,
+    is_for_edit: bool = True,  # NOTE: assume true for safety
 ) -> Persona:
     stmt = select(Persona).where(Persona.id == persona_id)
 
+    or_conditions = []
+
     # if user is an admin, they should have access to all Personas
     if user is not None and user.role != UserRole.ADMIN:
-        stmt = stmt.where(or_(Persona.user_id == user.id, Persona.user_id.is_(None)))
+        or_conditions.extend([Persona.user_id == user.id, Persona.user_id.is_(None)])
+
+        # if we aren't editing, also give access to all public personas
+        if not is_for_edit:
+            or_conditions.append(Persona.is_public.is_(True))
+
+    if or_conditions:
+        stmt = stmt.where(or_(*or_conditions))
 
     if not include_deleted:
         stmt = stmt.where(Persona.deleted.is_(False))

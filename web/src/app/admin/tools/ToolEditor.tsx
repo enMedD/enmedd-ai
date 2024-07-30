@@ -45,11 +45,11 @@ function ToolForm({
   isSubmitting: boolean;
   definitionErrorState: [
     string | null,
-    React.Dispatch<React.SetStateAction<string | null>>,
+    React.Dispatch<React.SetStateAction<string | null>>
   ];
   methodSpecsState: [
     MethodSpec[] | null,
-    React.Dispatch<React.SetStateAction<MethodSpec[] | null>>,
+    React.Dispatch<React.SetStateAction<MethodSpec[] | null>>
   ];
 }) {
   const [definitionError, setDefinitionError] = definitionErrorState;
@@ -70,6 +70,7 @@ function ToolForm({
           setDefinitionError(null);
         }
       } catch (error) {
+        // TODO: Take a look into this more
         console.log(error);
         setMethodSpecs(null);
         setDefinitionError("Invalid JSON format");

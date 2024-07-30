@@ -10,6 +10,7 @@ import {
 import { AIMessage, HumanMessage } from "../../message/Messages";
 import { Button, Callout, Divider } from "@tremor/react";
 import { useRouter } from "next/navigation";
+import { useChatContext } from "@/components/context/ChatContext";
 
 function BackToDanswerButton() {
   const router = useRouter();
@@ -17,9 +18,7 @@ function BackToDanswerButton() {
   return (
     <div className="absolute bottom-4 w-full flex border-t border-border pt-4">
       <div className="mx-auto">
-        <Button onClick={() => router.push("/chat")}>
-          Back to Chat
-        </Button>
+        <Button onClick={() => router.push("/chat")}>Back to Chat</Button>
       </div>
     </div>
   );
@@ -30,6 +29,7 @@ export function SharedChatDisplay({
 }: {
   chatSession: BackendChatSession | null;
 }) {
+  let { availablePersonas } = useChatContext();
   if (!chatSession) {
     return (
       <div className="min-h-full w-full">
@@ -43,6 +43,10 @@ export function SharedChatDisplay({
       </div>
     );
   }
+
+  const currentPersona = availablePersonas.find(
+    (persona) => persona.id === chatSession.persona_id
+  );
 
   const messages = buildLatestMessageChain(
     processRawChatHistory(chatSession.messages)
@@ -77,6 +81,7 @@ export function SharedChatDisplay({
                 } else {
                   return (
                     <AIMessage
+                      currentPersona={currentPersona!}
                       key={message.messageId}
                       messageId={message.messageId}
                       content={message.message}

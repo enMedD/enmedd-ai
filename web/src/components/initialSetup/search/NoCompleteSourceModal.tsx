@@ -33,7 +33,7 @@ export function NoCompleteSourcesModal({
 
   return (
     <Modal
-      className="max-w-4xl"
+      className="md:max-w-4xl"
       title="⏳ None of your connectors have finished a full sync yet"
       onOutsideClick={() => setIsHidden(true)}
     >
@@ -55,7 +55,7 @@ export function NoCompleteSourcesModal({
             <br />
             <br />
             <p
-              className="text-link cursor-pointer inline"
+              className="inline cursor-pointer text-link"
               onClick={() => {
                 setIsHidden(true);
               }}

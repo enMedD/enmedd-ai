@@ -5,6 +5,7 @@ from typing import Any
 from typing import cast
 
 import litellm  # type: ignore
+from httpx import RemoteProtocolError
 from langchain.schema.language_model import LanguageModelInput
 from langchain_core.messages import AIMessage
 from langchain_core.messages import AIMessageChunk
@@ -32,6 +33,9 @@ from danswer.llm.interfaces import LLM
 from danswer.llm.interfaces import LLMConfig
 from danswer.llm.interfaces import ToolChoiceOptions
 from danswer.utils.logger import setup_logger
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 logger = setup_logger()
@@ -338,17 +342,23 @@ class DefaultMultiLLM(LLM):
 
         output = None
         response = self._completion(prompt, tools, tool_choice, True)
-        for part in response:
-            if len(part["choices"]) == 0:
-                continue
-            delta = part["choices"][0]["delta"]
-            message_chunk = _convert_delta_to_message_chunk(delta, output)
-            if output is None:
-                output = message_chunk
-            else:
-                output += message_chunk
+        try:
+            for part in response:
+                if len(part["choices"]) == 0:
+                    continue
+                delta = part["choices"][0]["delta"]
+                message_chunk = _convert_delta_to_message_chunk(delta, output)
+                if output is None:
+                    output = message_chunk
+                else:
+                    output += message_chunk
 
-            yield message_chunk
+                yield message_chunk
+
+        except RemoteProtocolError:
+            raise RuntimeError(
+                "The AI model failed partway through generation, please try again."
+            )
 
         if LOG_ALL_MODEL_INTERACTIONS and output:
             content = output.content or ""

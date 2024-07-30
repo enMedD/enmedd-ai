@@ -11,17 +11,18 @@ export function BasicClickable({
     <button
       onClick={onClick}
       className={`
-        border 
-        border-border 
+        border
+        border-gray-300
         shadow-md
-        rounded
+        rounded-lg
         font-medium 
         text-emphasis 
         text-sm
         p-1
         h-full
+        bg-background
         select-none
-        hover:bg-hover
+        hover:bg-hover-light
         ${fullWidth ? "w-full" : ""}`}
     >
       {children}
@@ -43,9 +44,9 @@ export function EmphasizedClickable({
       onClick={onClick}
       className={`
         border 
-        border-border 
+        border-gray-400
         shadow-md
-        rounded
+        rounded-lg
         font-medium 
         text-emphasis
         text-sm
@@ -65,20 +66,22 @@ export function BasicSelectable({
   selected,
   hasBorder,
   fullWidth = false,
+  padding = true,
 }: {
   children: string | JSX.Element;
   selected: boolean;
   hasBorder?: boolean;
   fullWidth?: boolean;
+  padding?: boolean;
 }) {
   return (
     <div
       className={`
-        rounded
+        rounded-lg
         font-medium 
         text-emphasis 
         text-sm
-        p-1
+        ${padding && "p-1"}
         select-none
         ${hasBorder ? "border border-border" : ""}
         ${selected ? "bg-hover" : "hover:bg-hover"}
