@@ -54,6 +54,7 @@ export function Header({ user }: HeaderProps) {
           <div className="flex my-auto">
             <div className="my-auto mr-1">
               {/* TODO: Remove Enterprise Settings */}
+              {/* TODO: Replace with the Vanguard AI Logo */}
               <Image src={Logo} alt="Logo" className="w-28" />
             </div>
             <div className="my-auto">
@@ -64,7 +65,7 @@ export function Header({ user }: HeaderProps) {
                   </HeaderTitle>
                   {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
                     <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD CHP
+                      Powered by Vanguard AI
                     </p>
                   )}
                 </div>
