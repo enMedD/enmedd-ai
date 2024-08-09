@@ -225,39 +225,6 @@ export const SearchSection = ({
 
   return (
     <div className="w-full flex gap-3 grid-cols-2 justify-between">
-      <div className="w-52 3xl:w-64">
-        {(ccPairs.length > 0 || documentSets.length > 0) && (
-          <SourceSelector
-            {...filterManager}
-            availableDocumentSets={finalAvailableDocumentSets}
-            existingSources={finalAvailableSources}
-            availableTags={tags}
-          />
-        )}
-
-        <div className="pr-5 mt-10">
-          <SearchHelper
-            isFetching={isFetching}
-            searchResponse={searchResponse}
-            selectedSearchType={selectedSearchType}
-            setSelectedSearchType={setSelectedSearchType}
-            defaultOverrides={defaultOverrides}
-            restartSearch={onSearch}
-            forceQADisplay={() =>
-              setDefaultOverrides((prevState) => ({
-                ...(prevState || SEARCH_DEFAULT_OVERRIDES_START),
-                forceDisplayQA: true,
-              }))
-            }
-            setOffset={(offset) => {
-              setDefaultOverrides((prevState) => ({
-                ...(prevState || SEARCH_DEFAULT_OVERRIDES_START),
-                offset,
-              }));
-            }}
-          />
-        </div>
-      </div>
       <div className="md:w-[720px] 3xl:w-[800px] mx-auto">
         {personas.length > 0 ? (
           <div className="flex mb-2 w-fit">
@@ -291,6 +258,39 @@ export const SearchSection = ({
                 ? personas.find((p) => p.id === selectedPersona)?.name
                 : null
             }
+          />
+        </div>
+      </div>
+      <div className="w-52 3xl:w-64">
+        {(ccPairs.length > 0 || documentSets.length > 0) && (
+          <SourceSelector
+            {...filterManager}
+            availableDocumentSets={finalAvailableDocumentSets}
+            existingSources={finalAvailableSources}
+            availableTags={tags}
+          />
+        )}
+
+        <div className="pr-5 mt-10">
+          <SearchHelper
+            isFetching={isFetching}
+            searchResponse={searchResponse}
+            selectedSearchType={selectedSearchType}
+            setSelectedSearchType={setSelectedSearchType}
+            defaultOverrides={defaultOverrides}
+            restartSearch={onSearch}
+            forceQADisplay={() =>
+              setDefaultOverrides((prevState) => ({
+                ...(prevState || SEARCH_DEFAULT_OVERRIDES_START),
+                forceDisplayQA: true,
+              }))
+            }
+            setOffset={(offset) => {
+              setDefaultOverrides((prevState) => ({
+                ...(prevState || SEARCH_DEFAULT_OVERRIDES_START),
+                offset,
+              }));
+            }}
           />
         </div>
       </div>
