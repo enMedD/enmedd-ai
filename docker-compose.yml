@@ -223,6 +223,8 @@ services:
     depends_on:
       - api_server
     restart: always
+    ports:
+      - "3001:3000"
     environment:
       - INTERNAL_URL=http://api_server:8080
       - WEB_DOMAIN=${WEB_DOMAIN:-}
