@@ -10,10 +10,10 @@ from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import MessageType
-from danswer.db.models import ChatMessage
-from danswer.db.models import ChatMessageFeedback
-from danswer.db.models import ChatSession
+from enmedd_ai.configs.constants import MessageType
+from enmedd_ai.db.models import ChatMessage
+from enmedd_ai.db.models import ChatMessageFeedback
+from enmedd_ai.db.models import ChatSession
 
 
 def fetch_query_analytics(

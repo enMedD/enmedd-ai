@@ -4,11 +4,11 @@ from sqlalchemy import Row
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import TokenRateLimitScope
-from danswer.db.models import TokenRateLimit
-from danswer.db.models import TokenRateLimit__UserGroup
-from danswer.db.models import UserGroup
-from danswer.server.token_rate_limits.models import TokenRateLimitArgs
+from enmedd_ai.configs.constants import TokenRateLimitScope
+from enmedd_ai.db.models import TokenRateLimit
+from enmedd_ai.db.models import TokenRateLimit__UserGroup
+from enmedd_ai.db.models import UserGroup
+from enmedd_ai.server.token_rate_limits.models import TokenRateLimitArgs
 
 
 def fetch_all_user_token_rate_limits(

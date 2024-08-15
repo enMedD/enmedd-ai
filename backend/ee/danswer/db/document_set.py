@@ -2,13 +2,13 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import DocumentSet
-from danswer.db.models import DocumentSet__ConnectorCredentialPair
-from danswer.db.models import DocumentSet__User
-from danswer.db.models import DocumentSet__UserGroup
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup
+from enmedd_ai.db.models import ConnectorCredentialPair
+from enmedd_ai.db.models import DocumentSet
+from enmedd_ai.db.models import DocumentSet__ConnectorCredentialPair
+from enmedd_ai.db.models import DocumentSet__User
+from enmedd_ai.db.models import DocumentSet__UserGroup
+from enmedd_ai.db.models import User__UserGroup
+from enmedd_ai.db.models import UserGroup
 
 
 def make_doc_set_private(

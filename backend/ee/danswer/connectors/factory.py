@@ -1,4 +1,4 @@
-from danswer.configs.constants import DocumentSource
+from enmedd_ai.configs.constants import DocumentSource
 from ee.danswer.connectors.confluence.perm_sync import confluence_update_db_group
 from ee.danswer.connectors.confluence.perm_sync import confluence_update_index_acl
 

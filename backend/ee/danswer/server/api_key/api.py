@@ -3,8 +3,8 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 import danswer.db.models as db_models
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
+from enmedd_ai.auth.users import current_admin_user
+from enmedd_ai.db.engine import get_session
 from ee.danswer.db.api_key import ApiKeyDescriptor
 from ee.danswer.db.api_key import fetch_api_keys
 from ee.danswer.db.api_key import insert_api_key

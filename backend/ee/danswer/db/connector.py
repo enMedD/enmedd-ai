@@ -1,9 +1,9 @@
 from sqlalchemy import distinct
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import DocumentSource
-from danswer.db.models import Connector
-from danswer.utils.logger import setup_logger
+from enmedd_ai.configs.constants import DocumentSource
+from enmedd_ai.db.models import Connector
+from enmedd_ai.utils.logger import setup_logger
 
 logger = setup_logger()
 

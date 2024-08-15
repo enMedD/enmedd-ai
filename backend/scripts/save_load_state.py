@@ -9,13 +9,13 @@ import requests
 
 from alembic import command
 from alembic.config import Config
-from danswer.configs.app_configs import POSTGRES_DB
-from danswer.configs.app_configs import POSTGRES_HOST
-from danswer.configs.app_configs import POSTGRES_PASSWORD
-from danswer.configs.app_configs import POSTGRES_PORT
-from danswer.configs.app_configs import POSTGRES_USER
-from danswer.document_index.vespa.index import DOCUMENT_ID_ENDPOINT
-from danswer.utils.logger import setup_logger
+from enmedd_ai.configs.app_configs import POSTGRES_DB
+from enmedd_ai.configs.app_configs import POSTGRES_HOST
+from enmedd_ai.configs.app_configs import POSTGRES_PASSWORD
+from enmedd_ai.configs.app_configs import POSTGRES_PORT
+from enmedd_ai.configs.app_configs import POSTGRES_USER
+from enmedd_ai.document_index.vespa.index import DOCUMENT_ID_ENDPOINT
+from enmedd_ai.utils.logger import setup_logger
 
 logger = setup_logger()
 
@@ -101,6 +101,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--load", action="store_true", help="Load VanguardAI state from save directory."
     )
+    # TODO: Change the name of this
     parser.add_argument(
         "--postgres_container_name",
         type=str,

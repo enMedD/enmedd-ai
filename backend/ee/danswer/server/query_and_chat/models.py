@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-from danswer.configs.constants import DocumentSource
-from danswer.search.enums import SearchType
-from danswer.search.models import ChunkContext
-from danswer.search.models import RetrievalDetails
+from enmedd_ai.configs.constants import DocumentSource
+from enmedd_ai.search.enums import SearchType
+from enmedd_ai.search.models import ChunkContext
+from enmedd_ai.search.models import RetrievalDetails
 
 
 class DocumentSearchRequest(ChunkContext):

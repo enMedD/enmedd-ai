@@ -3,7 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from danswer.auth.schemas import UserStatus
+from enmedd_ai.auth.schemas import UserStatus
 
 
 class FlowType(str, Enum):

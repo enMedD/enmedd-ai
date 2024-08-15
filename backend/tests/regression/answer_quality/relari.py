@@ -3,15 +3,15 @@ import json
 
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import MessageType
-from danswer.db.engine import get_sqlalchemy_engine
-from danswer.one_shot_answer.answer_question import get_search_answer
-from danswer.one_shot_answer.models import DirectQARequest
-from danswer.one_shot_answer.models import OneShotQAResponse
-from danswer.one_shot_answer.models import ThreadMessage
-from danswer.search.models import IndexFilters
-from danswer.search.models import OptionalSearchSetting
-from danswer.search.models import RetrievalDetails
+from enmedd_ai.configs.constants import MessageType
+from enmedd_ai.db.engine import get_sqlalchemy_engine
+from enmedd_ai.one_shot_answer.answer_question import get_search_answer
+from enmedd_ai.one_shot_answer.models import DirectQARequest
+from enmedd_ai.one_shot_answer.models import OneShotQAResponse
+from enmedd_ai.one_shot_answer.models import ThreadMessage
+from enmedd_ai.search.models import IndexFilters
+from enmedd_ai.search.models import OptionalSearchSetting
+from enmedd_ai.search.models import RetrievalDetails
 
 
 def get_answer_for_question(query: str, db_session: Session) -> OneShotQAResponse:

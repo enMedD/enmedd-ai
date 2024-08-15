@@ -6,15 +6,15 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import Document
-from danswer.db.models import DocumentByConnectorCredentialPair
-from danswer.db.models import TokenRateLimit__UserGroup
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup
-from danswer.db.models import UserGroup__ConnectorCredentialPair
-from danswer.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd_ai.db.models import ConnectorCredentialPair
+from enmedd_ai.db.models import Document
+from enmedd_ai.db.models import DocumentByConnectorCredentialPair
+from enmedd_ai.db.models import TokenRateLimit__UserGroup
+from enmedd_ai.db.models import User
+from enmedd_ai.db.models import User__UserGroup
+from enmedd_ai.db.models import UserGroup
+from enmedd_ai.db.models import UserGroup__ConnectorCredentialPair
+from enmedd_ai.server.documents.models import ConnectorCredentialPairIdentifier
 from ee.danswer.server.user_group.models import UserGroupCreate
 from ee.danswer.server.user_group.models import UserGroupUpdate
 

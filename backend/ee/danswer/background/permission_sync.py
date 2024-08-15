@@ -8,15 +8,15 @@ from dask.distributed import Future
 from distributed import LocalCluster
 from sqlalchemy.orm import Session
 
-from danswer.background.indexing.dask_utils import ResourceLogger
-from danswer.background.indexing.job_client import SimpleJob
-from danswer.background.indexing.job_client import SimpleJobClient
-from danswer.configs.app_configs import CLEANUP_INDEXING_JOBS_TIMEOUT
-from danswer.configs.app_configs import DASK_JOB_CLIENT_ENABLED
-from danswer.configs.constants import DocumentSource
-from danswer.db.engine import get_sqlalchemy_engine
-from danswer.db.models import PermissionSyncStatus
-from danswer.utils.logger import setup_logger
+from enmedd_ai.background.indexing.dask_utils import ResourceLogger
+from enmedd_ai.background.indexing.job_client import SimpleJob
+from enmedd_ai.background.indexing.job_client import SimpleJobClient
+from enmedd_ai.configs.app_configs import CLEANUP_INDEXING_JOBS_TIMEOUT
+from enmedd_ai.configs.app_configs import DASK_JOB_CLIENT_ENABLED
+from enmedd_ai.configs.constants import DocumentSource
+from enmedd_ai.db.engine import get_sqlalchemy_engine
+from enmedd_ai.db.models import PermissionSyncStatus
+from enmedd_ai.utils.logger import setup_logger
 from ee.danswer.configs.app_configs import NUM_PERMISSION_WORKERS
 from ee.danswer.connectors.factory import CONNECTOR_PERMISSION_FUNC_MAP
 from ee.danswer.db.connector import fetch_sources_with_connectors

@@ -5,8 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 import danswer.db.models as db_models
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
+from enmedd_ai.auth.users import current_admin_user
+from enmedd_ai.db.engine import get_session
 from ee.danswer.db.user_group import fetch_user_groups
 from ee.danswer.db.user_group import insert_user_group
 from ee.danswer.db.user_group import prepare_user_group_for_deletion

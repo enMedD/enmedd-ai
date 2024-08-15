@@ -2,14 +2,14 @@ from datetime import timedelta
 
 from sqlalchemy.orm import Session
 
-from danswer.background.celery.celery_app import celery_app
-from danswer.background.task_utils import build_celery_task_wrapper
-from danswer.configs.app_configs import JOB_TIMEOUT
-from danswer.db.chat import delete_chat_sessions_older_than
-from danswer.db.engine import get_sqlalchemy_engine
-from danswer.server.settings.store import load_settings
-from danswer.utils.logger import setup_logger
-from danswer.utils.variable_functionality import global_version
+from enmedd_ai.background.celery.celery_app import celery_app
+from enmedd_ai.background.task_utils import build_celery_task_wrapper
+from enmedd_ai.configs.app_configs import JOB_TIMEOUT
+from enmedd_ai.db.chat import delete_chat_sessions_older_than
+from enmedd_ai.db.engine import get_sqlalchemy_engine
+from enmedd_ai.server.settings.store import load_settings
+from enmedd_ai.utils.logger import setup_logger
+from enmedd_ai.utils.variable_functionality import global_version
 from ee.danswer.background.celery_utils import should_perform_chat_ttl_check
 from ee.danswer.background.celery_utils import should_sync_user_groups
 from ee.danswer.background.task_name_builders import name_chat_ttl_task

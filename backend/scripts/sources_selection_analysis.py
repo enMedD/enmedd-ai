@@ -14,8 +14,8 @@ import requests
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 
-from danswer.configs.app_configs import DOCUMENT_INDEX_NAME  # noqa: E402
-from danswer.configs.constants import SOURCE_TYPE  # noqa: E402
+from enmedd_ai.configs.app_configs import DOCUMENT_INDEX_NAME  # noqa: E402
+from enmedd_ai.configs.constants import SOURCE_TYPE  # noqa: E402
 
 ANALYSIS_FOLDER = f"{parent_dir}/scripts/.analysisfiles/"
 

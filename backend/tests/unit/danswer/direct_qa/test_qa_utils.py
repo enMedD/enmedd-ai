@@ -1,14 +1,14 @@
 import textwrap
 import unittest
 
-from danswer.configs.constants import DocumentSource
-from danswer.llm.answering.stream_processing.quotes_processing import (
+from enmedd_ai.configs.constants import DocumentSource
+from enmedd_ai.llm.answering.stream_processing.quotes_processing import (
     match_quotes_to_docs,
 )
-from danswer.llm.answering.stream_processing.quotes_processing import (
+from enmedd_ai.llm.answering.stream_processing.quotes_processing import (
     separate_answer_quotes,
 )
-from danswer.search.models import InferenceChunk
+from enmedd_ai.search.models import InferenceChunk
 
 
 class TestQAPostprocessing(unittest.TestCase):

@@ -15,16 +15,16 @@ from pydantic import BaseModel
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
-from danswer.auth.schemas import UserCreate
-from danswer.auth.schemas import UserRole
-from danswer.auth.users import get_user_manager
-from danswer.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
-from danswer.db.auth import get_user_count
-from danswer.db.auth import get_user_db
-from danswer.db.engine import get_async_session
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.utils.logger import setup_logger
+from enmedd_ai.auth.schemas import UserCreate
+from enmedd_ai.auth.schemas import UserRole
+from enmedd_ai.auth.users import get_user_manager
+from enmedd_ai.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
+from enmedd_ai.db.auth import get_user_count
+from enmedd_ai.db.auth import get_user_db
+from enmedd_ai.db.engine import get_async_session
+from enmedd_ai.db.engine import get_session
+from enmedd_ai.db.models import User
+from enmedd_ai.utils.logger import setup_logger
 from ee.danswer.configs.app_configs import SAML_CONF_DIR
 from ee.danswer.db.saml import expire_saml_account
 from ee.danswer.db.saml import get_saml_account

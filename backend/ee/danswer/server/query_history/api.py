@@ -13,15 +13,15 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 import danswer.db.models as db_models
-from danswer.auth.users import current_admin_user
-from danswer.auth.users import get_display_email
-from danswer.chat.chat_utils import create_chat_chain
-from danswer.configs.constants import MessageType
-from danswer.configs.constants import QAFeedbackType
-from danswer.db.chat import get_chat_session_by_id
-from danswer.db.engine import get_session
-from danswer.db.models import ChatMessage
-from danswer.db.models import ChatSession
+from enmedd_ai.auth.users import current_admin_user
+from enmedd_ai.auth.users import get_display_email
+from enmedd_ai.chat.chat_utils import create_chat_chain
+from enmedd_ai.configs.constants import MessageType
+from enmedd_ai.configs.constants import QAFeedbackType
+from enmedd_ai.db.chat import get_chat_session_by_id
+from enmedd_ai.db.engine import get_session
+from enmedd_ai.db.models import ChatMessage
+from enmedd_ai.db.models import ChatSession
 from ee.danswer.db.query_history import fetch_chat_sessions_eagerly_by_time
 
 
