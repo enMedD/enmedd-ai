@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 from httpx_oauth.clients.openid import OpenID
 
-from enmedd_ai.auth.users import auth_backend
-from enmedd_ai.auth.users import fastapi_users
-from enmedd_ai.configs.app_configs import AUTH_TYPE
-from enmedd_ai.configs.app_configs import OAUTH_CLIENT_ID
-from enmedd_ai.configs.app_configs import OAUTH_CLIENT_SECRET
-from enmedd_ai.configs.app_configs import USER_AUTH_SECRET
-from enmedd_ai.configs.app_configs import WEB_DOMAIN
-from enmedd_ai.configs.constants import AuthType
-from enmedd_ai.main import get_application as get_application_base
-from enmedd_ai.main import include_router_with_global_prefix_prepended
-from enmedd_ai.utils.logger import setup_logger
-from enmedd_ai.utils.variable_functionality import global_version
+from danswer.auth.users import auth_backend
+from danswer.auth.users import fastapi_users
+from danswer.configs.app_configs import AUTH_TYPE
+from danswer.configs.app_configs import OAUTH_CLIENT_ID
+from danswer.configs.app_configs import OAUTH_CLIENT_SECRET
+from danswer.configs.app_configs import USER_AUTH_SECRET
+from danswer.configs.app_configs import WEB_DOMAIN
+from danswer.configs.constants import AuthType
+from danswer.main import get_application as get_application_base
+from danswer.main import include_router_with_global_prefix_prepended
+from danswer.utils.logger import setup_logger
+from danswer.utils.variable_functionality import global_version
 from ee.danswer.configs.app_configs import OPENID_CONFIG_URL
 from ee.danswer.server.analytics.api import router as analytics_router
 from ee.danswer.server.api_key.api import router as api_key_router

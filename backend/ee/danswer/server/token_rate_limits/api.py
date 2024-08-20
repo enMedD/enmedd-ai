@@ -4,12 +4,12 @@ from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from enmedd_ai.auth.users import current_admin_user
-from enmedd_ai.db.engine import get_session
-from enmedd_ai.db.models import User
-from enmedd_ai.server.query_and_chat.token_limit import any_rate_limit_exists
-from enmedd_ai.server.token_rate_limits.models import TokenRateLimitArgs
-from enmedd_ai.server.token_rate_limits.models import TokenRateLimitDisplay
+from danswer.auth.users import current_admin_user
+from danswer.db.engine import get_session
+from danswer.db.models import User
+from danswer.server.query_and_chat.token_limit import any_rate_limit_exists
+from danswer.server.token_rate_limits.models import TokenRateLimitArgs
+from danswer.server.token_rate_limits.models import TokenRateLimitDisplay
 from ee.danswer.db.token_limit import fetch_all_user_group_token_rate_limits
 from ee.danswer.db.token_limit import fetch_all_user_group_token_rate_limits_by_group
 from ee.danswer.db.token_limit import fetch_all_user_token_rate_limits

@@ -5,10 +5,10 @@ from fastapi import Response
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from enmedd_ai.auth.users import current_admin_user
-from enmedd_ai.db.engine import get_session
-from enmedd_ai.db.models import User
-from enmedd_ai.file_store.file_store import get_default_file_store
+from danswer.auth.users import current_admin_user
+from danswer.db.engine import get_session
+from danswer.db.models import User
+from danswer.file_store.file_store import get_default_file_store
 from ee.danswer.server.enterprise_settings.models import AnalyticsScriptUpload
 from ee.danswer.server.enterprise_settings.models import EnterpriseSettings
 from ee.danswer.server.enterprise_settings.store import _LOGO_FILENAME

@@ -7,8 +7,8 @@ import uvicorn
 from fastapi import FastAPI
 from transformers import logging as transformer_logging  # type:ignore
 
-from enmedd_ai import __version__
-from enmedd_ai.utils.logger import setup_logger
+from danswer import __version__
+from danswer.utils.logger import setup_logger
 from model_server.custom_models import router as custom_models_router
 from model_server.custom_models import warm_up_intent_model
 from model_server.encoders import router as encoders_router

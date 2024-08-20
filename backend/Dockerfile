@@ -72,7 +72,7 @@ COPY ./ee /app/ee
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set up application files
-COPY ./enmedd_ai /app/enmedd_ai
+COPY ./danswer /app/danswer
 COPY ./shared_configs /app/shared_configs
 COPY ./alembic /app/alembic
 COPY ./alembic.ini /app/alembic.ini

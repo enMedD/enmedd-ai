@@ -9,8 +9,8 @@ from sqlalchemy.orm import contains_eager
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
-from enmedd_ai.db.models import ChatMessage
-from enmedd_ai.db.models import ChatSession
+from danswer.db.models import ChatMessage
+from danswer.db.models import ChatSession
 
 SortByOptions = Literal["time_sent"]
 

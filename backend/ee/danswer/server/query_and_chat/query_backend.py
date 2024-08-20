@@ -2,28 +2,28 @@ from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from enmedd_ai.auth.users import current_user
-from enmedd_ai.db.engine import get_session
-from enmedd_ai.db.models import User
-from enmedd_ai.db.persona import get_persona_by_id
-from enmedd_ai.llm.answering.prompts.citations_prompt import (
+from danswer.auth.users import current_user
+from danswer.db.engine import get_session
+from danswer.db.models import User
+from danswer.db.persona import get_persona_by_id
+from danswer.llm.answering.prompts.citations_prompt import (
     compute_max_document_tokens_for_persona,
 )
-from enmedd_ai.llm.factory import get_default_llms
-from enmedd_ai.llm.factory import get_llms_for_persona
-from enmedd_ai.llm.factory import get_main_llm_from_tuple
-from enmedd_ai.llm.utils import get_max_input_tokens
-from enmedd_ai.one_shot_answer.answer_question import get_search_answer
-from enmedd_ai.one_shot_answer.models import DirectQARequest
-from enmedd_ai.one_shot_answer.models import OneShotQAResponse
-from enmedd_ai.search.models import SavedSearchDoc
-from enmedd_ai.search.models import SearchRequest
-from enmedd_ai.search.models import SearchResponse
-from enmedd_ai.search.pipeline import SearchPipeline
-from enmedd_ai.search.utils import chunks_or_sections_to_search_docs
-from enmedd_ai.search.utils import dedupe_documents
-from enmedd_ai.search.utils import drop_llm_indices
-from enmedd_ai.utils.logger import setup_logger
+from danswer.llm.factory import get_default_llms
+from danswer.llm.factory import get_llms_for_persona
+from danswer.llm.factory import get_main_llm_from_tuple
+from danswer.llm.utils import get_max_input_tokens
+from danswer.one_shot_answer.answer_question import get_search_answer
+from danswer.one_shot_answer.models import DirectQARequest
+from danswer.one_shot_answer.models import OneShotQAResponse
+from danswer.search.models import SavedSearchDoc
+from danswer.search.models import SearchRequest
+from danswer.search.models import SearchResponse
+from danswer.search.pipeline import SearchPipeline
+from danswer.search.utils import chunks_or_sections_to_search_docs
+from danswer.search.utils import dedupe_documents
+from danswer.search.utils import drop_llm_indices
+from danswer.utils.logger import setup_logger
 from ee.danswer.server.query_and_chat.models import DocumentSearchRequest
 
 

@@ -14,26 +14,26 @@ sys.path.append(parent_dir)
 # flake8: noqa: E402
 
 # Now import Danswer modules
-from enmedd_ai.db.models import DocumentSet__ConnectorCredentialPair
-from enmedd_ai.db.connector import fetch_connector_by_id
-from enmedd_ai.db.document import get_documents_for_connector_credential_pair
-from enmedd_ai.db.index_attempt import (
+from danswer.db.models import DocumentSet__ConnectorCredentialPair
+from danswer.db.connector import fetch_connector_by_id
+from danswer.db.document import get_documents_for_connector_credential_pair
+from danswer.db.index_attempt import (
     delete_index_attempts,
     cancel_indexing_attempts_for_connector,
 )
-from enmedd_ai.db.models import ConnectorCredentialPair
-from enmedd_ai.document_index.interfaces import DocumentIndex
-from enmedd_ai.utils.logger import setup_logger
-from enmedd_ai.configs.constants import DocumentSource
-from enmedd_ai.db.connector_credential_pair import (
+from danswer.db.models import ConnectorCredentialPair
+from danswer.document_index.interfaces import DocumentIndex
+from danswer.utils.logger import setup_logger
+from danswer.configs.constants import DocumentSource
+from danswer.db.connector_credential_pair import (
     get_connector_credential_pair_from_id,
     get_connector_credential_pair,
 )
-from enmedd_ai.db.engine import get_session_context_manager
-from enmedd_ai.document_index.factory import get_default_document_index
-from enmedd_ai.file_store.file_store import get_default_file_store
-from enmedd_ai.document_index.document_index_utils import get_both_index_names
-from enmedd_ai.db.document import delete_documents_complete__no_commit
+from danswer.db.engine import get_session_context_manager
+from danswer.document_index.factory import get_default_document_index
+from danswer.file_store.file_store import get_default_file_store
+from danswer.document_index.document_index_utils import get_both_index_names
+from danswer.db.document import delete_documents_complete__no_commit
 
 # pylint: enable=E402
 # flake8: noqa: E402

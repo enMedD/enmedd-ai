@@ -3,11 +3,11 @@ from fastapi import HTTPException
 from fastapi import Request
 from sqlalchemy.orm import Session
 
-from enmedd_ai.configs.app_configs import AUTH_TYPE
-from enmedd_ai.configs.constants import AuthType
-from enmedd_ai.db.engine import get_session
-from enmedd_ai.db.models import User
-from enmedd_ai.utils.logger import setup_logger
+from danswer.configs.app_configs import AUTH_TYPE
+from danswer.configs.constants import AuthType
+from danswer.db.engine import get_session
+from danswer.db.models import User
+from danswer.utils.logger import setup_logger
 from ee.danswer.auth.api_key import get_hashed_api_key_from_request
 from ee.danswer.db.api_key import fetch_user_for_api_key
 from ee.danswer.db.saml import get_saml_account

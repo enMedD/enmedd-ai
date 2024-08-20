@@ -2,14 +2,14 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from enmedd_ai.db.models import UserGroup as UserGroupModel
-from enmedd_ai.server.documents.models import ConnectorCredentialPairDescriptor
-from enmedd_ai.server.documents.models import ConnectorSnapshot
-from enmedd_ai.server.documents.models import CredentialSnapshot
-from enmedd_ai.server.features.document_set.models import DocumentSet
-from enmedd_ai.server.features.persona.models import PersonaSnapshot
-from enmedd_ai.server.manage.models import UserInfo
-from enmedd_ai.server.manage.models import UserPreferences
+from danswer.db.models import UserGroup as UserGroupModel
+from danswer.server.documents.models import ConnectorCredentialPairDescriptor
+from danswer.server.documents.models import ConnectorSnapshot
+from danswer.server.documents.models import CredentialSnapshot
+from danswer.server.features.document_set.models import DocumentSet
+from danswer.server.features.persona.models import PersonaSnapshot
+from danswer.server.manage.models import UserInfo
+from danswer.server.manage.models import UserPreferences
 
 
 class UserGroup(BaseModel):

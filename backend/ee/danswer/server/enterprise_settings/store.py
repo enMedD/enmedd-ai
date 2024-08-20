@@ -8,11 +8,11 @@ from fastapi import HTTPException
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from enmedd_ai.configs.constants import FileOrigin
-from enmedd_ai.dynamic_configs.factory import get_dynamic_config_store
-from enmedd_ai.dynamic_configs.interface import ConfigNotFoundError
-from enmedd_ai.file_store.file_store import get_default_file_store
-from enmedd_ai.utils.logger import setup_logger
+from danswer.configs.constants import FileOrigin
+from danswer.dynamic_configs.factory import get_dynamic_config_store
+from danswer.dynamic_configs.interface import ConfigNotFoundError
+from danswer.file_store.file_store import get_default_file_store
+from danswer.utils.logger import setup_logger
 from ee.danswer.server.enterprise_settings.models import AnalyticsScriptUpload
 from ee.danswer.server.enterprise_settings.models import EnterpriseSettings
 from dotenv import load_dotenv

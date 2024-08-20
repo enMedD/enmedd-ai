@@ -7,9 +7,9 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from enmedd_ai.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
-from enmedd_ai.db.models import SamlAccount
-from enmedd_ai.db.models import User
+from danswer.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
+from danswer.db.models import SamlAccount
+from danswer.db.models import User
 
 
 def upsert_saml_account(

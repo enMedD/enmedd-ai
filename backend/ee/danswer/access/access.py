@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
 
-from enmedd_ai.access.access import (
+from danswer.access.access import (
     _get_access_for_documents as get_access_for_documents_without_groups,
 )
-from enmedd_ai.access.access import _get_acl_for_user as get_acl_for_user_without_groups
-from enmedd_ai.access.models import DocumentAccess
-from enmedd_ai.access.utils import prefix_user_group
-from enmedd_ai.db.models import User
-from enmedd_ai.server.documents.models import ConnectorCredentialPairIdentifier
+from danswer.access.access import _get_acl_for_user as get_acl_for_user_without_groups
+from danswer.access.models import DocumentAccess
+from danswer.access.utils import prefix_user_group
+from danswer.db.models import User
+from danswer.server.documents.models import ConnectorCredentialPairIdentifier
 from ee.danswer.db.user_group import fetch_user_groups_for_documents
 from ee.danswer.db.user_group import fetch_user_groups_for_user
 

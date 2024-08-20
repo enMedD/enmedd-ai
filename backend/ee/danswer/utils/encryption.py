@@ -7,9 +7,9 @@ from cryptography.hazmat.primitives.ciphers import algorithms
 from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.ciphers import modes
 
-from enmedd_ai.configs.app_configs import ENCRYPTION_KEY_SECRET
-from enmedd_ai.utils.logger import setup_logger
-from enmedd_ai.utils.variable_functionality import fetch_versioned_implementation
+from danswer.configs.app_configs import ENCRYPTION_KEY_SECRET
+from danswer.utils.logger import setup_logger
+from danswer.utils.variable_functionality import fetch_versioned_implementation
 
 logger = setup_logger()
 
@@ -65,14 +65,14 @@ def _decrypt_bytes(input_bytes: bytes) -> str:
 
 def encrypt_string_to_bytes(input_str: str) -> bytes:
     versioned_encryption_fn = fetch_versioned_implementation(
-        "enmedd_ai.utils.encryption", "_encrypt_string"
+        "danswer.utils.encryption", "_encrypt_string"
     )
     return versioned_encryption_fn(input_str)
 
 
 def decrypt_bytes_to_string(input_bytes: bytes) -> str:
     versioned_decryption_fn = fetch_versioned_implementation(
-        "enmedd_ai.utils.encryption", "_decrypt_bytes"
+        "danswer.utils.encryption", "_decrypt_bytes"
     )
     return versioned_decryption_fn(input_bytes)
 

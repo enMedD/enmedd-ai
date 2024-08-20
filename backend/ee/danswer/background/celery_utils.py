@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 
-from enmedd_ai.db.models import UserGroup
-from enmedd_ai.db.tasks import check_task_is_live_and_not_timed_out
-from enmedd_ai.db.tasks import get_latest_task
-from enmedd_ai.utils.logger import setup_logger
+from danswer.db.models import UserGroup
+from danswer.db.tasks import check_task_is_live_and_not_timed_out
+from danswer.db.tasks import get_latest_task
+from danswer.utils.logger import setup_logger
 from ee.danswer.background.task_name_builders import name_chat_ttl_task
 from ee.danswer.background.task_name_builders import name_user_group_sync_task
 

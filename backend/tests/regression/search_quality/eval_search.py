@@ -7,15 +7,15 @@ from typing import TextIO
 
 from sqlalchemy.orm import Session
 
-from enmedd_ai.db.engine import get_sqlalchemy_engine
-from enmedd_ai.llm.answering.doc_pruning import reorder_docs
-from enmedd_ai.llm.factory import get_default_llms
-from enmedd_ai.search.models import InferenceChunk
-from enmedd_ai.search.models import RerankMetricsContainer
-from enmedd_ai.search.models import RetrievalMetricsContainer
-from enmedd_ai.search.models import SearchRequest
-from enmedd_ai.search.pipeline import SearchPipeline
-from enmedd_ai.utils.callbacks import MetricsHander
+from danswer.db.engine import get_sqlalchemy_engine
+from danswer.llm.answering.doc_pruning import reorder_docs
+from danswer.llm.factory import get_default_llms
+from danswer.search.models import InferenceChunk
+from danswer.search.models import RerankMetricsContainer
+from danswer.search.models import RetrievalMetricsContainer
+from danswer.search.models import SearchRequest
+from danswer.search.pipeline import SearchPipeline
+from danswer.utils.callbacks import MetricsHander
 
 
 engine = get_sqlalchemy_engine()

@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from enmedd_ai.connectors.cross_connector_utils.rate_limit_wrapper import (
+from danswer.connectors.cross_connector_utils.rate_limit_wrapper import (
     rate_limit_builder,
 )
 
