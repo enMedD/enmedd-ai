@@ -24,8 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title:
-      dynamicSettings.enterpriseSettings?.application_name ?? "enMedD AI",
-    description: "enMedD AI: Empowering Digital Health Solution of the Future",
+      dynamicSettings.enterpriseSettings?.application_name ?? "Arnold AI",
+    description: "Arnold AI: Empowering Digital Health Solution of the Future",
     icons: {
       icon: logoLocation,
     },

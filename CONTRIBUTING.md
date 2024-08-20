@@ -111,7 +111,7 @@ playwright install
 
 ## Dependent Docker Containers
 
-### Developing in fullstack. Both backend and the frontend of enMedD CHP.
+### Developing in fullstack. Both backend and the frontend of Arnold AI.
 
 If you only want to dockerize the database. This will be the case if you wanted to develop also into the backend. You just need to start up the docker container of both the `index` - which is the Vespa vector database, and the `relational_db` - which is the postgres relational database from the `docker-compose.dev.yaml file`. 
 

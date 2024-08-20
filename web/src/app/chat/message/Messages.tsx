@@ -175,7 +175,7 @@ export const AIMessage = ({
             />
 
             <div className="font-bold text-emphasis ml-2 my-auto">
-              {personaName || "enMedD AI"}
+              {personaName || "Arnold AI"}
             </div>
 
             {query === undefined &&

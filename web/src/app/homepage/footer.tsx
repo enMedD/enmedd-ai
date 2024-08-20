@@ -19,7 +19,7 @@ export default function Footer() {
           <div className="flex flex-col justify-between w-full gap-10 xl:flex-row">
             <div className="flex flex-col gap-3">
               <Link href="/">
-                <Image src={enmeddLogo} alt="enmedd-ai-logo" width={150} />
+                <Image src={enmeddLogo} alt="arnold-ai-logo" width={150} />
               </Link>
               <p>Build and Deploy AI Applications in minutes</p>
 

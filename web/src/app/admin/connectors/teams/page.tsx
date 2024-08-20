@@ -86,7 +86,7 @@ const MainSection = () => {
       <Text>
         The Teams connector allows you to index and search through your Teams
         channels. Once setup, all messages from the channels contained in the
-        specified teams will be queryable within enMedD AI.
+        specified teams will be queryable within Arnold AI.
       </Text>
 
       <Title className="mb-2 mt-6 ml-auto mr-auto">

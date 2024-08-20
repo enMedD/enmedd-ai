@@ -73,7 +73,7 @@ const Page = async ({
         <div>
           {authUrl && authTypeMetadata && (
             <>
-              {/* TODO: replace into enMedD AI */}
+              {/* TODO: replace into Arnold AI */}
               <LoginText />
               <SignInButton
                 authorizeUrl={authUrl}

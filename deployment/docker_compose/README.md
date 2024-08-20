@@ -29,12 +29,12 @@ For GPUs to be accessible to containers, you will need the container toolkit. Pl
 ### Launching with GPU
 
 1. To run Danswer with GPU, navigate to `docker_compose` directory and run the following:
-   - `docker compose -f docker-compose.gpu-dev.yml -p enmedd-ai up -d --pull always --force-recreate`
-      - or run: `docker compose -f docker-compose.gpu-dev.yml -p enmedd-ai up -d --build --force-recreate`
+   - `docker compose -f docker-compose.gpu-dev.yml -p arnold-ai up -d --pull always --force-recreate`
+      - or run: `docker compose -f docker-compose.gpu-dev.yml -p arnold-ai up -d --build --force-recreate`
 to build from source
    - Downloading images or packages/requirements may take 15+ minutes depending on your internet connection.
 
 
 2. To shut down the deployment, run:
-   - To stop the containers: `docker compose -f docker-compose.gpu-dev.yml -p enmedd-ai stop`
-   - To delete the containers: `docker compose -f docker-compose.gpu-dev.yml -p enmedd-ai down`
+   - To stop the containers: `docker compose -f docker-compose.gpu-dev.yml -p arnold-ai stop`
+   - To delete the containers: `docker compose -f docker-compose.gpu-dev.yml -p arnold-ai down`

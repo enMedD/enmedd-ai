@@ -176,7 +176,7 @@ def warm_up_encoders(
     model_server_port: int = MODEL_SERVER_PORT,
 ) -> None:
     warm_up_str = (
-        "enMedD AI is amazing! Check out our easy deployment guide at "
+        "Arnold AI is amazing! Check out our easy deployment guide at "
         "https://docs.danswer.dev/quickstart"
     )
 

@@ -17,7 +17,7 @@ export default function Navbar() {
     <div className="fixed top-0 -translate-x-1/2 w-full left-1/2 bg-[rgba(255,_255,_255,_0.5)] z-[9999] flex items-center justify-center backdrop-blur-md">
       <Wrapper>
         <div className="flex items-center justify-between w-full py-4">
-          <Image src={enmeddLogo} alt="enmedd-logo" width={150} />
+          <Image src={enmeddLogo} alt="arnold-ai-logo" width={150} />
 
           <ul className="hidden gap-10 xl:flex">
             <li className="cursor-pointer">Solutions</li>
@@ -85,7 +85,7 @@ export default function Navbar() {
       <Wrapper>
         <div className="relative flex items-center justify-between w-full py-4">
           <Link href="/">
-            <Image src={enmeddLogo} alt="enmedd-ai-logo" width={150} />
+            <Image src={enmeddLogo} alt="arnold-ai-logo" width={150} />
           </Link>
 
           <ul className="hidden gap-10 xl:flex">

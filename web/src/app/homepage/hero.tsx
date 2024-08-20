@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import heroImg from "../../../public/login_page_img.webp";
+import heroImg from "../../../public/logo-brand.png";
 import placeholder from "../../../public/placeholder.svg";
 import { Wrapper } from "./wrapper";
 

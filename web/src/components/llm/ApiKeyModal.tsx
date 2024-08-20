@@ -45,8 +45,8 @@ export const ApiKeyModal = ({ user }: { user: User | null }) => {
       <div className="max-h-[75vh] overflow-y-auto flex flex-col px-4">
         <div>
           <div className="mb-5 text-sm">
-            Please setup an LLM below in order to start using enMedD AI Search
-            or enMedD AI Chat. Don&apos;t worry, you can always change this
+            Please setup an LLM below in order to start using Arnold AI Search
+            or Arnold AI Chat. Don&apos;t worry, you can always change this
             later in the Admin Panel.
             <br />
             <br />

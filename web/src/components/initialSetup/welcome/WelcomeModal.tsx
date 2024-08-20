@@ -115,9 +115,9 @@ export function _WelcomeModal({ user }: { user: User | null }) {
             </Text>
             <div>
               <Text>
-                Connectors are the way that enMedD AI gets data from your
+                Connectors are the way that Arnold AI gets data from your
                 organization&apos;s various data sources. Once setup, we&apos;ll
-                automatically sync data from your apps and docs into enMedD AI,
+                automatically sync data from your apps and docs into Arnold AI,
                 so you can search through all of them in one place.
               </Text>
 
@@ -215,11 +215,11 @@ export function _WelcomeModal({ user }: { user: User | null }) {
       );
       break;
     default:
-      title = "🎉 Welcome to enMedD AI";
+      title = "🎉 Welcome to Arnold AI";
       body = (
         <>
           <div>
-            <Text>How are you planning on using enMedD AI?</Text>
+            <Text>How are you planning on using Arnold AI?</Text>
           </div>
           <Divider />
           <UsageTypeSection

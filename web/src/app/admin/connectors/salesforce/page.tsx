@@ -75,7 +75,7 @@ const MainSection = () => {
       <Text>
         The Salesforce connector allows you to index and search through your
         Salesforce data. Once setup, all indicated Salesforce data will be will
-        be queryable within enMedD AI.
+        be queryable within Arnold AI.
       </Text>
 
       <Title className="mb-2 mt-6 ml-auto mr-auto">
@@ -237,9 +237,9 @@ const MainSection = () => {
                     {" "}
                     here{" "}
                   </a>
-                  for an example of how enMedD AI uses the objects. <br />
+                  for an example of how Arnold AI uses the objects. <br />
                   <br />
-                  If unsure, don&apos;t specify any objects and enMedD AI will
+                  If unsure, don&apos;t specify any objects and Arnold AI will
                   default to indexing by &apos;Account&apos;.
                   <br />
                   <br />

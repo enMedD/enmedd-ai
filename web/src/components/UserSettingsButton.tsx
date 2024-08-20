@@ -58,7 +58,7 @@ export function UserSettingsButton({ user }: { user: User | null }) {
                     : "Admin"}
                 </p>
                 <p className="text-xs">
-                  {user && user.email ? user.email : "admin@enmedd-ai.com"}
+                  {user && user.email ? user.email : "admin@arnold-ai.com"}
                 </p>
               </div>
             </div>

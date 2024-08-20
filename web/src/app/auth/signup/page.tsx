@@ -59,7 +59,7 @@ const Page = async () => {
               <Image src={Logo} alt="Logo" className="w-40" />
               {/* TODO: Change this into enterprise settings application name */}
               {/* you need to make this page not async to be able to get settings context */}
-              {/* TODO: Replace into enMedD AI */}
+              {/* TODO: Replace into Arnold AI */}
             </Title>
             <div className="flex flex-col mt-5">
               <h1 className="text-xl font-bold text-black">Sign Up</h1>

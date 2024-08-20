@@ -19,13 +19,13 @@ metadata:
 
 questions:
   - id: 1
-    question: "What is enMedD AI?"
-    expected_answer: "enMedD AI is an open source question-answering system."
+    question: "What is Arnold AI?"
+    expected_answer: "Arnold AI is an open source question-answering system."
     notes: "This comes directly from the docs, the actual answer should be more informative"
 
   - id: 2
-    question: "What is enMedD AI licensed under?"
-    expected_answer: "enMedD AI is MIT licensed"
+    question: "What is Arnold AI licensed under?"
+    expected_answer: "Arnold AI is MIT licensed"
     notes: "This info can be found in many places"
 
   - id: 3

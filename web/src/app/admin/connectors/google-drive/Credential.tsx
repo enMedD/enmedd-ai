@@ -323,7 +323,7 @@ export const DriveOAuthSection = ({
       <div>
         <p className="text-sm mb-2">
           When using a Google Drive Service Account, you can either have
-          enMedD AI act as the service account itself OR you can specify an
+          Arnold AI act as the service account itself OR you can specify an
           account for the service account to impersonate.
           <br />
           <br />
@@ -378,7 +378,7 @@ export const DriveOAuthSection = ({
                 <TextFormField
                   name="google_drive_delegated_user"
                   label="[Optional] User email to impersonate:"
-                  subtext="If left blank, enMedD AI will use the service account itself."
+                  subtext="If left blank, Arnold AI will use the service account itself."
                 />
                 <div className="flex">
                   <button
