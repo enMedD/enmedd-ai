@@ -20,12 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
     dynamicSettings.enterpriseSettings &&
     dynamicSettings.enterpriseSettings?.use_custom_logo
       ? "/api/enterprise-settings/logo"
-      : buildClientUrl("/vanguard-ai.ico");
+      : buildClientUrl("/favicon.ico");
 
   return {
     title:
-      dynamicSettings.enterpriseSettings?.application_name ?? "Vanguard AI",
-    description: "Normark Defense: Vanguard AI",
+      dynamicSettings.enterpriseSettings?.application_name ?? "enMedD AI",
+    description: "enMedD AI: Empowering Digital Health Solution of the Future",
     icons: {
       icon: logoLocation,
     },

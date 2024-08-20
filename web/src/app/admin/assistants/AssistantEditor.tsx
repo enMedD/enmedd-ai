@@ -539,7 +539,7 @@ export function AssistantEditor({
                                       <>
                                         If this functionality would be useful,
                                         reach out to the administrators of
-                                        VanguardAI for assistance.
+                                        enMedD AI for assistance.
                                       </>
                                     )}
                                   </Italic>

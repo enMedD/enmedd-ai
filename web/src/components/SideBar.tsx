@@ -43,7 +43,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isHeader, handleClose }) => {
       }`}
     >
       <div className="flex items-center justify-between w-full h-16 px-6 py-4 border-b lg:hidden">
-        <Image src={enmeddLogo} alt="vanguard-ai-logo" width={112} />
+        <Image src={enmeddLogo} alt="enmedd-ai-logo" width={112} />
         <FiX onClick={handleClose} />
       </div>
 

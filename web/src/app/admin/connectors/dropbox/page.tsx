@@ -122,7 +122,7 @@ const Main = () => {
             >
               setup guide
             </a>{" "}
-            on the VanguardAI docs to obtain a Dropbox token.
+            on the enMedD AI docs to obtain a Dropbox token.
           </Text>
           <Card className="mt-4 mb-4">
             <CredentialForm<DropboxCredentialJson>

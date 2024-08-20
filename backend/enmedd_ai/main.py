@@ -254,7 +254,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 def get_application() -> FastAPI:
     application = FastAPI(
-        title="VanguardAI Backend", version=__version__, lifespan=lifespan
+        title="enMedD AI Backend", version=__version__, lifespan=lifespan
     )
 
     include_router_with_global_prefix_prepended(application, chat_router)
@@ -375,7 +375,7 @@ app = fetch_versioned_implementation(module="enmedd_ai.main", attribute="get_app
 
 if __name__ == "__main__":
     logger.info(
-        f"Starting VanguardAI Backend version {__version__} on http://{APP_HOST}:{str(APP_PORT)}/"
+        f"Starting enMedD AI Backend version {__version__} on http://{APP_HOST}:{str(APP_PORT)}/"
     )
 
     if global_version.get_is_ee_version():
