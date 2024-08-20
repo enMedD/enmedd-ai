@@ -89,36 +89,29 @@ export const ChatSidebar = ({
               settings && settings.default_page === "chat" ? "/chat" : "/search"
             } */
           >
-            <div className="flex items-center justify-center w-full">
-              <div className="flex items-center justify-center">
-                <Image
-                  className="mx-auto"
-                  src={Logo}
-                  alt="arnold-ai-logo"
-                  width={40}
-                />
-              </div>
-``
-              {enterpriseSettings && enterpriseSettings.application_name ? (
-                <div>
-                  <HeaderTitle>
-                    {enterpriseSettings.application_name}
-                  </HeaderTitle>
+            <div className="flex items-center justify-center w-full gap-2 px-3">
+              <div className="flex items-center justify-center w-full gap-2">
+                <Image src={Logo} alt="arnold-ai-logo" width={40} />
+                {enterpriseSettings && enterpriseSettings.application_name ? (
+                  <div>
+                    <HeaderTitle>
+                      {enterpriseSettings.application_name}
+                    </HeaderTitle>
 
-                  {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
-                    <p className="text-xs text-subtle -mt-1.5">
-                      Powered by Arnold AI
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <HeaderTitle>Arnold AI</HeaderTitle>
-              )}
+                    {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
+                      <p className="text-xs text-subtle -mt-1.5">
+                        Powered by Arnold AI
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <HeaderTitle>Arnold AI</HeaderTitle>
+                )}
+              </div>
               <FiX onClick={handleClose} className="lg:hidden" />
             </div>
           </div>
         </div>
-        {/* <HeaderTitle>Arnold AI</HeaderTitle> */}
         {
           <div className="mt-5">
             {settings.search_page_enabled && (

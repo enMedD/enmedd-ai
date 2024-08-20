@@ -76,7 +76,6 @@ export function Header({ user }: HeaderProps) {
                 </div>
               </div>
             </Link>
-
             <Link
               href="/chat"
               className="flex-col hidden h-full hover:bg-hover lg:flex"
