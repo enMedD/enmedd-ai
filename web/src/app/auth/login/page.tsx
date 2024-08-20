@@ -10,8 +10,7 @@ import { Text } from "@tremor/react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import LoginImage from "../../../../public/login_page_img.webp";
-import LogoBrand from "../../../../public/logo-brand.png"
+import LogoBrand from "../../../../public/logo-brand.png";
 import { EmailPasswordForm } from "./EmailPasswordForm";
 import { LoginText } from "./LoginText";
 import { SignInButton } from "./SignInButton";
