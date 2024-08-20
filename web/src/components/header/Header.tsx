@@ -13,7 +13,9 @@ import { SettingsContext } from "../settings/SettingsProvider";
 import { HeaderWrapper } from "./HeaderWrapper";
 
 export function HeaderTitle({ children }: { children: JSX.Element | string }) {
-  return <h1 className="flex text-2xl font-bold text-strong">{children}</h1>;
+  return (
+    <h1 className="flex text-2xl font-bold text-tremor-brand">{children}</h1>
+  );
 }
 
 interface HeaderProps {
@@ -48,30 +50,18 @@ export function Header({ user }: HeaderProps) {
             settings && settings.default_page === "chat" ? "/chat" : "/search"
           }
         >
-          <div className="flex my-auto">
-            <div className="my-auto mr-1">
-              {/* TODO: Remove Enterprise Settings */}
-              <Image src={Logo} alt="Logo" className="w-28" />
-            </div>
-            <div className="my-auto">
-              {enterpriseSettings && enterpriseSettings.application_name ? (
-                <div>
-                  <HeaderTitle>
-                    {enterpriseSettings.application_name}
-                  </HeaderTitle>
-                  {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
-                    <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD AI
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <></>
-              )}
+          <div className="flex items-center justify-center w-full gap-3">
+            <div className="flex items-center justify-center">
+              <Image
+                className="mx-auto"
+                src={Logo}
+                alt="arnold-ai-logo"
+                width={40}
+              />
             </div>
           </div>
         </Link>
-        {/* <HeaderTitle>enMedD CHP</HeaderTitle> */}
+        {/* <HeaderTitle>Arnold AI</HeaderTitle> */}
         {(!settings ||
           (settings.search_page_enabled && settings.chat_page_enabled)) && (
           <>

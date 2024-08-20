@@ -89,17 +89,16 @@ export const ChatSidebar = ({
               settings && settings.default_page === "chat" ? "/chat" : "/search"
             } */
           >
-            <div className="flex items-center w-full px-4">
-              <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-center w-full">
+              <div className="flex items-center justify-center">
                 <Image
                   className="mx-auto"
                   src={Logo}
-                  alt="enmedd-logo"
-                  width={112}
+                  alt="arnold-ai-logo"
+                  width={40}
                 />
-                <FiX onClick={handleClose} className="lg:hidden" />
               </div>
-
+``
               {enterpriseSettings && enterpriseSettings.application_name ? (
                 <div>
                   <HeaderTitle>
@@ -108,17 +107,18 @@ export const ChatSidebar = ({
 
                   {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
                     <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD AI
+                      Powered by Arnold AI
                     </p>
                   )}
                 </div>
               ) : (
-                <></>
+                <HeaderTitle>Arnold AI</HeaderTitle>
               )}
+              <FiX onClick={handleClose} className="lg:hidden" />
             </div>
           </div>
         </div>
-        {/* <HeaderTitle>enMedD CHP</HeaderTitle> */}
+        {/* <HeaderTitle>Arnold AI</HeaderTitle> */}
         {
           <div className="mt-5">
             {settings.search_page_enabled && (
