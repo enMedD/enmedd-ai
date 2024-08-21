@@ -136,6 +136,32 @@ def send_user_verification_email(
         s.login(SMTP_USER, SMTP_PASS)
         s.send_message(msg)
 
+def send_user_forgot_password_email(
+    user_email : str,
+    token : str,
+    mail_from: str = EMAIL_FROM
+) -> None: 
+    try :
+        msg = MIMEMultipart()
+        msg["Subject"] = "enMedD AI Account Reset Password"
+        msg["To"] = user_email
+        if mail_from:
+            msg["From"] = mail_from
+
+        link = f"{WEB_DOMAIN}/auth/forgot-password?token={token}"
+
+        body = MIMEText(f"Click the following link to change your password: {link}")
+        msg.attach(body)
+
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
+            s.starttls()
+            # If credentials fails with gmail, check (You need an app password, not just the basic email password)
+            # https://support.google.com/accounts/answer/185833?sjid=8512343437447396151-NA
+            s.login(SMTP_USER, SMTP_PASS)
+            s.send_message(msg)
+    except:
+        logger.error("An error has occured. The email has not been sent.")
+
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = USER_AUTH_SECRET
@@ -198,7 +224,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ) -> None:
+        verify_email_domain(user.email)
         logger.info(f"User {user.id} has forgot their password. Reset token: {token}")
+        send_user_forgot_password_email(user.email, token)
 
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
