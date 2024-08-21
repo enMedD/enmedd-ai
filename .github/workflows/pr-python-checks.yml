@@ -1,8 +1,14 @@
 name: Python Checks
+concurrency:
+  group: Python-Checks-${{ github.head_ref }}
+  cancel-in-progress: true
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: 
+      - main
+      - staging-env
+      - dev-env
 
 jobs:
   mypy-check:
