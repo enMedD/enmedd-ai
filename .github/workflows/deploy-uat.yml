@@ -1,10 +1,10 @@
 name: CD Pipeline for UAT
 
 on: 
-    workflow_run:
-        workflows: ["Build and Push to ECR"]
-        types:
-            - completed
+  workflow_run:
+      workflows: ["Build and Push to ECR"]
+      types:
+          - completed
     
 env:
     AWS_REGION: ${{ secrets.AWS_REGION }}
