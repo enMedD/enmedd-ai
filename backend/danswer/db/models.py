@@ -3,7 +3,6 @@ import json
 from enum import Enum as PyEnum
 from typing import Any
 from typing import Literal
-from typing import NotRequired
 from typing import Optional
 from typing import TypedDict
 from uuid import UUID

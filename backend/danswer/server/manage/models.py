@@ -1,15 +1,10 @@
-from typing import Any
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
-from pydantic import root_validator
-from pydantic import validator
 
 from danswer.auth.schemas import UserRole
 from danswer.configs.constants import AuthType
-from danswer.db.models import AllowedAnswerFilters
 from danswer.indexing.models import EmbeddingModelDetail
-from danswer.server.features.persona.models import PersonaSnapshot
 from danswer.server.models import FullUserSnapshot
 from danswer.server.models import InvitedUserSnapshot
 
