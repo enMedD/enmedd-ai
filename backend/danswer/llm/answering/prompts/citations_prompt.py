@@ -4,11 +4,11 @@ from langchain.schema.messages import SystemMessage
 from danswer.chat.models import LlmDoc
 from danswer.configs.chat_configs import MULTILINGUAL_QUERY_EXPANSION
 from danswer.configs.model_configs import GEN_AI_SINGLE_USER_MESSAGE_EXPECTED_MAX_TOKENS
-from danswer.db.models import Persona
+from danswer.db.models import Assistant
 from danswer.db.persona import get_default_prompt__read_only
 from danswer.file_store.utils import InMemoryChatFile
 from danswer.llm.answering.models import PromptConfig
-from danswer.llm.factory import get_llms_for_persona
+from danswer.llm.factory import get_llms_for_assistant
 from danswer.llm.factory import get_main_llm_from_tuple
 from danswer.llm.interfaces import LLMConfig
 from danswer.llm.utils import build_content_with_imgs
@@ -92,15 +92,17 @@ def compute_max_document_tokens(
     )
 
 
-def compute_max_document_tokens_for_persona(
-    persona: Persona,
+def compute_max_document_tokens_for_assistant(
+    assistant: Assistant,
     actual_user_input: str | None = None,
     max_llm_token_override: int | None = None,
 ) -> int:
-    prompt = persona.prompts[0] if persona.prompts else get_default_prompt__read_only()
+    prompt = (
+        assistant.prompts[0] if assistant.prompts else get_default_prompt__read_only()
+    )
     return compute_max_document_tokens(
         prompt_config=PromptConfig.from_model(prompt),
-        llm_config=get_main_llm_from_tuple(get_llms_for_persona(persona)).config,
+        llm_config=get_main_llm_from_tuple(get_llms_for_assistant(assistant)).config,
         actual_user_input=actual_user_input,
         max_llm_token_override=max_llm_token_override,
     )

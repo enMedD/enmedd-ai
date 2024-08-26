@@ -7,7 +7,7 @@ from starlette import status
 from danswer.auth.users import current_user
 from danswer.db.engine import get_session
 from danswer.db.models import User
-from danswer.db.persona import get_personas_by_ids
+from danswer.db.persona import get_assistants_by_ids
 from danswer.db.persona import get_prompt_by_id
 from danswer.db.persona import get_prompts
 from danswer.db.persona import mark_prompt_as_deleted
@@ -31,14 +31,14 @@ def create_update_prompt(
     user: User | None,
     db_session: Session,
 ) -> PromptSnapshot:
-    personas = (
+    assistants = (
         list(
-            get_personas_by_ids(
-                persona_ids=create_prompt_request.persona_ids,
+            get_assistants_by_ids(
+                assistant_ids=create_prompt_request.assistant_ids,
                 db_session=db_session,
             )
         )
-        if create_prompt_request.persona_ids
+        if create_prompt_request.assistant_ids
         else []
     )
 
@@ -51,7 +51,7 @@ def create_update_prompt(
         task_prompt=create_prompt_request.task_prompt,
         include_citations=create_prompt_request.include_citations,
         datetime_aware=create_prompt_request.datetime_aware,
-        personas=personas,
+        assistants=assistants,
         db_session=db_session,
     )
     return PromptSnapshot.from_model(prompt)
@@ -74,7 +74,7 @@ def create_prompt(
         logger.exception(ve)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to create Persona, invalid info.",
+            detail="Failed to create Assistant, invalid info.",
         )
     except Exception as e:
         logger.exception(e)
@@ -102,7 +102,7 @@ def update_prompt(
         logger.exception(ve)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to create Persona, invalid info.",
+            detail="Failed to create Assistant, invalid info.",
         )
     except Exception as e:
         logger.exception(e)

@@ -17,7 +17,7 @@ import { ChatSession } from "../interfaces";
 
 import {
   NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED,
-  NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA,
+  NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT,
 } from "@/lib/constants";
 
 import { ChatTab } from "./ChatTab";
@@ -227,9 +227,9 @@ export const ChatSidebar = ({
               <Link
                 href={
                   "/chat" +
-                  (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA &&
+                  (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
                   currentChatSession
-                    ? `?assistantId=${currentChatSession.persona_id}`
+                    ? `?assistantId=${currentChatSession.assistant_id}`
                     : "")
                 }
                 className=" w-full"

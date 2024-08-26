@@ -142,8 +142,10 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         "ChatFolder", back_populates="user"
     )
     prompts: Mapped[list["Prompt"]] = relationship("Prompt", back_populates="user")
-    # Personas owned by this user
-    personas: Mapped[list["Persona"]] = relationship("Persona", back_populates="user")
+    # Assistants owned by this user
+    assistants: Mapped[list["Assistant"]] = relationship(
+        "Assistant", back_populates="user"
+    )
     # Custom tools created by this user
     custom_tools: Mapped[list["Tool"]] = relationship("Tool", back_populates="user")
 
@@ -178,26 +180,32 @@ NOTE: must be at the top since they are referenced by other tables
 """
 
 
-class Persona__DocumentSet(Base):
-    __tablename__ = "persona__document_set"
+class Assistant__DocumentSet(Base):
+    __tablename__ = "assistant__document_set"
 
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
+    assistant_id: Mapped[int] = mapped_column(
+        ForeignKey("assistant.id"), primary_key=True
+    )
     document_set_id: Mapped[int] = mapped_column(
         ForeignKey("document_set.id"), primary_key=True
     )
 
 
-class Persona__Prompt(Base):
-    __tablename__ = "persona__prompt"
+class Assistant__Prompt(Base):
+    __tablename__ = "assistant__prompt"
 
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
+    assistant_id: Mapped[int] = mapped_column(
+        ForeignKey("assistant.id"), primary_key=True
+    )
     prompt_id: Mapped[int] = mapped_column(ForeignKey("prompt.id"), primary_key=True)
 
 
-class Persona__User(Base):
-    __tablename__ = "persona__user"
+class Assistant__User(Base):
+    __tablename__ = "assistant__user"
 
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
+    assistant_id: Mapped[int] = mapped_column(
+        ForeignKey("assistant.id"), primary_key=True
+    )
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
 
@@ -254,10 +262,12 @@ class Document__Tag(Base):
     tag_id: Mapped[int] = mapped_column(ForeignKey("tag.id"), primary_key=True)
 
 
-class Persona__Tool(Base):
-    __tablename__ = "persona__tool"
+class Assistant__Tool(Base):
+    __tablename__ = "assistant__tool"
 
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
+    assistant_id: Mapped[int] = mapped_column(
+        ForeignKey("assistant.id"), primary_key=True
+    )
     tool_id: Mapped[int] = mapped_column(ForeignKey("tool.id"), primary_key=True)
 
 
@@ -660,7 +670,7 @@ class ChatSession(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[UUID | None] = mapped_column(ForeignKey("user.id"), nullable=True)
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"))
+    assistant_id: Mapped[int] = mapped_column(ForeignKey("assistant.id"))
     description: Mapped[str] = mapped_column(Text)
     # One-shot direct answering, currently the two types of chats are not mixed
     one_shot: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -679,7 +689,7 @@ class ChatSession(Base):
     current_alternate_model: Mapped[str | None] = mapped_column(String, default=None)
 
     # the latest "overrides" specified by the user. These take precedence over
-    # the attached persona. However, overrides specified directly in the
+    # the attached assistant. However, overrides specified directly in the
     # `send-message` call will take precedence over these.
     # NOTE: currently only used by the chat seeding flow, will be used in the
     # future once we allow users to override default values via the Chat UI
@@ -707,7 +717,7 @@ class ChatSession(Base):
     messages: Mapped[list["ChatMessage"]] = relationship(
         "ChatMessage", back_populates="chat_session"
     )
-    persona: Mapped["Persona"] = relationship("Persona")
+    assistant: Mapped["Assistant"] = relationship("Assistant")
 
 
 class ChatMessage(Base):
@@ -725,7 +735,7 @@ class ChatMessage(Base):
     chat_session_id: Mapped[int] = mapped_column(ForeignKey("chat_session.id"))
 
     alternate_assistant_id = mapped_column(
-        Integer, ForeignKey("persona.id"), nullable=True
+        Integer, ForeignKey("assistant.id"), nullable=True
     )
 
     parent_message: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -911,9 +921,9 @@ class DocumentSet(Base):
         back_populates="document_sets",
         overlaps="document_set",
     )
-    personas: Mapped[list["Persona"]] = relationship(
-        "Persona",
-        secondary=Persona__DocumentSet.__table__,
+    assistants: Mapped[list["Assistant"]] = relationship(
+        "Assistant",
+        secondary=Assistant__DocumentSet.__table__,
         back_populates="document_sets",
     )
     # Other users with access
@@ -947,9 +957,9 @@ class Prompt(Base):
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user: Mapped[User] = relationship("User", back_populates="prompts")
-    personas: Mapped[list["Persona"]] = relationship(
-        "Persona",
-        secondary=Persona__Prompt.__table__,
+    assistants: Mapped[list["Assistant"]] = relationship(
+        "Assistant",
+        secondary=Assistant__Prompt.__table__,
         back_populates="prompts",
     )
 
@@ -973,10 +983,10 @@ class Tool(Base):
     user_id: Mapped[UUID | None] = mapped_column(ForeignKey("user.id"), nullable=True)
 
     user: Mapped[User | None] = relationship("User", back_populates="custom_tools")
-    # Relationship to Persona through the association table
-    personas: Mapped[list["Persona"]] = relationship(
-        "Persona",
-        secondary=Persona__Tool.__table__,
+    # Relationship to Assistant through the association table
+    assistants: Mapped[list["Assistant"]] = relationship(
+        "Assistant",
+        secondary=Assistant__Tool.__table__,
         back_populates="tools",
     )
 
@@ -990,8 +1000,8 @@ class StarterMessage(TypedDict):
     message: str
 
 
-class Persona(Base):
-    __tablename__ = "persona"
+class Assistant(Base):
+    __tablename__ = "assistant"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[UUID | None] = mapped_column(ForeignKey("user.id"), nullable=True)
@@ -1012,7 +1022,7 @@ class Persona(Base):
     recency_bias: Mapped[RecencyBiasSetting] = mapped_column(
         Enum(RecencyBiasSetting, native_enum=False)
     )
-    # Allows the Persona to specify a different LLM version than is controlled
+    # Allows the Assistant to specify a different LLM version than is controlled
     # globablly via env variables. For flexibility, validity is not currently enforced
     # NOTE: only is applied on the actual response generation - is not used for things like
     # auto-detected time filters, relevance filters, etc.
@@ -1025,13 +1035,13 @@ class Persona(Base):
     starter_messages: Mapped[list[StarterMessage] | None] = mapped_column(
         postgresql.JSONB(), nullable=True
     )
-    # Default personas are configured via backend during deployment
+    # Default assistants are configured via backend during deployment
     # Treated specially (cannot be user edited etc.)
-    default_persona: Mapped[bool] = mapped_column(Boolean, default=False)
-    # controls whether the persona is available to be selected by users
+    default_assistant: Mapped[bool] = mapped_column(Boolean, default=False)
+    # controls whether the assistant is available to be selected by users
     is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
-    # controls the ordering of personas in the UI
-    # higher priority personas are displayed first, ties are resolved by the ID,
+    # controls the ordering of assistants in the UI
+    # higher priority assistants are displayed first, ties are resolved by the ID,
     # where lower value IDs (e.g. created earlier) are displayed first
     display_priority: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -1040,42 +1050,42 @@ class Persona(Base):
     # These are only defaults, users can select from all if desired
     prompts: Mapped[list[Prompt]] = relationship(
         "Prompt",
-        secondary=Persona__Prompt.__table__,
-        back_populates="personas",
+        secondary=Assistant__Prompt.__table__,
+        back_populates="assistants",
     )
     # These are only defaults, users can select from all if desired
     document_sets: Mapped[list[DocumentSet]] = relationship(
         "DocumentSet",
-        secondary=Persona__DocumentSet.__table__,
-        back_populates="personas",
+        secondary=Assistant__DocumentSet.__table__,
+        back_populates="assistants",
     )
     tools: Mapped[list[Tool]] = relationship(
         "Tool",
-        secondary=Persona__Tool.__table__,
-        back_populates="personas",
+        secondary=Assistant__Tool.__table__,
+        back_populates="assistants",
     )
     # Owner
-    user: Mapped[User | None] = relationship("User", back_populates="personas")
+    user: Mapped[User | None] = relationship("User", back_populates="assistants")
     # Other users with access
     users: Mapped[list[User]] = relationship(
         "User",
-        secondary=Persona__User.__table__,
+        secondary=Assistant__User.__table__,
         viewonly=True,
     )
     # EE only
     groups: Mapped[list["Teamspace"]] = relationship(
         "Teamspace",
-        secondary="persona__teamspace",
+        secondary="assistant__teamspace",
         viewonly=True,
     )
 
-    # Default personas loaded via yaml cannot have the same name
+    # Default assistants loaded via yaml cannot have the same name
     __table_args__ = (
         Index(
-            "_default_persona_name_idx",
+            "_default_assistant_name_idx",
             "name",
             unique=True,
-            postgresql_where=(default_persona == True),  # noqa: E712
+            postgresql_where=(default_assistant == True),  # noqa: E712
         ),
     )
 
@@ -1184,10 +1194,12 @@ class Teamspace__ConnectorCredentialPair(Base):
     )
 
 
-class Persona__Teamspace(Base):
-    __tablename__ = "persona__teamspace"
+class Assistant__Teamspace(Base):
+    __tablename__ = "assistant__teamspace"
 
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
+    assistant_id: Mapped[int] = mapped_column(
+        ForeignKey("assistant.id"), primary_key=True
+    )
     teamspace_id: Mapped[int] = mapped_column(
         ForeignKey("teamspace.id"), primary_key=True
     )
@@ -1232,9 +1244,9 @@ class Teamspace(Base):
         "Teamspace__ConnectorCredentialPair",
         viewonly=True,
     )
-    personas: Mapped[list[Persona]] = relationship(
-        "Persona",
-        secondary=Persona__Teamspace.__table__,
+    assistants: Mapped[list[Assistant]] = relationship(
+        "Assistant",
+        secondary=Assistant__Teamspace.__table__,
         viewonly=True,
     )
     document_sets: Mapped[list[DocumentSet]] = relationship(

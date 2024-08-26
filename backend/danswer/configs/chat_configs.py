@@ -6,7 +6,7 @@ load_dotenv()
 
 
 PROMPTS_YAML = "./danswer/chat/prompts.yaml"
-PERSONAS_YAML = "./danswer/chat/personas.yaml"
+ASSISTANTS_YAML = "./danswer/chat/personas.yaml"
 
 NUM_RETURNED_HITS = 50
 NUM_RERANKED_RESULTS = 15

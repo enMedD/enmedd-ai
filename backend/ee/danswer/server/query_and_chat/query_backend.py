@@ -38,7 +38,7 @@ def handle_search_request(
             search_type=search_request.search_type,
             human_selected_filters=search_request.retrieval_options.filters,
             enable_auto_detect_filters=search_request.retrieval_options.enable_auto_detect_filters,
-            persona=None,  # For simplicity, default settings should be good for this search
+            assistant=None,  # For simplicity, default settings should be good for this search
             offset=search_request.retrieval_options.offset,
             limit=search_request.retrieval_options.limit,
             skip_rerank=search_request.skip_rerank,
@@ -88,15 +88,15 @@ def handle_search_request(
 #     query = query_request.messages[0].message
 #     logger.info(f"Received query for one shot answer API with quotes: {query}")
 
-#     persona = get_persona_by_id(
-#         persona_id=query_request.persona_id,
+#     assistant = get_assistant_by_id(
+#         assistant_id=query_request.assistant_id,
 #         user=user,
 #         db_session=db_session,
 #         is_for_edit=False,
 #     )
 
 #     llm = get_main_llm_from_tuple(
-#         get_default_llms() if not persona else get_llms_for_persona(persona)
+#         get_default_llms() if not assistant else get_llms_for_assistant(assistant)
 #     )
 #     input_tokens = get_max_input_tokens(
 #         model_name=llm.config.model_name, model_provider=llm.config.model_provider
@@ -105,8 +105,8 @@ def handle_search_request(
 
 #     remaining_tokens = input_tokens - max_history_tokens
 
-#     max_document_tokens = compute_max_document_tokens_for_persona(
-#         persona=persona,
+#     max_document_tokens = compute_max_document_tokens_for_assistant(
+#         assistant=assistant,
 #         actual_user_input=query,
 #         max_llm_token_override=remaining_tokens,
 #     )

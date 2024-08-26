@@ -302,7 +302,7 @@ def downgrade() -> None:
     op.create_table(
         "slack_bot_config",
         sa.Column("id", sa.INTEGER(), autoincrement=True, nullable=False),
-        sa.Column("persona_id", sa.INTEGER(), autoincrement=False, nullable=True),
+        sa.Column("assistant_id", sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column(
             "channel_config",
             postgresql.JSONB(astext_type=sa.Text()),
@@ -316,9 +316,9 @@ def downgrade() -> None:
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
-            ["persona_id"],
-            ["persona.id"],
-            name="slack_bot_config_persona_id_fkey",
+            ["assistant_id"],
+            ["assistant.id"],
+            name="slack_bot_config_assistant_id_fkey",
         ),
         sa.PrimaryKeyConstraint("id", name="slack_bot_config_pkey"),
     )

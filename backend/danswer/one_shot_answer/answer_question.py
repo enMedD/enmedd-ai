@@ -30,7 +30,7 @@ from danswer.llm.answering.models import CitationConfig
 from danswer.llm.answering.models import DocumentPruningConfig
 from danswer.llm.answering.models import PromptConfig
 from danswer.llm.answering.models import QuotesConfig
-from danswer.llm.factory import get_llms_for_persona
+from danswer.llm.factory import get_llms_for_assistant
 from danswer.llm.factory import get_main_llm_from_tuple
 from danswer.llm.utils import get_default_llm_token_encode
 from danswer.one_shot_answer.models import DirectQARequest
@@ -82,7 +82,7 @@ def stream_answer_objects(
     max_document_tokens: int | None,
     max_history_tokens: int | None,
     db_session: Session,
-    # Needed to translate persona num_chunks to tokens to the LLM
+    # Needed to translate assistant num_chunks to tokens to the LLM
     default_num_chunks: float = MAX_CHUNKS_FED_TO_CHAT,
     timeout: int = QA_TIMEOUT,
     bypass_acl: bool = False,
@@ -107,7 +107,7 @@ def stream_answer_objects(
         db_session=db_session,
         description="",  # One shot queries don't need naming as it's never displayed
         user_id=user_id,
-        persona_id=query_req.persona_id,
+        assistant_id=query_req.assistant_id,
         one_shot=True,
         danswerbot_flow=danswerbot_flow,
     )
@@ -133,17 +133,17 @@ def stream_answer_objects(
 
     prompt = None
     if query_req.prompt_id is not None:
-        # NOTE: let the user access any prompt as long as the Persona is shared
+        # NOTE: let the user access any prompt as long as the Assistant is shared
         # with them
         prompt = get_prompt_by_id(
             prompt_id=query_req.prompt_id, user=None, db_session=db_session
         )
     if prompt is None:
-        if not chat_session.persona.prompts:
+        if not chat_session.assistant.prompts:
             raise RuntimeError(
-                "Persona does not have any prompts - this should never happen"
+                "Assistant does not have any prompts - this should never happen"
             )
-        prompt = chat_session.persona.prompts[0]
+        prompt = chat_session.assistant.prompts[0]
 
     # Create the first User query message
     new_user_message = create_new_chat_message(
@@ -157,12 +157,12 @@ def stream_answer_objects(
         commit=True,
     )
 
-    llm, fast_llm = get_llms_for_persona(persona=chat_session.persona)
+    llm, fast_llm = get_llms_for_assistant(assistant=chat_session.assistant)
     prompt_config = PromptConfig.from_model(prompt)
     document_pruning_config = DocumentPruningConfig(
         max_chunks=int(
-            chat_session.persona.num_chunks
-            if chat_session.persona.num_chunks is not None
+            chat_session.assistant.num_chunks
+            if chat_session.assistant.num_chunks is not None
             else default_num_chunks
         ),
         max_tokens=max_document_tokens,
@@ -171,7 +171,7 @@ def stream_answer_objects(
     search_tool = SearchTool(
         db_session=db_session,
         user=user,
-        persona=chat_session.persona,
+        assistant=chat_session.assistant,
         retrieval_options=query_req.retrieval_options,
         prompt_config=prompt_config,
         llm=llm,
@@ -189,7 +189,9 @@ def stream_answer_objects(
         question=query_msg.message,
         answer_style_config=answer_config,
         prompt_config=PromptConfig.from_model(prompt),
-        llm=get_main_llm_from_tuple(get_llms_for_persona(persona=chat_session.persona)),
+        llm=get_main_llm_from_tuple(
+            get_llms_for_assistant(assistant=chat_session.assistant)
+        ),
         single_message_history=history_str,
         tools=[search_tool],
         force_use_tool=ForceUseTool(

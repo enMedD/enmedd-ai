@@ -7,7 +7,7 @@ from danswer.server.documents.models import ConnectorCredentialPairDescriptor
 from danswer.server.documents.models import ConnectorSnapshot
 from danswer.server.documents.models import CredentialSnapshot
 from danswer.server.features.document_set.models import DocumentSet
-from danswer.server.features.persona.models import PersonaSnapshot
+from danswer.server.features.persona.models import AssistantSnapshot
 from danswer.server.manage.models import UserInfo
 from danswer.server.manage.models import UserPreferences
 
@@ -18,7 +18,7 @@ class Teamspace(BaseModel):
     users: list[UserInfo]
     cc_pairs: list[ConnectorCredentialPairDescriptor]
     document_sets: list[DocumentSet]
-    personas: list[PersonaSnapshot]
+    assistants: list[AssistantSnapshot]
     is_up_to_date: bool
     is_up_for_deletion: bool
 
@@ -65,9 +65,9 @@ class Teamspace(BaseModel):
             document_sets=[
                 DocumentSet.from_model(ds) for ds in teamspace_model.document_sets
             ],
-            personas=[
-                PersonaSnapshot.from_model(persona)
-                for persona in teamspace_model.personas
+            assistants=[
+                AssistantSnapshot.from_model(assistant)
+                for assistant in teamspace_model.assistants
             ],
             is_up_to_date=teamspace_model.is_up_to_date,
             is_up_for_deletion=teamspace_model.is_up_for_deletion,

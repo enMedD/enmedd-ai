@@ -28,7 +28,7 @@ def get_answer_for_question(query: str, db_session: Session) -> OneShotQARespons
     new_message_request = DirectQARequest(
         messages=messages,
         prompt_id=0,
-        persona_id=0,
+        assistant_id=0,
         retrieval_options=RetrievalDetails(
             run_search=OptionalSearchSetting.ALWAYS,
             real_time=True,
