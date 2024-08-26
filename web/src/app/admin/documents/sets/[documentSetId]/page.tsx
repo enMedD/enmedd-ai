@@ -4,7 +4,7 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { refreshDocumentSets, useDocumentSets } from "../hooks";
 import {
   useConnectorCredentialIndexingStatus,
-  useUserGroups,
+  useTeamspaces,
 } from "@/lib/hooks";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
@@ -32,9 +32,9 @@ function Main({ documentSetId }: { documentSetId: number }) {
   } = useConnectorCredentialIndexingStatus();
 
   // EE only
-  const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
+  const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
-  if (isDocumentSetsLoading || isCCPairsLoading || userGroupsIsLoading) {
+  if (isDocumentSetsLoading || isCCPairsLoading || teamspacesIsLoading) {
     return <ThreeDotsLoader />;
   }
 
@@ -80,7 +80,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
       <Card>
         <DocumentSetCreationForm
           ccPairs={ccPairs}
-          userGroups={userGroups}
+          teamspaces={teamspaces}
           onClose={() => {
             refreshDocumentSets();
             router.push("/admin/documents/sets");

@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 from danswer.db.models import ConnectorCredentialPair
 from danswer.db.models import DocumentSet
 from danswer.db.models import DocumentSet__ConnectorCredentialPair
+from danswer.db.models import DocumentSet__Teamspace
 from danswer.db.models import DocumentSet__User
-from danswer.db.models import DocumentSet__UserGroup
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup
+from danswer.db.models import Teamspace
+from danswer.db.models import User__Teamspace
 
 
 def make_doc_set_private(
@@ -20,8 +20,8 @@ def make_doc_set_private(
     db_session.query(DocumentSet__User).filter(
         DocumentSet__User.document_set_id == document_set_id
     ).delete(synchronize_session="fetch")
-    db_session.query(DocumentSet__UserGroup).filter(
-        DocumentSet__UserGroup.document_set_id == document_set_id
+    db_session.query(DocumentSet__Teamspace).filter(
+        DocumentSet__Teamspace.document_set_id == document_set_id
     ).delete(synchronize_session="fetch")
 
     if user_ids:
@@ -33,8 +33,8 @@ def make_doc_set_private(
     if group_ids:
         for group_id in group_ids:
             db_session.add(
-                DocumentSet__UserGroup(
-                    document_set_id=document_set_id, user_group_id=group_id
+                DocumentSet__Teamspace(
+                    document_set_id=document_set_id, teamspace_id=group_id
                 )
             )
 
@@ -46,8 +46,8 @@ def delete_document_set_privacy__no_commit(
         DocumentSet__User.document_set_id == document_set_id
     ).delete(synchronize_session="fetch")
 
-    db_session.query(DocumentSet__UserGroup).filter(
-        DocumentSet__UserGroup.document_set_id == document_set_id
+    db_session.query(DocumentSet__Teamspace).filter(
+        DocumentSet__Teamspace.document_set_id == document_set_id
     ).delete(synchronize_session="fetch")
 
 
@@ -74,23 +74,23 @@ def fetch_document_sets(
     )
 
     # Document sets via groups
-    # First, find the user groups the user belongs to
-    user_groups = (
-        db_session.query(UserGroup)
-        .join(User__UserGroup, UserGroup.id == User__UserGroup.user_group_id)
-        .filter(User__UserGroup.user_id == user_id)
+    # First, find the teamspaces the user belongs to
+    teamspaces = (
+        db_session.query(Teamspace)
+        .join(User__Teamspace, Teamspace.id == User__Teamspace.teamspace_id)
+        .filter(User__Teamspace.user_id == user_id)
         .all()
     )
 
     group_document_sets = []
-    for group in user_groups:
+    for group in teamspaces:
         group_document_sets.extend(
             db_session.query(DocumentSet)
             .join(
-                DocumentSet__UserGroup,
-                DocumentSet.id == DocumentSet__UserGroup.document_set_id,
+                DocumentSet__Teamspace,
+                DocumentSet.id == DocumentSet__Teamspace.document_set_id,
             )
-            .filter(DocumentSet__UserGroup.user_group_id == group.id)
+            .filter(DocumentSet__Teamspace.teamspace_id == group.id)
             .all()
         )
 

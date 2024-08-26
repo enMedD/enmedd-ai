@@ -4,7 +4,7 @@ import { ArrayHelpers, FieldArray, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { createDocumentSet, updateDocumentSet } from "./lib";
-import { ConnectorIndexingStatus, DocumentSet, UserGroup } from "@/lib/types";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import {
   BooleanFormField,
   TextFormField,
@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
-  userGroups: UserGroup[] | undefined;
+  teamspaces: Teamspace[] | undefined;
   onClose: () => void;
   setPopup: (popupSpec: PopupSpec | null) => void;
   existingDocumentSet?: DocumentSet;
@@ -25,7 +25,7 @@ interface SetCreationPopupProps {
 
 export const DocumentSetCreationForm = ({
   ccPairs,
-  userGroups,
+  teamspaces,
   onClose,
   setPopup,
   existingDocumentSet,
@@ -173,8 +173,8 @@ export const DocumentSetCreationForm = ({
             />
 
             {isPaidEnterpriseFeaturesEnabled &&
-              userGroups &&
-              userGroups.length > 0 && (
+              teamspaces &&
+              teamspaces.length > 0 && (
                 <div>
                   <Divider />
 
@@ -206,12 +206,12 @@ export const DocumentSetCreationForm = ({
                         name="groups"
                         render={(arrayHelpers: ArrayHelpers) => (
                           <div className="flex gap-2 flex-wrap">
-                            {userGroups.map((userGroup) => {
-                              const ind = values.groups.indexOf(userGroup.id);
+                            {teamspaces.map((teamspace) => {
+                              const ind = values.groups.indexOf(teamspace.id);
                               let isSelected = ind !== -1;
                               return (
                                 <div
-                                  key={userGroup.id}
+                                  key={teamspace.id}
                                   className={
                                     `
                               px-3 
@@ -230,13 +230,13 @@ export const DocumentSetCreationForm = ({
                                     if (isSelected) {
                                       arrayHelpers.remove(ind);
                                     } else {
-                                      arrayHelpers.push(userGroup.id);
+                                      arrayHelpers.push(teamspace.id);
                                     }
                                   }}
                                 >
                                   <div className="my-auto flex">
                                     <FiUsers className="my-auto mr-2" />{" "}
-                                    {userGroup.name}
+                                    {teamspace.name}
                                   </div>
                                 </div>
                               );
@@ -248,7 +248,7 @@ export const DocumentSetCreationForm = ({
                   ) : (
                     <Text>
                       This Document Set is public, so this does not apply. If
-                      you want to control which user groups see this Document
+                      you want to control which teamspaces see this Document
                       Set, mark it as non-public!
                     </Text>
                   )}

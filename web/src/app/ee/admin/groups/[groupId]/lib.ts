@@ -1,15 +1,15 @@
-import { UserGroupUpdate } from "../types";
+import { TeamspaceUpdate } from "../types";
 
-export const updateUserGroup = async (
+export const updateTeamspace = async (
   groupId: number,
-  userGroup: UserGroupUpdate
+  teamspace: TeamspaceUpdate
 ) => {
-  const url = `/api/manage/admin/user-group/${groupId}`;
+  const url = `/api/manage/admin/teamspace/${groupId}`;
   return await fetch(url, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(userGroup),
+    body: JSON.stringify(teamspace),
   });
 };

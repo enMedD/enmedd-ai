@@ -10,10 +10,10 @@ from danswer.db.models import User
 from danswer.server.query_and_chat.token_limit import any_rate_limit_exists
 from danswer.server.token_rate_limits.models import TokenRateLimitArgs
 from danswer.server.token_rate_limits.models import TokenRateLimitDisplay
-from ee.danswer.db.token_limit import fetch_all_user_group_token_rate_limits
-from ee.danswer.db.token_limit import fetch_all_user_group_token_rate_limits_by_group
+from ee.danswer.db.token_limit import fetch_all_teamspace_token_rate_limits
+from ee.danswer.db.token_limit import fetch_all_teamspace_token_rate_limits_by_group
 from ee.danswer.db.token_limit import fetch_all_user_token_rate_limits
-from ee.danswer.db.token_limit import insert_user_group_token_rate_limit
+from ee.danswer.db.token_limit import insert_teamspace_token_rate_limit
 from ee.danswer.db.token_limit import insert_user_token_rate_limit
 
 router = APIRouter(prefix="/admin/token-rate-limits")
@@ -24,17 +24,17 @@ Group Token Limit Settings
 """
 
 
-@router.get("/user-groups")
+@router.get("/teamspaces")
 def get_all_group_token_limit_settings(
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> dict[str, list[TokenRateLimitDisplay]]:
-    user_groups_to_token_rate_limits = fetch_all_user_group_token_rate_limits_by_group(
+    teamspaces_to_token_rate_limits = fetch_all_teamspace_token_rate_limits_by_group(
         db_session
     )
 
     token_rate_limits_by_group = defaultdict(list)
-    for token_rate_limit, group_name in user_groups_to_token_rate_limits:
+    for token_rate_limit, group_name in teamspaces_to_token_rate_limits:
         token_rate_limits_by_group[group_name].append(
             TokenRateLimitDisplay.from_db(token_rate_limit)
         )
@@ -42,7 +42,7 @@ def get_all_group_token_limit_settings(
     return dict(token_rate_limits_by_group)
 
 
-@router.get("/user-group/{group_id}")
+@router.get("/teamspace/{group_id}")
 def get_group_token_limit_settings(
     group_id: int,
     _: User | None = Depends(current_admin_user),
@@ -50,13 +50,13 @@ def get_group_token_limit_settings(
 ) -> list[TokenRateLimitDisplay]:
     return [
         TokenRateLimitDisplay.from_db(token_rate_limit)
-        for token_rate_limit in fetch_all_user_group_token_rate_limits(
+        for token_rate_limit in fetch_all_teamspace_token_rate_limits(
             db_session, group_id
         )
     ]
 
 
-@router.post("/user-group/{group_id}")
+@router.post("/teamspace/{group_id}")
 def create_group_token_limit_settings(
     group_id: int,
     token_limit_settings: TokenRateLimitArgs,
@@ -64,7 +64,7 @@ def create_group_token_limit_settings(
     db_session: Session = Depends(get_session),
 ) -> TokenRateLimitDisplay:
     rate_limit_display = TokenRateLimitDisplay.from_db(
-        insert_user_group_token_rate_limit(
+        insert_teamspace_token_rate_limit(
             db_session=db_session,
             token_rate_limit_settings=token_limit_settings,
             group_id=group_id,

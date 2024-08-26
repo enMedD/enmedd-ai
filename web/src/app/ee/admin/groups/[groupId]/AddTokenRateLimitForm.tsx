@@ -6,7 +6,7 @@ import { mutate } from "swr";
 
 interface AddMemberFormProps {
   setPopup: (popupSpec: PopupSpec | null) => void;
-  userGroupId: number;
+  teamspaceId: number;
 }
 
 const handleCreateGroupTokenRateLimit = async (
@@ -24,7 +24,7 @@ const handleCreateGroupTokenRateLimit = async (
 
 export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
   setPopup,
-  userGroupId,
+  teamspaceId,
 }) => {
   const handleSubmit = (
     _: Scope,
@@ -35,7 +35,7 @@ export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
     handleCreateGroupTokenRateLimit(period_hours, token_budget, group_id)
       .then(() => {
         setPopup({ type: "success", message: "Token rate limit created!" });
-        mutate(`/api/admin/token-rate-limits/user-group/${userGroupId}`);
+        mutate(`/api/admin/token-rate-limits/teamspace/${teamspaceId}`);
       })
       .catch((error) => {
         setPopup({ type: "error", message: error.message });
@@ -46,8 +46,8 @@ export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
     <CreateRateLimitModal
       onSubmit={handleSubmit}
       setPopup={setPopup}
-      forSpecificScope={Scope.USER_GROUP}
-      forSpecificUserGroup={userGroupId}
+      forSpecificScope={Scope.TEAMSPACE}
+      forSpecificTeamspace={teamspaceId}
     />
   );
 };

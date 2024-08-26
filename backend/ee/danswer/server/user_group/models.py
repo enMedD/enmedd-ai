@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from danswer.db.models import UserGroup as UserGroupModel
+from danswer.db.models import Teamspace as TeamspaceModel
 from danswer.server.documents.models import ConnectorCredentialPairDescriptor
 from danswer.server.documents.models import ConnectorSnapshot
 from danswer.server.documents.models import CredentialSnapshot
@@ -12,7 +12,7 @@ from danswer.server.manage.models import UserInfo
 from danswer.server.manage.models import UserPreferences
 
 
-class UserGroup(BaseModel):
+class Teamspace(BaseModel):
     id: int
     name: str
     users: list[UserInfo]
@@ -23,10 +23,10 @@ class UserGroup(BaseModel):
     is_up_for_deletion: bool
 
     @classmethod
-    def from_model(cls, user_group_model: UserGroupModel) -> "UserGroup":
+    def from_model(cls, teamspace_model: TeamspaceModel) -> "Teamspace":
         return cls(
-            id=user_group_model.id,
-            name=user_group_model.name,
+            id=teamspace_model.id,
+            name=teamspace_model.name,
             users=[
                 UserInfo(
                     id=str(user.id),
@@ -46,7 +46,7 @@ class UserGroup(BaseModel):
                     billing_email_address=user.billing_email_address,
                     vat=user.vat,
                 )
-                for user in user_group_model.users
+                for user in teamspace_model.users
             ],
             cc_pairs=[
                 ConnectorCredentialPairDescriptor(
@@ -59,27 +59,27 @@ class UserGroup(BaseModel):
                         cc_pair_relationship.cc_pair.credential
                     ),
                 )
-                for cc_pair_relationship in user_group_model.cc_pair_relationships
+                for cc_pair_relationship in teamspace_model.cc_pair_relationships
                 if cc_pair_relationship.is_current
             ],
             document_sets=[
-                DocumentSet.from_model(ds) for ds in user_group_model.document_sets
+                DocumentSet.from_model(ds) for ds in teamspace_model.document_sets
             ],
             personas=[
                 PersonaSnapshot.from_model(persona)
-                for persona in user_group_model.personas
+                for persona in teamspace_model.personas
             ],
-            is_up_to_date=user_group_model.is_up_to_date,
-            is_up_for_deletion=user_group_model.is_up_for_deletion,
+            is_up_to_date=teamspace_model.is_up_to_date,
+            is_up_for_deletion=teamspace_model.is_up_for_deletion,
         )
 
 
-class UserGroupCreate(BaseModel):
+class TeamspaceCreate(BaseModel):
     name: str
     user_ids: list[UUID]
     cc_pair_ids: list[int]
 
 
-class UserGroupUpdate(BaseModel):
+class TeamspaceUpdate(BaseModel):
     user_ids: list[UUID]
     cc_pair_ids: list[int]

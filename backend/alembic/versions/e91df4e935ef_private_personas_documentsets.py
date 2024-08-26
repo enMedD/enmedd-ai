@@ -54,10 +54,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("persona_id", "user_id"),
     )
     op.create_table(
-        "document_set__user_group",
+        "document_set__teamspace",
         sa.Column("document_set_id", sa.Integer(), nullable=False),
         sa.Column(
-            "user_group_id",
+            "teamspace_id",
             sa.Integer(),
             nullable=False,
         ),
@@ -66,16 +66,16 @@ def upgrade() -> None:
             ["document_set.id"],
         ),
         sa.ForeignKeyConstraint(
-            ["user_group_id"],
-            ["user_group.id"],
+            ["teamspace_id"],
+            ["teamspace.id"],
         ),
-        sa.PrimaryKeyConstraint("document_set_id", "user_group_id"),
+        sa.PrimaryKeyConstraint("document_set_id", "teamspace_id"),
     )
     op.create_table(
-        "persona__user_group",
+        "persona__teamspace",
         sa.Column("persona_id", sa.Integer(), nullable=False),
         sa.Column(
-            "user_group_id",
+            "teamspace_id",
             sa.Integer(),
             nullable=False,
         ),
@@ -84,10 +84,10 @@ def upgrade() -> None:
             ["persona.id"],
         ),
         sa.ForeignKeyConstraint(
-            ["user_group_id"],
-            ["user_group.id"],
+            ["teamspace_id"],
+            ["teamspace.id"],
         ),
-        sa.PrimaryKeyConstraint("persona_id", "user_group_id"),
+        sa.PrimaryKeyConstraint("persona_id", "teamspace_id"),
     )
 
     op.add_column(
@@ -114,5 +114,5 @@ def downgrade() -> None:
 
     op.drop_table("persona__user")
     op.drop_table("document_set__user")
-    op.drop_table("persona__user_group")
-    op.drop_table("document_set__user_group")
+    op.drop_table("persona__teamspace")
+    op.drop_table("document_set__teamspace")

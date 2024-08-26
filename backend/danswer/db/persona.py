@@ -15,13 +15,13 @@ from danswer.db.document_set import get_document_sets_by_ids
 from danswer.db.engine import get_sqlalchemy_engine
 from danswer.db.models import DocumentSet
 from danswer.db.models import Persona
+from danswer.db.models import Persona__Teamspace
 from danswer.db.models import Persona__User
-from danswer.db.models import Persona__UserGroup
 from danswer.db.models import Prompt
 from danswer.db.models import StarterMessage
 from danswer.db.models import Tool
 from danswer.db.models import User
-from danswer.db.models import User__UserGroup
+from danswer.db.models import User__Teamspace
 from danswer.search.enums import RecencyBiasSetting
 from danswer.server.features.persona.models import CreatePersonaRequest
 from danswer.server.features.persona.models import PersonaSnapshot
@@ -176,21 +176,21 @@ def get_personas(
     stmt = select(Persona).distinct()
     if user_id is not None:
         # Subquery to find all groups the user belongs to
-        user_groups_subquery = (
-            select(User__UserGroup.user_group_id)
-            .where(User__UserGroup.user_id == user_id)
+        teamspaces_subquery = (
+            select(User__Teamspace.teamspace_id)
+            .where(User__Teamspace.user_id == user_id)
             .subquery()
         )
 
-        # Include personas where the user is directly related or part of a user group that has access
+        # Include personas where the user is directly related or part of a teamspace that has access
         access_conditions = or_(
             Persona.is_public == True,  # noqa: E712
             Persona.id.in_(  # User has access through list of users with access
                 select(Persona__User.persona_id).where(Persona__User.user_id == user_id)
             ),
             Persona.id.in_(  # User is part of a group that has access
-                select(Persona__UserGroup.persona_id).where(
-                    Persona__UserGroup.user_group_id.in_(user_groups_subquery)  # type: ignore
+                select(Persona__Teamspace.persona_id).where(
+                    Persona__Teamspace.teamspace_id.in_(teamspaces_subquery)  # type: ignore
                 )
             ),
         )

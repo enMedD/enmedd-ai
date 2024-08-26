@@ -7,65 +7,65 @@ from sqlalchemy.orm import Session
 import danswer.db.models as db_models
 from danswer.auth.users import current_admin_user
 from danswer.db.engine import get_session
-from ee.danswer.db.user_group import fetch_user_groups
-from ee.danswer.db.user_group import insert_user_group
-from ee.danswer.db.user_group import prepare_user_group_for_deletion
-from ee.danswer.db.user_group import update_user_group
-from ee.danswer.server.user_group.models import UserGroup
-from ee.danswer.server.user_group.models import UserGroupCreate
-from ee.danswer.server.user_group.models import UserGroupUpdate
+from ee.danswer.db.user_group import fetch_teamspaces
+from ee.danswer.db.user_group import insert_teamspace
+from ee.danswer.db.user_group import prepare_teamspace_for_deletion
+from ee.danswer.db.user_group import update_teamspace
+from ee.danswer.server.user_group.models import Teamspace
+from ee.danswer.server.user_group.models import TeamspaceCreate
+from ee.danswer.server.user_group.models import TeamspaceUpdate
 
 router = APIRouter(prefix="/manage")
 
 
-@router.get("/admin/user-group")
-def list_user_groups(
+@router.get("/admin/teamspace")
+def list_teamspaces(
     _: db_models.User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
-) -> list[UserGroup]:
-    user_groups = fetch_user_groups(db_session, only_current=False)
-    return [UserGroup.from_model(user_group) for user_group in user_groups]
+) -> list[Teamspace]:
+    teamspaces = fetch_teamspaces(db_session, only_current=False)
+    return [Teamspace.from_model(teamspace) for teamspace in teamspaces]
 
 
-@router.post("/admin/user-group")
-def create_user_group(
-    user_group: UserGroupCreate,
+@router.post("/admin/teamspace")
+def create_teamspace(
+    teamspace: TeamspaceCreate,
     _: db_models.User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
-) -> UserGroup:
+) -> Teamspace:
     try:
-        db_user_group = insert_user_group(db_session, user_group)
+        db_teamspace = insert_teamspace(db_session, teamspace)
     except IntegrityError:
         raise HTTPException(
             400,
-            f"User group with name '{user_group.name}' already exists. Please "
+            f"Teamspace with name '{teamspace.name}' already exists. Please "
             + "choose a different name.",
         )
-    return UserGroup.from_model(db_user_group)
+    return Teamspace.from_model(db_teamspace)
 
 
-@router.patch("/admin/user-group/{user_group_id}")
-def patch_user_group(
-    user_group_id: int,
-    user_group: UserGroupUpdate,
+@router.patch("/admin/teamspace/{teamspace_id}")
+def patch_teamspace(
+    teamspace_id: int,
+    teamspace: TeamspaceUpdate,
     _: db_models.User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
-) -> UserGroup:
+) -> Teamspace:
     try:
-        return UserGroup.from_model(
-            update_user_group(db_session, user_group_id, user_group)
+        return Teamspace.from_model(
+            update_teamspace(db_session, teamspace_id, teamspace)
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.delete("/admin/user-group/{user_group_id}")
-def delete_user_group(
-    user_group_id: int,
+@router.delete("/admin/teamspace/{teamspace_id}")
+def delete_teamspace(
+    teamspace_id: int,
     _: db_models.User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     try:
-        prepare_user_group_for_deletion(db_session, user_group_id)
+        prepare_teamspace_for_deletion(db_session, teamspace_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

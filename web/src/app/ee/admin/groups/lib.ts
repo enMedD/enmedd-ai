@@ -1,17 +1,17 @@
-import { UserGroupCreation } from "./types";
+import { TeamspaceCreation } from "./types";
 
-export const createUserGroup = async (userGroup: UserGroupCreation) => {
-  return fetch("/api/manage/admin/user-group", {
+export const createTeamspace = async (teamspace: TeamspaceCreation) => {
+  return fetch("/api/manage/admin/teamspace", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(userGroup),
+    body: JSON.stringify(teamspace),
   });
 };
 
-export const deleteUserGroup = async (userGroupId: number) => {
-  return fetch(`/api/manage/admin/user-group/${userGroupId}`, {
+export const deleteTeamspace = async (teamspaceId: number) => {
+  return fetch(`/api/manage/admin/teamspace/${teamspaceId}`, {
     method: "DELETE",
   });
 };

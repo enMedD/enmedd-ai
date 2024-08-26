@@ -9,45 +9,45 @@ from sqlalchemy.orm import Session
 from danswer.db.models import ConnectorCredentialPair
 from danswer.db.models import Document
 from danswer.db.models import DocumentByConnectorCredentialPair
-from danswer.db.models import TokenRateLimit__UserGroup
+from danswer.db.models import Teamspace
+from danswer.db.models import Teamspace__ConnectorCredentialPair
+from danswer.db.models import TokenRateLimit__Teamspace
 from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup
-from danswer.db.models import UserGroup__ConnectorCredentialPair
+from danswer.db.models import User__Teamspace
 from danswer.server.documents.models import ConnectorCredentialPairIdentifier
-from ee.danswer.server.user_group.models import UserGroupCreate
-from ee.danswer.server.user_group.models import UserGroupUpdate
+from ee.danswer.server.user_group.models import TeamspaceCreate
+from ee.danswer.server.user_group.models import TeamspaceUpdate
 
 
-def fetch_user_group(db_session: Session, user_group_id: int) -> UserGroup | None:
-    stmt = select(UserGroup).where(UserGroup.id == user_group_id)
+def fetch_teamspace(db_session: Session, teamspace_id: int) -> Teamspace | None:
+    stmt = select(Teamspace).where(Teamspace.id == teamspace_id)
     return db_session.scalar(stmt)
 
 
-def fetch_user_groups(
+def fetch_teamspaces(
     db_session: Session, only_current: bool = True
-) -> Sequence[UserGroup]:
-    stmt = select(UserGroup)
+) -> Sequence[Teamspace]:
+    stmt = select(Teamspace)
     if only_current:
-        stmt = stmt.where(UserGroup.is_up_to_date == True)  # noqa: E712
+        stmt = stmt.where(Teamspace.is_up_to_date == True)  # noqa: E712
     return db_session.scalars(stmt).all()
 
 
-def fetch_user_groups_for_user(
+def fetch_teamspaces_for_user(
     db_session: Session, user_id: UUID
-) -> Sequence[UserGroup]:
+) -> Sequence[Teamspace]:
     stmt = (
-        select(UserGroup)
-        .join(User__UserGroup, User__UserGroup.user_group_id == UserGroup.id)
-        .join(User, User.id == User__UserGroup.user_id)  # type: ignore
+        select(Teamspace)
+        .join(User__Teamspace, User__Teamspace.teamspace_id == Teamspace.id)
+        .join(User, User.id == User__Teamspace.user_id)  # type: ignore
         .where(User.id == user_id)  # type: ignore
     )
     return db_session.scalars(stmt).all()
 
 
-def fetch_documents_for_user_group_paginated(
+def fetch_documents_for_teamspace_paginated(
     db_session: Session,
-    user_group_id: int,
+    teamspace_id: int,
     last_document_id: str | None = None,
     limit: int = 100,
 ) -> tuple[Sequence[Document], str | None]:
@@ -67,14 +67,14 @@ def fetch_documents_for_user_group_paginated(
             ),
         )
         .join(
-            UserGroup__ConnectorCredentialPair,
-            UserGroup__ConnectorCredentialPair.cc_pair_id == ConnectorCredentialPair.id,
+            Teamspace__ConnectorCredentialPair,
+            Teamspace__ConnectorCredentialPair.cc_pair_id == ConnectorCredentialPair.id,
         )
         .join(
-            UserGroup,
-            UserGroup__ConnectorCredentialPair.user_group_id == UserGroup.id,
+            Teamspace,
+            Teamspace__ConnectorCredentialPair.teamspace_id == Teamspace.id,
         )
-        .where(UserGroup.id == user_group_id)
+        .where(Teamspace.id == teamspace_id)
         .order_by(Document.id)
         .limit(limit)
     )
@@ -86,20 +86,20 @@ def fetch_documents_for_user_group_paginated(
     return documents, documents[-1].id if documents else None
 
 
-def fetch_user_groups_for_documents(
+def fetch_teamspaces_for_documents(
     db_session: Session,
     document_ids: list[str],
     cc_pair_to_delete: ConnectorCredentialPairIdentifier | None = None,
 ) -> Sequence[tuple[int, list[str]]]:
     stmt = (
-        select(Document.id, func.array_agg(UserGroup.name))
+        select(Document.id, func.array_agg(Teamspace.name))
         .join(
-            UserGroup__ConnectorCredentialPair,
-            UserGroup.id == UserGroup__ConnectorCredentialPair.user_group_id,
+            Teamspace__ConnectorCredentialPair,
+            Teamspace.id == Teamspace__ConnectorCredentialPair.teamspace_id,
         )
         .join(
             ConnectorCredentialPair,
-            ConnectorCredentialPair.id == UserGroup__ConnectorCredentialPair.cc_pair_id,
+            ConnectorCredentialPair.id == Teamspace__ConnectorCredentialPair.cc_pair_id,
         )
         .join(
             DocumentByConnectorCredentialPair,
@@ -112,7 +112,7 @@ def fetch_user_groups_for_documents(
         )
         .join(Document, Document.id == DocumentByConnectorCredentialPair.id)
         .where(Document.id.in_(document_ids))
-        .where(UserGroup__ConnectorCredentialPair.is_current == True)  # noqa: E712
+        .where(Teamspace__ConnectorCredentialPair.is_current == True)  # noqa: E712
         .group_by(Document.id)
     )
 
@@ -129,33 +129,33 @@ def fetch_user_groups_for_documents(
     return db_session.execute(stmt).all()  # type: ignore
 
 
-def _check_user_group_is_modifiable(user_group: UserGroup) -> None:
-    if not user_group.is_up_to_date:
+def _check_teamspace_is_modifiable(teamspace: Teamspace) -> None:
+    if not teamspace.is_up_to_date:
         raise ValueError(
-            "Specified user group is currently syncing. Wait until the current "
+            "Specified teamspace is currently syncing. Wait until the current "
             "sync has finished before editing."
         )
 
 
-def _add_user__user_group_relationships__no_commit(
-    db_session: Session, user_group_id: int, user_ids: list[UUID]
-) -> list[User__UserGroup]:
+def _add_user__teamspace_relationships__no_commit(
+    db_session: Session, teamspace_id: int, user_ids: list[UUID]
+) -> list[User__Teamspace]:
     """NOTE: does not commit the transaction."""
     relationships = [
-        User__UserGroup(user_id=user_id, user_group_id=user_group_id)
+        User__Teamspace(user_id=user_id, teamspace_id=teamspace_id)
         for user_id in user_ids
     ]
     db_session.add_all(relationships)
     return relationships
 
 
-def _add_user_group__cc_pair_relationships__no_commit(
-    db_session: Session, user_group_id: int, cc_pair_ids: list[int]
-) -> list[UserGroup__ConnectorCredentialPair]:
+def _add_teamspace__cc_pair_relationships__no_commit(
+    db_session: Session, teamspace_id: int, cc_pair_ids: list[int]
+) -> list[Teamspace__ConnectorCredentialPair]:
     """NOTE: does not commit the transaction."""
     relationships = [
-        UserGroup__ConnectorCredentialPair(
-            user_group_id=user_group_id, cc_pair_id=cc_pair_id
+        Teamspace__ConnectorCredentialPair(
+            teamspace_id=teamspace_id, cc_pair_id=cc_pair_id
         )
         for cc_pair_id in cc_pair_ids
     ]
@@ -163,170 +163,170 @@ def _add_user_group__cc_pair_relationships__no_commit(
     return relationships
 
 
-def insert_user_group(db_session: Session, user_group: UserGroupCreate) -> UserGroup:
-    db_user_group = UserGroup(name=user_group.name)
-    db_session.add(db_user_group)
+def insert_teamspace(db_session: Session, teamspace: TeamspaceCreate) -> Teamspace:
+    db_teamspace = Teamspace(name=teamspace.name)
+    db_session.add(db_teamspace)
     db_session.flush()  # give the group an ID
 
-    _add_user__user_group_relationships__no_commit(
+    _add_user__teamspace_relationships__no_commit(
         db_session=db_session,
-        user_group_id=db_user_group.id,
-        user_ids=user_group.user_ids,
+        teamspace_id=db_teamspace.id,
+        user_ids=teamspace.user_ids,
     )
-    _add_user_group__cc_pair_relationships__no_commit(
+    _add_teamspace__cc_pair_relationships__no_commit(
         db_session=db_session,
-        user_group_id=db_user_group.id,
-        cc_pair_ids=user_group.cc_pair_ids,
+        teamspace_id=db_teamspace.id,
+        cc_pair_ids=teamspace.cc_pair_ids,
     )
 
     db_session.commit()
-    return db_user_group
+    return db_teamspace
 
 
-def _cleanup_user__user_group_relationships__no_commit(
-    db_session: Session, user_group_id: int
+def _cleanup_user__teamspace_relationships__no_commit(
+    db_session: Session, teamspace_id: int
 ) -> None:
     """NOTE: does not commit the transaction."""
-    user__user_group_relationships = db_session.scalars(
-        select(User__UserGroup).where(User__UserGroup.user_group_id == user_group_id)
+    user__teamspace_relationships = db_session.scalars(
+        select(User__Teamspace).where(User__Teamspace.teamspace_id == teamspace_id)
     ).all()
-    for user__user_group_relationship in user__user_group_relationships:
-        db_session.delete(user__user_group_relationship)
+    for user__teamspace_relationship in user__teamspace_relationships:
+        db_session.delete(user__teamspace_relationship)
 
 
-def _mark_user_group__cc_pair_relationships_outdated__no_commit(
-    db_session: Session, user_group_id: int
+def _mark_teamspace__cc_pair_relationships_outdated__no_commit(
+    db_session: Session, teamspace_id: int
 ) -> None:
     """NOTE: does not commit the transaction."""
-    user_group__cc_pair_relationships = db_session.scalars(
-        select(UserGroup__ConnectorCredentialPair).where(
-            UserGroup__ConnectorCredentialPair.user_group_id == user_group_id
+    teamspace__cc_pair_relationships = db_session.scalars(
+        select(Teamspace__ConnectorCredentialPair).where(
+            Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id
         )
     )
-    for user_group__cc_pair_relationship in user_group__cc_pair_relationships:
-        user_group__cc_pair_relationship.is_current = False
+    for teamspace__cc_pair_relationship in teamspace__cc_pair_relationships:
+        teamspace__cc_pair_relationship.is_current = False
 
 
-def update_user_group(
-    db_session: Session, user_group_id: int, user_group: UserGroupUpdate
-) -> UserGroup:
-    stmt = select(UserGroup).where(UserGroup.id == user_group_id)
-    db_user_group = db_session.scalar(stmt)
-    if db_user_group is None:
-        raise ValueError(f"UserGroup with id '{user_group_id}' not found")
+def update_teamspace(
+    db_session: Session, teamspace_id: int, teamspace: TeamspaceUpdate
+) -> Teamspace:
+    stmt = select(Teamspace).where(Teamspace.id == teamspace_id)
+    db_teamspace = db_session.scalar(stmt)
+    if db_teamspace is None:
+        raise ValueError(f"Teamspace with id '{teamspace_id}' not found")
 
-    _check_user_group_is_modifiable(db_user_group)
+    _check_teamspace_is_modifiable(db_teamspace)
 
-    existing_cc_pairs = db_user_group.cc_pairs
+    existing_cc_pairs = db_teamspace.cc_pairs
     cc_pairs_updated = set([cc_pair.id for cc_pair in existing_cc_pairs]) != set(
-        user_group.cc_pair_ids
+        teamspace.cc_pair_ids
     )
-    users_updated = set([user.id for user in db_user_group.users]) != set(
-        user_group.user_ids
+    users_updated = set([user.id for user in db_teamspace.users]) != set(
+        teamspace.user_ids
     )
 
     if users_updated:
-        _cleanup_user__user_group_relationships__no_commit(
-            db_session=db_session, user_group_id=user_group_id
+        _cleanup_user__teamspace_relationships__no_commit(
+            db_session=db_session, teamspace_id=teamspace_id
         )
-        _add_user__user_group_relationships__no_commit(
+        _add_user__teamspace_relationships__no_commit(
             db_session=db_session,
-            user_group_id=user_group_id,
-            user_ids=user_group.user_ids,
+            teamspace_id=teamspace_id,
+            user_ids=teamspace.user_ids,
         )
     if cc_pairs_updated:
-        _mark_user_group__cc_pair_relationships_outdated__no_commit(
-            db_session=db_session, user_group_id=user_group_id
+        _mark_teamspace__cc_pair_relationships_outdated__no_commit(
+            db_session=db_session, teamspace_id=teamspace_id
         )
-        _add_user_group__cc_pair_relationships__no_commit(
+        _add_teamspace__cc_pair_relationships__no_commit(
             db_session=db_session,
-            user_group_id=db_user_group.id,
-            cc_pair_ids=user_group.cc_pair_ids,
+            teamspace_id=db_teamspace.id,
+            cc_pair_ids=teamspace.cc_pair_ids,
         )
 
     # only needs to sync with Vespa if the cc_pairs have been updated
     if cc_pairs_updated:
-        db_user_group.is_up_to_date = False
+        db_teamspace.is_up_to_date = False
 
     db_session.commit()
-    return db_user_group
+    return db_teamspace
 
 
-def _cleanup_token_rate_limit__user_group_relationships__no_commit(
-    db_session: Session, user_group_id: int
+def _cleanup_token_rate_limit__teamspace_relationships__no_commit(
+    db_session: Session, teamspace_id: int
 ) -> None:
     """NOTE: does not commit the transaction."""
-    token_rate_limit__user_group_relationships = db_session.scalars(
-        select(TokenRateLimit__UserGroup).where(
-            TokenRateLimit__UserGroup.user_group_id == user_group_id
+    token_rate_limit__teamspace_relationships = db_session.scalars(
+        select(TokenRateLimit__Teamspace).where(
+            TokenRateLimit__Teamspace.teamspace_id == teamspace_id
         )
     ).all()
     for (
-        token_rate_limit__user_group_relationship
-    ) in token_rate_limit__user_group_relationships:
-        db_session.delete(token_rate_limit__user_group_relationship)
+        token_rate_limit__teamspace_relationship
+    ) in token_rate_limit__teamspace_relationships:
+        db_session.delete(token_rate_limit__teamspace_relationship)
 
 
-def prepare_user_group_for_deletion(db_session: Session, user_group_id: int) -> None:
-    stmt = select(UserGroup).where(UserGroup.id == user_group_id)
-    db_user_group = db_session.scalar(stmt)
-    if db_user_group is None:
-        raise ValueError(f"UserGroup with id '{user_group_id}' not found")
+def prepare_teamspace_for_deletion(db_session: Session, teamspace_id: int) -> None:
+    stmt = select(Teamspace).where(Teamspace.id == teamspace_id)
+    db_teamspace = db_session.scalar(stmt)
+    if db_teamspace is None:
+        raise ValueError(f"Teamspace with id '{teamspace_id}' not found")
 
-    _check_user_group_is_modifiable(db_user_group)
+    _check_teamspace_is_modifiable(db_teamspace)
 
-    _cleanup_user__user_group_relationships__no_commit(
-        db_session=db_session, user_group_id=user_group_id
+    _cleanup_user__teamspace_relationships__no_commit(
+        db_session=db_session, teamspace_id=teamspace_id
     )
-    _mark_user_group__cc_pair_relationships_outdated__no_commit(
-        db_session=db_session, user_group_id=user_group_id
+    _mark_teamspace__cc_pair_relationships_outdated__no_commit(
+        db_session=db_session, teamspace_id=teamspace_id
     )
-    _cleanup_token_rate_limit__user_group_relationships__no_commit(
-        db_session=db_session, user_group_id=user_group_id
+    _cleanup_token_rate_limit__teamspace_relationships__no_commit(
+        db_session=db_session, teamspace_id=teamspace_id
     )
 
-    db_user_group.is_up_to_date = False
-    db_user_group.is_up_for_deletion = True
+    db_teamspace.is_up_to_date = False
+    db_teamspace.is_up_for_deletion = True
     db_session.commit()
 
 
-def _cleanup_user_group__cc_pair_relationships__no_commit(
-    db_session: Session, user_group_id: int, outdated_only: bool
+def _cleanup_teamspace__cc_pair_relationships__no_commit(
+    db_session: Session, teamspace_id: int, outdated_only: bool
 ) -> None:
     """NOTE: does not commit the transaction."""
-    stmt = select(UserGroup__ConnectorCredentialPair).where(
-        UserGroup__ConnectorCredentialPair.user_group_id == user_group_id
+    stmt = select(Teamspace__ConnectorCredentialPair).where(
+        Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id
     )
     if outdated_only:
         stmt = stmt.where(
-            UserGroup__ConnectorCredentialPair.is_current == False  # noqa: E712
+            Teamspace__ConnectorCredentialPair.is_current == False  # noqa: E712
         )
-    user_group__cc_pair_relationships = db_session.scalars(stmt)
-    for user_group__cc_pair_relationship in user_group__cc_pair_relationships:
-        db_session.delete(user_group__cc_pair_relationship)
+    teamspace__cc_pair_relationships = db_session.scalars(stmt)
+    for teamspace__cc_pair_relationship in teamspace__cc_pair_relationships:
+        db_session.delete(teamspace__cc_pair_relationship)
 
 
-def mark_user_group_as_synced(db_session: Session, user_group: UserGroup) -> None:
+def mark_teamspace_as_synced(db_session: Session, teamspace: Teamspace) -> None:
     # cleanup outdated relationships
-    _cleanup_user_group__cc_pair_relationships__no_commit(
-        db_session=db_session, user_group_id=user_group.id, outdated_only=True
+    _cleanup_teamspace__cc_pair_relationships__no_commit(
+        db_session=db_session, teamspace_id=teamspace.id, outdated_only=True
     )
-    user_group.is_up_to_date = True
+    teamspace.is_up_to_date = True
     db_session.commit()
 
 
-def delete_user_group(db_session: Session, user_group: UserGroup) -> None:
-    _cleanup_user__user_group_relationships__no_commit(
-        db_session=db_session, user_group_id=user_group.id
+def delete_teamspace(db_session: Session, teamspace: Teamspace) -> None:
+    _cleanup_user__teamspace_relationships__no_commit(
+        db_session=db_session, teamspace_id=teamspace.id
     )
-    _cleanup_user_group__cc_pair_relationships__no_commit(
+    _cleanup_teamspace__cc_pair_relationships__no_commit(
         db_session=db_session,
-        user_group_id=user_group.id,
+        teamspace_id=teamspace.id,
         outdated_only=False,
     )
 
-    # need to flush so that we don't get a foreign key error when deleting the user group row
+    # need to flush so that we don't get a foreign key error when deleting the teamspace row
     db_session.flush()
 
-    db_session.delete(user_group)
+    db_session.delete(teamspace)
     db_session.commit()

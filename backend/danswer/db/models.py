@@ -923,9 +923,9 @@ class DocumentSet(Base):
         viewonly=True,
     )
     # EE only
-    groups: Mapped[list["UserGroup"]] = relationship(
-        "UserGroup",
-        secondary="document_set__user_group",
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace",
+        secondary="document_set__teamspace",
         viewonly=True,
     )
 
@@ -1063,9 +1063,9 @@ class Persona(Base):
         viewonly=True,
     )
     # EE only
-    groups: Mapped[list["UserGroup"]] = relationship(
-        "UserGroup",
-        secondary="persona__user_group",
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace",
+        secondary="persona__teamspace",
         viewonly=True,
     )
 
@@ -1150,29 +1150,29 @@ class SamlAccount(Base):
     user: Mapped[User] = relationship("User")
 
 
-class User__UserGroup(Base):
-    __tablename__ = "user__user_group"
+class User__Teamspace(Base):
+    __tablename__ = "user__teamspace"
 
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
     )
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
 
-class UserGroup__ConnectorCredentialPair(Base):
-    __tablename__ = "user_group__connector_credential_pair"
+class Teamspace__ConnectorCredentialPair(Base):
+    __tablename__ = "teamspace__connector_credential_pair"
 
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
     )
     cc_pair_id: Mapped[int] = mapped_column(
         ForeignKey("connector_credential_pair.id"), primary_key=True
     )
-    # if `True`, then is part of the current state of the UserGroup
-    # if `False`, then is a part of the prior state of the UserGroup
-    # rows with `is_current=False` should be deleted when the UserGroup
-    # is updated and should not exist for a given UserGroup if
-    # `UserGroup.is_up_to_date == True`
+    # if `True`, then is part of the current state of the Teamspace
+    # if `False`, then is a part of the prior state of the Teamspace
+    # rows with `is_current=False` should be deleted when the Teamspace
+    # is updated and should not exist for a given Teamspace if
+    # `Teamspace.is_up_to_date == True`
     is_current: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
@@ -1184,32 +1184,32 @@ class UserGroup__ConnectorCredentialPair(Base):
     )
 
 
-class Persona__UserGroup(Base):
-    __tablename__ = "persona__user_group"
+class Persona__Teamspace(Base):
+    __tablename__ = "persona__teamspace"
 
     persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
     )
 
 
-class DocumentSet__UserGroup(Base):
-    __tablename__ = "document_set__user_group"
+class DocumentSet__Teamspace(Base):
+    __tablename__ = "document_set__teamspace"
 
     document_set_id: Mapped[int] = mapped_column(
         ForeignKey("document_set.id"), primary_key=True
     )
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
     )
 
 
-class UserGroup(Base):
-    __tablename__ = "user_group"
+class Teamspace(Base):
+    __tablename__ = "teamspace"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String, unique=True)
-    # whether or not changes to the UserGroup have been propagated to Vespa
+    # whether or not changes to the Teamspace have been propagated to Vespa
     is_up_to_date: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     # tell the sync job to clean up the group
     is_up_for_deletion: Mapped[bool] = mapped_column(
@@ -1219,33 +1219,33 @@ class UserGroup(Base):
 
     users: Mapped[list[User]] = relationship(
         "User",
-        secondary=User__UserGroup.__table__,
+        secondary=User__Teamspace.__table__,
     )
     cc_pairs: Mapped[list[ConnectorCredentialPair]] = relationship(
         "ConnectorCredentialPair",
-        secondary=UserGroup__ConnectorCredentialPair.__table__,
+        secondary=Teamspace__ConnectorCredentialPair.__table__,
         viewonly=True,
     )
     cc_pair_relationships: Mapped[
-        list[UserGroup__ConnectorCredentialPair]
+        list[Teamspace__ConnectorCredentialPair]
     ] = relationship(
-        "UserGroup__ConnectorCredentialPair",
+        "Teamspace__ConnectorCredentialPair",
         viewonly=True,
     )
     personas: Mapped[list[Persona]] = relationship(
         "Persona",
-        secondary=Persona__UserGroup.__table__,
+        secondary=Persona__Teamspace.__table__,
         viewonly=True,
     )
     document_sets: Mapped[list[DocumentSet]] = relationship(
         "DocumentSet",
-        secondary=DocumentSet__UserGroup.__table__,
+        secondary=DocumentSet__Teamspace.__table__,
         viewonly=True,
     )
 
     workspace: Mapped[list["Workspace"]] = relationship(
         "Workspace",
-        secondary="workspace__user_group",
+        secondary="workspace__teamspace",
         viewonly=True,
     )
 
@@ -1270,14 +1270,14 @@ class TokenRateLimit(Base):
     )
 
 
-class TokenRateLimit__UserGroup(Base):
-    __tablename__ = "token_rate_limit__user_group"
+class TokenRateLimit__Teamspace(Base):
+    __tablename__ = "token_rate_limit__teamspace"
 
     rate_limit_id: Mapped[int] = mapped_column(
         ForeignKey("token_rate_limit.id"), primary_key=True
     )
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
     )
 
 
@@ -1418,8 +1418,8 @@ class Workspace(Base):
         "User", secondary="workspace__users", back_populates="workspace"
     )
 
-    groups: Mapped[list["UserGroup"]] = relationship(
-        "UserGroup", secondary="workspace__user_group", back_populates="workspace"
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace", secondary="workspace__teamspace", back_populates="workspace"
     )
 
     workspace_settings: Mapped["WorkspaceSettings"] = relationship(
@@ -1470,12 +1470,12 @@ class WorkspaceUsers(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
 
-class WorkspaceUserGroup(Base):
-    __tablename__ = "workspace__user_group"
+class WorkspaceTeamspace(Base):
+    __tablename__ = "workspace__teamspace"
 
     workspace_id: Mapped[int] = mapped_column(
         ForeignKey("workspace.workspace_id"), primary_key=True
     )
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
     )

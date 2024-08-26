@@ -26,16 +26,16 @@ import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidE
 const BASE_URL = "/api/admin/token-rate-limits";
 const GLOBAL_TOKEN_FETCH_URL = `${BASE_URL}/global`;
 const USER_TOKEN_FETCH_URL = `${BASE_URL}/users`;
-const USER_GROUP_FETCH_URL = `${BASE_URL}/user-groups`;
+const TEAMSPACE_FETCH_URL = `${BASE_URL}/teamspaces`;
 
 const GLOBAL_DESCRIPTION =
-  "Global rate limits apply to all users, user groups, and API keys. When the global \
+  "Global rate limits apply to all users, teamspaces, and API keys. When the global \
   rate limit is reached, no more tokens can be spent.";
 const USER_DESCRIPTION =
   "User rate limits apply to individual users. When a user reaches a limit, they will \
   be temporarily blocked from spending tokens.";
-const USER_GROUP_DESCRIPTION =
-  "User group rate limits apply to all users in a group. When a group reaches a limit, \
+const TEAMSPACE_DESCRIPTION =
+  "Teamspace rate limits apply to all users in a group. When a group reaches a limit, \
   all users in the group will be temporarily blocked from spending tokens, regardless \
   of their individual limits. If a user is in multiple groups, the most lenient limit \
   will apply.";
@@ -56,7 +56,7 @@ const handleCreateTokenRateLimit = async (
     return await insertGlobalTokenRateLimit(tokenRateLimitArgs);
   } else if (target_scope === Scope.USER) {
     return await insertUserTokenRateLimit(tokenRateLimitArgs);
-  } else if (target_scope === Scope.USER_GROUP) {
+  } else if (target_scope === Scope.TEAMSPACE) {
     return await insertGroupTokenRateLimit(tokenRateLimitArgs, group_id);
   } else {
     throw new Error(`Invalid target_scope: ${target_scope}`);
@@ -76,8 +76,8 @@ function Main() {
     } else if (target_scope === Scope.USER) {
       mutate(USER_TOKEN_FETCH_URL);
       setTabIndex(1);
-    } else if (target_scope === Scope.USER_GROUP) {
-      mutate(USER_GROUP_FETCH_URL);
+    } else if (target_scope === Scope.TEAMSPACE) {
+      mutate(TEAMSPACE_FETCH_URL);
       setTabIndex(2);
     }
   };
@@ -129,7 +129,7 @@ function Main() {
             </li>
             <li>
               <Text>
-                Set rate limits for user groups to control token spend for your
+                Set rate limits for teamspaces to control token spend for your
                 teams.
               </Text>
             </li>
@@ -153,7 +153,7 @@ function Main() {
           <TabList variant="line">
             <Tab icon={FiGlobe}>Global</Tab>
             <Tab icon={FiUser}>User</Tab>
-            <Tab icon={FiUsers}>User Groups</Tab>
+            <Tab icon={FiUsers}>Teamspaces</Tab>
           </TabList>
           <TabPanels className="mt-6">
             <TabPanel>
@@ -172,9 +172,9 @@ function Main() {
             </TabPanel>
             <TabPanel>
               <GenericTokenRateLimitTable
-                fetchUrl={USER_GROUP_FETCH_URL}
-                title={"User Group Token Rate Limits"}
-                description={USER_GROUP_DESCRIPTION}
+                fetchUrl={TEAMSPACE_FETCH_URL}
+                title={"Teamspace Token Rate Limits"}
+                description={TEAMSPACE_DESCRIPTION}
                 responseMapper={(data: Record<string, TokenRateLimit[]>) =>
                   Object.entries(data).flatMap(([group_name, elements]) =>
                     elements.map((element) => ({

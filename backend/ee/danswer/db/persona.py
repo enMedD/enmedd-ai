@@ -2,8 +2,8 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from danswer.db.models import Persona__Teamspace
 from danswer.db.models import Persona__User
-from danswer.db.models import Persona__UserGroup
 
 
 def make_persona_private(
@@ -15,8 +15,8 @@ def make_persona_private(
     db_session.query(Persona__User).filter(
         Persona__User.persona_id == persona_id
     ).delete(synchronize_session="fetch")
-    db_session.query(Persona__UserGroup).filter(
-        Persona__UserGroup.persona_id == persona_id
+    db_session.query(Persona__Teamspace).filter(
+        Persona__Teamspace.persona_id == persona_id
     ).delete(synchronize_session="fetch")
 
     if user_ids:
@@ -26,7 +26,7 @@ def make_persona_private(
     if group_ids:
         for group_id in group_ids:
             db_session.add(
-                Persona__UserGroup(persona_id=persona_id, user_group_id=group_id)
+                Persona__Teamspace(persona_id=persona_id, teamspace_id=group_id)
             )
 
     db_session.commit()

@@ -96,7 +96,7 @@ class PersonaSnapshot(BaseModel):
                 MinimalUserSnapshot(id=user.id, email=user.email)
                 for user in persona.users
             ],
-            groups=[user_group.id for user_group in persona.groups],
+            groups=[teamspace.id for teamspace in persona.groups],
         )
 
 

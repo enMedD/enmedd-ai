@@ -1,12 +1,12 @@
-import { useUserGroups } from "@/lib/hooks";
+import { useTeamspaces } from "@/lib/hooks";
 
-export const useSpecificUserGroup = (groupId: string) => {
-  const { data, isLoading, error, refreshUserGroups } = useUserGroups();
-  const userGroup = data?.find((group) => group.id.toString() === groupId);
+export const useSpecificTeamspace = (groupId: string) => {
+  const { data, isLoading, error, refreshTeamspaces } = useTeamspaces();
+  const teamspace = data?.find((group) => group.id.toString() === groupId);
   return {
-    userGroup,
+    teamspace,
     isLoading,
     error,
-    refreshUserGroup: refreshUserGroups,
+    refreshTeamspace: refreshTeamspaces,
   };
 };

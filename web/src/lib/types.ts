@@ -414,7 +414,7 @@ export interface Tag {
 }
 
 /* EE Only Types */
-export interface UserGroup {
+export interface Teamspace {
   id: number;
   name: string;
   users: User[];
