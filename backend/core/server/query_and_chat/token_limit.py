@@ -11,15 +11,15 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from core.auth.users import current_user
+from core.db.engine import get_session_context_manager
+from core.db.models import ChatMessage
+from core.db.models import ChatSession
+from core.db.models import TokenRateLimit
+from core.db.models import User
+from core.utils.logger import setup_logger
+from core.utils.variable_functionality import fetch_versioned_implementation
 from ee.enmedd.db.token_limit import fetch_all_global_token_rate_limits
-from enmedd.auth.users import current_user
-from enmedd.db.engine import get_session_context_manager
-from enmedd.db.models import ChatMessage
-from enmedd.db.models import ChatSession
-from enmedd.db.models import TokenRateLimit
-from enmedd.db.models import User
-from enmedd.utils.logger import setup_logger
-from enmedd.utils.variable_functionality import fetch_versioned_implementation
 
 
 logger = setup_logger()
@@ -37,7 +37,7 @@ def check_token_rate_limits(
         return
 
     versioned_rate_limit_strategy = fetch_versioned_implementation(
-        "enmedd.server.query_and_chat.token_limit", "_check_token_rate_limits"
+        "danswer.server.query_and_chat.token_limit", "_check_token_rate_limits"
     )
     return versioned_rate_limit_strategy(user)
 

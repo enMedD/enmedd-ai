@@ -10,7 +10,7 @@ logger = setup_logger()
 
 
 # TODO : rename the class name
-class DanswerVersion:
+class enMedDAIVersion:
     def __init__(self) -> None:
         self._is_ee = False
 
@@ -21,7 +21,7 @@ class DanswerVersion:
         return self._is_ee
 
 
-global_version = DanswerVersion()
+global_version = enMedDAIVersion()
 
 
 # TODO: remove the EE depedencies
@@ -35,7 +35,6 @@ def set_is_ee_based_on_env_variable() -> None:
 def fetch_versioned_implementation(module: str, attribute: str) -> Any:
     logger.debug("Fetching versioned implementation for %s.%s", module, attribute)
     is_ee = global_version.get_is_ee_version()
-
     module_full = f"ee.{module}" if is_ee else module
     try:
         return getattr(importlib.import_module(module_full), attribute)
