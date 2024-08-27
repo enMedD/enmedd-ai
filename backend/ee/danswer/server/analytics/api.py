@@ -6,12 +6,12 @@ from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-import danswer.db.models as db_models
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
+import enmedd.db.models as db_models
 from ee.danswer.db.analytics import fetch_danswerbot_analytics
 from ee.danswer.db.analytics import fetch_per_user_query_analytics
 from ee.danswer.db.analytics import fetch_query_analytics
+from enmedd.auth.users import current_admin_user
+from enmedd.db.engine import get_session
 
 router = APIRouter(prefix="/analytics")
 

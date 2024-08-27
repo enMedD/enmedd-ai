@@ -9,16 +9,16 @@ from fastapi import HTTPException
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import FileOrigin
-from danswer.dynamic_configs.factory import get_dynamic_config_store
-from danswer.dynamic_configs.interface import ConfigNotFoundError
-from danswer.file_store.file_store import get_default_file_store
-from danswer.utils.logger import setup_logger
 from ee.danswer.server.enterprise_settings.models import AnalyticsScriptUpload
 from ee.danswer.server.enterprise_settings.models import EnterpriseSettings
+from enmedd.configs.constants import FileOrigin
+from enmedd.dynamic_configs.factory import get_dynamic_config_store
+from enmedd.dynamic_configs.interface import ConfigNotFoundError
+from enmedd.file_store.file_store import get_default_file_store
+from enmedd.utils.logger import setup_logger
 
 load_dotenv()
-
+# TODO : replace the value name
 _ENTERPRISE_SETTINGS_KEY = "danswer_enterprise_settings"
 logger = setup_logger()
 

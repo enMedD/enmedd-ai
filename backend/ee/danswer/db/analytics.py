@@ -10,10 +10,10 @@ from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import MessageType
-from danswer.db.models import ChatMessage
-from danswer.db.models import ChatMessageFeedback
-from danswer.db.models import ChatSession
+from enmedd.configs.constants import MessageType
+from enmedd.db.models import ChatMessage
+from enmedd.db.models import ChatMessageFeedback
+from enmedd.db.models import ChatSession
 
 
 def fetch_query_analytics(
@@ -83,6 +83,7 @@ def fetch_per_user_query_analytics(
     return db_session.execute(stmt).all()  # type: ignore
 
 
+# TODO: remove this
 def fetch_danswerbot_analytics(
     start: datetime.datetime,
     end: datetime.datetime,

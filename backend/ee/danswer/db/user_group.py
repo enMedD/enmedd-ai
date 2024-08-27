@@ -6,17 +6,17 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import Document
-from danswer.db.models import DocumentByConnectorCredentialPair
-from danswer.db.models import TokenRateLimit__UserGroup
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup
-from danswer.db.models import UserGroup__ConnectorCredentialPair
-from danswer.server.documents.models import ConnectorCredentialPairIdentifier
 from ee.danswer.server.user_group.models import UserGroupCreate
 from ee.danswer.server.user_group.models import UserGroupUpdate
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import Document
+from enmedd.db.models import DocumentByConnectorCredentialPair
+from enmedd.db.models import TokenRateLimit__UserGroup
+from enmedd.db.models import User
+from enmedd.db.models import User__UserGroup
+from enmedd.db.models import UserGroup
+from enmedd.db.models import UserGroup__ConnectorCredentialPair
+from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
 
 
 def fetch_user_group(db_session: Session, user_group_id: int) -> UserGroup | None:

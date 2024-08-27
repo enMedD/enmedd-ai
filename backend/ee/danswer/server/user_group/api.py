@@ -4,9 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-import danswer.db.models as db_models
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
+import enmedd.db.models as db_models
 from ee.danswer.db.user_group import fetch_user_groups
 from ee.danswer.db.user_group import insert_user_group
 from ee.danswer.db.user_group import prepare_user_group_for_deletion
@@ -14,6 +12,8 @@ from ee.danswer.db.user_group import update_user_group
 from ee.danswer.server.user_group.models import UserGroup
 from ee.danswer.server.user_group.models import UserGroupCreate
 from ee.danswer.server.user_group.models import UserGroupUpdate
+from enmedd.auth.users import current_admin_user
+from enmedd.db.engine import get_session
 
 router = APIRouter(prefix="/manage")
 

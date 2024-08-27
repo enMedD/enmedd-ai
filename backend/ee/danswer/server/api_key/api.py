@@ -2,9 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-import danswer.db.models as db_models
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
+import enmedd.db.models as db_models
 from ee.danswer.db.api_key import ApiKeyDescriptor
 from ee.danswer.db.api_key import fetch_api_keys
 from ee.danswer.db.api_key import insert_api_key
@@ -12,6 +10,8 @@ from ee.danswer.db.api_key import regenerate_api_key
 from ee.danswer.db.api_key import remove_api_key
 from ee.danswer.db.api_key import update_api_key
 from ee.danswer.server.api_key.models import APIKeyArgs
+from enmedd.auth.users import current_admin_user
+from enmedd.db.engine import get_session
 
 router = APIRouter(prefix="/admin/api-key")
 

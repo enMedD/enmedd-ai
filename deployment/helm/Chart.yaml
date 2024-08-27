@@ -12,9 +12,9 @@ annotations:
   licenses: MIT
   images: |
     - name: webserver
-      image: docker.io/danswer/danswer-web-server:latest
+      image: docker.io/471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-web:latest
     - name: background
-      image: docker.io/danswer/danswer-backend:latest
+      image: docker.io/ 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-api-server:latest
     - name: vespa
       image: vespaengine/vespa:8.277.17
 dependencies:

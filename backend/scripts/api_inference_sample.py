@@ -1,5 +1,5 @@
 # This file is used to demonstrate how to use the backend APIs directly
-# In this case, the equivalent of asking a question in Danswer Chat in a new chat session
+# In this case, the equivalent of asking a question in enMedD Chat in a new chat session
 import argparse
 import json
 import os
@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+# TODO: replace the parameter names here
 def create_new_chat_session(danswer_url: str, api_key: str | None) -> int:
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
     session_endpoint = danswer_url + "/api/chat/create-chat-session"
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     )
 
     # Not needed if Auth is disabled
-    # Or for Danswer MIT API key must be replaced with session cookie
+    # API key must be replaced with session cookie
     api_key = os.environ.get("DANSWER_API_KEY")
 
     args = parser.parse_args()

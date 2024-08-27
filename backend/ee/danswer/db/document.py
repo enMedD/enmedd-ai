@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.db.models import Document
+from enmedd.db.models import Document
 
 
 def fetch_documents_from_ids(

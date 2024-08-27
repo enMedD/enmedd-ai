@@ -5,23 +5,23 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_user
-from danswer.chat.chat_utils import create_chat_chain
-from danswer.chat.models import DanswerAnswerPiece
-from danswer.chat.models import QADocsResponse
-from danswer.chat.models import StreamingError
-from danswer.chat.process_message import stream_chat_message_objects
-from danswer.db.chat import get_or_create_root_message
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.search.models import OptionalSearchSetting
-from danswer.search.models import RetrievalDetails
-from danswer.server.query_and_chat.models import ChatMessageDetail
-from danswer.server.query_and_chat.models import CreateChatMessageRequest
-from danswer.utils.logger import setup_logger
 from ee.danswer.server.query_and_chat.models import BasicCreateChatMessageRequest
 from ee.danswer.server.query_and_chat.models import ChatBasicResponse
 from ee.danswer.server.query_and_chat.models import SimpleDoc
+from enmedd.auth.users import current_user
+from enmedd.chat.chat_utils import create_chat_chain
+from enmedd.chat.models import DanswerAnswerPiece
+from enmedd.chat.models import QADocsResponse
+from enmedd.chat.models import StreamingError
+from enmedd.chat.process_message import stream_chat_message_objects
+from enmedd.db.chat import get_or_create_root_message
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from enmedd.search.models import OptionalSearchSetting
+from enmedd.search.models import RetrievalDetails
+from enmedd.server.query_and_chat.models import ChatMessageDetail
+from enmedd.server.query_and_chat.models import CreateChatMessageRequest
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
@@ -107,6 +107,7 @@ def handle_simplified_chat_message(
 
     answer = ""
     for packet in packets:
+        # TODO: remove the dansweranswerpiece in the database
         if isinstance(packet, DanswerAnswerPiece) and packet.answer_piece:
             answer += packet.answer_piece
         elif isinstance(packet, QADocsResponse):

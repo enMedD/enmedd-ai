@@ -1,18 +1,6 @@
 from fastapi import FastAPI
 from httpx_oauth.clients.openid import OpenID
 
-from danswer.auth.users import auth_backend
-from danswer.auth.users import fastapi_users
-from danswer.configs.app_configs import AUTH_TYPE
-from danswer.configs.app_configs import OAUTH_CLIENT_ID
-from danswer.configs.app_configs import OAUTH_CLIENT_SECRET
-from danswer.configs.app_configs import USER_AUTH_SECRET
-from danswer.configs.app_configs import WEB_DOMAIN
-from danswer.configs.constants import AuthType
-from danswer.main import get_application as get_application_base
-from danswer.main import include_router_with_global_prefix_prepended
-from danswer.utils.logger import setup_logger
-from danswer.utils.variable_functionality import global_version
 from ee.danswer.configs.app_configs import OPENID_CONFIG_URL
 from ee.danswer.server.analytics.api import router as analytics_router
 from ee.danswer.server.api_key.api import router as api_key_router
@@ -38,6 +26,18 @@ from ee.danswer.server.token_rate_limits.api import (
 )
 from ee.danswer.server.user_group.api import router as user_group_router
 from ee.danswer.utils.encryption import test_encryption
+from enmedd.auth.users import auth_backend
+from enmedd.auth.users import fastapi_users
+from enmedd.configs.app_configs import AUTH_TYPE
+from enmedd.configs.app_configs import OAUTH_CLIENT_ID
+from enmedd.configs.app_configs import OAUTH_CLIENT_SECRET
+from enmedd.configs.app_configs import USER_AUTH_SECRET
+from enmedd.configs.app_configs import WEB_DOMAIN
+from enmedd.configs.constants import AuthType
+from enmedd.main import get_application as get_application_base
+from enmedd.main import include_router_with_global_prefix_prepended
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.variable_functionality import global_version
 
 logger = setup_logger()
 

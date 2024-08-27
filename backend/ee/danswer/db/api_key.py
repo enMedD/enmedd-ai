@@ -4,17 +4,17 @@ from fastapi_users.password import PasswordHelper
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.auth.schemas import UserRole
-from danswer.configs.constants import DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN
-from danswer.configs.constants import DANSWER_API_KEY_PREFIX
-from danswer.configs.constants import UNNAMED_KEY_PLACEHOLDER
-from danswer.db.models import ApiKey
-from danswer.db.models import User
 from ee.danswer.auth.api_key import ApiKeyDescriptor
 from ee.danswer.auth.api_key import build_displayable_api_key
 from ee.danswer.auth.api_key import generate_api_key
 from ee.danswer.auth.api_key import hash_api_key
 from ee.danswer.server.api_key.models import APIKeyArgs
+from enmedd.auth.schemas import UserRole
+from enmedd.configs.constants import DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN
+from enmedd.configs.constants import DANSWER_API_KEY_PREFIX
+from enmedd.configs.constants import UNNAMED_KEY_PLACEHOLDER
+from enmedd.db.models import ApiKey
+from enmedd.db.models import User
 
 
 def is_api_key_email_address(email: str) -> bool:

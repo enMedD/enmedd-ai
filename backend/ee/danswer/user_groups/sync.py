@@ -1,17 +1,17 @@
 from sqlalchemy.orm import Session
 
-from danswer.access.access import get_access_for_documents
-from danswer.db.document import prepare_to_modify_documents
-from danswer.db.embedding_model import get_current_db_embedding_model
-from danswer.db.embedding_model import get_secondary_db_embedding_model
-from danswer.document_index.factory import get_default_document_index
-from danswer.document_index.interfaces import DocumentIndex
-from danswer.document_index.interfaces import UpdateRequest
-from danswer.utils.logger import setup_logger
 from ee.danswer.db.user_group import delete_user_group
 from ee.danswer.db.user_group import fetch_documents_for_user_group_paginated
 from ee.danswer.db.user_group import fetch_user_group
 from ee.danswer.db.user_group import mark_user_group_as_synced
+from enmedd.access.access import get_access_for_documents
+from enmedd.db.document import prepare_to_modify_documents
+from enmedd.db.embedding_model import get_current_db_embedding_model
+from enmedd.db.embedding_model import get_secondary_db_embedding_model
+from enmedd.document_index.factory import get_default_document_index
+from enmedd.document_index.interfaces import DocumentIndex
+from enmedd.document_index.interfaces import UpdateRequest
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 

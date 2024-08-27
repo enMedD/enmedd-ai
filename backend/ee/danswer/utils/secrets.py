@@ -2,7 +2,7 @@ import hashlib
 
 from fastapi import Request
 
-from danswer.configs.constants import SESSION_KEY
+from enmedd.configs.constants import SESSION_KEY
 
 
 def encrypt_string(s: str) -> str:

@@ -4,17 +4,17 @@ from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.server.query_and_chat.token_limit import any_rate_limit_exists
-from danswer.server.token_rate_limits.models import TokenRateLimitArgs
-from danswer.server.token_rate_limits.models import TokenRateLimitDisplay
 from ee.danswer.db.token_limit import fetch_all_user_group_token_rate_limits
 from ee.danswer.db.token_limit import fetch_all_user_group_token_rate_limits_by_group
 from ee.danswer.db.token_limit import fetch_all_user_token_rate_limits
 from ee.danswer.db.token_limit import insert_user_group_token_rate_limit
 from ee.danswer.db.token_limit import insert_user_token_rate_limit
+from enmedd.auth.users import current_admin_user
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from enmedd.server.query_and_chat.token_limit import any_rate_limit_exists
+from enmedd.server.token_rate_limits.models import TokenRateLimitArgs
+from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 
 router = APIRouter(prefix="/admin/token-rate-limits")
 

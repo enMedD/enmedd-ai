@@ -3,15 +3,15 @@ import os
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from danswer.db.engine import get_session_context_manager
-from danswer.db.llm import fetch_existing_llm_providers
-from danswer.db.llm import update_default_provider
-from danswer.db.llm import upsert_llm_provider
-from danswer.server.manage.llm.models import LLMProviderUpsertRequest
-from danswer.utils.logger import setup_logger
 from ee.danswer.server.enterprise_settings.models import EnterpriseSettings
 from ee.danswer.server.enterprise_settings.store import store_settings
 from ee.danswer.server.enterprise_settings.store import upload_logo
+from enmedd.db.engine import get_session_context_manager
+from enmedd.db.llm import fetch_existing_llm_providers
+from enmedd.db.llm import update_default_provider
+from enmedd.db.llm import upsert_llm_provider
+from enmedd.server.manage.llm.models import LLMProviderUpsertRequest
+from enmedd.utils.logger import setup_logger
 
 
 logger = setup_logger()

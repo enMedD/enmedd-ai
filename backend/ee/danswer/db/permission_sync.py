@@ -6,10 +6,10 @@ from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import DocumentSource
-from danswer.db.models import PermissionSyncRun
-from danswer.db.models import PermissionSyncStatus
-from danswer.utils.logger import setup_logger
+from enmedd.configs.constants import DocumentSource
+from enmedd.db.models import PermissionSyncRun
+from enmedd.db.models import PermissionSyncStatus
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 

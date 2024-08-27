@@ -2,14 +2,6 @@ from datetime import timedelta
 
 from sqlalchemy.orm import Session
 
-from danswer.background.celery.celery_app import celery_app
-from danswer.background.task_utils import build_celery_task_wrapper
-from danswer.configs.app_configs import JOB_TIMEOUT
-from danswer.db.chat import delete_chat_sessions_older_than
-from danswer.db.engine import get_sqlalchemy_engine
-from danswer.server.settings.store import load_settings
-from danswer.utils.logger import setup_logger
-from danswer.utils.variable_functionality import global_version
 from ee.danswer.background.celery_utils import should_perform_chat_ttl_check
 from ee.danswer.background.celery_utils import should_sync_user_groups
 from ee.danswer.background.task_name_builders import name_chat_ttl_task
@@ -17,6 +9,14 @@ from ee.danswer.background.task_name_builders import name_user_group_sync_task
 from ee.danswer.db.user_group import fetch_user_groups
 from ee.danswer.server.reporting.usage_export_generation import create_new_usage_report
 from ee.danswer.user_groups.sync import sync_user_groups
+from enmedd.background.celery.celery_app import celery_app
+from enmedd.background.task_utils import build_celery_task_wrapper
+from enmedd.configs.app_configs import JOB_TIMEOUT
+from enmedd.db.chat import delete_chat_sessions_older_than
+from enmedd.db.engine import get_sqlalchemy_engine
+from enmedd.server.settings.store import load_settings
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.variable_functionality import global_version
 
 logger = setup_logger()
 
