@@ -382,6 +382,6 @@ def get_query_history_as_csv(
         iter([stream.getvalue()]),
         media_type="text/csv",
         headers={
-            "Content-Disposition": "attachment;filename=danswer_query_history.csv"
+            "Content-Disposition": "attachment;filename=enMedDAI_query_history.csv"
         },
     )

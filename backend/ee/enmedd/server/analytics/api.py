@@ -88,6 +88,7 @@ class DanswerbotAnalyticsResponse(BaseModel):
     date: datetime.date
 
 
+# TODO: remove the the danswer bot related endpoints
 @router.get("/admin/danswerbot")
 def get_danswerbot_analytics(
     start: datetime.datetime | None = None,

@@ -54,20 +54,20 @@ DANSWER_METADATA_FILENAME = ".danswer_metadata.json"
 
 # Messages
 DISABLED_GEN_AI_MSG = (
-    "Your System Admin has disabled the Generative AI functionalities of Danswer.\n"
+    "Your System Admin has disabled the Generative AI functionalities of enMedD AI.\n"
     "Please contact them if you wish to have this enabled.\n"
-    "You can still use Danswer as a search engine."
+    "You can still use enMedD AI as a search engine."
 )
 
 # TODO: change the variable name and value
 # API Keys
 DANSWER_API_KEY_PREFIX = "API_KEY__"
-DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN = "danswerapikey.ai"
+DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN = "enmeddapikey.ai"
 UNNAMED_KEY_PLACEHOLDER = "Unnamed"
 
 
 class DocumentSource(str, Enum):
-    # Special case, document passed in via Danswer APIs without specifying a source type
+    # Special case, document passed in via enMedD AI APIs without specifying a source type
     INGESTION_API = "ingestion_api"
     WEB = "web"
     GOOGLE_DRIVE = "google_drive"
