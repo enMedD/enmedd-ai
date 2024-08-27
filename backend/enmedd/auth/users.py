@@ -120,7 +120,7 @@ def send_user_verification_email(
     mail_from: str = EMAIL_FROM,
 ) -> None:
     msg = MIMEMultipart()
-    msg["Subject"] = "enMedD CHP Email Verification"
+    msg["Subject"] = "enMedD AI Email Verification"
     msg["To"] = user_email
     if mail_from:
         msg["From"] = mail_from

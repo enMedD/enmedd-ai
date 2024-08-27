@@ -49,7 +49,7 @@ def make_persona_private(
 
     # May cause error if someone switches down to MIT from EE
     if group_ids:
-        raise NotImplementedError("enMedD CHP does not support private Personas")
+        raise NotImplementedError("enMedD AI does not support private Personas")
 
 
 def create_update_persona(

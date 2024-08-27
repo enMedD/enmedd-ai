@@ -117,7 +117,7 @@ def extract_source_filter(
             },
             {
                 "role": "user",
-                "content": "What page from enMedD CHP contains debugging instruction on segfault",
+                "content": "What page from enMedD AI contains debugging instruction on segfault",
             },
             {
                 "role": "assistant",

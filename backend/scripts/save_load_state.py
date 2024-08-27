@@ -93,13 +93,13 @@ def load_vespa(filename: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="enMedD CHP checkpoint saving and loading."
+        description="enMedD AI checkpoint saving and loading."
     )
     parser.add_argument(
-        "--save", action="store_true", help="Save enMedD CHP state to directory."
+        "--save", action="store_true", help="Save enMedD AI state to directory."
     )
     parser.add_argument(
-        "--load", action="store_true", help="Load enMedD CHP state from save directory."
+        "--load", action="store_true", help="Load enMedD AI state from save directory."
     )
     parser.add_argument(
         "--postgres_container_name",

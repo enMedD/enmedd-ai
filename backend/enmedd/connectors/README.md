@@ -1,8 +1,8 @@
 <!-- DANSWER_METADATA={"link": "https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md"} -->
 
-# Writing a new CHP Connector
+# Writing a new enMedD AI Connector
 
-This README covers how to contribute a new Connector for CHP. It includes an overview of the design, interfaces,
+This README covers how to contribute a new Connector for enMedD AI. It includes an overview of the design, interfaces,
 and required changes.
 
 Thank you for your contribution!
