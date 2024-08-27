@@ -34,7 +34,7 @@ logger = setup_logger()
 def make_assistant_private(
     assistant_id: int,
     user_ids: list[UUID] | None,
-    group_ids: list[int] | None,
+    teamspaces: list[int] | None,
     db_session: Session,
 ) -> None:
     if user_ids is not None:
@@ -50,7 +50,7 @@ def make_assistant_private(
         db_session.commit()
 
     # May cause error if someone switches down to MIT from EE
-    if group_ids:
+    if teamspaces:
         raise NotImplementedError("enMedD CHP does not support private Assistants")
 
 
@@ -103,7 +103,7 @@ def create_update_assistant(
         versioned_make_assistant_private(
             assistant_id=assistant.id,
             user_ids=create_assistant_request.users,
-            group_ids=create_assistant_request.groups,
+            teamspaces=create_assistant_request.teamspaces,
             db_session=db_session,
         )
 
@@ -141,7 +141,7 @@ def update_assistant_shared_users(
     versioned_make_assistant_private(
         assistant_id=assistant_id,
         user_ids=user_ids,
-        group_ids=None,
+        teamspaces=None,
         db_session=db_session,
     )
 
@@ -177,7 +177,7 @@ def get_assistants(
 ) -> Sequence[Assistant]:
     stmt = select(Assistant).distinct()
     if user_id is not None:
-        # Subquery to find all groups the user belongs to
+        # Subquery to find all teamspaces the user belongs to
         teamspaces_subquery = (
             select(User__Teamspace.teamspace_id)
             .where(User__Teamspace.user_id == user_id)

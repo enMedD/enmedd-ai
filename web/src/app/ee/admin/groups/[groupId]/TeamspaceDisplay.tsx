@@ -25,19 +25,19 @@ import { AddTokenRateLimitForm } from "./AddTokenRateLimitForm";
 import { GenericTokenRateLimitTable } from "@/app/admin/token-rate-limits/TokenRateLimitTables";
 import { Button } from "@/components/ui/button";
 
-interface GroupDisplayProps {
+interface TeamspaceDisplayProps {
   users: User[];
   ccPairs: ConnectorIndexingStatus<any, any>[];
   teamspace: Teamspace;
   refreshTeamspace: () => void;
 }
 
-export const GroupDisplay = ({
+export const TeamspaceDisplay = ({
   users,
   ccPairs,
   teamspace,
   refreshTeamspace,
-}: GroupDisplayProps) => {
+}: TeamspaceDisplayProps) => {
   const { popup, setPopup } = usePopup();
   const [addMemberFormVisible, setAddMemberFormVisible] = useState(false);
   const [addConnectorFormVisible, setAddConnectorFormVisible] = useState(false);

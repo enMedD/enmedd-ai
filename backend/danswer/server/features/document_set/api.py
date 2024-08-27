@@ -116,7 +116,7 @@ def list_document_sets(
             is_up_to_date=document_set_db_model.is_up_to_date,
             is_public=document_set_db_model.is_public,
             users=[user.id for user in document_set_db_model.users],
-            groups=[group.id for group in document_set_db_model.groups],
+            teamspaces=[teamspace.id for teamspace in document_set_db_model.teamspaces],
         )
         for document_set_db_model, cc_pairs in document_set_info
     ]

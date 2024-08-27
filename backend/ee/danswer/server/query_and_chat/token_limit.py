@@ -41,7 +41,7 @@ def _check_token_rate_limits(user: User | None) -> None:
         run_functions_tuples_in_parallel(
             [
                 (_user_is_rate_limited, (user.id,)),
-                (_user_is_rate_limited_by_group, (user.id,)),
+                (_user_is_rate_limited_by_teamspace, (user.id,)),
                 (_user_is_rate_limited_by_global, ()),
             ]
         )
@@ -93,26 +93,26 @@ Teamspace rate limits
 """
 
 
-def _user_is_rate_limited_by_group(user_id: UUID) -> None:
+def _user_is_rate_limited_by_teamspace(user_id: UUID) -> None:
     with get_session_context_manager() as db_session:
-        group_rate_limits = _fetch_all_teamspace_rate_limits(user_id, db_session)
+        teamspace_rate_limits = _fetch_all_teamspace_rate_limits(user_id, db_session)
 
-        if group_rate_limits:
-            # Group cutoff time is the same for all groups.
+        if teamspace_rate_limits:
+            # Group cutoff time is the same for all teamspaces.
             # This could be optimized to only fetch the maximum cutoff time for
             # a specific group, but seems unnecessary for now.
-            group_cutoff_time = _get_cutoff_time(
-                [e for sublist in group_rate_limits.values() for e in sublist]
+            teamspace_cutoff_time = _get_cutoff_time(
+                [e for sublist in teamspace_rate_limits.values() for e in sublist]
             )
 
-            teamspace_ids = list(group_rate_limits.keys())
-            group_usage = _fetch_teamspace_usage(
-                teamspace_ids, group_cutoff_time, db_session
+            teamspace_ids = list(teamspace_rate_limits.keys())
+            teamspace_usage = _fetch_teamspace_usage(
+                teamspace_ids, teamspace_cutoff_time, db_session
             )
 
             has_at_least_one_untriggered_limit = False
-            for teamspace_id, rate_limits in group_rate_limits.items():
-                usage = group_usage.get(teamspace_id, [])
+            for teamspace_id, rate_limits in teamspace_rate_limits.items():
+                usage = teamspace_usage.get(teamspace_id, [])
 
                 if not _is_rate_limited(rate_limits, usage):
                     has_at_least_one_untriggered_limit = True
@@ -121,14 +121,14 @@ def _user_is_rate_limited_by_group(user_id: UUID) -> None:
             if not has_at_least_one_untriggered_limit:
                 raise HTTPException(
                     status_code=429,
-                    detail="Token budget exceeded for user's groups. Try again later.",
+                    detail="Token budget exceeded for user's teamspaces. Try again later.",
                 )
 
 
 def _fetch_all_teamspace_rate_limits(
     user_id: UUID, db_session: Session
 ) -> Dict[int, List[TokenRateLimit]]:
-    group_limits = (
+    teamspace_limits = (
         select(TokenRateLimit, User__Teamspace.teamspace_id)
         .join(
             TokenRateLimit__Teamspace,
@@ -148,13 +148,13 @@ def _fetch_all_teamspace_rate_limits(
         )
     )
 
-    raw_rate_limits = db_session.execute(group_limits).all()
+    raw_rate_limits = db_session.execute(teamspace_limits).all()
 
-    group_rate_limits = defaultdict(list)
+    teamspace_rate_limits = defaultdict(list)
     for rate_limit, teamspace_id in raw_rate_limits:
-        group_rate_limits[teamspace_id].append(rate_limit)
+        teamspace_rate_limits[teamspace_id].append(rate_limit)
 
-    return group_rate_limits
+    return teamspace_rate_limits
 
 
 def _fetch_teamspace_usage(
@@ -177,8 +177,8 @@ def _fetch_teamspace_usage(
     ).all()
 
     return {
-        teamspace_id: [(usage, time_sent) for time_sent, usage, _ in group_usage]
-        for teamspace_id, group_usage in groupby(
+        teamspace_id: [(usage, time_sent) for time_sent, usage, _ in teamspace_usage]
+        for teamspace_id, teamspace_usage in groupby(
             teamspace_usage, key=lambda row: row[2]
         )
     }

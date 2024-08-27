@@ -12,14 +12,14 @@ interface AddMemberFormProps {
 const handleCreateGroupTokenRateLimit = async (
   period_hours: number,
   token_budget: number,
-  group_id: number = -1
+  teamspace: number = -1
 ) => {
   const tokenRateLimitArgs = {
     enabled: true,
     token_budget: token_budget,
     period_hours: period_hours,
   };
-  return await insertGroupTokenRateLimit(tokenRateLimitArgs, group_id);
+  return await insertGroupTokenRateLimit(tokenRateLimitArgs, teamspace);
 };
 
 export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
@@ -30,9 +30,9 @@ export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
     _: Scope,
     period_hours: number,
     token_budget: number,
-    group_id: number = -1
+    teamspace: number = -1
   ) => {
-    handleCreateGroupTokenRateLimit(period_hours, token_budget, group_id)
+    handleCreateGroupTokenRateLimit(period_hours, token_budget, teamspace)
       .then(() => {
         setPopup({ type: "success", message: "Token rate limit created!" });
         mutate(`/api/admin/token-rate-limits/teamspace/${teamspaceId}`);

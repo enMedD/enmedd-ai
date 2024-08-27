@@ -51,7 +51,7 @@ export const DocumentSetCreationForm = ({
             : ([] as number[]),
           is_public: existingDocumentSet ? existingDocumentSet.is_public : true,
           users: existingDocumentSet ? existingDocumentSet.users : [],
-          groups: existingDocumentSet ? existingDocumentSet.groups : [],
+          teamspaces: existingDocumentSet ? existingDocumentSet.teamspaces : [],
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required("Please enter a name for the set"),
@@ -64,10 +64,10 @@ export const DocumentSetCreationForm = ({
         })}
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
-          // If the document set is public, then we don't want to send any groups
+          // If the document set is public, then we don't want to send any teamspaces
           const processedValues = {
             ...values,
-            groups: values.is_public ? [] : values.groups,
+            teamspaces: values.is_public ? [] : values.teamspaces,
           };
 
           let response;
@@ -185,29 +185,32 @@ export const DocumentSetCreationForm = ({
                       <>
                         If the document set is public, then it will be visible
                         to <b>all users</b>. If it is not public, then only
-                        users in the specified groups will be able to see it.
+                        users in the specified teamspaces will be able to see
+                        it.
                       </>
                     }
                   />
 
                   <Divider />
                   <h2 className="mb-1 font-medium text-base">
-                    Groups with Access
+                    Teamspaces with Access
                   </h2>
                   {!values.is_public ? (
                     <>
                       <Text className="mb-3">
-                        If any groups are specified, then this Document Set will
-                        only be visible to the specified groups. If no groups
-                        are specified, then the Document Set will be visible to
-                        all users.
+                        If any teamspaces are specified, then this Document Set
+                        will only be visible to the specified teamspaces. If no
+                        teamspaces are specified, then the Document Set will be
+                        visible to all users.
                       </Text>
                       <FieldArray
-                        name="groups"
+                        name="teamspaces"
                         render={(arrayHelpers: ArrayHelpers) => (
                           <div className="flex gap-2 flex-wrap">
                             {teamspaces.map((teamspace) => {
-                              const ind = values.groups.indexOf(teamspace.id);
+                              const ind = values.teamspaces.indexOf(
+                                teamspace.id
+                              );
                               let isSelected = ind !== -1;
                               return (
                                 <div

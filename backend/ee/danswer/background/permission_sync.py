@@ -70,7 +70,7 @@ def cleanup_perm_sync_jobs(
     return existing_jobs_copy
 
 
-def create_group_sync_jobs(
+def create_teamspace_sync_jobs(
     existing_jobs: dict[tuple[int, int | DocumentSource], Future | SimpleJob],
     client: Client | SimpleJobClient,
 ) -> dict[tuple[int, int | DocumentSource], Future | SimpleJob]:
@@ -93,15 +93,15 @@ def create_group_sync_jobs(
             if source_type in sources_w_runs:
                 continue
 
-            db_group_fnc, _ = CONNECTOR_PERMISSION_FUNC_MAP[source_type]
+            db_teamspace_fnc, _ = CONNECTOR_PERMISSION_FUNC_MAP[source_type]
             perm_sync = create_perm_sync(
                 source_type=source_type,
-                group_update=True,
+                teamspace_update=True,
                 cc_pair_id=None,
                 db_session=db_session,
             )
 
-            run = client.submit(db_group_fnc, pure=False)
+            run = client.submit(db_teamspace_fnc, pure=False)
 
             logger.info(
                 f"Kicked off group permission sync for source type {source_type}"
@@ -143,7 +143,7 @@ def create_connector_perm_sync_jobs(
 
                 perm_sync = create_perm_sync(
                     source_type=source_type,
-                    group_update=False,
+                    teamspace_update=False,
                     cc_pair_id=cc_pair.id,
                     db_session=db_session,
                 )
@@ -198,7 +198,7 @@ def permission_loop(delay: int = 60, num_workers: int = NUM_PERMISSION_WORKERS) 
             # TODO turn this on when it works
             """
             existing_jobs = cleanup_perm_sync_jobs(existing_jobs=existing_jobs)
-            existing_jobs = create_group_sync_jobs(
+            existing_jobs = create_teamspace_sync_jobs(
                 existing_jobs=existing_jobs, client=client
             )
             existing_jobs = create_connector_perm_sync_jobs(

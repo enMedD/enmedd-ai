@@ -1,7 +1,7 @@
 "use client";
 
-import { GroupsIcon } from "@/components/icons/icons";
-import { GroupDisplay } from "./GroupDisplay";
+import { TeamspacesIcon } from "@/components/icons/icons";
+import { TeamspaceDisplay } from "./TeamspaceDisplay";
 import { FiAlertCircle, FiChevronLeft } from "react-icons/fi";
 import { useSpecificTeamspace } from "./hook";
 import { ThreeDotsLoader } from "@/components/Loading";
@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { BackButton } from "@/components/BackButton";
 import { AdminPageTitle } from "@/components/admin/Title";
 
-const Page = ({ params }: { params: { groupId: string } }) => {
+const Page = ({ params }: { params: { teamspaceId: string } }) => {
   const router = useRouter();
 
   const {
@@ -18,7 +18,7 @@ const Page = ({ params }: { params: { groupId: string } }) => {
     isLoading: teamspaceIsLoading,
     error: teamspaceError,
     refreshTeamspace,
-  } = useSpecificTeamspace(params.groupId);
+  } = useSpecificTeamspace(params.teamspaceId);
   const {
     data: users,
     isLoading: userIsLoading,
@@ -56,11 +56,11 @@ const Page = ({ params }: { params: { groupId: string } }) => {
 
       <AdminPageTitle
         title={teamspace.name || "Unknown"}
-        icon={<GroupsIcon size={32} />}
+        icon={<TeamspacesIcon size={32} />}
       />
 
       {teamspace ? (
-        <GroupDisplay
+        <TeamspaceDisplay
           users={users.accepted}
           ccPairs={ccPairs}
           teamspace={teamspace}

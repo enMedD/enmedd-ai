@@ -15,7 +15,7 @@ class DocumentSetCreationRequest(BaseModel):
     is_public: bool
     # For Private Document Sets, who should be able to access these
     users: list[UUID] | None = None
-    groups: list[int] | None = None
+    teamspaces: list[int] | None = None
 
 
 class DocumentSetUpdateRequest(BaseModel):
@@ -25,7 +25,7 @@ class DocumentSetUpdateRequest(BaseModel):
     is_public: bool
     # For Private Document Sets, who should be able to access these
     users: list[UUID]
-    groups: list[int]
+    teamspaces: list[int]
 
 
 class CheckDocSetPublicRequest(BaseModel):
@@ -50,7 +50,7 @@ class DocumentSet(BaseModel):
     is_public: bool
     # For Private Document Sets, who should be able to access these
     users: list[UUID]
-    groups: list[int]
+    teamspaces: list[int]
 
     @classmethod
     def from_model(cls, document_set_model: DocumentSetDBModel) -> "DocumentSet":
@@ -80,5 +80,5 @@ class DocumentSet(BaseModel):
             is_up_to_date=document_set_model.is_up_to_date,
             is_public=document_set_model.is_public,
             users=[user.id for user in document_set_model.users],
-            groups=[group.id for group in document_set_model.groups],
+            teamspaces=[teamspace.id for teamspace in document_set_model.teamspaces],
         )

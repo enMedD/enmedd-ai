@@ -1,5 +1,5 @@
 import { ChatSession } from "../interfaces";
-import { groupSessionsByDateRange } from "../lib";
+import { teamspaceSessionsByDateRange } from "../lib";
 import { ChatSessionDisplay } from "./ChatSessionDisplay";
 import { removeChatFromFolder } from "../folders/FolderManagement";
 import { FolderList } from "../folders/FolderList";
@@ -22,7 +22,7 @@ export function ChatTab({
   openedFolders: { [key: number]: boolean };
   toggleSideBar?: () => void;
 }) {
-  const groupedChatSessions = groupSessionsByDateRange(existingChats);
+  const groupedChatSessions = teamspaceSessionsByDateRange(existingChats);
   const { setPopup } = usePopup();
   const router = useRouter();
   const [isDragOver, setIsDragOver] = useState<boolean>(false);

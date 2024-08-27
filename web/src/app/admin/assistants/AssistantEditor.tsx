@@ -27,7 +27,7 @@ import { HidableSection } from "./HidableSection";
 import { FiPlus, FiX } from "react-icons/fi";
 import { useTeamspaces } from "@/lib/hooks";
 import { Bubble } from "@/components/Bubble";
-import { GroupsIcon } from "@/components/icons/icons";
+import { TeamspacesIcon } from "@/components/icons/icons";
 import { SuccessfulAssistantUpdateRedirectType } from "./enums";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
 import { FullLLMProvider } from "../models/llm/interfaces";
@@ -202,7 +202,7 @@ export function AssistantEditor({
     //   ? assistantCurrentToolIds.includes(imageGenerationTool.id)
     //   : false,
     // EE Only
-    groups: existingAssistant?.groups ?? [],
+    teamspaces: existingAssistant?.teamspaces ?? [],
   };
 
   return (
@@ -234,7 +234,7 @@ export function AssistantEditor({
               })
             ),
             // EE Only
-            groups: Yup.array().of(Yup.number()),
+            teamspaces: Yup.array().of(Yup.number()),
           })
           .test(
             "system-prompt-or-task-prompt",
@@ -310,8 +310,8 @@ export function AssistantEditor({
           // to tell the backend to not fetch any documents
           const numChunks = searchToolEnabled ? values.num_chunks || 10 : 0;
 
-          // don't set groups if marked as public
-          const groups = values.is_public ? [] : values.groups;
+          // don't set teamspaces if marked as public
+          const teamspaces = values.is_public ? [] : values.teamspaces;
 
           let promptResponse;
           let assistantResponse;
@@ -323,7 +323,7 @@ export function AssistantEditor({
               num_chunks: numChunks,
               users:
                 user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
-              groups,
+              teamspaces,
               tool_ids: enabledTools,
             });
           } else {
@@ -332,7 +332,7 @@ export function AssistantEditor({
               num_chunks: numChunks,
               users:
                 user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
-              groups,
+              teamspaces,
               tool_ids: enabledTools,
             });
           }
@@ -861,9 +861,8 @@ export function AssistantEditor({
                                 </Text>
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {teamspaces.map((teamspace) => {
-                                    const isSelected = values.groups.includes(
-                                      teamspace.id
-                                    );
+                                    const isSelected =
+                                      values.teamspaces.includes(teamspace.id);
                                     return (
                                       <Bubble
                                         key={teamspace.id}
@@ -871,21 +870,21 @@ export function AssistantEditor({
                                         onClick={() => {
                                           if (isSelected) {
                                             setFieldValue(
-                                              "groups",
-                                              values.groups.filter(
+                                              "teamspaces",
+                                              values.teamspaces.filter(
                                                 (id) => id !== teamspace.id
                                               )
                                             );
                                           } else {
-                                            setFieldValue("groups", [
-                                              ...values.groups,
+                                            setFieldValue("teamspaces", [
+                                              ...values.teamspaces,
                                               teamspace.id,
                                             ]);
                                           }
                                         }}
                                       >
                                         <div className="flex">
-                                          <GroupsIcon />
+                                          <TeamspacesIcon />
                                           <div className="ml-1">
                                             {teamspace.name}
                                           </div>

@@ -76,7 +76,7 @@ def get_application() -> FastAPI:
     elif AUTH_TYPE == AuthType.SAML:
         include_router_with_global_prefix_prepended(application, saml_router)
 
-    # RBAC / group access control
+    # RBAC / teamspace access control
     include_router_with_global_prefix_prepended(application, teamspace_router)
     # Analytics endpoints
     include_router_with_global_prefix_prepended(application, analytics_router)

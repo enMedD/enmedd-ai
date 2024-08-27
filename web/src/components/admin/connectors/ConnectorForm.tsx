@@ -102,7 +102,7 @@ export function ConnectorForm<T extends Yup.AnyObject>({
   const { mutate } = useSWRConfig();
   const { popup, setPopup } = usePopup();
 
-  // only show this option for EE, since groups are not supported in CE
+  // only show this option for EE, since teamspaces are not supported in CE
   const showNonPublicOption = usePaidEnterpriseFeaturesEnabled();
 
   const shouldHaveNameInput = credentialId !== undefined && !ccPairNameBuilder;

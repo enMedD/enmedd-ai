@@ -29,7 +29,7 @@ interface CreateRateLimitModalProps {
     target_scope: Scope,
     period_hours: number,
     token_budget: number,
-    group_id: number
+    teamspace: number
   ) => void;
   setPopup: (popupSpec: PopupSpec | null) => void;
   forSpecificScope?: Scope;

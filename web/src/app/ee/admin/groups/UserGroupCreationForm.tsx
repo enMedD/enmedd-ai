@@ -53,7 +53,7 @@ export const TeamspaceCreationForm = ({
             cc_pair_ids: [] as number[],
           }}
           validationSchema={Yup.object().shape({
-            name: Yup.string().required("Please enter a name for the group"),
+            name: Yup.string().required("Please enter a name for the team"),
             user_ids: Yup.array().of(Yup.string().required()),
             cc_pair_ids: Yup.array().of(Yup.number().required()),
           })}
@@ -96,11 +96,11 @@ export const TeamspaceCreationForm = ({
                 <Divider />
 
                 <h2 className="mb-1 font-medium">
-                  Select which connectors this group has access to:
+                  Select which connectors this team has access to:
                 </h2>
                 <p className="mb-3 text-xs">
                   All documents indexed by the selected connectors will be
-                  visible to users in this group.
+                  visible to users in this team.
                 </p>
 
                 <ConnectorEditor

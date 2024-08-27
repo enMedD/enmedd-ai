@@ -1,8 +1,10 @@
 import { useTeamspaces } from "@/lib/hooks";
 
-export const useSpecificTeamspace = (groupId: string) => {
+export const useSpecificTeamspace = (teamspaceId: string) => {
   const { data, isLoading, error, refreshTeamspaces } = useTeamspaces();
-  const teamspace = data?.find((group) => group.id.toString() === groupId);
+  const teamspace = data?.find(
+    (teamspace) => teamspace.id.toString() === teamspaceId
+  );
   return {
     teamspace,
     isLoading,

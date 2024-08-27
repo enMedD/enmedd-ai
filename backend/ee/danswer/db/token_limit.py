@@ -49,7 +49,10 @@ def fetch_all_global_token_rate_limits(
 
 
 def fetch_all_teamspace_token_rate_limits(
-    db_session: Session, group_id: int, enabled_only: bool = False, ordered: bool = True
+    db_session: Session,
+    teamspace: int,
+    enabled_only: bool = False,
+    ordered: bool = True,
 ) -> Sequence[TokenRateLimit]:
     query = (
         select(TokenRateLimit)
@@ -58,7 +61,7 @@ def fetch_all_teamspace_token_rate_limits(
             TokenRateLimit.id == TokenRateLimit__Teamspace.rate_limit_id,
         )
         .where(
-            TokenRateLimit__Teamspace.teamspace_id == group_id,
+            TokenRateLimit__Teamspace.teamspace_id == teamspace,
             TokenRateLimit.scope == TokenRateLimitScope.TEAMSPACE,
         )
     )
@@ -73,7 +76,7 @@ def fetch_all_teamspace_token_rate_limits(
     return token_rate_limits
 
 
-def fetch_all_teamspace_token_rate_limits_by_group(
+def fetch_all_teamspace_token_rate_limits_by_teamspace(
     db_session: Session,
 ) -> Sequence[Row[tuple[TokenRateLimit, str]]]:
     query = (
@@ -123,7 +126,7 @@ def insert_global_token_rate_limit(
 def insert_teamspace_token_rate_limit(
     db_session: Session,
     token_rate_limit_settings: TokenRateLimitArgs,
-    group_id: int,
+    teamspace: int,
 ) -> TokenRateLimit:
     token_limit = TokenRateLimit(
         enabled=token_rate_limit_settings.enabled,
@@ -135,7 +138,7 @@ def insert_teamspace_token_rate_limit(
     db_session.flush()
 
     rate_limit = TokenRateLimit__Teamspace(
-        rate_limit_id=token_limit.id, teamspace_id=group_id
+        rate_limit_id=token_limit.id, teamspace_id=teamspace
     )
     db_session.add(rate_limit)
     db_session.commit()

@@ -34,7 +34,7 @@ export const TokenRateLimitTable = ({
   hideHeading,
 }: TokenRateLimitTableArgs) => {
   const shouldRenderGroupName = () =>
-    tokenRateLimits.length > 0 && tokenRateLimits[0].group_name !== undefined;
+    tokenRateLimits.length > 0 && tokenRateLimits[0].teamspace !== undefined;
 
   const handleEnabledChange = (id: number) => {
     const tokenRateLimit = tokenRateLimits.find(
@@ -110,7 +110,7 @@ export const TokenRateLimitTable = ({
                 </TableCell>
                 {shouldRenderGroupName() && (
                   <TableCell className="font-bold text-emphasis">
-                    {tokenRateLimit.group_name}
+                    {tokenRateLimit.teamspace}
                   </TableCell>
                 )}
                 <TableCell>{tokenRateLimit.period_hours}</TableCell>

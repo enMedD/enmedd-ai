@@ -77,11 +77,11 @@ def get_document_sets_by_ids(
 def make_doc_set_private(
     document_set_id: int,
     user_ids: list[UUID] | None,
-    group_ids: list[int] | None,
+    teamspaces: list[int] | None,
     db_session: Session,
 ) -> None:
     # May cause error if someone switches down to MIT from EE
-    if user_ids or group_ids:
+    if user_ids or teamspaces:
         raise NotImplementedError("enMedD CHP does not support private Document Sets")
 
 
@@ -125,7 +125,7 @@ def insert_document_set(
         versioned_private_doc_set_fn(
             document_set_id=new_document_set_row.id,
             user_ids=document_set_creation_request.users,
-            group_ids=document_set_creation_request.groups,
+            teamspaces=document_set_creation_request.teamspaces,
             db_session=db_session,
         )
 
@@ -174,7 +174,7 @@ def update_document_set(
         versioned_private_doc_set_fn(
             document_set_id=document_set_row.id,
             user_ids=document_set_update_request.users,
-            group_ids=document_set_update_request.groups,
+            teamspaces=document_set_update_request.teamspaces,
             db_session=db_session,
         )
 

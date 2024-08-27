@@ -75,7 +75,7 @@ export const TeamspacesTable = ({
                   <TableCell>
                     <Link
                       className="whitespace-normal break-all flex cursor-pointer p-2 rounded hover:bg-hover w-fit"
-                      href={`/admin/groups/${teamspace.id}`}
+                      href={`/admin/teamspaces/${teamspace.id}`}
                     >
                       <FiEdit2 className="my-auto mr-2" />
                       <p className="text font-medium">{teamspace.name}</p>
@@ -286,7 +286,7 @@ export const TeamspacesTable = ({
             };
           })}
         onSelect={(data) => {
-          router.push(`/admin/groups/${data.id}`);
+          router.push(`/admin/teamspaces/${data.id}`);
         }}
       />
     </div>

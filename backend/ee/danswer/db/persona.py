@@ -9,7 +9,7 @@ from danswer.db.models import Assistant__User
 def make_assistant_private(
     assistant_id: int,
     user_ids: list[UUID] | None,
-    group_ids: list[int] | None,
+    teamspaces: list[int] | None,
     db_session: Session,
 ) -> None:
     db_session.query(Assistant__User).filter(
@@ -25,10 +25,10 @@ def make_assistant_private(
                 Assistant__User(assistant_id=assistant_id, user_id=user_uuid)
             )
 
-    if group_ids:
-        for group_id in group_ids:
+    if teamspaces:
+        for teamspace in teamspaces:
             db_session.add(
-                Assistant__Teamspace(assistant_id=assistant_id, teamspace_id=group_id)
+                Assistant__Teamspace(assistant_id=assistant_id, teamspace_id=teamspace)
             )
 
     db_session.commit()

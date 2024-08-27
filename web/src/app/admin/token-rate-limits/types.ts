@@ -18,5 +18,5 @@ export interface TokenRateLimit {
 }
 
 export interface TokenRateLimitDisplay extends TokenRateLimit {
-  group_name?: string;
+  teamspace?: string;
 }

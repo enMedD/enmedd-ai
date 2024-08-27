@@ -94,7 +94,7 @@ export const UsersIcon = ({
   return <FiUser size={size} className={className} />;
 };
 
-export const GroupsIcon = ({
+export const TeamspacesIcon = ({
   size = 16,
   className = defaultTailwindCSS,
 }: IconProps) => {

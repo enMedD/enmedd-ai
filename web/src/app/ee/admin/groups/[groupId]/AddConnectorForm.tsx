@@ -75,7 +75,7 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
                     .map((teamspaceCCPair) => teamspaceCCPair.id)
                     .includes(ccPair.cc_pair_id)
               )
-              // remove public docs, since they don't make sense as part of a group
+              // remove public docs, since they don't make sense as part of a team
               .filter((ccPair) => !ccPair.public_doc)
               .map((ccPair) => {
                 return {
@@ -132,7 +132,7 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
               });
               if (response.ok) {
                 setPopup({
-                  message: "Successfully added users to group",
+                  message: "Successfully added users to team",
                   type: "success",
                 });
                 onClose();
@@ -140,7 +140,7 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
                 const responseJson = await response.json();
                 const errorMsg = responseJson.detail || responseJson.message;
                 setPopup({
-                  message: `Failed to add users to group - ${errorMsg}`,
+                  message: `Failed to add users to team - ${errorMsg}`,
                   type: "error",
                 });
                 onClose();

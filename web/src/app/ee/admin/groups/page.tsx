@@ -1,6 +1,6 @@
 "use client";
 
-import { GroupsIcon } from "@/components/icons/icons";
+import { TeamspacesIcon } from "@/components/icons/icons";
 import { TeamspacesTable } from "./TeamspacesTable";
 import { TeamspaceCreationForm } from "./TeamspaceCreationForm";
 import { usePopup } from "@/components/admin/connectors/Popup";
@@ -85,8 +85,8 @@ const Page = () => {
   return (
     <div className="mx-auto container">
       <AdminPageTitle
-        title="Manage Users Groups"
-        icon={<GroupsIcon size={32} />}
+        title="Manage Users Teamspaces"
+        icon={<TeamspacesIcon size={32} />}
       />
 
       <Main />

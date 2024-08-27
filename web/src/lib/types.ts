@@ -404,7 +404,7 @@ export interface DocumentSet {
   is_up_to_date: boolean;
   is_public: boolean;
   users: string[];
-  groups: number[];
+  teamspaces: number[];
 }
 
 export interface Tag {

@@ -55,14 +55,14 @@ def expire_perm_sync_timed_out(
 
 def create_perm_sync(
     source_type: DocumentSource,
-    group_update: bool,
+    teamspace_update: bool,
     cc_pair_id: int | None,
     db_session: Session,
 ) -> PermissionSyncRun:
     new_run = PermissionSyncRun(
         source_type=source_type,
         status=PermissionSyncStatus.IN_PROGRESS,
-        group_update=group_update,
+        teamspace_update=teamspace_update,
         cc_pair_id=cc_pair_id,
     )
 

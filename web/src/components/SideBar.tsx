@@ -16,7 +16,7 @@ import {
   BookmarkIcon,
   ConnectorIcon,
   DatabaseIcon,
-  GroupsIcon,
+  TeamspacesIcon,
   KeyIcon,
   NotebookIcon,
   RobotIcon,
@@ -190,11 +190,11 @@ export const SideBar: React.FC<SideBarProps> = ({ isHeader, handleClose }) => {
                     {
                       name: (
                         <div className="flex">
-                          <GroupsIcon size={18} />
-                          <div className="ml-1">Groups</div>
+                          <TeamspacesIcon size={18} />
+                          <div className="ml-1">Teamspaces</div>
                         </div>
                       ),
-                      link: "/admin/groups",
+                      link: "/admin/teamspaces",
                     },
                     {
                       name: (

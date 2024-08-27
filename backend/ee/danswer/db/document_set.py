@@ -14,7 +14,7 @@ from danswer.db.models import User__Teamspace
 def make_doc_set_private(
     document_set_id: int,
     user_ids: list[UUID] | None,
-    group_ids: list[int] | None,
+    teamspaces: list[int] | None,
     db_session: Session,
 ) -> None:
     db_session.query(DocumentSet__User).filter(
@@ -30,11 +30,11 @@ def make_doc_set_private(
                 DocumentSet__User(document_set_id=document_set_id, user_id=user_uuid)
             )
 
-    if group_ids:
-        for group_id in group_ids:
+    if teamspaces:
+        for teamspace in teamspaces:
             db_session.add(
                 DocumentSet__Teamspace(
-                    document_set_id=document_set_id, teamspace_id=group_id
+                    document_set_id=document_set_id, teamspace_id=teamspace
                 )
             )
 
@@ -73,7 +73,7 @@ def fetch_document_sets(
         .all()
     )
 
-    # Document sets via groups
+    # Document sets via teamspaces
     # First, find the teamspaces the user belongs to
     teamspaces = (
         db_session.query(Teamspace)
@@ -83,14 +83,14 @@ def fetch_document_sets(
     )
 
     group_document_sets = []
-    for group in teamspaces:
+    for teamspace in teamspaces:
         group_document_sets.extend(
             db_session.query(DocumentSet)
             .join(
                 DocumentSet__Teamspace,
                 DocumentSet.id == DocumentSet__Teamspace.document_set_id,
             )
-            .filter(DocumentSet__Teamspace.teamspace_id == group.id)
+            .filter(DocumentSet__Teamspace.teamspace_id == teamspace.id)
             .all()
         )
 

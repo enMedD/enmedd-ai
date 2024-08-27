@@ -15,7 +15,7 @@ class DocumentAccess:
     def to_acl(self) -> list[str]:
         return (
             [prefix_user(user_id) for user_id in self.user_ids]
-            + [prefix_teamspace(group_name) for group_name in self.teamspaces]
+            + [prefix_teamspace(teamspace) for teamspace in self.teamspaces]
             + ([PUBLIC_DOC_PAT] if self.is_public else [])
         )
 

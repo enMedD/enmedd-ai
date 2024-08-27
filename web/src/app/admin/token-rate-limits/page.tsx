@@ -35,16 +35,16 @@ const USER_DESCRIPTION =
   "User rate limits apply to individual users. When a user reaches a limit, they will \
   be temporarily blocked from spending tokens.";
 const TEAMSPACE_DESCRIPTION =
-  "Teamspace rate limits apply to all users in a group. When a group reaches a limit, \
-  all users in the group will be temporarily blocked from spending tokens, regardless \
-  of their individual limits. If a user is in multiple groups, the most lenient limit \
+  "Teamspace rate limits apply to all users in a team. When a team reaches a limit, \
+  all users in the team will be temporarily blocked from spending tokens, regardless \
+  of their individual limits. If a user is in multiple teamspaces, the most lenient limit \
   will apply.";
 
 const handleCreateTokenRateLimit = async (
   target_scope: Scope,
   period_hours: number,
   token_budget: number,
-  group_id: number = -1
+  teamspace: number = -1
 ) => {
   const tokenRateLimitArgs = {
     enabled: true,
@@ -57,7 +57,7 @@ const handleCreateTokenRateLimit = async (
   } else if (target_scope === Scope.USER) {
     return await insertUserTokenRateLimit(tokenRateLimitArgs);
   } else if (target_scope === Scope.TEAMSPACE) {
-    return await insertGroupTokenRateLimit(tokenRateLimitArgs, group_id);
+    return await insertGroupTokenRateLimit(tokenRateLimitArgs, teamspace);
   } else {
     throw new Error(`Invalid target_scope: ${target_scope}`);
   }
@@ -86,13 +86,13 @@ function Main() {
     target_scope: Scope,
     period_hours: number,
     token_budget: number,
-    group_id: number = -1
+    teamspace: number = -1
   ) => {
     handleCreateTokenRateLimit(
       target_scope,
       period_hours,
       token_budget,
-      group_id
+      teamspace
     )
       .then(() => {
         setPopup({ type: "success", message: "Token rate limit created!" });
@@ -176,10 +176,10 @@ function Main() {
                 title={"Teamspace Token Rate Limits"}
                 description={TEAMSPACE_DESCRIPTION}
                 responseMapper={(data: Record<string, TokenRateLimit[]>) =>
-                  Object.entries(data).flatMap(([group_name, elements]) =>
+                  Object.entries(data).flatMap(([teamspace, elements]) =>
                     elements.map((element) => ({
                       ...element,
-                      group_name,
+                      teamspace,
                     }))
                   )
                 }

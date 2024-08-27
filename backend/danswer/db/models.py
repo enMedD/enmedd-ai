@@ -300,7 +300,7 @@ class ConnectorCredentialPair(Base):
     )
     # controls whether the documents indexed by this CC pair are visible to all
     # or if they are only visible to those with that are given explicit access
-    # (e.g. via owning the credential or being a part of a group that is given access)
+    # (e.g. via owning the credential or being a part of a teamspace that is given access)
     is_public: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
@@ -360,7 +360,7 @@ class Document(Base):
     secondary_owners: Mapped[list[str] | None] = mapped_column(
         postgresql.ARRAY(String), nullable=True
     )
-    # TODO if more sensitive data is added here for display, make sure to add user/group permission
+    # TODO if more sensitive data is added here for display, make sure to add user/teamspace permission
 
     retrieval_feedbacks: Mapped[list["DocumentRetrievalFeedback"]] = relationship(
         "DocumentRetrievalFeedback", back_populates="document"
@@ -904,7 +904,7 @@ class DocumentSet(Base):
     # Whether changes to the document set have been propagated
     is_up_to_date: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     # If `False`, then the document set is not visible to users who are not explicitly
-    # given access to it either via the `users` or `groups` relationships
+    # given access to it either via the `users` or `teamspaces` relationships
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     connector_credential_pairs: Mapped[list[ConnectorCredentialPair]] = relationship(
@@ -933,7 +933,7 @@ class DocumentSet(Base):
         viewonly=True,
     )
     # EE only
-    groups: Mapped[list["Teamspace"]] = relationship(
+    teamspaces: Mapped[list["Teamspace"]] = relationship(
         "Teamspace",
         secondary="document_set__teamspace",
         viewonly=True,
@@ -1073,7 +1073,7 @@ class Assistant(Base):
         viewonly=True,
     )
     # EE only
-    groups: Mapped[list["Teamspace"]] = relationship(
+    teamspaces: Mapped[list["Teamspace"]] = relationship(
         "Teamspace",
         secondary="assistant__teamspace",
         viewonly=True,
@@ -1223,7 +1223,7 @@ class Teamspace(Base):
     name: Mapped[str] = mapped_column(String, unique=True)
     # whether or not changes to the Teamspace have been propagated to Vespa
     is_up_to_date: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    # tell the sync job to clean up the group
+    # tell the sync job to clean up the teamspace
     is_up_for_deletion: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
@@ -1304,12 +1304,12 @@ class PermissionSyncStatus(str, PyEnum):
 
 class PermissionSyncJobType(str, PyEnum):
     USER_LEVEL = "user_level"
-    GROUP_LEVEL = "group_level"
+    TEAMSPACE_LEVEL = "teamspace_level"
 
 
 class PermissionSyncRun(Base):
     """Represents one run of a permission sync job. For some given cc_pair, it is either sync-ing
-    the users or it is sync-ing the groups"""
+    the users or it is sync-ing the teamspaces"""
 
     __tablename__ = "permission_sync_run"
 
@@ -1336,7 +1336,7 @@ class PermissionSyncRun(Base):
 
 class ExternalPermission(Base):
     """Maps user info both internal and external to the name of the external group
-    This maps the user to all of their external groups so that the external group name can be
+    This maps the user to all of their external teamspaces so that the external group name can be
     attached to the ACL list matching during query time. User level permissions can be handled by
     directly adding the Danswer user to the doc ACL list"""
 
@@ -1356,15 +1356,15 @@ class ExternalPermission(Base):
 
 class EmailToExternalUserCache(Base):
     """A way to map users IDs in the external tool to a user in Danswer or at least an email for
-    when the user joins. Used as a cache for when fetching external groups which have their own
+    when the user joins. Used as a cache for when fetching external teamspaces which have their own
     user ids, this can easily be mapped back to users already known in Danswer without needing
     to call external APIs to get the user emails.
 
-    This way when groups are updated in the external tool and we need to update the mapping of
-    internal users to the groups, we can sync the internal users to the external groups they are
+    This way when teamspaces are updated in the external tool and we need to update the mapping of
+    internal users to the teamspaces, we can sync the internal users to the external teamspaces they are
     part of using this.
 
-    Ie. User Chris is part of groups alpha, beta, and we can update this if Chris is no longer
+    Ie. User Chris is part of teamspaces alpha, beta, and we can update this if Chris is no longer
     part of alpha in some external tool.
     """
 
@@ -1430,7 +1430,7 @@ class Workspace(Base):
         "User", secondary="workspace__users", back_populates="workspace"
     )
 
-    groups: Mapped[list["Teamspace"]] = relationship(
+    teamspaces: Mapped[list["Teamspace"]] = relationship(
         "Teamspace", secondary="workspace__teamspace", back_populates="workspace"
     )
 
