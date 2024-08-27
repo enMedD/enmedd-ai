@@ -8,10 +8,10 @@ from danswer.document_index.factory import get_default_document_index
 from danswer.document_index.interfaces import DocumentIndex
 from danswer.document_index.interfaces import UpdateRequest
 from danswer.utils.logger import setup_logger
-from ee.danswer.db.user_group import delete_teamspace
-from ee.danswer.db.user_group import fetch_documents_for_teamspace_paginated
-from ee.danswer.db.user_group import fetch_teamspace
-from ee.danswer.db.user_group import mark_teamspace_as_synced
+from ee.danswer.db.teamspace import delete_teamspace
+from ee.danswer.db.teamspace import fetch_documents_for_teamspace_paginated
+from ee.danswer.db.teamspace import fetch_teamspaces
+from ee.danswer.db.teamspace import mark_teamspace_as_synced
 
 logger = setup_logger()
 
@@ -57,9 +57,17 @@ def sync_teamspaces(teamspace_id: int, db_session: Session) -> None:
         else None,
     )
 
-    teamspace = fetch_teamspace(db_session=db_session, teamspace_id=teamspace_id)
+    # Fetch all teamspaces and then filter by teamspace_id
+    teamspaces = fetch_teamspaces(db_session=db_session)
+
+    # Filter to find the teamspace with the given teamspace_id
+    teamspace = next((ts for ts in teamspaces if ts.id == teamspace_id), None)
+
     if teamspace is None:
         raise ValueError(f"Teamspace '{teamspace_id}' does not exist")
+
+    # If you expect only one teamspace, get the first element
+    teamspace = teamspaces[0]
 
     cursor = None
     while True:

@@ -34,6 +34,7 @@ from danswer.configs.app_configs import USER_AUTH_SECRET
 from danswer.configs.app_configs import WEB_DOMAIN
 from danswer.configs.chat_configs import MULTILINGUAL_QUERY_EXPANSION
 from danswer.configs.constants import AuthType
+from danswer.db.assistant import delete_old_default_assistants
 from danswer.db.connector import create_initial_default_connector
 from danswer.db.connector_credential_pair import associate_default_cc_pair
 from danswer.db.connector_credential_pair import get_connector_credential_pairs
@@ -45,7 +46,6 @@ from danswer.db.engine import get_sqlalchemy_engine
 from danswer.db.engine import warm_up_connections
 from danswer.db.index_attempt import cancel_indexing_attempts_past_model
 from danswer.db.index_attempt import expire_index_attempts
-from danswer.db.persona import delete_old_default_assistants
 from danswer.db.swap_index import check_index_swap
 from danswer.document_index.factory import get_default_document_index
 from danswer.llm.llm_initialization import load_llm_providers
@@ -57,10 +57,10 @@ from danswer.server.documents.cc_pair import router as cc_pair_router
 from danswer.server.documents.connector import router as connector_router
 from danswer.server.documents.credential import router as credential_router
 from danswer.server.documents.document import router as document_router
+from danswer.server.features.assistant.api import admin_router as admin_assistant_router
+from danswer.server.features.assistant.api import basic_router as assistant_router
 from danswer.server.features.document_set.api import router as document_set_router
 from danswer.server.features.folder.api import router as folder_router
-from danswer.server.features.persona.api import admin_router as admin_assistant_router
-from danswer.server.features.persona.api import basic_router as assistant_router
 from danswer.server.features.prompt.api import basic_router as prompt_router
 from danswer.server.features.tool.api import admin_router as admin_tool_router
 from danswer.server.features.tool.api import router as tool_router

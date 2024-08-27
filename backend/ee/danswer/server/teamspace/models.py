@@ -6,8 +6,8 @@ from danswer.db.models import Teamspace as TeamspaceModel
 from danswer.server.documents.models import ConnectorCredentialPairDescriptor
 from danswer.server.documents.models import ConnectorSnapshot
 from danswer.server.documents.models import CredentialSnapshot
+from danswer.server.features.assistant.models import AssistantSnapshot
 from danswer.server.features.document_set.models import DocumentSet
-from danswer.server.features.persona.models import AssistantSnapshot
 from danswer.server.manage.models import UserInfo
 from danswer.server.manage.models import UserPreferences
 

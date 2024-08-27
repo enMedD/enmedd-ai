@@ -4,8 +4,8 @@ from langchain.schema.messages import SystemMessage
 from danswer.chat.models import LlmDoc
 from danswer.configs.chat_configs import MULTILINGUAL_QUERY_EXPANSION
 from danswer.configs.model_configs import GEN_AI_SINGLE_USER_MESSAGE_EXPECTED_MAX_TOKENS
+from danswer.db.assistant import get_default_prompt__read_only
 from danswer.db.models import Assistant
-from danswer.db.persona import get_default_prompt__read_only
 from danswer.file_store.utils import InMemoryChatFile
 from danswer.llm.answering.models import PromptConfig
 from danswer.llm.factory import get_llms_for_assistant

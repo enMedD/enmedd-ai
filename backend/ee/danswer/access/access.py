@@ -8,8 +8,8 @@ from danswer.access.models import DocumentAccess
 from danswer.access.utils import prefix_teamspace
 from danswer.db.models import User
 from danswer.server.documents.models import ConnectorCredentialPairIdentifier
-from ee.danswer.db.user_group import fetch_teamspaces_for_documents
-from ee.danswer.db.user_group import fetch_teamspaces_for_user
+from ee.danswer.db.teamspace import fetch_teamspaces_for_documents
+from ee.danswer.db.teamspace import fetch_teamspaces_for_user
 
 
 def _get_access_for_documents(

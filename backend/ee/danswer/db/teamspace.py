@@ -15,8 +15,8 @@ from danswer.db.models import TokenRateLimit__Teamspace
 from danswer.db.models import User
 from danswer.db.models import User__Teamspace
 from danswer.server.documents.models import ConnectorCredentialPairIdentifier
-from ee.danswer.server.user_group.models import TeamspaceCreate
-from ee.danswer.server.user_group.models import TeamspaceUpdate
+from ee.danswer.server.teamspace.models import TeamspaceCreate
+from ee.danswer.server.teamspace.models import TeamspaceUpdate
 
 
 def fetch_teamspace(db_session: Session, teamspace_id: int) -> Teamspace | None:

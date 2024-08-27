@@ -14,9 +14,9 @@ from ee.danswer.background.celery_utils import should_perform_chat_ttl_check
 from ee.danswer.background.celery_utils import should_sync_teamspaces
 from ee.danswer.background.task_name_builders import name_chat_ttl_task
 from ee.danswer.background.task_name_builders import name_teamspace_sync_task
-from ee.danswer.db.user_group import fetch_teamspaces
+from ee.danswer.db.teamspace import fetch_teamspaces
 from ee.danswer.server.reporting.usage_export_generation import create_new_usage_report
-from ee.danswer.user_groups.sync import sync_teamspaces
+from ee.danswer.teamspaces.sync import sync_teamspaces
 
 logger = setup_logger()
 

@@ -23,8 +23,8 @@ from danswer.db.models import Tool
 from danswer.db.models import User
 from danswer.db.models import User__Teamspace
 from danswer.search.enums import RecencyBiasSetting
-from danswer.server.features.persona.models import AssistantSnapshot
-from danswer.server.features.persona.models import CreateAssistantRequest
+from danswer.server.features.assistant.models import AssistantSnapshot
+from danswer.server.features.assistant.models import CreateAssistantRequest
 from danswer.utils.logger import setup_logger
 from danswer.utils.variable_functionality import fetch_versioned_implementation
 

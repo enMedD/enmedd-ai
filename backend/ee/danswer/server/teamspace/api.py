@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session
 import danswer.db.models as db_models
 from danswer.auth.users import current_admin_user
 from danswer.db.engine import get_session
-from ee.danswer.db.user_group import fetch_teamspaces
-from ee.danswer.db.user_group import insert_teamspace
-from ee.danswer.db.user_group import prepare_teamspace_for_deletion
-from ee.danswer.db.user_group import update_teamspace
-from ee.danswer.server.user_group.models import Teamspace
-from ee.danswer.server.user_group.models import TeamspaceCreate
-from ee.danswer.server.user_group.models import TeamspaceUpdate
+from ee.danswer.db.teamspace import fetch_teamspaces
+from ee.danswer.db.teamspace import insert_teamspace
+from ee.danswer.db.teamspace import prepare_teamspace_for_deletion
+from ee.danswer.db.teamspace import update_teamspace
+from ee.danswer.server.teamspace.models import Teamspace
+from ee.danswer.server.teamspace.models import TeamspaceCreate
+from ee.danswer.server.teamspace.models import TeamspaceUpdate
 
 router = APIRouter(prefix="/manage")
 

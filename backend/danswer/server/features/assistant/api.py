@@ -7,20 +7,20 @@ from sqlalchemy.orm import Session
 
 from danswer.auth.users import current_admin_user
 from danswer.auth.users import current_user
+from danswer.db.assistant import create_update_assistant
+from danswer.db.assistant import get_assistant_by_id
+from danswer.db.assistant import get_assistants
+from danswer.db.assistant import mark_assistant_as_deleted
+from danswer.db.assistant import mark_assistant_as_not_deleted
+from danswer.db.assistant import update_all_assistants_display_priority
+from danswer.db.assistant import update_assistant_shared_users
+from danswer.db.assistant import update_assistant_visibility
 from danswer.db.engine import get_session
 from danswer.db.models import User
-from danswer.db.persona import create_update_assistant
-from danswer.db.persona import get_assistant_by_id
-from danswer.db.persona import get_assistants
-from danswer.db.persona import mark_assistant_as_deleted
-from danswer.db.persona import mark_assistant_as_not_deleted
-from danswer.db.persona import update_all_assistants_display_priority
-from danswer.db.persona import update_assistant_shared_users
-from danswer.db.persona import update_assistant_visibility
 from danswer.llm.answering.prompts.utils import build_dummy_prompt
-from danswer.server.features.persona.models import AssistantSnapshot
-from danswer.server.features.persona.models import CreateAssistantRequest
-from danswer.server.features.persona.models import PromptTemplateResponse
+from danswer.server.features.assistant.models import AssistantSnapshot
+from danswer.server.features.assistant.models import CreateAssistantRequest
+from danswer.server.features.assistant.models import PromptTemplateResponse
 from danswer.server.models import DisplayPriorityRequest
 from danswer.utils.logger import setup_logger
 

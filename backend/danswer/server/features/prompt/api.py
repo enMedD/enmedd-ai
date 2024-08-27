@@ -5,13 +5,13 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from danswer.auth.users import current_user
+from danswer.db.assistant import get_assistants_by_ids
+from danswer.db.assistant import get_prompt_by_id
+from danswer.db.assistant import get_prompts
+from danswer.db.assistant import mark_prompt_as_deleted
+from danswer.db.assistant import upsert_prompt
 from danswer.db.engine import get_session
 from danswer.db.models import User
-from danswer.db.persona import get_assistants_by_ids
-from danswer.db.persona import get_prompt_by_id
-from danswer.db.persona import get_prompts
-from danswer.db.persona import mark_prompt_as_deleted
-from danswer.db.persona import upsert_prompt
 from danswer.server.features.prompt.models import CreatePromptRequest
 from danswer.server.features.prompt.models import PromptSnapshot
 from danswer.utils.logger import setup_logger

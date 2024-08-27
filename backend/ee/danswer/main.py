@@ -33,10 +33,10 @@ from ee.danswer.server.query_history.api import router as query_history_router
 from ee.danswer.server.reporting.usage_export_api import router as usage_export_router
 from ee.danswer.server.saml import router as saml_router
 from ee.danswer.server.seeding import seed_db
+from ee.danswer.server.teamspace.api import router as teamspace_router
 from ee.danswer.server.token_rate_limits.api import (
     router as token_rate_limit_settings_router,
 )
-from ee.danswer.server.user_group.api import router as teamspace_router
 from ee.danswer.utils.encryption import test_encryption
 
 logger = setup_logger()
