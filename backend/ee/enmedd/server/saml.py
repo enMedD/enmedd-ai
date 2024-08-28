@@ -66,7 +66,7 @@ async def upsert_saml_user(email: str) -> User:
                         is_verified=True,
                         role=role,
                         chosen_assistants=None,
-                        workspace_id=None,
+                        workspace=None,
                         full_name=None,
                         company_name=None,
                         company_email=None,

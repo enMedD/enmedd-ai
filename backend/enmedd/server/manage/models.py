@@ -35,7 +35,6 @@ class UserInfo(BaseModel):
     is_superuser: bool
     is_verified: bool
     role: UserRole
-    workspace_id: Optional[int]
     full_name: Optional[str]
     company_name: Optional[str]
     company_email: Optional[str]
@@ -53,7 +52,6 @@ class UserInfo(BaseModel):
             is_superuser=user.is_superuser,
             is_verified=user.is_verified,
             role=user.role,
-            workspace_id=user.workspace_id,
             full_name=user.full_name,
             company_name=user.company_name,
             company_email=user.company_email,

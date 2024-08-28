@@ -104,6 +104,13 @@ class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
+    full_name: Mapped[str] = mapped_column(Text, nullable=True)
+    company_name: Mapped[str] = mapped_column(Text, nullable=True)
+    company_email: Mapped[str] = mapped_column(String, nullable=True)
+    company_billing: Mapped[str] = mapped_column(Text, nullable=True)
+    billing_email_address: Mapped[str] = mapped_column(String, nullable=True)
+    vat: Mapped[str] = mapped_column(String, nullable=True)
+
     oauth_accounts: Mapped[list[OAuthAccount]] = relationship(
         "OAuthAccount", lazy="joined"
     )
@@ -121,15 +128,6 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     chosen_assistants: Mapped[list[int]] = mapped_column(
         postgresql.ARRAY(Integer), nullable=True
     )
-    workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.workspace_id"), nullable=True
-    )
-    full_name: Mapped[str] = mapped_column(Text, nullable=True)
-    company_name: Mapped[str] = mapped_column(Text, nullable=True)
-    company_email: Mapped[str] = mapped_column(String, nullable=True)
-    company_billing: Mapped[str] = mapped_column(Text, nullable=True)
-    billing_email_address: Mapped[str] = mapped_column(String, nullable=True)
-    vat: Mapped[str] = mapped_column(String, nullable=True)
 
     # relationships
     credentials: Mapped[list["Credential"]] = relationship(
@@ -148,7 +146,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     custom_tools: Mapped[list["Tool"]] = relationship("Tool", back_populates="user")
 
     workspace: Mapped[list["Workspace"]] = relationship(
-        "Workspace", secondary="workspace__users", back_populates="user"
+        "Workspace", secondary="workspace__users", back_populates="users"
     )
 
 
@@ -262,6 +260,26 @@ class Persona__Tool(Base):
 
     persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
     tool_id: Mapped[int] = mapped_column(ForeignKey("tool.id"), primary_key=True)
+
+
+class Workspace__Users(Base):
+    __tablename__ = "workspace__users"
+
+    workspace_id: Mapped[int] = mapped_column(
+        ForeignKey("workspace.workspace_id"), primary_key=True
+    )
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), primary_key=True)
+
+
+class Workspace__UserGroup(Base):
+    __tablename__ = "workspace__user_group"
+
+    workspace_id: Mapped[int] = mapped_column(
+        ForeignKey("workspace.workspace_id"), primary_key=True
+    )
+    user_group_id: Mapped[int] = mapped_column(
+        ForeignKey("user_group.id"), primary_key=True
+    )
 
 
 """
@@ -1208,7 +1226,6 @@ class UserGroup(Base):
     is_up_for_deletion: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
-    workspace_id: Mapped[int] = mapped_column(ForeignKey("workspace.workspace_id"))
 
     users: Mapped[list[User]] = relationship(
         "User",
@@ -1238,7 +1255,7 @@ class UserGroup(Base):
 
     workspace: Mapped[list["Workspace"]] = relationship(
         "Workspace",
-        secondary="workspace__user_group",
+        secondary=Workspace__UserGroup.__table__,
         viewonly=True,
     )
 
@@ -1344,9 +1361,6 @@ class EmailToExternalUserCache(Base):
     This way when groups are updated in the external tool and we need to update the mapping of
     internal users to the groups, we can sync the internal users to the external groups they are
     part of using this.
-
-    Ie. User Chris is part of groups alpha, beta, and we can update this if Chris is no longer
-    part of alpha in some external tool.
     """
 
     __tablename__ = "email_to_external_user_cache"
@@ -1403,16 +1417,18 @@ class Workspace(Base):
     instance_id: Mapped[int | None] = mapped_column(
         ForeignKey("instance.instance_id"), nullable=True
     )
-    Workspace_name: Mapped[str] = mapped_column(Text)
+    workspace_name: Mapped[str] = mapped_column(Text)
     custom_logo: Mapped[str] = mapped_column(Text)
     custom_header_logo: Mapped[str] = mapped_column(Text)
 
-    user: Mapped[list[User]] = relationship(
-        "User", secondary="workspace__users", back_populates="workspace"
+    users: Mapped[list[User]] = relationship(
+        "User", secondary=Workspace__Users.__table__, back_populates="workspace"
     )
 
     groups: Mapped[list["UserGroup"]] = relationship(
-        "UserGroup", secondary="workspace__user_group", back_populates="workspace"
+        "UserGroup",
+        secondary=Workspace__UserGroup.__table__,
+        back_populates="workspace",
     )
 
     workspace_settings: Mapped["WorkspaceSettings"] = relationship(
@@ -1452,23 +1468,3 @@ class Instance(Base):
         Enum(InstanceSubscriptionPlan, native_enum=False)
     )
     owner_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
-
-
-class WorkspaceUsers(Base):
-    __tablename__ = "workspace__users"
-
-    workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.workspace_id"), primary_key=True
-    )
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), primary_key=True)
-
-
-class WorkspaceUserGroup(Base):
-    __tablename__ = "workspace__user_group"
-
-    workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.workspace_id"), primary_key=True
-    )
-    user_group_id: Mapped[int] = mapped_column(
-        ForeignKey("user_group.id"), primary_key=True
-    )

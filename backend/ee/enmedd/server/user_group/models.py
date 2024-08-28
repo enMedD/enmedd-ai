@@ -38,7 +38,7 @@ class UserGroup(BaseModel):
                     preferences=UserPreferences(
                         chosen_assistants=user.chosen_assistants
                     ),
-                    workspace_id=user.workspace_id,
+                    workspace=user.workspace,
                     full_name=user.full_name,
                     company_name=user.company_name,
                     company_email=user.company_email,
