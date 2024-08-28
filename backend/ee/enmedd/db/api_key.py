@@ -9,15 +9,15 @@ from ee.enmedd.auth.api_key import build_displayable_api_key
 from ee.enmedd.auth.api_key import generate_api_key
 from ee.enmedd.auth.api_key import hash_api_key
 from ee.enmedd.server.api_key.models import APIKeyArgs
-from enmedd.configs.constants import DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN
-from enmedd.configs.constants import DANSWER_API_KEY_PREFIX
+from enmedd.configs.constants import API_KEY_DUMMY_EMAIL_DOMAIN
+from enmedd.configs.constants import API_KEY_PREFIX
 from enmedd.configs.constants import UNNAMED_KEY_PLACEHOLDER
 from enmedd.db.models import ApiKey
 from enmedd.db.models import User
 
 
 def is_api_key_email_address(email: str) -> bool:
-    return email.endswith(f"{DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN}")
+    return email.endswith(f"{API_KEY_DUMMY_EMAIL_DOMAIN}")
 
 
 def fetch_api_keys(db_session: Session) -> list[ApiKeyDescriptor]:
@@ -47,7 +47,7 @@ def get_api_key_fake_email(
     name: str,
     unique_id: str,
 ) -> str:
-    return f"{DANSWER_API_KEY_PREFIX}{name}@{unique_id}{DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN}"
+    return f"{API_KEY_PREFIX}{name}@{unique_id}{API_KEY_DUMMY_EMAIL_DOMAIN}"
 
 
 def insert_api_key(

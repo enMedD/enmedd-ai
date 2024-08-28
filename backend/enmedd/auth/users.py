@@ -41,9 +41,9 @@ from enmedd.configs.app_configs import SMTP_USER
 from enmedd.configs.app_configs import USER_AUTH_SECRET
 from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
 from enmedd.configs.app_configs import WEB_DOMAIN
+from enmedd.configs.constants import API_KEY_DUMMY_EMAIL_DOMAIN
+from enmedd.configs.constants import API_KEY_PREFIX
 from enmedd.configs.constants import AuthType
-from enmedd.configs.constants import DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN
-from enmedd.configs.constants import DANSWER_API_KEY_PREFIX
 from enmedd.configs.constants import UNNAMED_KEY_PLACEHOLDER
 from enmedd.db.auth import get_access_token_db
 from enmedd.db.auth import get_default_admin_user_emails
@@ -73,10 +73,10 @@ def verify_auth_setting() -> None:
 
 
 def get_display_email(email: str | None, space_less: bool = False) -> str:
-    if email and email.endswith(DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN):
+    if email and email.endswith(API_KEY_DUMMY_EMAIL_DOMAIN):
         name = email.split("@")[0]
         # TODO: change env variable name
-        if name == DANSWER_API_KEY_PREFIX + UNNAMED_KEY_PLACEHOLDER:
+        if name == API_KEY_PREFIX + UNNAMED_KEY_PLACEHOLDER:
             return "Unnamed API Key"
 
         if space_less:

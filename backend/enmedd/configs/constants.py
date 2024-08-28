@@ -48,9 +48,7 @@ SECTION_SEPARATOR = "\n\n"
 # For combining attributes, doesn't have to be unique/perfect to work
 INDEX_SEPARATOR = "==="
 
-# TODO: rename all the env variable names
-# For File Connector Metadata override file
-DANSWER_METADATA_FILENAME = ".danswer_metadata.json"
+ENMEDD_METADATA_FILENAME = ".enmedd_metadata.json"
 
 # Messages
 DISABLED_GEN_AI_MSG = (
@@ -59,10 +57,8 @@ DISABLED_GEN_AI_MSG = (
     "You can still use enMedD AI as a search engine."
 )
 
-# TODO: change the variable name and value
-# API Keys
-DANSWER_API_KEY_PREFIX = "API_KEY__"
-DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN = "enmeddapikey.ai"
+API_KEY_PREFIX = "API_KEY__"
+API_KEY_DUMMY_EMAIL_DOMAIN = "enmeddapikey.ai"
 UNNAMED_KEY_PLACEHOLDER = "Unnamed"
 
 
