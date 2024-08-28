@@ -5,7 +5,7 @@ from enmedd.dynamic_configs.interface import ConfigNotFoundError
 from enmedd.server.settings.models import Settings
 
 # TODO: replace the name here
-_SETTINGS_KEY = "danswer_settings"
+_SETTINGS_KEY = "enmedd_settings"
 
 
 def load_settings() -> Settings:

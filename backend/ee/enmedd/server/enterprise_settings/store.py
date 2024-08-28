@@ -19,7 +19,7 @@ from enmedd.utils.logger import setup_logger
 
 load_dotenv()
 # TODO : replace the value name
-_ENTERPRISE_SETTINGS_KEY = "danswer_enterprise_settings"
+_ENTERPRISE_SETTINGS_KEY = "enmedd_enterprise_settings"
 logger = setup_logger()
 
 
