@@ -9,7 +9,6 @@ from ee.enmedd.auth.api_key import build_displayable_api_key
 from ee.enmedd.auth.api_key import generate_api_key
 from ee.enmedd.auth.api_key import hash_api_key
 from ee.enmedd.server.api_key.models import APIKeyArgs
-from enmedd.auth.schemas import UserRole
 from enmedd.configs.constants import DANSWER_API_KEY_DUMMY_EMAIL_DOMAIN
 from enmedd.configs.constants import DANSWER_API_KEY_PREFIX
 from enmedd.configs.constants import UNNAMED_KEY_PLACEHOLDER
@@ -67,7 +66,7 @@ def insert_api_key(
         is_active=True,
         is_superuser=False,
         is_verified=True,
-        role=UserRole.BASIC,
+        role=api_key_args.role,
     )
     db_session.add(api_key_user_row)
 
@@ -83,6 +82,7 @@ def insert_api_key(
     db_session.commit()
     return ApiKeyDescriptor(
         api_key_id=api_key_row.id,
+        api_key_role=api_key_user_row.role,
         api_key_display=api_key_row.api_key_display,
         api_key=api_key,
         api_key_name=api_key_args.name,
