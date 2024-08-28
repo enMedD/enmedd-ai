@@ -10,7 +10,7 @@ from enmedd.db.engine import get_session
 from enmedd.llm.factory import get_default_llms
 from enmedd.search.models import SearchRequest
 from enmedd.search.pipeline import SearchPipeline
-from enmedd.server.danswer_api.ingestion import api_key_dep
+from enmedd.server.enmedd_api.ingestion import api_key_dep
 from enmedd.utils.logger import setup_logger
 
 

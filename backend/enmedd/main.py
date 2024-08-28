@@ -52,11 +52,11 @@ from enmedd.llm.llm_initialization import load_llm_providers
 from enmedd.search.retrieval.search_runner import download_nltk_data
 from enmedd.search.search_nlp_models import warm_up_encoders
 from enmedd.server.auth_check import check_router_auth
-from enmedd.server.danswer_api.ingestion import router as danswer_api_router
 from enmedd.server.documents.cc_pair import router as cc_pair_router
 from enmedd.server.documents.connector import router as connector_router
 from enmedd.server.documents.credential import router as credential_router
 from enmedd.server.documents.document import router as document_router
+from enmedd.server.enmedd_api.ingestion import router as enmedd_api_server
 from enmedd.server.features.document_set.api import router as document_set_router
 from enmedd.server.features.folder.api import router as folder_router
 from enmedd.server.features.persona.api import admin_router as admin_persona_router
@@ -277,7 +277,7 @@ def get_application() -> FastAPI:
     include_router_with_global_prefix_prepended(application, tool_router)
     include_router_with_global_prefix_prepended(application, admin_tool_router)
     include_router_with_global_prefix_prepended(application, state_router)
-    include_router_with_global_prefix_prepended(application, danswer_api_router)
+    include_router_with_global_prefix_prepended(application, enmedd_api_server)
     include_router_with_global_prefix_prepended(application, gpts_router)
     include_router_with_global_prefix_prepended(application, settings_router)
     include_router_with_global_prefix_prepended(application, settings_admin_router)

@@ -7,7 +7,7 @@ from starlette.routing import BaseRoute
 from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_user
 from enmedd.configs.app_configs import APP_API_PREFIX
-from enmedd.server.danswer_api.ingestion import api_key_dep
+from enmedd.server.enmedd_api.ingestion import api_key_dep
 
 
 PUBLIC_ENDPOINT_SPECS = [

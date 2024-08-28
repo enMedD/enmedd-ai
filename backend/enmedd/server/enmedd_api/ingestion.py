@@ -17,9 +17,9 @@ from enmedd.document_index.document_index_utils import get_both_index_names
 from enmedd.document_index.factory import get_default_document_index
 from enmedd.indexing.embedder import DefaultIndexingEmbedder
 from enmedd.indexing.indexing_pipeline import build_indexing_pipeline
-from enmedd.server.danswer_api.models import DocMinimalInfo
-from enmedd.server.danswer_api.models import IngestionDocument
-from enmedd.server.danswer_api.models import IngestionResult
+from enmedd.server.enmedd_api.models import DocMinimalInfo
+from enmedd.server.enmedd_api.models import IngestionDocument
+from enmedd.server.enmedd_api.models import IngestionResult
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()

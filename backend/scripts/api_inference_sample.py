@@ -11,9 +11,9 @@ load_dotenv()
 
 
 # TODO: replace the parameter names here
-def create_new_chat_session(danswer_url: str, api_key: str | None) -> int:
+def create_new_chat_session(enmedd_url: str, api_key: str | None) -> int:
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
-    session_endpoint = danswer_url + "/api/chat/create-chat-session"
+    session_endpoint = enmedd_url + "/api/chat/create-chat-session"
 
     response = requests.post(
         session_endpoint,
@@ -26,10 +26,10 @@ def create_new_chat_session(danswer_url: str, api_key: str | None) -> int:
     return new_session_id
 
 
-def process_question(danswer_url: str, question: str, api_key: str | None) -> None:
-    message_endpoint = danswer_url + "/api/chat/send-message"
+def process_question(enmedd_url: str, question: str, api_key: str | None) -> None:
+    message_endpoint = enmedd_url + "/api/chat/send-message"
 
-    chat_session_id = create_new_chat_session(danswer_url, api_key)
+    chat_session_id = create_new_chat_session(enmedd_url, api_key)
 
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
 
@@ -82,9 +82,9 @@ if __name__ == "__main__":
 
     # Not needed if Auth is disabled
     # API key must be replaced with session cookie
-    api_key = os.environ.get("DANSWER_API_KEY")
+    api_key = os.environ.get("ENMEDD_API_KEY")
 
     args = parser.parse_args()
     process_question(
-        danswer_url=args.danswer_url, question=args.test_question, api_key=api_key
+        enmedd_url=args.enmedd_url, question=args.test_question, api_key=api_key
     )
