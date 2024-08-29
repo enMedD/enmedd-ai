@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from enmedd.chat.chat_utils import reorganize_citations
 from enmedd.chat.models import AnswerPiece
 from enmedd.chat.models import CitationInfo
-from enmedd.chat.models import DanswerContexts
-from enmedd.chat.models import DanswerQuotes
+from enmedd.chat.models import EnmeddContexts
+from enmedd.chat.models import EnmeddQuotes
 from enmedd.chat.models import LLMRelevanceFilterResponse
 from enmedd.chat.models import QADocsResponse
 from enmedd.chat.models import StreamingError
@@ -64,8 +64,8 @@ AnswerObjectIterator = Iterator[
     | QADocsResponse
     | LLMRelevanceFilterResponse
     | AnswerPiece
-    | DanswerQuotes
-    | DanswerContexts
+    | EnmeddQuotes
+    | EnmeddContexts
     | StreamingError
     | ChatMessageDetail
     | CitationInfo
@@ -95,7 +95,7 @@ def stream_answer_objects(
     """Streams in order:
     1. [always] Retrieved documents, stops flow if nothing is found
     2. [conditional] LLM selected chunk indices if LLM chunk filtering is turned on
-    3. [always] A set of streamed AnswerPiece and DanswerQuotes at the end
+    3. [always] A set of streamed AnswerPiece and EnmeddQuotes at the end
                 or an error anywhere along the line if something fails
     4. [always] Details on the final AI response message that is created
     """
@@ -336,14 +336,14 @@ def get_search_answer(
             qa_response.docs = packet
         elif isinstance(packet, LLMRelevanceFilterResponse):
             qa_response.llm_chunks_indices = packet.relevant_chunk_indices
-        elif isinstance(packet, DanswerQuotes):
+        elif isinstance(packet, EnmeddQuotes):
             qa_response.quotes = packet
         elif isinstance(packet, CitationInfo):
             if qa_response.citations:
                 qa_response.citations.append(packet)
             else:
                 qa_response.citations = [packet]
-        elif isinstance(packet, DanswerContexts):
+        elif isinstance(packet, EnmeddContexts):
             qa_response.contexts = packet
         elif isinstance(packet, StreamingError):
             qa_response.error_msg = packet.error
