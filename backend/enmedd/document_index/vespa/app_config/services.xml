@@ -7,7 +7,7 @@
             <server id="default" port="8081"/>
         </http>
         <nodes>
-            <node hostalias="danswer-node" />
+            <node hostalias="enmedd-node" />
         </nodes>
         <!-- TODO: replace the names here -->
     </container>
@@ -18,7 +18,7 @@
             DOCUMENT_REPLACEMENT
         </documents>
         <nodes>
-            <node hostalias="danswer-node" distribution-key="0" />
+            <node hostalias="enmedd-node" distribution-key="0" />
         </nodes>
         <tuning>
             <resource-limits>
