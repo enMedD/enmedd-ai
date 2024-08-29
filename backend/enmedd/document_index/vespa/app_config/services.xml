@@ -11,7 +11,7 @@
         </nodes>
         <!-- TODO: replace the names here -->
     </container>
-    <content id="danswer_index" version="1.0">
+    <content id="enmedd_index" version="1.0">
         <redundancy>1</redundancy>
         <documents>
             <!-- <document type="danswer_chunk" mode="index" /> -->
