@@ -14,7 +14,7 @@
     <content id="enmedd_index" version="1.0">
         <redundancy>1</redundancy>
         <documents>
-            <!-- <document type="danswer_chunk" mode="index" /> -->
+            <!-- <document type="enmedd_chunk" mode="index" /> -->
             DOCUMENT_REPLACEMENT
         </documents>
         <nodes>

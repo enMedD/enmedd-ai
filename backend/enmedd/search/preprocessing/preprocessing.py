@@ -1,4 +1,3 @@
-from backend.enmedd.search.preprocessing.enmedd_helper import query_intent
 from sqlalchemy.orm import Session
 
 from enmedd.configs.chat_configs import BASE_RECENCY_DECAY
@@ -16,6 +15,7 @@ from enmedd.search.models import SearchQuery
 from enmedd.search.models import SearchRequest
 from enmedd.search.models import SearchType
 from enmedd.search.preprocessing.access_filters import build_access_filters_for_user
+from enmedd.search.preprocessing.enmedd_helper import query_intent
 from enmedd.secondary_llm_flows.source_filter import extract_source_filter
 from enmedd.secondary_llm_flows.time_filter import extract_time_filter
 from enmedd.utils.logger import setup_logger
