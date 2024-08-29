@@ -6,7 +6,7 @@ import { Modal } from "@/components/Modal";
 import { XIcon } from "@/components/icons/icons";
 import { Button, Divider, Text } from "@tremor/react";
 
-interface DanswerApiKeyFormProps {
+interface ApiKeyFormProps {
   onClose: () => void;
   setPopup: (popupSpec: PopupSpec | null) => void;
   onCreateApiKey: (apiKey: APIKey) => void;
@@ -18,7 +18,7 @@ export const DanswerApiKeyForm = ({
   setPopup,
   onCreateApiKey,
   apiKey,
-}: DanswerApiKeyFormProps) => {
+}: ApiKeyFormProps) => {
   const isUpdate = apiKey !== undefined;
 
   return (
