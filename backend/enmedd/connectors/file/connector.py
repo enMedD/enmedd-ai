@@ -71,7 +71,7 @@ def _process_file(
         encoding = detect_encoding(file)
         # TODO: rename the property name here
         file_content_raw, file_metadata = read_text_file(
-            file, encoding=encoding, ignore_danswer_metadata=False
+            file, encoding=encoding, ignore_enmedd_metadata=False
         )
 
     # Using the PDF reader function directly to pass in password cleanly
