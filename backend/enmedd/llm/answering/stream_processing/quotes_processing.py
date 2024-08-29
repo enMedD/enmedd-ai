@@ -8,9 +8,9 @@ from typing import Optional
 
 import regex
 
+from enmedd.chat.models import AnswerPiece
 from enmedd.chat.models import AnswerQuestionStreamReturn
 from enmedd.chat.models import DanswerAnswer
-from enmedd.chat.models import DanswerAnswerPiece
 from enmedd.chat.models import DanswerQuote
 from enmedd.chat.models import DanswerQuotes
 from enmedd.chat.models import LlmDoc
@@ -211,7 +211,7 @@ def process_model_tokens(
     tokens: Iterator[str],
     context_docs: list[LlmDoc],
     is_json_prompt: bool = True,
-) -> Generator[DanswerAnswerPiece | DanswerQuotes, None, None]:
+) -> Generator[AnswerPiece | DanswerQuotes, None, None]:
     """Used in the streaming case to process the model output
     into an Answer and Quotes
 
@@ -252,23 +252,23 @@ def process_model_tokens(
                 if token:
                     try:
                         answer_token_section = token.index('"')
-                        yield DanswerAnswerPiece(
+                        yield AnswerPiece(
                             answer_piece=hold_quote + token[:answer_token_section]
                         )
                     except ValueError:
                         logger.error("Quotation mark not found in token")
-                        yield DanswerAnswerPiece(answer_piece=hold_quote + token)
-                yield DanswerAnswerPiece(answer_piece=None)
+                        yield AnswerPiece(answer_piece=hold_quote + token)
+                yield AnswerPiece(answer_piece=None)
                 continue
             elif not is_json_prompt:
                 if quote_pat in hold_quote + token or quote_loose in hold_quote + token:
                     found_answer_end = True
-                    yield DanswerAnswerPiece(answer_piece=None)
+                    yield AnswerPiece(answer_piece=None)
                     continue
                 if hold_quote + token in quote_pat_full:
                     hold_quote += token
                     continue
-            yield DanswerAnswerPiece(answer_piece=hold_quote + token)
+            yield AnswerPiece(answer_piece=hold_quote + token)
             hold_quote = ""
 
     logger.debug(f"Raw Model QnA Output: {model_output}")

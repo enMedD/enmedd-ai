@@ -48,7 +48,7 @@ class LLMRelevanceFilterResponse(BaseModel):
 
 
 # TODO: replace all the class names into enmedd
-class DanswerAnswerPiece(BaseModel):
+class AnswerPiece(BaseModel):
     # A small piece of a complete answer. Used for streaming back answers.
     answer_piece: str | None  # if None, specifies the end of an Answer
 
@@ -113,7 +113,7 @@ class CustomToolResponse(BaseModel):
 
 
 AnswerQuestionPossibleReturn = (
-    DanswerAnswerPiece
+    AnswerPiece
     | DanswerQuotes
     | CitationInfo
     | DanswerContexts

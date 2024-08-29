@@ -5,8 +5,8 @@ from typing import cast
 from sqlalchemy.orm import Session
 
 from enmedd.chat.chat_utils import reorganize_citations
+from enmedd.chat.models import AnswerPiece
 from enmedd.chat.models import CitationInfo
-from enmedd.chat.models import DanswerAnswerPiece
 from enmedd.chat.models import DanswerContexts
 from enmedd.chat.models import DanswerQuotes
 from enmedd.chat.models import LLMRelevanceFilterResponse
@@ -63,7 +63,7 @@ AnswerObjectIterator = Iterator[
     QueryRephrase
     | QADocsResponse
     | LLMRelevanceFilterResponse
-    | DanswerAnswerPiece
+    | AnswerPiece
     | DanswerQuotes
     | DanswerContexts
     | StreamingError
@@ -95,7 +95,7 @@ def stream_answer_objects(
     """Streams in order:
     1. [always] Retrieved documents, stops flow if nothing is found
     2. [conditional] LLM selected chunk indices if LLM chunk filtering is turned on
-    3. [always] A set of streamed DanswerAnswerPiece and DanswerQuotes at the end
+    3. [always] A set of streamed AnswerPiece and DanswerQuotes at the end
                 or an error anywhere along the line if something fails
     4. [always] Details on the final AI response message that is created
     """
@@ -330,7 +330,7 @@ def get_search_answer(
     for packet in results:
         if isinstance(packet, QueryRephrase):
             qa_response.rephrase = packet.rephrased_query
-        if isinstance(packet, DanswerAnswerPiece) and packet.answer_piece:
+        if isinstance(packet, AnswerPiece) and packet.answer_piece:
             answer += packet.answer_piece
         elif isinstance(packet, QADocsResponse):
             qa_response.docs = packet
