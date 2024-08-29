@@ -2,11 +2,11 @@ from typing import TypedDict
 
 from pydantic import BaseModel
 
-from enmedd.prompts.chat_tools import DANSWER_TOOL_DESCRIPTION
-from enmedd.prompts.chat_tools import DANSWER_TOOL_NAME
+from enmedd.prompts.chat_tools import TOOL_DESCRIPTION
 from enmedd.prompts.chat_tools import TOOL_FOLLOWUP
 from enmedd.prompts.chat_tools import TOOL_LESS_FOLLOWUP
 from enmedd.prompts.chat_tools import TOOL_LESS_PROMPT
+from enmedd.prompts.chat_tools import TOOL_NAME
 from enmedd.prompts.chat_tools import TOOL_TEMPLATE
 from enmedd.prompts.chat_tools import USER_INPUT
 
@@ -55,9 +55,7 @@ def form_tool_section_text(
         return None
 
     if retrieval_enabled and tools:
-        tools.append(
-            {"name": DANSWER_TOOL_NAME, "description": DANSWER_TOOL_DESCRIPTION}
-        )
+        tools.append({"name": TOOL_NAME, "description": TOOL_DESCRIPTION})
 
     tools_intro = []
     if tools:
