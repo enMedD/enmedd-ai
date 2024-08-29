@@ -21,7 +21,8 @@ import { gmailConnectorNameBuilder } from "./utils";
 import { GmailOAuthSection, GmailJsonUploadSection } from "./Credential";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Card, Divider, Text, Title } from "@tremor/react";
+import { Divider, Text, Title } from "@tremor/react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface GmailConnectorManagementProps {
   gmailPublicCredential?: Credential<GmailCredentialJson>;
@@ -92,16 +93,18 @@ const GmailConnectorManagement = ({
         <h2 className="font-bold mt-3 text-sm">Add New Connector:</h2>
       )}
       <Card className="mt-4">
-        <ConnectorForm<GmailConfig>
-          nameBuilder={gmailConnectorNameBuilder}
-          source="gmail"
-          inputType="poll"
-          formBody={null}
-          validationSchema={Yup.object().shape({})}
-          initialValues={{}}
-          refreshFreq={10 * 60} // 10 minutes
-          credentialId={liveCredential.id}
-        />
+        <CardContent>
+          <ConnectorForm<GmailConfig>
+            nameBuilder={gmailConnectorNameBuilder}
+            source="gmail"
+            inputType="poll"
+            formBody={null}
+            validationSchema={Yup.object().shape({})}
+            initialValues={{}}
+            refreshFreq={10 * 60} // 10 minutes
+            credentialId={liveCredential.id}
+          />
+        </CardContent>
       </Card>
     </div>
   );
@@ -234,7 +237,7 @@ const Main = () => {
       />
 
       <Title className="mb-2 mt-6 ml-auto mr-auto">
-        Step 2: Authenticate with enMedD CHP
+        Step 2: Authenticate with enMedD AI
       </Title>
       <GmailOAuthSection
         setPopup={setPopup}
@@ -264,7 +267,7 @@ const Main = () => {
 export default function Page() {
   return (
     <div className="mx-auto container">
-      <div className="mb-4">
+      <div>
         <HealthCheckBanner />
       </div>
 

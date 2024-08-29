@@ -2,14 +2,14 @@
 
 import { User } from "@/lib/types";
 import Link from "next/link";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import { FiMenu, FiMessageSquare, FiSearch } from "react-icons/fi";
 import { HeaderWrapper } from "./HeaderWrapper";
 import { SettingsContext } from "../settings/SettingsProvider";
 import { UserDropdown } from "../UserDropdown";
 import Logo from "../../../public/logo-brand.png";
-import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED } from "@/lib/constants";
+import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED } from "@/lib/constants";
 import { ConnectorIcon, NotebookIcon } from "../icons/icons";
 import { AdminSidebar } from "../admin/connectors/AdminSidebar";
 import { SideBar } from "../SideBar";
@@ -24,7 +24,6 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -32,19 +31,10 @@ export function Header({ user }: HeaderProps) {
   const settings = combinedSettings.settings;
   const enterpriseSettings = combinedSettings.enterpriseSettings;
 
-  const handleClose = () => {
-    setIsMenuOpen(false);
-  };
-
   return (
     <HeaderWrapper>
       <div className="flex items-center h-full">
-        <FiMenu
-          size={18}
-          className="mr-6 lg:hidden"
-          onClick={() => setIsMenuOpen(true)}
-        />
-        {isMenuOpen && <SideBar isHeader handleClose={handleClose} />}
+        <SideBar />
         <Link
           className="flex flex-col py-3"
           href={
@@ -62,9 +52,9 @@ export function Header({ user }: HeaderProps) {
                   <HeaderTitle>
                     {enterpriseSettings.application_name}
                   </HeaderTitle>
-                  {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
+                  {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED && (
                     <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD CHP
+                      Powered by enMedD AI
                     </p>
                   )}
                 </div>
@@ -74,7 +64,7 @@ export function Header({ user }: HeaderProps) {
             </div>
           </div>
         </Link>
-        {/* <HeaderTitle>enMedD CHP</HeaderTitle> */}
+        {/* <HeaderTitle>enMedD AI</HeaderTitle> */}
         {(!settings ||
           (settings.search_page_enabled && settings.chat_page_enabled)) && (
           <>

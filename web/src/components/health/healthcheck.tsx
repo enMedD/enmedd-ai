@@ -27,7 +27,7 @@ export const HealthCheckBanner = () => {
           </p>
           <a
             href="/auth/login"
-            className="w-full mt-4 mx-auto rounded-xs text-light py-2 bg-background-dark text-center hover:bg-emphasis animtate duration-300 transition-bg  "
+            className="w-full mt-4 mx-auto rounded-xs text-light py-2 bg-background-dark text-center hover:bg-default animtate duration-300 transition-bg  "
           >
             Log in
           </a>
@@ -40,7 +40,7 @@ export const HealthCheckBanner = () => {
         <p className="font-bold pb-1">The backend is currently unavailable.</p>
 
         <p className="px-1">
-          If this is your initial setup or you just updated your enMedD CHP
+          If this is your initial setup or you just updated your enMedD AI
           deployment, this is likely because the backend is still starting up.
           Give it a minute or two, and then refresh the page. If that does not
           work, make sure the backend is setup and/or contact an administrator.

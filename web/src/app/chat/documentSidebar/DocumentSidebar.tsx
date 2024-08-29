@@ -1,8 +1,7 @@
-import { DanswerDocument } from "@/lib/search/interfaces";
+import { EnmeddDocument } from "@/lib/search/interfaces";
 import { Text } from "@tremor/react";
 import { ChatDocumentDisplay } from "./ChatDocumentDisplay";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { FiFileText } from "react-icons/fi";
 import { removeDuplicateDocs } from "@/lib/documentUtils";
 import { Message, RetrievalType } from "../interfaces";
 import { ForwardedRef, forwardRef } from "react";
@@ -40,8 +39,8 @@ function SectionHeader({
 interface DocumentSidebarProps {
   closeSidebar: () => void;
   selectedMessage: Message | null;
-  selectedDocuments: DanswerDocument[] | null;
-  toggleDocumentSelection: (document: DanswerDocument) => void;
+  selectedDocuments: EnmeddDocument[] | null;
+  toggleDocumentSelection: (document: EnmeddDocument) => void;
   clearSelectedDocuments: () => void;
   selectedDocumentTokens: number;
   maxTokens: number;
@@ -144,7 +143,7 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
                     ))
                   ) : (
                     <div>
-                      <Text>No documents found for the query.</Text>
+                      <p>No documents found for the query.</p>
                     </div>
                   )}
                 </div>
@@ -152,10 +151,10 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
             ) : (
               !isLoading && (
                 <div className="p-6">
-                  <Text>
+                  <p>
                     When you run ask a question, the retrieved documents will
                     show up here!
-                  </Text>
+                  </p>
                 </div>
               )
             )}

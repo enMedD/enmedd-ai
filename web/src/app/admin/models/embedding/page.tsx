@@ -3,7 +3,7 @@
 import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { Card, Text, Title } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import { FiPackage } from "react-icons/fi";
 import useSWR, { mutate } from "swr";
 import { ModelOption, ModelSelector } from "./ModelSelector";
@@ -22,6 +22,7 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { Connector, ConnectorIndexingStatus } from "@/lib/types";
 import Link from "next/link";
 import { CustomModelForm } from "./CustomModelForm";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Main() {
   const [tentativeNewEmbeddingModel, setTentativeNewEmbeddingModel] =
@@ -158,10 +159,10 @@ function Main() {
               To complete the initial setup, let&apos;s add a connector!
               <br />
               <br />
-              Connectors are the way that enMedD CHP gets data from your
+              Connectors are the way that enMedD AI gets data from your
               organization&apos;s various data sources. Once setup, we&apos;ll
-              automatically sync data from your apps and docs into enMedD CHP,
-              so you can search all through all of them in one place.
+              automatically sync data from your apps and docs into enMedD AI, so
+              you can search all through all of them in one place.
             </div>
             <div className="flex">
               <Link className="mx-auto mt-2 w-fit" href="/admin/add-connector">
@@ -196,7 +197,7 @@ function Main() {
 
       <Text>
         Embedding models are used to generate embeddings for your documents,
-        which then power enMedD CHP&apos;s search.
+        which then power enMedD AI&apos;s search.
       </Text>
 
       {currentModel ? (
@@ -276,14 +277,16 @@ function Main() {
               </a>
               .
               <br />
-              <b>NOTE:</b> not all models listed will work with enMedD CHP,
-              since some have unique interfaces or special requirements. If in
-              doubt, reach out to the enMedD CHP team.
+              <b>NOTE:</b> not all models listed will work with enMedD AI, since
+              some have unique interfaces or special requirements. If in doubt,
+              reach out to the enMedD AI team.
             </Text>
 
             <div className="flex w-full">
               <Card className="mx-auto mt-4 2xl:w-4/6">
-                <CustomModelForm onSubmit={onSelect} />
+                <CardContent>
+                  <CustomModelForm onSubmit={onSelect} />
+                </CardContent>
               </Card>
             </div>
           </div>
