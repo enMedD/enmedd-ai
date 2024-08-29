@@ -6,6 +6,7 @@
 - Connectors to all common workplace tools like Google Drive, Confluence, etc.
 
 ## Additional Benefits
+
 - User Authentication with document level access management.
 - Best in class Hybrid Search across all sources (BM-25 + prefix aware embedding models).
 - Admin Dashboard to configure connectors, document-sets, access, etc.
@@ -31,5 +32,3 @@ Efficiently pulls the latest changes from:
 - Sharepoint
 - Teams
 - Salesforce
-
-
