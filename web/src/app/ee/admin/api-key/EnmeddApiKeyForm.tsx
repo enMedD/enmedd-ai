@@ -13,7 +13,7 @@ interface ApiKeyFormProps {
   apiKey?: APIKey;
 }
 
-export const DanswerApiKeyForm = ({
+export const EnmeddApiKeyForm = ({
   onClose,
   setPopup,
   onCreateApiKey,
