@@ -17,14 +17,14 @@ class ToolInfo(TypedDict):
 
 
 # TODO: replace class name
-class DanswerChatModelOut(BaseModel):
+class ChatModelOut(BaseModel):
     model_raw: str
     action: str
     action_input: str
 
 
 def call_tool(
-    model_actions: DanswerChatModelOut,
+    model_actions: ChatModelOut,
 ) -> str:
     raise NotImplementedError("There are no additional tool integrations right now")
 
