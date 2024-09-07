@@ -1,27 +1,33 @@
 "use client";
 
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { runConnector } from "@/lib/connector";
-import { Button, Divider, Text } from "@tremor/react";
-import { useRouter } from "next/navigation";
+import { Divider, Text } from "@tremor/react";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 function ReIndexPopup({
   connectorId,
   credentialId,
   ccPairId,
-  setPopup,
   hide,
 }: {
   connectorId: number;
   credentialId: number;
   ccPairId: number;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   hide: () => void;
 }) {
+  const { toast } = useToast();
   async function triggerIndexing(fromBeginning: boolean) {
     const errorMsg = await runConnector(
       connectorId,
@@ -29,14 +35,16 @@ function ReIndexPopup({
       fromBeginning
     );
     if (errorMsg) {
-      setPopup({
-        message: errorMsg,
-        type: "error",
+      toast({
+        title: "Error",
+        description: errorMsg,
+        variant: "destructive",
       });
     } else {
-      setPopup({
-        message: "Triggered connector run",
-        type: "success",
+      toast({
+        title: "Success",
+        description: "Triggered connector run",
+        variant: "success",
       });
     }
     mutate(buildCCPairInfoUrl(ccPairId));
@@ -47,8 +55,6 @@ function ReIndexPopup({
       <div>
         <Button
           className="ml-auto"
-          color="green"
-          size="xs"
           onClick={() => {
             triggerIndexing(false);
             hide();
@@ -66,8 +72,6 @@ function ReIndexPopup({
 
         <Button
           className="ml-auto"
-          color="green"
-          size="xs"
           onClick={() => {
             triggerIndexing(true);
             hide();
@@ -101,7 +105,6 @@ export function ReIndexButton({
   credentialId: number;
   isDisabled: boolean;
 }) {
-  const { popup, setPopup } = usePopup();
   const [reIndexPopupVisible, setReIndexPopupVisible] = useState(false);
 
   return (
@@ -111,27 +114,29 @@ export function ReIndexButton({
           connectorId={connectorId}
           credentialId={credentialId}
           ccPairId={ccPairId}
-          setPopup={setPopup}
           hide={() => setReIndexPopupVisible(false)}
         />
       )}
-      {popup}
-      <Button
-        className="ml-auto"
-        color="green"
-        size="xs"
-        onClick={() => {
-          setReIndexPopupVisible(true);
-        }}
-        disabled={isDisabled}
-        tooltip={
-          isDisabled
-            ? "Connector must be active in order to run indexing"
-            : undefined
-        }
-      >
-        Run Indexing
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="ml-auto"
+              onClick={() => {
+                setReIndexPopupVisible(true);
+              }}
+              disabled={isDisabled}
+            >
+              Run Indexing
+            </Button>
+          </TooltipTrigger>
+          {isDisabled ? (
+            <TooltipContent>
+              Connector must be active in order to run indexing
+            </TooltipContent>
+          ) : undefined}
+        </Tooltip>
+      </TooltipProvider>
     </>
   );
 }

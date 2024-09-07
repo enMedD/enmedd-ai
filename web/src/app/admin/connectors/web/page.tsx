@@ -20,7 +20,9 @@ import { ConnectorIndexingStatus, WebConfig } from "@/lib/types";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Card, Title } from "@tremor/react";
+import { Title } from "@tremor/react";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
 
 const SCRAPE_TYPE_TO_PRETTY_NAME = {
   recursive: "Recursive",
@@ -47,84 +49,85 @@ export default function Web() {
     ) ?? [];
 
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
 
       <AdminPageTitle icon={<GlobeIcon size={32} />} title="Web" />
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
-        Step 1: Specify which websites to index
-      </Title>
-      <p className="text-sm mb-2">
+      <h3 className="font-semibold">Step 1: Specify which websites to index</h3>
+      <p className="text-sm pb-6">
         We re-fetch the latest state of the website once a day.
       </p>
       <Card>
-        <ConnectorForm<WebConfig>
-          nameBuilder={(values) => `WebConnector-${values.base_url}`}
-          ccPairNameBuilder={(values) => values.base_url}
-          // Since there is no "real" credential associated with a web connector
-          // we create a dummy one here so that we can associate the CC Pair with a
-          // user. This is needed since the user for a CC Pair is found via the credential
-          // associated with it.
-          shouldCreateEmptyCredentialForConnector={true}
-          source="web"
-          inputType="load_state"
-          formBody={
-            <>
-              <TextFormField
-                name="base_url"
-                label="URL to Index:"
-                autoCompleteDisabled={false}
-              />
-              <div className="w-full">
-                <SelectorFormField
-                  name="web_connector_type"
-                  label="Scrape Method:"
-                  options={[
-                    {
-                      name: "Recursive",
-                      value: "recursive",
-                      description:
-                        "Recursively index all pages that share the same base URL.",
-                    },
-                    {
-                      name: "Single Page",
-                      value: "single",
-                      description: "Index only the specified page.",
-                    },
-                    {
-                      name: "Sitemap",
-                      value: "sitemap",
-                      description:
-                        "Assumes the URL to Index points to a Sitemap. Will try and index all pages that are a mentioned in the sitemap.",
-                    },
-                  ]}
+        <CardContent>
+          <ConnectorForm<WebConfig>
+            nameBuilder={(values) => `WebConnector-${values.base_url}`}
+            ccPairNameBuilder={(values) => values.base_url}
+            // Since there is no "real" credential associated with a web connector
+            // we create a dummy one here so that we can associate the CC Pair with a
+            // user. This is needed since the user for a CC Pair is found via the credential
+            // associated with it.
+            shouldCreateEmptyCredentialForConnector={true}
+            source="web"
+            inputType="load_state"
+            formBody={
+              <>
+                <TextFormField
+                  name="base_url"
+                  label="URL to Index:"
+                  autoCompleteDisabled={false}
                 />
-              </div>
-            </>
-          }
-          validationSchema={Yup.object().shape({
-            base_url: Yup.string().required(
-              "Please enter the website URL to scrape e.g. https://docs.chp.dev/"
-            ),
-            web_connector_type: Yup.string()
-              .oneOf(["recursive", "single", "sitemap"])
-              .optional(),
-          })}
-          initialValues={{
-            base_url: "",
-            web_connector_type: undefined,
-          }}
-          refreshFreq={60 * 60 * 24} // 1 day
-          pruneFreq={0} // Don't prune
-        />
+                <div className="w-full">
+                  <SelectorFormField
+                    name="web_connector_type"
+                    label="Scrape Method:"
+                    options={[
+                      {
+                        name: "Recursive",
+                        value: "recursive",
+                        description:
+                          "Recursively index all pages that share the same base URL.",
+                      },
+                      {
+                        name: "Single Page",
+                        value: "single",
+                        description: "Index only the specified page.",
+                      },
+                      {
+                        name: "Sitemap",
+                        value: "sitemap",
+                        description:
+                          "Assumes the URL to Index points to a Sitemap. Will try and index all pages that are a mentioned in the sitemap.",
+                      },
+                    ]}
+                  />
+                </div>
+              </>
+            }
+            validationSchema={Yup.object().shape({
+              base_url: Yup.string().required(
+                "Please enter the website URL to scrape e.g. https://docs.chp.dev/"
+              ),
+              web_connector_type: Yup.string()
+                .oneOf(["recursive", "single", "sitemap"])
+                .optional(),
+            })}
+            initialValues={{
+              base_url: "",
+              web_connector_type: undefined,
+            }}
+            refreshFreq={60 * 60 * 24} // 1 day
+            pruneFreq={0} // Don't prune
+          />
+        </CardContent>
       </Card>
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <h3 className="pb-6 pt-10 ml-auto mr-auto font-semibold">
         Already Indexed Websites
-      </Title>
+      </h3>
       {isConnectorIndexingStatusesLoading ? (
         <LoadingAnimation text="Loading" />
       ) : connectorIndexingStatusesError || !connectorIndexingStatuses ? (

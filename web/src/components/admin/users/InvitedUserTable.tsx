@@ -1,24 +1,23 @@
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { HidableSection } from "@/app/admin/assistants/HidableSection";
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-  Button,
-} from "@tremor/react";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
 import CenteredPageSelector from "./CenteredPageSelector";
 import { type PageSelectorProps } from "@/components/PageSelector";
 import useSWR from "swr";
 import { type User, UserStatus } from "@/lib/types";
 import useSWRMutation from "swr/mutation";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   users: Array<User>;
-  setPopup: (spec: PopupSpec) => void;
   mutate: () => void;
 }
 
@@ -37,7 +36,10 @@ const RemoveUserButton = ({
     { onSuccess, onError }
   );
   return (
-    <Button onClick={() => trigger({ user_email: user.email })}>
+    <Button
+      variant="outline"
+      onClick={() => trigger({ user_email: user.email })}
+    >
       Uninivite User
     </Button>
   );
@@ -45,39 +47,41 @@ const RemoveUserButton = ({
 
 const InvitedUserTable = ({
   users,
-  setPopup,
   currentPage,
   totalPages,
   onPageChange,
   mutate,
 }: Props & PageSelectorProps) => {
+  const { toast } = useToast();
   if (!users.length) return null;
 
   const onRemovalSuccess = () => {
     mutate();
-    setPopup({
-      message: "User uninvited!",
-      type: "success",
+    toast({
+      title: "Success",
+      description: "User uninvited!",
+      variant: "success",
     });
   };
   const onRemovalError = (errorMsg: string) => {
-    setPopup({
-      message: `Unable to uninvite user - ${errorMsg}`,
-      type: "error",
+    toast({
+      title: "Error",
+      description: `Unable to uninvite user - ${errorMsg}`,
+      variant: "destructive",
     });
   };
 
   return (
     <>
-      <Table className="overflow-visible">
-        <TableHead>
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableHeaderCell>Email</TableHeaderCell>
-            <TableHeaderCell>
+            <TableHead>Email</TableHead>
+            <TableHead>
               <div className="flex justify-end">Actions</div>
-            </TableHeaderCell>
+            </TableHead>
           </TableRow>
-        </TableHead>
+        </TableHeader>
         <TableBody>
           {users.map((user) => (
             <TableRow key={user.email}>

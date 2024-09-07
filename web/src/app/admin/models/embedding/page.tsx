@@ -3,7 +3,7 @@
 import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { Button, Card, Text, Title } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import { FiPackage } from "react-icons/fi";
 import useSWR, { mutate } from "swr";
 import { ModelOption, ModelSelector } from "./ModelSelector";
@@ -11,6 +11,7 @@ import { useState } from "react";
 import { ModelSelectionConfirmaionModal } from "./ModelSelectionConfirmation";
 import { ReindexingProgressTable } from "./ReindexingProgressTable";
 import { Modal } from "@/components/Modal";
+import { Button } from "@/components/ui/button";
 import {
   AVAILABLE_MODELS,
   EmbeddingModelDescriptor,
@@ -21,6 +22,7 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { Connector, ConnectorIndexingStatus } from "@/lib/types";
 import Link from "next/link";
 import { CustomModelForm } from "./CustomModelForm";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Main() {
   const [tentativeNewEmbeddingModel, setTentativeNewEmbeddingModel] =
@@ -132,20 +134,6 @@ function Main() {
 
   return (
     <div>
-      {tentativeNewEmbeddingModel && (
-        <ModelSelectionConfirmaionModal
-          selectedModel={tentativeNewEmbeddingModel}
-          isCustom={
-            AVAILABLE_MODELS.find(
-              (model) =>
-                model.model_name === tentativeNewEmbeddingModel.model_name
-            ) === undefined
-          }
-          onConfirm={() => onConfirm(tentativeNewEmbeddingModel)}
-          onCancel={() => setTentativeNewEmbeddingModel(null)}
-        />
-      )}
-
       {showAddConnectorPopup && (
         <Modal>
           <div>
@@ -157,16 +145,14 @@ function Main() {
               To complete the initial setup, let&apos;s add a connector!
               <br />
               <br />
-              Connectors are the way that enMedD CHP gets data from your
+              Connectors are the way that enMedD AI gets data from your
               organization&apos;s various data sources. Once setup, we&apos;ll
-              automatically sync data from your apps and docs into enMedD CHP,
-              so you can search all through all of them in one place.
+              automatically sync data from your apps and docs into enMedD AI, so
+              you can search all through all of them in one place.
             </div>
             <div className="flex">
-              <Link className="mx-auto mt-2 w-fit" href="/admin/add-connector">
-                <Button className="mx-auto mt-3" size="xs">
-                  Add Connector
-                </Button>
+              <Link className="mx-auto mt-2 w-fit" href="/admin/data-sources">
+                <Button className="mx-auto mt-3">Add Connector</Button>
               </Link>
             </div>
           </div>
@@ -197,12 +183,14 @@ function Main() {
 
       <Text>
         Embedding models are used to generate embeddings for your documents,
-        which then power enMedD CHP&apos;s search.
+        which then power enMedD AI&apos;s search.
       </Text>
 
       {currentModel ? (
         <>
-          <Title className="mt-8 mb-2">Current Embedding Model</Title>
+          <h3 className="mt-8 font-semibold text-xl pb-4">
+            Current Embedding Model
+          </h3>
 
           <Text>
             <ModelOption model={currentModel} />
@@ -212,7 +200,9 @@ function Main() {
         newModelSelection &&
         (!connectors || !connectors.length) && (
           <>
-            <Title className="mt-8 mb-2">Current Embedding Model</Title>
+            <h3 className="mt-8 font-semibold text-xl pb-4">
+              Current Embedding Model
+            </h3>
 
             <Text>
               <ModelOption model={newModelSelection} />
@@ -226,9 +216,11 @@ function Main() {
           <div>
             {currentModel ? (
               <>
-                <Title className="mt-8">Switch your Embedding Model</Title>
+                <h3 className="mt-8 font-semibold text-xl pb-4">
+                  Switch your Embedding Model
+                </h3>
 
-                <Text className="mb-4">
+                <Text className="pb-4">
                   If the current model is not working for you, you can update
                   your model choice below. Note that this will require a
                   complete re-indexing of all your documents across every
@@ -240,7 +232,9 @@ function Main() {
               </>
             ) : (
               <>
-                <Title className="mt-8 mb-4">Choose your Embedding Model</Title>
+                <h3 className="mt-8 font-semibold text-xl pb-4">
+                  Choose your Embedding Model
+                </h3>
               </>
             )}
 
@@ -255,6 +249,20 @@ function Main() {
               )}
               setSelectedModel={onSelect}
             />
+
+            {tentativeNewEmbeddingModel && (
+              <ModelSelectionConfirmaionModal
+                selectedModel={tentativeNewEmbeddingModel}
+                isCustom={
+                  AVAILABLE_MODELS.find(
+                    (model) =>
+                      model.model_name === tentativeNewEmbeddingModel.model_name
+                  ) === undefined
+                }
+                onConfirm={() => onConfirm(tentativeNewEmbeddingModel)}
+                onCancel={() => setTentativeNewEmbeddingModel(null)}
+              />
+            )}
 
             <Text className="mt-6">
               Alternatively, (if you know what you&apos;re doing) you can
@@ -277,14 +285,16 @@ function Main() {
               </a>
               .
               <br />
-              <b>NOTE:</b> not all models listed will work with enMedD CHP,
-              since some have unique interfaces or special requirements. If in
-              doubt, reach out to the enMedD CHP team.
+              <b>NOTE:</b> not all models listed will work with enMedD AI, since
+              some have unique interfaces or special requirements. If in doubt,
+              reach out to the enMedD AI team.
             </Text>
 
             <div className="flex w-full">
               <Card className="mx-auto mt-4 2xl:w-4/6">
-                <CustomModelForm onSubmit={onSelect} />
+                <CardContent>
+                  <CustomModelForm onSubmit={onSelect} />
+                </CardContent>
               </Card>
             </div>
           </div>
@@ -299,12 +309,7 @@ function Main() {
                 </div>
                 <ModelOption model={newModelSelection} />
 
-                <Button
-                  color="red"
-                  size="xs"
-                  className="mt-4"
-                  onClick={() => setIsCancelling(true)}
-                >
+                <Button className="mt-4" onClick={() => setIsCancelling(true)}>
                   Cancel
                 </Button>
 
@@ -335,7 +340,7 @@ function Main() {
 
 function Page() {
   return (
-    <div className="container mx-auto">
+    <div className="py-24 md:py-32 lg:pt-16">
       <AdminPageTitle
         title="Embedding"
         icon={<FiPackage size={32} className="my-auto" />}

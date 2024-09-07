@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Folder } from "./interfaces";
-import { ChatSessionDisplay } from "../sessionSidebar/ChatSessionDisplay"; // Ensure this is correctly imported
-import {
-  FiChevronDown,
-  FiChevronRight,
-  FiFolder,
-  FiEdit2,
-  FiCheck,
-  FiX,
-  FiTrash, // Import the trash icon
-} from "react-icons/fi";
+import { ChatSessionDisplay } from "../sessionSidebar/ChatSessionDisplay";
 import { BasicSelectable } from "@/components/BasicClickable";
 import {
   addChatToFolder,
   deleteFolder,
   updateFolderName,
 } from "./FolderManagement";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { useRouter } from "next/navigation";
 import { CHAT_SESSION_ID_KEY } from "@/lib/drag/constants";
 import Cookies from "js-cookie";
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder as FolderIcon,
+  Pencil,
+  Trash,
+  Check,
+  X,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const FolderItem = ({
   folder,
@@ -39,7 +39,7 @@ const FolderItem = ({
   );
   const [isHovering, setIsHovering] = useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
-  const { setPopup } = usePopup();
+  const { toast } = useToast();
   const router = useRouter();
 
   const toggleFolderExpansion = () => {
@@ -83,7 +83,11 @@ const FolderItem = ({
       setIsEditing(false);
       router.refresh(); // Refresh values to update the sidebar
     } catch (error) {
-      setPopup({ message: "Failed to save folder name", type: "error" });
+      toast({
+        title: "Error",
+        description: "Failed to save folder name",
+        variant: "destructive",
+      });
     }
   };
 
@@ -95,7 +99,11 @@ const FolderItem = ({
       await deleteFolder(folder.folder_id);
       router.refresh(); // Refresh values to update the sidebar
     } catch (error) {
-      setPopup({ message: "Failed to delete folder", type: "error" });
+      toast({
+        title: "Error",
+        description: "Failed to delete folder",
+        variant: "destructive",
+      });
     }
   };
 
@@ -110,9 +118,10 @@ const FolderItem = ({
       await addChatToFolder(folder.folder_id, chatSessionId);
       router.refresh(); // Refresh to show the updated folder contents
     } catch (error) {
-      setPopup({
-        message: "Failed to add chat session to folder",
-        type: "error",
+      toast({
+        title: "Error",
+        description: "Failed to add chat session to folder",
+        variant: "destructive",
       });
     }
   };
@@ -130,7 +139,7 @@ const FolderItem = ({
       }}
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
-      className={`transition duration-300 ease-in-out rounded-md ${
+      className={`transition duration-300 ease-in-out rounded-xs ${
         isDragOver ? "bg-hover" : ""
       }`}
     >
@@ -138,18 +147,22 @@ const FolderItem = ({
         <div
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
+          className="w-full"
         >
-          <div onClick={toggleFolderExpansion} className="cursor-pointer">
-            <div className="text-sm text-medium flex items-center justify-start w-full">
+          <div
+            onClick={toggleFolderExpansion}
+            className="cursor-pointer w-full"
+          >
+            <div className="text-sm flex items-center justify-start w-full">
               <div className="mr-2">
                 {isExpanded ? (
-                  <FiChevronDown size={16} />
+                  <ChevronDown size={16} />
                 ) : (
-                  <FiChevronRight size={16} />
+                  <ChevronRight size={16} />
                 )}
               </div>
               <div>
-                <FiFolder size={16} className="mr-2" />
+                <FolderIcon size={16} className="mr-3" />
               </div>
               {isEditing ? (
                 <input
@@ -160,7 +173,7 @@ const FolderItem = ({
                   className="text-sm px-1 flex-1 min-w-0 -my-px mr-2"
                 />
               ) : (
-                <div className="flex-1 min-w-0">
+                <div className="break-all overflow-hidden whitespace-nowrap mr-3 text-ellipsis">
                   {editedFolderName || folder.folder_name}
                 </div>
               )}
@@ -168,15 +181,15 @@ const FolderItem = ({
                 <div className="flex ml-auto my-auto">
                   <div
                     onClick={handleEditFolderName}
-                    className="hover:bg-black/10 p-1 -m-1 rounded"
+                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded"
                   >
-                    <FiEdit2 size={16} />
+                    <Pencil size={16} />
                   </div>
                   <div
                     onClick={deleteFolderHandler}
-                    className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
+                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded ml-2"
                   >
-                    <FiTrash size={16} />
+                    <Trash size={16} />
                   </div>
                 </div>
               )}
@@ -184,15 +197,15 @@ const FolderItem = ({
                 <div className="flex ml-auto my-auto">
                   <div
                     onClick={saveFolderName}
-                    className="hover:bg-black/10 p-1 -m-1 rounded"
+                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded"
                   >
-                    <FiCheck size={16} />
+                    <Check size={16} />
                   </div>
                   <div
                     onClick={() => setIsEditing(false)}
-                    className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
+                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded ml-2"
                   >
-                    <FiX size={16} />
+                    <X size={16} />
                   </div>
                 </div>
               )}

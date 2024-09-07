@@ -72,10 +72,10 @@ export const ConnectorTitle = ({
     }
   }
 
-  const mainSectionClassName = "text-blue-500 flex w-fit";
+  const mainSectionClassName = "flex w-fit";
   const mainDisplay = (
     <>
-      {sourceMetadata.icon({ size: 20 })}
+      {sourceMetadata.icon({ size: 14 })}
       <div className="ml-1 my-auto">
         {ccPairName || sourceMetadata.displayName}
       </div>

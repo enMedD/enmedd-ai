@@ -1,15 +1,5 @@
 "use client";
 
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-  Title,
-  Text,
-} from "@tremor/react";
 import { DeleteButton } from "@/components/DeleteButton";
 import { deleteTokenRateLimit, updateTokenRateLimit } from "./lib";
 import { ThreeDotsLoader } from "@/components/Loading";
@@ -17,6 +7,16 @@ import { TokenRateLimitDisplay } from "./types";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR, { mutate } from "swr";
 import { CustomCheckbox } from "@/components/CustomCheckbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 type TokenRateLimitTableArgs = {
   tokenRateLimits: TokenRateLimitDisplay[];
@@ -62,69 +62,66 @@ export const TokenRateLimitTable = ({
   if (tokenRateLimits.length === 0) {
     return (
       <div>
-        {!hideHeading && title && <Title>{title}</Title>}
-        {!hideHeading && description && (
-          <Text className="my-2">{description}</Text>
-        )}
-        <Text className={`${!hideHeading && "my-8"}`}>
-          No token rate limits set!
-        </Text>
+        {!hideHeading && title && <h3 className="font-semibold">{title}</h3>}
+        {!hideHeading && description && <p className="my-2">{description}</p>}
+        <p className={`${!hideHeading && "my-8"}`}>No token rate limits set!</p>
       </div>
     );
   }
 
   return (
     <div>
-      {!hideHeading && title && <Title>{title}</Title>}
-      {!hideHeading && description && (
-        <Text className="my-2">{description}</Text>
-      )}
-      <Table className={`overflow-visible ${!hideHeading && "my-8"}`}>
-        <TableHead>
-          <TableRow>
-            <TableHeaderCell>Enabled</TableHeaderCell>
-            {shouldRenderGroupName() && (
-              <TableHeaderCell>Group Name</TableHeaderCell>
-            )}
-            <TableHeaderCell>Time Window (Hours)</TableHeaderCell>
-            <TableHeaderCell>Token Budget (Thousands)</TableHeaderCell>
-            <TableHeaderCell>Delete</TableHeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {tokenRateLimits.map((tokenRateLimit) => {
-            return (
-              <TableRow key={tokenRateLimit.token_id}>
-                <TableCell>
-                  <div
-                    onClick={() => handleEnabledChange(tokenRateLimit.token_id)}
-                    className="px-1 py-0.5 hover:bg-hover-light rounded flex cursor-pointer select-none w-24 flex"
-                  >
-                    <div className="mx-auto flex">
-                      <CustomCheckbox checked={tokenRateLimit.enabled} />
-                      <p className="ml-2">
-                        {tokenRateLimit.enabled ? "Enabled" : "Disabled"}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-                {shouldRenderGroupName() && (
-                  <TableCell className="font-bold text-emphasis">
-                    {tokenRateLimit.group_name}
-                  </TableCell>
-                )}
-                <TableCell>{tokenRateLimit.period_hours}</TableCell>
-                <TableCell>{tokenRateLimit.token_budget}</TableCell>
-                <TableCell>
-                  <DeleteButton
-                    onClick={() => handleDelete(tokenRateLimit.token_id)}
-                  />
-                </TableCell>
+      {!hideHeading && title && <h3 className="font-semibold">{title}</h3>}
+      {!hideHeading && description && <p className="my-2">{description}</p>}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Enabled</TableHead>
+                {shouldRenderGroupName() && <TableHead>Group Name</TableHead>}
+                <TableHead>Time Window (Hours)</TableHead>
+                <TableHead>Token Budget (Thousands)</TableHead>
+                <TableHead>Delete</TableHead>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {tokenRateLimits.map((tokenRateLimit) => {
+                return (
+                  <TableRow key={tokenRateLimit.token_id}>
+                    <TableCell>
+                      <Button
+                        onClick={() =>
+                          handleEnabledChange(tokenRateLimit.token_id)
+                        }
+                        variant="ghost"
+                        className="w-[120px]"
+                      >
+                        <CustomCheckbox checked={tokenRateLimit.enabled} />
+                        <p className="ml-2">
+                          {tokenRateLimit.enabled ? "Enabled" : "Disabled"}
+                        </p>
+                      </Button>
+                    </TableCell>
+                    {shouldRenderGroupName() && (
+                      <TableCell className="font-bold ">
+                        {tokenRateLimit.group_name}
+                      </TableCell>
+                    )}
+                    <TableCell>{tokenRateLimit.period_hours}</TableCell>
+                    <TableCell>{tokenRateLimit.token_budget}</TableCell>
+                    <TableCell>
+                      <DeleteButton
+                        onClick={() => handleDelete(tokenRateLimit.token_id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -149,7 +146,7 @@ export const GenericTokenRateLimitTable = ({
   }
 
   if (!isLoading && error) {
-    return <Text>Failed to load token rate limits</Text>;
+    return <p>Failed to load token rate limits</p>;
   }
 
   let processedData = data;

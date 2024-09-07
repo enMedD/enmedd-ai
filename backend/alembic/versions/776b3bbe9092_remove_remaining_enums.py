@@ -8,9 +8,9 @@ Create Date: 2024-03-22 21:34:27.629444
 from alembic import op
 import sqlalchemy as sa
 
-from danswer.db.models import IndexModelStatus
-from danswer.search.enums import RecencyBiasSetting
-from danswer.search.models import SearchType
+from enmedd.db.models import IndexModelStatus
+from enmedd.search.enums import RecencyBiasSetting
+from enmedd.search.models import SearchType
 
 # revision identifiers, used by Alembic.
 revision = "776b3bbe9092"
@@ -21,14 +21,14 @@ depends_on: None = None
 
 def upgrade() -> None:
     op.alter_column(
-        "persona",
+        "assistant",
         "search_type",
         type_=sa.String,
         existing_type=sa.Enum(SearchType, native_enum=False),
         existing_nullable=False,
     )
     op.alter_column(
-        "persona",
+        "assistant",
         "recency_bias",
         type_=sa.String,
         existing_type=sa.Enum(RecencyBiasSetting, native_enum=False),
@@ -49,14 +49,14 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.alter_column(
-        "persona",
+        "assistant",
         "search_type",
         type_=sa.Enum(SearchType, native_enum=False),
         existing_type=sa.String(length=50),
         existing_nullable=False,
     )
     op.alter_column(
-        "persona",
+        "assistant",
         "recency_bias",
         type_=sa.Enum(RecencyBiasSetting, native_enum=False),
         existing_type=sa.String(length=50),

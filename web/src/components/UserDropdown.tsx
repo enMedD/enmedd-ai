@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useContext } from "react";
-import { FiSearch, FiMessageSquare, FiTool, FiLogOut } from "react-icons/fi";
+import { FiSearch, FiMessageSquare, FiTool } from "react-icons/fi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User } from "@/lib/types";
+import { User as UserTypes } from "@/lib/types";
 import { checkUserIsNoAuthUser, logout } from "@/lib/user";
 import { BasicSelectable } from "@/components/BasicClickable";
 import { Popover } from "./popover/Popover";
@@ -12,12 +12,13 @@ import { FaBrain } from "react-icons/fa";
 import { LOGOUT_DISABLED } from "@/lib/constants";
 import { Settings } from "@/app/admin/settings/interfaces";
 import { SettingsContext } from "./settings/SettingsProvider";
+import { LogOut, User } from "lucide-react";
 
 export function UserDropdown({
   user,
   hideChatAndSearch,
 }: {
-  user: User | null;
+  user: UserTypes | null;
   hideChatAndSearch?: boolean;
 }) {
   const [userInfoVisible, setUserInfoVisible] = useState(false);
@@ -54,8 +55,12 @@ export function UserDropdown({
               onClick={() => setUserInfoVisible(!userInfoVisible)}
               className="flex cursor-pointer"
             >
-              <div className="px-2 my-auto text-base font-normal bg-blue-400 rounded-lg hover:bg-blue-400-hover">
-                {user && user.email ? user.email[0].toUpperCase() : "A"}
+              <div className="px-2 my-auto text-base font-normal bg-blue-400 rounded-regular hover:bg-blue-400-hover">
+                {user && user.email ? (
+                  user.email[0].toUpperCase()
+                ) : (
+                  <User size={25} className="mx-auto" />
+                )}
               </div>
             </div>
           </BasicSelectable>
@@ -68,7 +73,7 @@ export function UserDropdown({
                 border 
                 border-border 
                 bg-background
-                rounded-lg
+                rounded-regular
                 shadow-lg 
                 flex 
                 flex-col 
@@ -131,9 +136,13 @@ export function UserDropdown({
                 )}
                 <div
                   onClick={handleLogout}
-                  className="flex px-4 py-3 mt-1 cursor-pointer hover:bg-hover-light"
+                  className="mt-1 flex py-3 px-4 cursor-pointer hover:bg-destructive hover:text-inverted rounded-regular"
                 >
-                  <FiLogOut className="my-auto mr-2 text-lg" />
+                  <LogOut
+                    className="my-auto mr-3"
+                    size={24}
+                    strokeWidth={1.5}
+                  />
                   Log out
                 </div>
               </>

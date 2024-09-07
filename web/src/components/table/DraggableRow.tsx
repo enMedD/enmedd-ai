@@ -1,8 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { TableCell, TableRow } from "@tremor/react";
 import { CSS } from "@dnd-kit/utilities";
 import { DragHandle } from "./DragHandle";
 import { Row } from "./interfaces";
+import { TableCell, TableRow } from "../ui/table";
 
 export function DraggableRow({
   row,
@@ -40,7 +40,9 @@ export function DraggableRow({
         />
       </TableCell>
       {row.cells.map((column, ind) => (
-        <TableCell key={ind}>{column}</TableCell>
+        <TableCell key={ind} className={ind === 1 ? "min-w-72 md:min-w-0" : ""}>
+          {column}
+        </TableCell>
       ))}
     </TableRow>
   );

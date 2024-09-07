@@ -1,12 +1,13 @@
 import { ChatSidebar } from "@/app/chat/sessionSidebar/ChatSidebar";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { UserDropdown } from "@/components/UserDropdown";
-import { ChatProvider } from "@/components/context/ChatContext";
+import { ChatProvider } from "@/context/ChatContext";
 import { WelcomeModal } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
 import { fetchChatData } from "@/lib/chat/fetchChatData";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
 import { AssistantsGallery } from "./AssistantsGallery";
+import { AssistantsBars } from "../mine/AssistantsBars";
 
 export default async function GalleryPage({
   searchParams,
@@ -26,7 +27,7 @@ export default async function GalleryPage({
     chatSessions,
     availableSources,
     documentSets,
-    personas,
+    assistants,
     tags,
     llmProviders,
     folders,
@@ -46,34 +47,28 @@ export default async function GalleryPage({
           chatSessions,
           availableSources,
           availableDocumentSets: documentSets,
-          availablePersonas: personas,
+          availableAssistants: assistants,
           availableTags: tags,
           llmProviders,
           folders,
           openedFolders,
         }}
       >
-        <div className="relative flex h-screen overflow-x-hidden bg-background text-default">
-          <ChatSidebar
-            existingChats={chatSessions}
-            currentChatSession={null}
-            folders={folders}
-            openedFolders={openedFolders}
-            openSidebar={false}
-          />
+        <div className="relative flex h-screen overflow-x-hidden bg-background">
+          <AssistantsBars user={user}>
+            <ChatSidebar
+              existingChats={chatSessions}
+              currentChatSession={null}
+              folders={folders}
+              openedFolders={openedFolders}
+              isAssistant
+            />
+          </AssistantsBars>
 
           <div
-            className={`w-full h-full flex flex-col overflow-y-auto overflow-x-hidden relative`}
+            className={`w-full h-full flex flex-col overflow-y-auto overflow-x-hidden relative pt-24 px-4 2xl:pt-10`}
           >
-            <div className="sticky top-0 z-10 flex w-full left-80 bg-background h-fit">
-              <div className="my-auto mt-4 ml-auto mr-8">
-                <UserDropdown user={user} />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <AssistantsGallery assistants={personas} user={user} />
-            </div>
+            <AssistantsGallery assistants={assistants} user={user} />
           </div>
         </div>
       </ChatProvider>

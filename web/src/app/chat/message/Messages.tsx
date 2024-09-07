@@ -1,20 +1,9 @@
 "use client";
 
-import {
-  FiCpu,
-  FiImage,
-  FiThumbsDown,
-  FiThumbsUp,
-  FiUser,
-  FiEdit2,
-  FiChevronRight,
-  FiChevronLeft,
-  FiTool,
-} from "react-icons/fi";
 import { FeedbackType } from "../types";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { DanswerDocument } from "@/lib/search/interfaces";
+import { EnmeddDocument } from "@/lib/search/interfaces";
 import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
 import { SourceIcon } from "@/components/SourceIcon";
 import { ThreeDots } from "react-loader-spinner";
@@ -27,7 +16,6 @@ import {
   SEARCH_TOOL_NAME,
 } from "../tools/constants";
 import { ToolRunDisplay } from "../tools/ToolRunningAnimation";
-import { Hoverable } from "@/components/Hoverable";
 import { DocumentPreview } from "../files/documents/DocumentPreview";
 import { InMessageImage } from "../files/images/InMessageImage";
 import { CodeBlock } from "./CodeBlock";
@@ -38,9 +26,12 @@ import Prism from "prismjs";
 
 import "prismjs/themes/prism-tomorrow.css";
 import "./custom-code-styles.css";
-import { Persona } from "@/app/admin/assistants/interfaces";
-import { Button } from "@tremor/react";
+import { Assistant } from "@/app/admin/assistants/interfaces";
+
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TOOLS_WITH_CUSTOM_HANDLING = [
   SEARCH_TOOL_NAME,
@@ -88,7 +79,7 @@ export const AIMessage = ({
   content,
   files,
   query,
-  personaName,
+  assistantName,
   citedDocuments,
   toolCall,
   isComplete,
@@ -99,16 +90,16 @@ export const AIMessage = ({
   handleSearchQueryEdit,
   handleForceSearch,
   retrievalDisabled,
-  currentPersona,
+  currentAssistant,
 }: {
-  alternativeAssistant?: Persona | null;
-  currentPersona: Persona;
+  alternativeAssistant?: Assistant | null;
+  currentAssistant: Assistant;
   messageId: number | null;
   content: string | JSX.Element;
   files?: FileDescriptor[];
   query?: string;
-  personaName?: string;
-  citedDocuments?: [string, DanswerDocument][] | null;
+  assistantName?: string;
+  citedDocuments?: [string, EnmeddDocument][] | null;
   toolCall?: ToolCallMetadata;
   isComplete?: boolean;
   hasDocs?: boolean;
@@ -152,32 +143,24 @@ export const AIMessage = ({
   const shouldShowLoader =
     !toolCall || (toolCall.tool_name === SEARCH_TOOL_NAME && !content);
   const defaultLoader = shouldShowLoader ? (
-    <div className="my-auto text-sm">
-      <ThreeDots
-        height="30"
-        width="50"
-        color="#3b82f6"
-        ariaLabel="grid-loading"
-        radius="12.5"
-        wrapperStyle={{}}
-        wrapperClass=""
-        visible={true}
-      />
+    <div className="my-auto text-sm flex flex-col gap-1">
+      <Skeleton className="h-5 w-full" />
+      <Skeleton className="h-5 w-full" />
     </div>
   ) : undefined;
 
   return (
-    <div className={"py-5 px-5 flex -mr-6 w-full"}>
-      <div className="relative mx-auto w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar">
-        <div className="ml-8">
+    <div className={"flex -mr-6 w-full pb-5"}>
+      <div className="w-full">
+        <div className="">
           <div className="flex">
             <AssistantIcon
-              size="small"
-              assistant={alternativeAssistant || currentPersona}
+              size="large"
+              assistant={alternativeAssistant || currentAssistant}
             />
 
-            <div className="my-auto ml-2 font-bold text-emphasis">
-              {personaName || "enMedD CHP"}
+            <div className="my-auto ml-2 font-bold text-inverted-inverted">
+              {assistantName || "enMedD AI"}
             </div>
 
             {query === undefined &&
@@ -197,7 +180,7 @@ export const AIMessage = ({
               )}
           </div>
 
-          <div className="mt-1 ml-8 break-words w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+          <div className="pl-1.5 md:pl-12 break-words w-full">
             {(!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME) && (
               <>
                 {query !== undefined &&
@@ -238,7 +221,7 @@ export const AIMessage = ({
                         ? `Used "${toolCall.tool_name}"`
                         : `Using "${toolCall.tool_name}"`
                     }
-                    toolLogo={<FiTool size={15} className="my-auto mr-1" />}
+                    toolLogo={<Wrench size={15} className="my-auto mr-1" />}
                     isRunning={!toolCall.tool_result || !content}
                   />
                 </div>
@@ -250,7 +233,7 @@ export const AIMessage = ({
                 <div className="my-2">
                   <ToolRunDisplay
                     toolName={`Generating images`}
-                    toolLogo={<FiImage size={15} className="my-auto mr-1" />}
+                    toolLogo={<ImageIcon size={15} className="my-auto mr-1" />}
                     isRunning={!toolCall.tool_result}
                   />
                 </div>
@@ -279,7 +262,7 @@ export const AIMessage = ({
                                 ? window.open(rest.href, "_blank")
                                 : undefined
                             }
-                            className="cursor-pointer text-link hover:text-link-hover"
+                            className="cursor-pointer text-primary hover:text-primary-foreground"
                             // href={rest.href}
                             // target="_blank"
                             // rel="noopener noreferrer"
@@ -292,7 +275,7 @@ export const AIMessage = ({
                         <CodeBlock {...props} content={content as string} />
                       ),
                       p: ({ node, ...props }) => (
-                        <p {...props} className="text-default" />
+                        <p {...props} className="ault mt-2.5" />
                       ),
                     }}
                     remarkPlugins={[remarkGfm]}
@@ -308,14 +291,14 @@ export const AIMessage = ({
               defaultLoader
             )}
             {citedDocuments && citedDocuments.length > 0 && (
-              <div className="mt-2">
-                <b className="text-sm text-emphasis">Sources:</b>
+              <div className="mt-2 flex flex-col gap-1">
+                <b className="text-sm text-inverted-inverted">Sources:</b>
                 <div className="flex flex-wrap gap-2">
                   {citedDocuments
                     .filter(([_, document]) => document.semantic_identifier)
                     .map(([citationKey, document], ind) => {
                       const display = (
-                        <div className="flex px-2 py-1 text-sm border rounded max-w-350 text-ellipsis border-border">
+                        <Badge variant="secondary">
                           <div className="my-auto mr-1">
                             <SourceIcon
                               sourceType={document.source_type}
@@ -323,7 +306,7 @@ export const AIMessage = ({
                             />
                           </div>
                           [{citationKey}] {document!.semantic_identifier}
-                        </div>
+                        </Badge>
                       );
                       if (document.link) {
                         return (
@@ -331,7 +314,7 @@ export const AIMessage = ({
                             key={document.document_id}
                             href={document.link}
                             target="_blank"
-                            className="cursor-pointer hover:bg-hover"
+                            className="cursor-pointer"
                           >
                             {display}
                           </a>
@@ -352,16 +335,22 @@ export const AIMessage = ({
             )}
           </div>
           {handleFeedback && (
-            <div className="flex flex-col md:flex-row gap-x-0.5 ml-8 mt-1.5">
+            <div className="flex flex-row gap-x-0.5 pl-1 md:pl-12 mt-1.5">
               <CopyButton content={content.toString()} />
-              <Hoverable
-                icon={FiThumbsUp}
+              <Button
+                variant="ghost"
+                size="smallIcon"
                 onClick={() => handleFeedback("like")}
-              />
-              <Hoverable
-                icon={FiThumbsDown}
+              >
+                <ThumbsUp size={16} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="smallIcon"
                 onClick={() => handleFeedback("dislike")}
-              />
+              >
+                <ThumbsDown size={16} />
+              </Button>
             </div>
           )}
         </div>
@@ -383,20 +372,39 @@ function MessageSwitcher({
 }) {
   return (
     <div className="flex items-center text-sm space-x-0.5">
-      <Hoverable
-        icon={FiChevronLeft}
+      <Button
+        variant="ghost"
+        size="smallIcon"
         onClick={currentPage === 1 ? undefined : handlePrevious}
-      />
-      <span className="select-none text-emphasis text-medium">
+      >
+        <ChevronLeft />
+      </Button>
+      <span className="select-none  text-medium">
         {currentPage} / {totalPages}
       </span>
-      <Hoverable
-        icon={FiChevronRight}
+      <Button
+        variant="ghost"
+        size="smallIcon"
         onClick={currentPage === totalPages ? undefined : handleNext}
-      />
+      >
+        <ChevronRight />
+      </Button>
     </div>
   );
 }
+
+import { Badge } from "@/components/ui/badge";
+import {
+  Pencil,
+  ThumbsDown,
+  ThumbsUp,
+  Wrench,
+  Image as ImageIcon,
+  ChevronLeft,
+  ChevronRight,
+  User,
+} from "lucide-react";
+import { User as UserTypes } from "@/lib/types";
 
 export const HumanMessage = ({
   content,
@@ -405,6 +413,7 @@ export const HumanMessage = ({
   otherMessagesCanSwitchTo,
   onEdit,
   onMessageSelection,
+  user,
 }: {
   content: string;
   files?: FileDescriptor[];
@@ -412,6 +421,7 @@ export const HumanMessage = ({
   otherMessagesCanSwitchTo?: number[];
   onEdit?: (editedContent: string) => void;
   onMessageSelection?: (messageId: number) => void;
+  user?: UserTypes | null;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -448,25 +458,30 @@ export const HumanMessage = ({
 
   return (
     <div
-      className="relative flex w-full pt-5 pb-1 -mr-6 lg:px-5"
+      className="relative flex w-full pb-5 -mr-6"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="w-full mx-auto 2xl:w-searchbar-sm 3xl:w-searchbar">
-        <div className="lg:ml-8">
+      <div className="w-full">
+        <div className="">
           <div className="flex">
-            <div className="p-1 bg-blue-400 rounded-lg h-fit">
-              <div className="text-inverted">
-                <FiUser size={16} className="mx-auto my-auto" />
-              </div>
+            <div className="flex items-center justify-center bg-background rounded-full min-h-[34px] min-w-[34px] max-h-[34px] max-w-[34px] aspect-square text-base font-normal border-2 border-gray-900 ault py-2 mx-1">
+              {/*  {user && user.email ? (
+                user.email[0].toUpperCase()
+              ) : (
+                <User size={25} className="mx-auto" />
+              )} */}
+
+              <User size={25} className="mx-auto" />
             </div>
 
-            <div className="my-auto ml-2 font-bold text-emphasis">You</div>
+            <div className="my-auto ml-2 font-bold text-inverted-inverted">
+              You
+            </div>
           </div>
-          <div className="flex flex-wrap mx-auto mt-1 ml-8 w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar-default">
-            <div className="break-words w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+          <div className="flex flex-wrap pt-4 pl-1.5 md:pl-12 w-full">
+            <div className="break-words w-full">
               <FileDisplay files={files || []} />
-
               {isEditing ? (
                 <div>
                   <div
@@ -477,24 +492,23 @@ export const HumanMessage = ({
                       flex-col
                       border 
                       border-border 
-                      rounded-lg 
-                      bg-background-emphasis 
+                      rounded-regular 
                       pb-2
                       [&:has(textarea:focus)]::ring-1
                       [&:has(textarea:focus)]::ring-black
                     `}
                   >
-                    <textarea
+                    <Textarea
                       ref={textareaRef}
                       className={`
                       m-0 
+                      focus-visible:!ring-0
+                      focus-visible:!ring-offset-0
                       w-full 
                       h-auto
                       shrink
                       border-0
-                      rounded-lg 
-                      overflow-y-hidden
-                      bg-background-emphasis 
+                      !rounded-regular 
                       whitespace-normal 
                       break-word
                       overscroll-contain
@@ -503,7 +517,6 @@ export const HumanMessage = ({
                       resize-none
                       pl-4
                       overflow-y-auto
-                      pr-12 
                       py-4`}
                       aria-multiline
                       role="textarea"
@@ -526,50 +539,49 @@ export const HumanMessage = ({
                       }}
                     />
                     <div className="flex justify-end gap-2 pr-4 mt-2">
-                      <button
-                        className={`
-                          w-fit 
-                          p-1 
-                          bg-accent 
-                          text-inverted 
-                          text-sm
-                          rounded-lg 
-                          hover:bg-accent-hover
-                        `}
-                        onClick={handleEditSubmit}
-                      >
-                        Submit
-                      </button>
-                      <button
-                        className={`
-                          w-fit 
-                          p-1 
-                          bg-hover
-                          bg-background-strong 
-                          text-sm
-                          rounded-lg
-                          hover:bg-hover-emphasis
-                        `}
+                      <Button
                         onClick={() => {
                           setEditedContent(content);
                           setIsEditing(false);
                         }}
+                        variant="destructive"
                       >
                         Cancel
-                      </button>
+                      </Button>
+                      <Button onClick={handleEditSubmit}>Submit</Button>
                     </div>
                   </div>
                 </div>
               ) : typeof content === "string" ? (
-                <div className="flex flex-col max-w-full prose preserve-lines">
-                  {content}
+                <div className="relative">
+                  <div className="flex flex-col max-w-full prose preserve-lines">
+                    {content}
+                  </div>
+
+                  {onEdit &&
+                    isHovered &&
+                    !isEditing &&
+                    (!files || files.length === 0) && (
+                      <div className="bg-hover absolute -top-11 right-0 rounded">
+                        <Button
+                          variant="ghost"
+                          size="smallIcon"
+                          onClick={() => {
+                            setIsEditing(true);
+                            setIsHovered(false);
+                          }}
+                        >
+                          <Pencil size={16} />
+                        </Button>
+                      </div>
+                    )}
                 </div>
               ) : (
                 content
               )}
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-x-0.5 ml-8 mt-1">
+          <div className="flex flex-col md:flex-row gap-x-0.5 ml-12 mt-1">
             {currentMessageInd !== undefined &&
               onMessageSelection &&
               otherMessagesCanSwitchTo &&
@@ -591,20 +603,6 @@ export const HumanMessage = ({
                   />
                 </div>
               )}
-            {onEdit &&
-            isHovered &&
-            !isEditing &&
-            (!files || files.length === 0) ? (
-              <Hoverable
-                icon={FiEdit2}
-                onClick={() => {
-                  setIsEditing(true);
-                  setIsHovered(false);
-                }}
-              />
-            ) : (
-              <div className="h-[27px]" />
-            )}
           </div>
         </div>
       </div>

@@ -1,29 +1,30 @@
-import { PersonasTable } from "./PersonaTable";
-import { FiPlusSquare } from "react-icons/fi";
+import { AssistantsTable } from "./AssistantTable";
 import Link from "next/link";
 import { Divider, Text, Title } from "@tremor/react";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Persona } from "./interfaces";
+import { Assistant } from "./interfaces";
 import { RobotIcon } from "@/components/icons/icons";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { Button } from "@/components/ui/button";
+import { SquarePlus } from "lucide-react";
 
 export default async function Page() {
-  const personaResponse = await fetchSS("/admin/persona");
+  const assistantResponse = await fetchSS("/admin/assistant");
 
-  if (!personaResponse.ok) {
+  if (!assistantResponse.ok) {
     return (
       <ErrorCallout
         errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch personas - ${await personaResponse.text()}`}
+        errorMsg={`Failed to fetch assistants - ${await assistantResponse.text()}`}
       />
     );
   }
 
-  const personas = (await personaResponse.json()) as Persona[];
+  const assistants = (await assistantResponse.json()) as Assistant[];
 
   return (
-    <div className="mx-auto container">
+    <div className="py-24 md:py-32 lg:pt-16">
       <AdminPageTitle icon={<RobotIcon size={32} />} title="Assistants" />
 
       <Text className="mb-2">
@@ -44,20 +45,17 @@ export default async function Page() {
         <Divider />
 
         <Title>Create an Assistant</Title>
-        <Link
-          href="/admin/assistants/new"
-          className="flex py-2 px-4 mt-2 border border-border h-fit cursor-pointer hover:bg-hover text-sm w-40"
-        >
-          <div className="mx-auto flex">
-            <FiPlusSquare className="my-auto mr-2" />
+        <Link href="/admin/assistants/new" className="flex items-center">
+          <Button className="mt-2">
+            <SquarePlus size={16} />
             New Assistant
-          </div>
+          </Button>
         </Link>
 
         <Divider />
 
         <Title>Existing Assistants</Title>
-        <PersonasTable personas={personas} />
+        <AssistantsTable assistants={assistants} />
       </div>
     </div>
   );

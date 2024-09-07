@@ -6,7 +6,7 @@ import { SearchResultsDisplay } from "./SearchResultsDisplay";
 import { SourceSelector } from "./filtering/Filters";
 import { CCPairBasicInfo, Connector, DocumentSet, Tag } from "@/lib/types";
 import {
-  DanswerDocument,
+  EnmeddDocument,
   Quote,
   SearchResponse,
   FlowType,
@@ -20,11 +20,16 @@ import { SearchHelper } from "./SearchHelper";
 import { CancellationToken, cancellable } from "@/lib/search/cancellable";
 import { useFilters, useObjectState } from "@/lib/hooks";
 import { questionValidationStreamed } from "@/lib/search/streamingQuestionValidation";
-import { Persona } from "@/app/admin/assistants/interfaces";
-import { PersonaSelector } from "./PersonaSelector";
+import { Assistant } from "@/app/admin/assistants/interfaces";
+import { AssistantSelector } from "./AssistantSelector";
 import { computeAvailableFilters } from "@/lib/filters";
 import { useRouter } from "next/navigation";
 import { SettingsContext } from "../settings/SettingsProvider";
+import { SortSearch } from "./SortSearch";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Filter } from "lucide-react";
+import { Button } from "../ui/button";
+import { DateRangeSearchSelector } from "./DateRangeSearchSelector";
 
 const SEARCH_DEFAULT_OVERRIDES_START: SearchDefaultOverrides = {
   forceDisplayQA: false,
@@ -40,7 +45,7 @@ const VALID_QUESTION_RESPONSE_DEFAULT: ValidQuestionResponse = {
 interface SearchSectionProps {
   ccPairs: CCPairBasicInfo[];
   documentSets: DocumentSet[];
-  personas: Persona[];
+  assistants: Assistant[];
   tags: Tag[];
   defaultSearchType: SearchType;
 }
@@ -48,7 +53,7 @@ interface SearchSectionProps {
 export const SearchSection = ({
   ccPairs,
   documentSets,
-  personas,
+  assistants,
   tags,
   defaultSearchType,
 }: SearchSectionProps) => {
@@ -68,8 +73,8 @@ export const SearchSection = ({
   const [selectedSearchType, setSelectedSearchType] =
     useState<SearchType>(defaultSearchType);
 
-  const [selectedPersona, setSelectedPersona] = useState<number>(
-    personas[0]?.id || 0
+  const [selectedAssistant, setSelectedAssistant] = useState<number>(
+    assistants[0]?.id || 0
   );
 
   // Filters
@@ -77,8 +82,8 @@ export const SearchSection = ({
   const availableSources = ccPairs.map((ccPair) => ccPair.source);
   const [finalAvailableSources, finalAvailableDocumentSets] =
     computeAvailableFilters({
-      selectedPersona: personas.find(
-        (persona) => persona.id === selectedPersona
+      selectedAssistant: assistants.find(
+        (assistant) => assistant.id === selectedAssistant
       ),
       availableSources: availableSources,
       availableDocumentSets: documentSets,
@@ -109,7 +114,7 @@ export const SearchSection = ({
       ...(prevState || initialSearchResponse),
       quotes,
     }));
-  const updateDocs = (documents: DanswerDocument[]) =>
+  const updateDocs = (documents: EnmeddDocument[]) =>
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
       documents,
@@ -161,9 +166,9 @@ export const SearchSection = ({
       documentSets: filterManager.selectedDocumentSets,
       timeRange: filterManager.timeRange,
       tags: filterManager.selectedTags,
-      persona: personas.find(
-        (persona) => persona.id === selectedPersona
-      ) as Persona,
+      assistant: assistants.find(
+        (assistant) => assistant.id === selectedAssistant
+      ) as Assistant,
       updateCurrentAnswer: cancellable({
         cancellationToken: lastSearchCancellationToken.current,
         fn: updateCurrentAnswer,
@@ -224,8 +229,71 @@ export const SearchSection = ({
   }
 
   return (
-    <div className="relative max-w-[2000px] xl:max-w-[1430px] mx-auto">
-      <div className="absolute left-0 hidden 2xl:block w-52 3xl:w-64">
+    <div className="relative flex gap-16 lg:gap-14 xl:gap-10 2xl:gap-20 h-full max-w-full lg:pl-8 xl:pl-0 ml-auto">
+      <div className="w-full max-w-[70%] flex flex-col gap-5">
+        <div className="flex items-center gap-2 relative">
+          <SearchBar
+            query={query}
+            setQuery={setQuery}
+            onSearch={async () => {
+              setDefaultOverrides(SEARCH_DEFAULT_OVERRIDES_START);
+              await onSearch({ offset: 0 });
+            }}
+          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="lg:hidden">
+                <Filter size={16} className="" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[85vw] sm:w-full">
+              {(ccPairs.length > 0 || documentSets.length > 0) && (
+                <SourceSelector
+                  {...filterManager}
+                  availableDocumentSets={finalAvailableDocumentSets}
+                  existingSources={finalAvailableSources}
+                  availableTags={tags}
+                />
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="w-full flex justify-between flex-col md:flex-row gap-5">
+          {/*  <div className="p-[3px] rounded-sm bg-primary-light flex gap-1 text-dark-900 text-sm font-medium">
+            <button className="px-4 py-2 bg-background rounded-xs w-full">
+              All
+            </button>
+            <button className="px-4 py-2 rounded-xs w-full">Public</button>
+            <button className="px-4 py-2 rounded-xs w-full">Private</button>
+          </div> */}
+
+          <div className="flex items-center gap-2 ml-auto">
+            <DateRangeSearchSelector
+              value={filterManager.timeRange}
+              onValueChange={filterManager.setTimeRange}
+            />
+
+            <SortSearch />
+          </div>
+        </div>
+
+        <div className="h-full overflow-auto">
+          <SearchResultsDisplay
+            searchResponse={searchResponse}
+            validQuestionResponse={validQuestionResponse}
+            isFetching={isFetching}
+            defaultOverrides={defaultOverrides}
+            assistantName={
+              selectedAssistant
+                ? assistants.find((p) => p.id === selectedAssistant)?.name
+                : null
+            }
+          />
+        </div>
+      </div>
+
+      <div className="min-w-[220px] lg:min-w-[300px] xl:min-w-[320px] max-w-[320px] hidden lg:flex flex-col">
         {(ccPairs.length > 0 || documentSets.length > 0) && (
           <SourceSelector
             {...filterManager}
@@ -235,7 +303,7 @@ export const SearchSection = ({
           />
         )}
 
-        <div className="pr-5 mt-10">
+        <div className="mt-4">
           <SearchHelper
             isFetching={isFetching}
             searchResponse={searchResponse}
@@ -255,42 +323,6 @@ export const SearchSection = ({
                 offset,
               }));
             }}
-          />
-        </div>
-      </div>
-      <div className="md:w-[720px] 3xl:w-[800px] mx-auto">
-        {personas.length > 0 ? (
-          <div className="flex mb-2 w-fit">
-            <PersonaSelector
-              personas={personas}
-              selectedPersonaId={selectedPersona}
-              onPersonaChange={(persona) => setSelectedPersona(persona.id)}
-            />
-          </div>
-        ) : (
-          <div className="pt-3" />
-        )}
-
-        <SearchBar
-          query={query}
-          setQuery={setQuery}
-          onSearch={async () => {
-            setDefaultOverrides(SEARCH_DEFAULT_OVERRIDES_START);
-            await onSearch({ offset: 0 });
-          }}
-        />
-
-        <div className="mt-2">
-          <SearchResultsDisplay
-            searchResponse={searchResponse}
-            validQuestionResponse={validQuestionResponse}
-            isFetching={isFetching}
-            defaultOverrides={defaultOverrides}
-            personaName={
-              selectedPersona
-                ? personas.find((p) => p.id === selectedPersona)?.name
-                : null
-            }
           />
         </div>
       </div>

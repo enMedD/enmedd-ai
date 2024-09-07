@@ -9,7 +9,7 @@ import json
 from typing import cast
 from alembic import op
 import sqlalchemy as sa
-from danswer.dynamic_configs.factory import get_dynamic_config_store
+from enmedd.dynamic_configs.factory import get_dynamic_config_store
 
 # revision identifiers, used by Alembic.
 revision = "703313b75876"
@@ -39,18 +39,18 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
-        "token_rate_limit__user_group",
+        "token_rate_limit__teamspace",
         sa.Column("rate_limit_id", sa.Integer(), nullable=False),
-        sa.Column("user_group_id", sa.Integer(), nullable=False),
+        sa.Column("teamspace_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["rate_limit_id"],
             ["token_rate_limit.id"],
         ),
         sa.ForeignKeyConstraint(
-            ["user_group_id"],
-            ["user_group.id"],
+            ["teamspace_id"],
+            ["teamspace.id"],
         ),
-        sa.PrimaryKeyConstraint("rate_limit_id", "user_group_id"),
+        sa.PrimaryKeyConstraint("rate_limit_id", "teamspace_id"),
     )
 
     try:
@@ -79,5 +79,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_table("token_rate_limit__user_group")
+    op.drop_table("token_rate_limit__teamspace")
     op.drop_table("token_rate_limit")

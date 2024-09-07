@@ -7,7 +7,6 @@ import { LoadingAnimation } from "@/components/Loading";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { TrashIcon } from "@/components/icons/icons";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
@@ -20,12 +19,15 @@ import {
   DropboxConfig,
   DropboxCredentialJson,
 } from "@/lib/types";
-import { Card, Text, Title } from "@tremor/react";
+import { Text, Title, Button } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast";
 
 const Main = () => {
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const { mutate } = useSWRConfig();
   const {
@@ -82,8 +84,7 @@ const Main = () => {
 
   return (
     <>
-      {popup}
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Provide your API details
       </Title>
 
@@ -91,26 +92,28 @@ const Main = () => {
         <>
           <div className="flex mb-1 text-sm">
             <p className="my-auto">Existing API Token: </p>
-            <p className="ml-1 italic my-auto max-w-md">
+            <p className="max-w-md my-auto ml-1 italic">
               {dropboxCredential.credential_json?.dropbox_access_token}
             </p>
-            <button
-              className="ml-1 hover:bg-hover rounded p-1"
+            <Button
+              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (dropboxConnectorIndexingStatuses.length > 0) {
-                  setPopup({
-                    type: "error",
-                    message:
+                  toast({
+                    title: "Error",
+                    description:
                       "Must delete all connectors before deleting credentials",
+                    variant: "destructive",
                   });
                   return;
                 }
                 await adminDeleteCredential(dropboxCredential.id);
                 refreshCredentials();
               }}
+              variant="light"
             >
               <TrashIcon />
-            </button>
+            </Button>
           </div>
         </>
       ) : (
@@ -123,41 +126,43 @@ const Main = () => {
             >
               setup guide
             </a>{" "}
-            on the enMedD CHP docs to obtain a Dropbox token.
+            on the enMedD AI docs to obtain a Dropbox token.
           </Text>
           <Card className="mt-4 mb-4">
-            <CredentialForm<DropboxCredentialJson>
-              formBody={
-                <>
-                  <TextFormField
-                    name="dropbox_access_token"
-                    label="Dropbox API Token:"
-                    type="password"
-                  />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                dropbox_access_token: Yup.string().required(
-                  "Please enter your Dropbox API token"
-                ),
-              })}
-              initialValues={{
-                dropbox_access_token: "",
-              }}
-              onSubmit={(isSuccess) => {
-                if (isSuccess) {
-                  refreshCredentials();
-                  mutate("/api/manage/admin/connector/indexing-status");
+            <CardContent>
+              <CredentialForm<DropboxCredentialJson>
+                formBody={
+                  <>
+                    <TextFormField
+                      name="dropbox_access_token"
+                      label="Dropbox API Token:"
+                      type="password"
+                    />
+                  </>
                 }
-              }}
-            />
+                validationSchema={Yup.object().shape({
+                  dropbox_access_token: Yup.string().required(
+                    "Please enter your Dropbox API token"
+                  ),
+                })}
+                initialValues={{
+                  dropbox_access_token: "",
+                }}
+                onSubmit={(isSuccess) => {
+                  if (isSuccess) {
+                    refreshCredentials();
+                    mutate("/api/manage/admin/connector/indexing-status");
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
         </>
       )}
 
       {dropboxConnectorIndexingStatuses.length > 0 && (
         <>
-          <Title className="mb-2 mt-6 ml-auto mr-auto">
+          <Title className="mt-6 mb-2 ml-auto mr-auto">
             Dropbox indexing status
           </Title>
           <Text className="mb-2">
@@ -186,22 +191,24 @@ const Main = () => {
       {dropboxCredential && dropboxConnectorIndexingStatuses.length === 0 && (
         <>
           <Card className="mt-4">
-            <h2 className="font-bold mb-3">Create Connection</h2>
-            <p className="text-sm mb-4">
-              Press connect below to start the connection to your Dropbox
-              instance.
-            </p>
-            <ConnectorForm<DropboxConfig>
-              nameBuilder={(values) => `Dropbox`}
-              ccPairNameBuilder={(values) => `Dropbox`}
-              source="dropbox"
-              inputType="poll"
-              formBody={<></>}
-              validationSchema={Yup.object().shape({})}
-              initialValues={{}}
-              // refreshFreq={10 * 60} // disabled re-indexing
-              credentialId={dropboxCredential.id}
-            />
+            <CardContent>
+              <h2 className="mb-3 font-bold">Create Connection</h2>
+              <p className="mb-4 text-sm">
+                Press connect below to start the connection to your Dropbox
+                instance.
+              </p>
+              <ConnectorForm<DropboxConfig>
+                nameBuilder={(values) => `Dropbox`}
+                ccPairNameBuilder={(values) => `Dropbox`}
+                source="dropbox"
+                inputType="poll"
+                formBody={<></>}
+                validationSchema={Yup.object().shape({})}
+                initialValues={{}}
+                // refreshFreq={10 * 60} // disabled re-indexing
+                credentialId={dropboxCredential.id}
+              />
+            </CardContent>
           </Card>
         </>
       )}
@@ -211,10 +218,11 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
       <AdminPageTitle icon={<DropboxIcon size={32} />} title="Dropbox" />
       <Main />
     </div>

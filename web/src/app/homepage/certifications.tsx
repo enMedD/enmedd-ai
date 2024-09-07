@@ -28,7 +28,7 @@ export default function Certifications() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold text-black">
+                  <h4 className="text-xl font-semibold text-dark-900">
                     {data.title}
                   </h4>
                   <p className="pt-2 text-[rgba(14,_14,_15,_0.5)]">
@@ -40,7 +40,7 @@ export default function Certifications() {
           </div>
         </div>
 
-        <button className="py-3 px-6 bg-[#2039F3] text-white rounded-[5px] text-xl font-semibold">
+        <button className="py-3 px-6 bg-[#2039F3] text-inverted rounded-[5px] text-xl font-semibold">
           Learn more
         </button>
       </div>

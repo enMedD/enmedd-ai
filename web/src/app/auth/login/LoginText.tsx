@@ -12,11 +12,11 @@ export const LoginText = () => {
   }
 
   return (
-    <div className="text-black">
+    <div className="text-dark-900">
       <h1 className="my-2 text-3xl font-bold">Login</h1>
       <p>
         Welcome back to{" "}
-        {settings?.enterpriseSettings?.application_name || "enMedD CHP"}! Please
+        {settings?.enterpriseSettings?.application_name || "enMedD AI"}! Please
         enter your details
       </p>
     </div>

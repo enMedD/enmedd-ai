@@ -1,86 +1,81 @@
 "use client";
 
 import * as Yup from "yup";
-import { Button } from "@tremor/react";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Modal } from "@/components/Modal";
 import { Form, Formik } from "formik";
 import {
   SelectorFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { UserGroup } from "@/lib/types";
+import { Teamspace } from "@/lib/types";
 import { Scope } from "./types";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateRateLimitModalProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
   onSubmit: (
     target_scope: Scope,
     period_hours: number,
     token_budget: number,
-    group_id: number
+    team_id: number
   ) => void;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   forSpecificScope?: Scope;
-  forSpecificUserGroup?: number;
+  forSpecificTeamspace?: number;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const CreateRateLimitModal = ({
+  onSubmit,
+  forSpecificScope,
+  forSpecificTeamspace,
   isOpen,
   setIsOpen,
-  onSubmit,
-  setPopup,
-  forSpecificScope,
-  forSpecificUserGroup,
 }: CreateRateLimitModalProps) => {
-  const [modalUserGroups, setModalUserGroups] = useState([]);
-  const [shouldFetchUserGroups, setShouldFetchUserGroups] = useState(
-    forSpecificScope === Scope.USER_GROUP
+  const [modalTeamspaces, setModalTeamspaces] = useState([]);
+  const [shouldFetchTeamspaces, setShouldFetchTeamspaces] = useState(
+    forSpecificScope === Scope.TEAMSPACE
   );
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/manage/admin/user-group");
+        const response = await fetch("/api/manage/admin/teamspace");
         const data = await response.json();
-        const options = data.map((userGroup: UserGroup) => ({
-          name: userGroup.name,
-          value: userGroup.id,
+        const options = data.map((teamspace: Teamspace) => ({
+          name: teamspace.name,
+          value: teamspace.id,
         }));
-        setModalUserGroups(options);
-        setShouldFetchUserGroups(false);
+
+        setModalTeamspaces(options);
+        setShouldFetchTeamspaces(false);
       } catch (error) {
-        setPopup({
-          type: "error",
-          message: `Failed to fetch user groups: ${error}`,
+        toast({
+          title: "Error",
+          description: `Failed to fetch user teamspaces: ${error}`,
+          variant: "destructive",
         });
       }
     };
 
-    if (shouldFetchUserGroups) {
+    if (shouldFetchTeamspaces) {
       fetchData();
     }
-  }, [shouldFetchUserGroups, setPopup]);
-
-  if (!isOpen) {
-    return null;
-  }
+  }, [shouldFetchTeamspaces]);
 
   return (
-    <Modal
-      title={"Create a Token Rate Limit"}
-      onOutsideClick={() => setIsOpen(false)}
-      width="w-2/6"
-    >
+    <div className="mt-4">
+      <h2 className="text-lg font-semibold leading-none tracking-tight pb-8">
+        Create a Token Rate Limit
+      </h2>
       <Formik
         initialValues={{
           enabled: true,
           period_hours: "",
           token_budget: "",
           target_scope: forSpecificScope || Scope.GLOBAL,
-          user_group_id: forSpecificUserGroup,
+          teamspace_id: forSpecificTeamspace,
         }}
         validationSchema={Yup.object().shape({
           period_hours: Yup.number()
@@ -92,13 +87,13 @@ export const CreateRateLimitModal = ({
           target_scope: Yup.string().required(
             "Target Scope is a required field"
           ),
-          user_group_id: Yup.string().test(
-            "user_group_id",
-            "User Group is a required field",
+          teamspace_id: Yup.string().test(
+            "teamspace_id",
+            "Teamspace is a required field",
             (value, context) => {
               return (
-                context.parent.target_scope !== "user_group" ||
-                (context.parent.target_scope === "user_group" &&
+                context.parent.target_scope !== "teamspace" ||
+                (context.parent.target_scope === "teamspace" &&
                   value !== undefined)
               );
             }
@@ -110,8 +105,9 @@ export const CreateRateLimitModal = ({
             values.target_scope,
             Number(values.period_hours),
             Number(values.token_budget),
-            Number(values.user_group_id)
+            Number(values.teamspace_id)
           );
+          setIsOpen(false);
           return formikHelpers.setSubmitting(false);
         }}
       >
@@ -124,23 +120,23 @@ export const CreateRateLimitModal = ({
                 options={[
                   { name: "Global", value: Scope.GLOBAL },
                   { name: "User", value: Scope.USER },
-                  { name: "User Group", value: Scope.USER_GROUP },
+                  { name: "Teamspace", value: Scope.TEAMSPACE },
                 ]}
                 includeDefault={false}
                 onSelect={(selected) => {
                   setFieldValue("target_scope", selected);
-                  if (selected === Scope.USER_GROUP) {
-                    setShouldFetchUserGroups(true);
+                  if (selected === Scope.TEAMSPACE) {
+                    setShouldFetchTeamspaces(true);
                   }
                 }}
               />
             )}
-            {forSpecificUserGroup === undefined &&
-              values.target_scope === Scope.USER_GROUP && (
+            {forSpecificTeamspace === undefined &&
+              values.target_scope === Scope.TEAMSPACE && (
                 <SelectorFormField
-                  name="user_group_id"
-                  label="User Group"
-                  options={modalUserGroups}
+                  name="teamspace_id"
+                  label="Teamspace"
+                  options={modalTeamspaces}
                   includeDefault={false}
                 />
               )}
@@ -159,17 +155,15 @@ export const CreateRateLimitModal = ({
             <div className="flex">
               <Button
                 type="submit"
-                size="xs"
-                color="green"
                 disabled={isSubmitting}
                 className="mx-auto w-64"
               >
-                Create!
+                Create
               </Button>
             </div>
           </Form>
         )}
       </Formik>
-    </Modal>
+    </div>
   );
 };

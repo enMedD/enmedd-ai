@@ -7,7 +7,6 @@ import { LoadingAnimation } from "@/components/Loading";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
 import { errorHandlingFetcher } from "@/lib/fetcher";
@@ -20,13 +19,16 @@ import {
   OCIConfig,
   OCICredentialJson,
 } from "@/lib/types";
-import { Card, Select, SelectItem, Text, Title } from "@tremor/react";
+import { Select, SelectItem, Text, Title, Button } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast";
 
 const OCIMain = () => {
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const { mutate } = useSWRConfig();
   const {
@@ -82,8 +84,7 @@ const OCIMain = () => {
 
   return (
     <>
-      {popup}
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your access info
       </Title>
       {ociCredential ? (
@@ -91,37 +92,39 @@ const OCIMain = () => {
           {" "}
           <div className="flex mb-1 text-sm">
             <p className="my-auto">Existing OCI Access Key ID: </p>
-            <p className="ml-1 italic my-auto">
+            <p className="my-auto ml-1 italic">
               {ociCredential.credential_json.access_key_id}
             </p>
             {", "}
-            <p className="ml-1 my-auto">Namespace: </p>
-            <p className="ml-1 italic my-auto">
+            <p className="my-auto ml-1">Namespace: </p>
+            <p className="my-auto ml-1 italic">
               {ociCredential.credential_json.namespace}
             </p>{" "}
-            <button
-              className="ml-1 hover:bg-hover rounded p-1"
+            <Button
+              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (ociConnectorIndexingStatuses.length > 0) {
-                  setPopup({
-                    type: "error",
-                    message:
+                  toast({
+                    title: "Error",
+                    description:
                       "Must delete all connectors before deleting credentials",
+                    variant: "destructive",
                   });
                   return;
                 }
                 await adminDeleteCredential(ociCredential.id);
                 refreshCredentials();
               }}
+              variant="light"
             >
               <TrashIcon />
-            </button>
+            </Button>
           </div>
         </>
       ) : (
         <>
           <Text>
-            <ul className="list-disc mt-2 ml-4">
+            <ul className="mt-2 ml-4 list-disc">
               <li>
                 Provide your OCI Access Key ID, Secret Access Key, Namespace,
                 and Region for authentication.
@@ -132,54 +135,56 @@ const OCIMain = () => {
             </ul>
           </Text>
           <Card className="mt-4">
-            <CredentialForm<OCICredentialJson>
-              formBody={
-                <>
-                  <TextFormField
-                    name="access_key_id"
-                    label="OCI Access Key ID:"
-                  />
-                  <TextFormField
-                    name="secret_access_key"
-                    label="OCI Secret Access Key:"
-                  />
-                  <TextFormField name="namespace" label="Namespace:" />
-                  <TextFormField name="region" label="Region:" />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                access_key_id: Yup.string().required(
-                  "OCI Access Key ID is required"
-                ),
-                secret_access_key: Yup.string().required(
-                  "OCI Secret Access Key is required"
-                ),
-                namespace: Yup.string().required("Namespace is required"),
-                region: Yup.string().required("Region is required"),
-              })}
-              initialValues={{
-                access_key_id: "",
-                secret_access_key: "",
-                namespace: "",
-                region: "",
-              }}
-              onSubmit={(isSuccess) => {
-                if (isSuccess) {
-                  refreshCredentials();
+            <CardContent>
+              <CredentialForm<OCICredentialJson>
+                formBody={
+                  <>
+                    <TextFormField
+                      name="access_key_id"
+                      label="OCI Access Key ID:"
+                    />
+                    <TextFormField
+                      name="secret_access_key"
+                      label="OCI Secret Access Key:"
+                    />
+                    <TextFormField name="namespace" label="Namespace:" />
+                    <TextFormField name="region" label="Region:" />
+                  </>
                 }
-              }}
-            />
+                validationSchema={Yup.object().shape({
+                  access_key_id: Yup.string().required(
+                    "OCI Access Key ID is required"
+                  ),
+                  secret_access_key: Yup.string().required(
+                    "OCI Secret Access Key is required"
+                  ),
+                  namespace: Yup.string().required("Namespace is required"),
+                  region: Yup.string().required("Region is required"),
+                })}
+                initialValues={{
+                  access_key_id: "",
+                  secret_access_key: "",
+                  namespace: "",
+                  region: "",
+                }}
+                onSubmit={(isSuccess) => {
+                  if (isSuccess) {
+                    refreshCredentials();
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
         </>
       )}
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Which OCI bucket do you want to make searchable?
       </Title>
 
       {ociConnectorIndexingStatuses.length > 0 && (
         <>
-          <Title className="mb-2 mt-6 ml-auto mr-auto">
+          <Title className="mt-6 mb-2 ml-auto mr-auto">
             OCI indexing status
           </Title>
           <Text className="mb-2">
@@ -210,43 +215,45 @@ const OCIMain = () => {
       {ociCredential && (
         <>
           <Card className="mt-4">
-            <h2 className="font-bold mb-3">Create Connection</h2>
-            <Text className="mb-4">
-              Press connect below to start the connection to your OCI bucket.
-            </Text>
-            <ConnectorForm<OCIConfig>
-              nameBuilder={(values) => `OCIConnector-${values.bucket_name}`}
-              ccPairNameBuilder={(values) =>
-                `OCIConnector-${values.bucket_name}`
-              }
-              source="oci_storage"
-              inputType="poll"
-              formBodyBuilder={(values) => (
-                <div>
-                  <TextFormField name="bucket_name" label="Bucket Name:" />
-                  <TextFormField
-                    name="prefix"
-                    label="Path Prefix (optional):"
-                  />
-                </div>
-              )}
-              validationSchema={Yup.object().shape({
-                bucket_type: Yup.string()
-                  .oneOf(["oci_storage"])
-                  .required("Bucket type must be oci_storage"),
-                bucket_name: Yup.string().required(
-                  "Please enter the name of the OCI bucket to index, e.g. my-test-bucket"
-                ),
-                prefix: Yup.string().default(""),
-              })}
-              initialValues={{
-                bucket_type: "oci_storage",
-                bucket_name: "",
-                prefix: "",
-              }}
-              refreshFreq={60 * 60 * 24} // 1 day
-              credentialId={ociCredential.id}
-            />
+            <CardContent>
+              <h2 className="mb-3 font-bold">Create Connection</h2>
+              <Text className="mb-4">
+                Press connect below to start the connection to your OCI bucket.
+              </Text>
+              <ConnectorForm<OCIConfig>
+                nameBuilder={(values) => `OCIConnector-${values.bucket_name}`}
+                ccPairNameBuilder={(values) =>
+                  `OCIConnector-${values.bucket_name}`
+                }
+                source="oci_storage"
+                inputType="poll"
+                formBodyBuilder={(values) => (
+                  <div>
+                    <TextFormField name="bucket_name" label="Bucket Name:" />
+                    <TextFormField
+                      name="prefix"
+                      label="Path Prefix (optional):"
+                    />
+                  </div>
+                )}
+                validationSchema={Yup.object().shape({
+                  bucket_type: Yup.string()
+                    .oneOf(["oci_storage"])
+                    .required("Bucket type must be oci_storage"),
+                  bucket_name: Yup.string().required(
+                    "Please enter the name of the OCI bucket to index, e.g. my-test-bucket"
+                  ),
+                  prefix: Yup.string().default(""),
+                })}
+                initialValues={{
+                  bucket_type: "oci_storage",
+                  bucket_name: "",
+                  prefix: "",
+                }}
+                refreshFreq={60 * 60 * 24} // 1 day
+                credentialId={ociCredential.id}
+              />
+            </CardContent>
           </Card>
         </>
       )}
@@ -256,10 +263,11 @@ const OCIMain = () => {
 
 export default function Page() {
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
       <AdminPageTitle
         icon={<OCIStorageIcon size={32} />}
         title="Oracle Cloud Infrastructure"

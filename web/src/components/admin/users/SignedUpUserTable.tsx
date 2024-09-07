@@ -5,19 +5,21 @@ import { HidableSection } from "@/app/admin/assistants/HidableSection";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
 import useSWRMutation from "swr/mutation";
+import { Button } from "@/components/ui/button";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
-  Button,
-} from "@tremor/react";
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   users: Array<User>;
-  setPopup: (spec: PopupSpec) => void;
   mutate: () => void;
 }
 
@@ -41,10 +43,8 @@ const PromoterButton = ({
   );
   return (
     <Button
-      className="bg-green-600 border-none w-min"
       onClick={() => trigger({ user_email: user.email })}
       disabled={isMutating}
-      size="xs"
     >
       {promote ? "Promote" : "Demote"} to {promote ? "Admin" : "Basic"} User
     </Button>
@@ -54,14 +54,13 @@ const PromoterButton = ({
 const DeactivaterButton = ({
   user,
   deactivate,
-  setPopup,
   mutate,
 }: {
   user: User;
   deactivate: boolean;
-  setPopup: (spec: PopupSpec) => void;
   mutate: () => void;
 }) => {
+  const { toast } = useToast();
   const { trigger, isMutating } = useSWRMutation(
     deactivate
       ? "/api/manage/admin/deactivate-user"
@@ -70,20 +69,25 @@ const DeactivaterButton = ({
     {
       onSuccess: () => {
         mutate();
-        setPopup({
-          message: `User ${deactivate ? "deactivated" : "activated"}!`,
-          type: "success",
+        toast({
+          title: "Success",
+          description: `User ${deactivate ? "deactivated" : "activated"}!`,
+          variant: "success",
         });
       },
-      onError: (errorMsg) => setPopup({ message: errorMsg, type: "error" }),
+      onError: (errorMsg) =>
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        }),
     }
   );
   return (
     <Button
-      className="bg-red-500 border-none w-min"
       onClick={() => trigger({ user_email: user.email })}
       disabled={isMutating}
-      size="xs"
+      variant="outline"
     >
       {deactivate ? "Deactivate" : "Activate"}
     </Button>
@@ -92,25 +96,27 @@ const DeactivaterButton = ({
 
 const SignedUpUserTable = ({
   users,
-  setPopup,
   currentPage,
   totalPages,
   onPageChange,
   mutate,
 }: Props & PageSelectorProps) => {
+  const { toast } = useToast();
   if (!users.length) return null;
 
   const onSuccess = (message: string) => {
     mutate();
-    setPopup({
-      message,
-      type: "success",
+    toast({
+      title: "Success",
+      description: message,
+      variant: "success",
     });
   };
   const onError = (message: string) => {
-    setPopup({
-      message,
-      type: "error",
+    toast({
+      title: "Error",
+      description: message,
+      variant: "destructive",
     });
   };
   const onPromotionSuccess = () => {
@@ -127,7 +133,7 @@ const SignedUpUserTable = ({
   };
 
   return (
-    <HidableSection sectionTitle="Current Users">
+    <HidableSection sectionTitle="Current Users" defaultOpen>
       <>
         {totalPages > 1 ? (
           <CenteredPageSelector
@@ -136,49 +142,60 @@ const SignedUpUserTable = ({
             onPageChange={onPageChange}
           />
         ) : null}
-        <Table className="overflow-auto">
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Email</TableHeaderCell>
-              <TableHeaderCell>Role</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>
-                <div className="flex">
-                  <div className="ml-auto">Actions</div>
-                </div>
-              </TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <i>{user.role === "admin" ? "Admin" : "User"}</i>
-                </TableCell>
-                <TableCell>
-                  <i>{user.status === "live" ? "Active" : "Inactive"}</i>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-row items-center justify-end gap-2">
-                    <PromoterButton
-                      user={user}
-                      promote={user.role !== "admin"}
-                      onSuccess={onPromotionSuccess}
-                      onError={onPromotionError}
-                    />
-                    <DeactivaterButton
-                      user={user}
-                      deactivate={user.status === UserStatus.live}
-                      setPopup={setPopup}
-                      mutate={mutate}
-                    />
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Card>
+          <CardContent className="p-0">
+            <Table className="overflow-auto">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>
+                    <div className="flex">
+                      <div className="ml-auto">Actions</div>
+                    </div>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="whitespace-nowrap">
+                      {user.email}
+                    </TableCell>
+                    <TableCell>
+                      <span>{user.role === "admin" ? "Admin" : "User"}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          user.status === "live" ? "success" : "secondary"
+                        }
+                      >
+                        {user.status === "live" ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-row items-center justify-end gap-2">
+                        <PromoterButton
+                          user={user}
+                          promote={user.role !== "admin"}
+                          onSuccess={onPromotionSuccess}
+                          onError={onPromotionError}
+                        />
+                        <DeactivaterButton
+                          user={user}
+                          deactivate={user.status === UserStatus.live}
+                          mutate={mutate}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </>
     </HidableSection>
   );

@@ -1,5 +1,4 @@
 import { SearchSection } from "@/components/search/SearchSection";
-import { Header } from "@/components/header/Header";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
@@ -12,21 +11,23 @@ import { fetchSS } from "@/lib/utilsSS";
 import { CCPairBasicInfo, DocumentSet, Tag, User } from "@/lib/types";
 import { cookies } from "next/headers";
 import { SearchType } from "@/lib/search/interfaces";
-import { Persona } from "../admin/assistants/interfaces";
+import { Assistant } from "../admin/assistants/interfaces";
 import {
   WelcomeModal,
   hasCompletedWelcomeFlowSS,
 } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
 import { unstable_noStore as noStore } from "next/cache";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
-import { personaComparator } from "../admin/assistants/lib";
+import { assistantComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { ChatPopup } from "../chat/ChatPopup";
+import { SearchBars } from "./SearchBars";
+import { CustomModal } from "@/components/CustomModal";
 
 export default async function Home() {
-  // Disable caching so we always get the up to date connector / document set / persona info
+  // Disable caching so we always get the up to date connector / document set / assistant info
   // importantly, this prevents users from adding a connector, going back to the main page,
   // and then getting hit with a "No Connectors" popup
   noStore();
@@ -36,7 +37,7 @@ export default async function Home() {
     getCurrentUserSS(),
     fetchSS("/manage/indexing-status"),
     fetchSS("/manage/document-set"),
-    fetchSS("/persona"),
+    fetchSS("/assistant"),
     fetchSS("/query/valid-tags"),
     fetchSS("/secondary-index/get-embedding-models"),
   ];
@@ -60,7 +61,7 @@ export default async function Home() {
   const user = results[1] as User | null;
   const ccPairsResponse = results[2] as Response | null;
   const documentSetsResponse = results[3] as Response | null;
-  const personaResponse = results[4] as Response | null;
+  const assistantResponse = results[4] as Response | null;
   const tagsResponse = results[5] as Response | null;
   const embeddingModelResponse = results[6] as Response | null;
 
@@ -89,19 +90,19 @@ export default async function Home() {
     );
   }
 
-  let personas: Persona[] = [];
+  let assistants: Assistant[] = [];
 
-  if (personaResponse?.ok) {
-    personas = await personaResponse.json();
+  if (assistantResponse?.ok) {
+    assistants = await assistantResponse.json();
   } else {
-    console.log(`Failed to fetch personas - ${personaResponse?.status}`);
+    console.log(`Failed to fetch assistants - ${assistantResponse?.status}`);
   }
   // remove those marked as hidden by an admin
-  personas = personas.filter((persona) => persona.is_visible);
-  // hide personas with no retrieval
-  personas = personas.filter((persona) => persona.num_chunks !== 0);
+  assistants = assistants.filter((assistant) => assistant.is_visible);
+  // hide assistants with no retrieval
+  assistants = assistants.filter((assistant) => assistant.num_chunks !== 0);
   // sort them in priority order
-  personas.sort(personaComparator);
+  assistants.sort(assistantComparator);
 
   let tags: Tag[] = [];
   if (tagsResponse?.ok) {
@@ -148,11 +149,11 @@ export default async function Home() {
     !shouldShowWelcomeModal;
 
   return (
-    <>
-      <Header user={user} />
-      <div className="m-3">
-        <HealthCheckBanner />
-      </div>
+    <div className="relative flex h-full">
+      <SearchBars user={user} />
+
+      <HealthCheckBanner />
+
       {shouldShowWelcomeModal && <WelcomeModal user={user} />}
 
       {!shouldShowWelcomeModal &&
@@ -171,17 +172,15 @@ export default async function Home() {
 
       <InstantSSRAutoRefresh />
 
-      <div className="flex flex-col items-center min-h-screen px-6 pt-10 lg:px-24">
-        <div className="w-full">
-          <SearchSection
-            ccPairs={ccPairs}
-            documentSets={documentSets}
-            personas={personas}
-            tags={tags}
-            defaultSearchType={searchTypeDefault}
-          />
-        </div>
+      <div className="container pt-20 lg:pt-14 px-6 lg:pl-24 lg:pr-14 xl:px-10 2xl:px-24 h-screen overflow-hidden">
+        <SearchSection
+          ccPairs={ccPairs}
+          documentSets={documentSets}
+          assistants={assistants}
+          tags={tags}
+          defaultSearchType={searchTypeDefault}
+        />
       </div>
-    </>
+    </div>
   );
 }

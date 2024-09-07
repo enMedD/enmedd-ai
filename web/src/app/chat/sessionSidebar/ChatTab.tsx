@@ -5,25 +5,28 @@ import { removeChatFromFolder } from "../folders/FolderManagement";
 import { FolderList } from "../folders/FolderList";
 import { Folder } from "../folders/interfaces";
 import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 export function ChatTab({
   existingChats,
   currentChatId,
   folders,
   openedFolders,
+  toggleSideBar,
 }: {
   existingChats: ChatSession[];
   currentChatId?: number;
   folders: Folder[];
   openedFolders: { [key: number]: boolean };
+  toggleSideBar?: () => void;
 }) {
   const groupedChatSessions = groupSessionsByDateRange(existingChats);
-  const { setPopup } = usePopup();
   const router = useRouter();
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const handleDropToRemoveFromFolder = async (
     event: React.DragEvent<HTMLDivElement>
@@ -41,19 +44,20 @@ export function ChatTab({
         await removeChatFromFolder(parseInt(folderId, 10), chatSessionId);
         router.refresh(); // Refresh the page to reflect the changes
       } catch (error) {
-        setPopup({
-          message: "Failed to remove chat from folder",
-          type: "error",
+        toast({
+          title: "Error",
+          description: "Failed to remove chat from folder",
+          variant: "destructive",
         });
       }
     }
   };
 
   return (
-    <div className="mb-1 ml-3 overflow-y-auto h-full">
+    <div className="mb-1 px-4 transition-all ease-in-out">
       {folders.length > 0 && (
-        <div className="py-2 mr-3 border-b border-border">
-          <div className="text-xs text-subtle flex pb-0.5 mb-1.5 mt-2 font-medium">
+        <div>
+          <div className="px-4 text-sm text-dark-900 flex pb-2 pt-4 font-semibold">
             Folders
           </div>
           <FolderList
@@ -61,6 +65,7 @@ export function ChatTab({
             currentChatId={currentChatId}
             openedFolders={openedFolders}
           />
+          <Separator className="mt-3" />
         </div>
       )}
 
@@ -71,16 +76,16 @@ export function ChatTab({
         }}
         onDragLeave={() => setIsDragOver(false)}
         onDrop={handleDropToRemoveFromFolder}
-        className={`pt-1 transition duration-300 ease-in-out mr-3 ${
+        className={`transition duration-300 ease-in-out ${
           isDragOver ? "bg-hover" : ""
-        } rounded-md`}
+        } rounded-xs`}
       >
         {Object.entries(groupedChatSessions).map(
           ([dateRange, chatSessions]) => {
             if (chatSessions.length > 0) {
               return (
-                <div key={dateRange}>
-                  <div className="text-xs text-subtle flex pb-0.5 mb-1.5 mt-5 font-medium">
+                <div key={dateRange} className={`pt-4`}>
+                  <div className="px-4 text-sm text-dark-900 flex pb-2 font-semibold">
                     {dateRange}
                   </div>
                   {chatSessions
@@ -93,10 +98,12 @@ export function ChatTab({
                             chatSession={chat}
                             isSelected={isSelected}
                             skipGradient={isDragOver}
+                            toggleSideBar={toggleSideBar}
                           />
                         </div>
                       );
                     })}
+                  <Separator className="mt-3" />
                 </div>
               );
             }

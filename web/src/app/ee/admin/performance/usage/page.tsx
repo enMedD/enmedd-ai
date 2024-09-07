@@ -8,24 +8,26 @@ import { useTimeRange } from "../lib";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { FiActivity } from "react-icons/fi";
 import UsageReports from "./UsageReports";
-import { Divider } from "@tremor/react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useTimeRange();
 
   return (
-    <main className="pt-4 mx-auto container">
+    <main className="py-24 md:py-32 lg:pt-16">
       {/* TODO: remove this `dark` once we have a mode selector */}
       <AdminPageTitle
         title="Usage Statistics"
         icon={<FiActivity size={32} />}
       />
 
-      <DateRangeSelector value={timeRange} onValueChange={setTimeRange} />
-
-      <QueryPerformanceChart timeRange={timeRange} />
-      <FeedbackChart timeRange={timeRange} />
-      <Divider />
+      <div className="mb-24 space-y-8">
+        <div>
+          <DateRangeSelector value={timeRange} onValueChange={setTimeRange} />
+        </div>
+        <QueryPerformanceChart timeRange={timeRange} />
+        <FeedbackChart timeRange={timeRange} />
+      </div>
       <UsageReports />
     </main>
   );

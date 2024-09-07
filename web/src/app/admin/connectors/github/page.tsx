@@ -19,8 +19,10 @@ import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { usePublicCredentials } from "@/lib/hooks";
-import { Card, Divider, Text, Title } from "@tremor/react";
+import { Divider, Text, Title, Button } from "@tremor/react";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
 
 const Main = () => {
   const { mutate } = useSWRConfig();
@@ -79,7 +81,7 @@ const Main = () => {
 
   return (
     <>
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your access token
       </Title>
       {githubCredential ? (
@@ -87,18 +89,19 @@ const Main = () => {
           {" "}
           <div className="flex mb-1 text-sm">
             <p className="my-auto">Existing Access Token: </p>
-            <p className="ml-1 italic my-auto">
+            <p className="my-auto ml-1 italic">
               {githubCredential.credential_json.github_access_token}
             </p>{" "}
-            <button
-              className="ml-1 hover:bg-hover rounded p-1"
+            <Button
+              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 await adminDeleteCredential(githubCredential.id);
                 refreshCredentials();
               }}
+              variant="light"
             >
               <TrashIcon />
-            </button>
+            </Button>
           </div>
         </>
       ) : (
@@ -115,35 +118,37 @@ const Main = () => {
             on how to get one from Github.
           </Text>
           <Card className="mt-4">
-            <CredentialForm<GithubCredentialJson>
-              formBody={
-                <>
-                  <TextFormField
-                    name="github_access_token"
-                    label="Access Token:"
-                    type="password"
-                  />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                github_access_token: Yup.string().required(
-                  "Please enter the access token for Github"
-                ),
-              })}
-              initialValues={{
-                github_access_token: "",
-              }}
-              onSubmit={(isSuccess) => {
-                if (isSuccess) {
-                  refreshCredentials();
+            <CardContent>
+              <CredentialForm<GithubCredentialJson>
+                formBody={
+                  <>
+                    <TextFormField
+                      name="github_access_token"
+                      label="Access Token:"
+                      type="password"
+                    />
+                  </>
                 }
-              }}
-            />
+                validationSchema={Yup.object().shape({
+                  github_access_token: Yup.string().required(
+                    "Please enter the access token for Github"
+                  ),
+                })}
+                initialValues={{
+                  github_access_token: "",
+                }}
+                onSubmit={(isSuccess) => {
+                  if (isSuccess) {
+                    refreshCredentials();
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
         </>
       )}
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Which repositories do you want to make searchable?
       </Title>
 
@@ -188,41 +193,43 @@ const Main = () => {
 
       {githubCredential ? (
         <Card className="mt-4">
-          <h2 className="font-bold mb-3">Connect to a New Repository</h2>
-          <ConnectorForm<GithubConfig>
-            nameBuilder={(values) =>
-              `GithubConnector-${values.repo_owner}/${values.repo_name}`
-            }
-            ccPairNameBuilder={(values) =>
-              `${values.repo_owner}/${values.repo_name}`
-            }
-            source="github"
-            inputType="poll"
-            formBody={
-              <>
-                <TextFormField name="repo_owner" label="Repository Owner:" />
-                <TextFormField name="repo_name" label="Repository Name:" />
-              </>
-            }
-            validationSchema={Yup.object().shape({
-              repo_owner: Yup.string().required(
-                "Please enter the owner of the repository to index"
-              ),
-              repo_name: Yup.string().required(
-                "Please enter the name of the repository to index"
-              ),
-              include_prs: Yup.boolean().required(),
-              include_issues: Yup.boolean().required(),
-            })}
-            initialValues={{
-              repo_owner: "",
-              repo_name: "",
-              include_prs: true,
-              include_issues: true,
-            }}
-            refreshFreq={10 * 60} // 10 minutes
-            credentialId={githubCredential.id}
-          />
+          <CardContent>
+            <h2 className="mb-3 font-bold">Connect to a New Repository</h2>
+            <ConnectorForm<GithubConfig>
+              nameBuilder={(values) =>
+                `GithubConnector-${values.repo_owner}/${values.repo_name}`
+              }
+              ccPairNameBuilder={(values) =>
+                `${values.repo_owner}/${values.repo_name}`
+              }
+              source="github"
+              inputType="poll"
+              formBody={
+                <>
+                  <TextFormField name="repo_owner" label="Repository Owner:" />
+                  <TextFormField name="repo_name" label="Repository Name:" />
+                </>
+              }
+              validationSchema={Yup.object().shape({
+                repo_owner: Yup.string().required(
+                  "Please enter the owner of the repository to index"
+                ),
+                repo_name: Yup.string().required(
+                  "Please enter the name of the repository to index"
+                ),
+                include_prs: Yup.boolean().required(),
+                include_issues: Yup.boolean().required(),
+              })}
+              initialValues={{
+                repo_owner: "",
+                repo_name: "",
+                include_prs: true,
+                include_issues: true,
+              }}
+              refreshFreq={10 * 60} // 10 minutes
+              credentialId={githubCredential.id}
+            />
+          </CardContent>
         </Card>
       ) : (
         <Text>
@@ -237,10 +244,11 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container mx-auto">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
 
       <AdminPageTitle
         icon={<GithubIcon size={32} />}

@@ -1,7 +1,6 @@
 import { LoadingAnimation } from "@/components/Loading";
-import { Button, Divider, Text } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { Form, Formik } from "formik";
-import { FiTrash } from "react-icons/fi";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
 import {
   SelectorFormField,
@@ -10,24 +9,25 @@ import {
 import { useState } from "react";
 import { useSWRConfig } from "swr";
 import { FullLLMProvider, WellKnownLLMProviderDescriptor } from "./interfaces";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import * as Yup from "yup";
 import isEqual from "lodash/isEqual";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function LLMProviderUpdateForm({
   llmProviderDescriptor,
   onClose,
   existingLlmProvider,
   shouldMarkAsDefault,
-  setPopup,
 }: {
   llmProviderDescriptor: WellKnownLLMProviderDescriptor;
   onClose: () => void;
   existingLlmProvider?: FullLLMProvider;
   shouldMarkAsDefault?: boolean;
-  setPopup?: (popup: PopupSpec) => void;
 }) {
   const { mutate } = useSWRConfig();
+  const { toast } = useToast();
 
   const [isTesting, setIsTesting] = useState(false);
   const [testError, setTestError] = useState<string>("");
@@ -141,14 +141,11 @@ export function LLMProviderUpdateForm({
           const fullErrorMsg = existingLlmProvider
             ? `Failed to update provider: ${errorMsg}`
             : `Failed to enable provider: ${errorMsg}`;
-          if (setPopup) {
-            setPopup({
-              type: "error",
-              message: fullErrorMsg,
-            });
-          } else {
-            alert(fullErrorMsg);
-          }
+          toast({
+            title: "Error",
+            description: fullErrorMsg,
+            variant: "destructive",
+          });
           return;
         }
 
@@ -163,14 +160,11 @@ export function LLMProviderUpdateForm({
           if (!setDefaultResponse.ok) {
             const errorMsg = (await setDefaultResponse.json()).detail;
             const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
-            if (setPopup) {
-              setPopup({
-                type: "error",
-                message: fullErrorMsg,
-              });
-            } else {
-              alert(fullErrorMsg);
-            }
+            toast({
+              title: "Error",
+              description: fullErrorMsg,
+              variant: "destructive",
+            });
             return;
           }
         }
@@ -181,14 +175,11 @@ export function LLMProviderUpdateForm({
         const successMsg = existingLlmProvider
           ? "Provider updated successfully!"
           : "Provider enabled successfully!";
-        if (setPopup) {
-          setPopup({
-            type: "success",
-            message: successMsg,
-          });
-        } else {
-          alert(successMsg);
-        }
+        toast({
+          title: "Success",
+          description: successMsg,
+          variant: "success",
+        });
 
         setSubmitting(false);
       }}
@@ -298,7 +289,7 @@ export function LLMProviderUpdateForm({
             {testError && <Text className="text-error mt-2">{testError}</Text>}
 
             <div className="flex w-full mt-4">
-              <Button type="submit" size="xs">
+              <Button type="submit">
                 {isTesting ? (
                   <LoadingAnimation text="Testing" />
                 ) : existingLlmProvider ? (
@@ -310,10 +301,8 @@ export function LLMProviderUpdateForm({
               {existingLlmProvider && (
                 <Button
                   type="button"
-                  color="red"
                   className="ml-3"
-                  size="xs"
-                  icon={FiTrash}
+                  variant="destructive"
                   onClick={async () => {
                     const response = await fetch(
                       `${LLM_PROVIDERS_ADMIN_URL}/${existingLlmProvider.id}`,
@@ -331,7 +320,7 @@ export function LLMProviderUpdateForm({
                     onClose();
                   }}
                 >
-                  Delete
+                  <Trash size={16} /> Delete
                 </Button>
               )}
             </div>

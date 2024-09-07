@@ -7,7 +7,6 @@ import { LoadingAnimation } from "@/components/Loading";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
 import { errorHandlingFetcher } from "@/lib/fetcher";
@@ -17,13 +16,15 @@ import { ConnectorIndexingStatus, Credential } from "@/lib/types";
 
 import { GCSConfig, GCSCredentialJson } from "@/lib/types";
 
-import { Card, Select, SelectItem, Text, Title } from "@tremor/react";
+import { Text, Title, Button } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
-import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast";
 
 const GCSMain = () => {
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
   const { mutate } = useSWRConfig();
   const {
     data: connectorIndexingStatuses,
@@ -80,45 +81,46 @@ const GCSMain = () => {
 
   return (
     <>
-      {popup}
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your GCS access info
       </Title>
       {gcsCredential ? (
         <>
           <div className="flex mb-1 text-sm">
             <p className="my-auto">Existing GCS Access Key ID: </p>
-            <p className="ml-1 italic my-auto">
+            <p className="my-auto ml-1 italic">
               {gcsCredential.credential_json.access_key_id}
             </p>
             {", "}
-            <p className="ml-1 my-auto">Secret Access Key: </p>
-            <p className="ml-1 italic my-auto">
+            <p className="my-auto ml-1">Secret Access Key: </p>
+            <p className="my-auto ml-1 italic">
               {gcsCredential.credential_json.secret_access_key}
             </p>{" "}
-            <button
-              className="ml-1 hover:bg-hover rounded p-1"
+            <Button
+              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (gcsConnectorIndexingStatuses.length > 0) {
-                  setPopup({
-                    type: "error",
-                    message:
+                  toast({
+                    title: "Error",
+                    description:
                       "Must delete all connectors before deleting credentials",
+                    variant: "destructive",
                   });
                   return;
                 }
                 await adminDeleteCredential(gcsCredential.id);
                 refreshCredentials();
               }}
+              variant="light"
             >
               <TrashIcon />
-            </button>
+            </Button>
           </div>
         </>
       ) : (
         <>
           <Text>
-            <ul className="list-disc mt-2 ml-4">
+            <ul className="mt-2 ml-4 list-disc">
               <li>
                 Provide your GCS Project ID, Client Email, and Private Key for
                 authentication.
@@ -129,44 +131,51 @@ const GCSMain = () => {
             </ul>
           </Text>
           <Card className="mt-4">
-            <CredentialForm<GCSCredentialJson>
-              formBody={
-                <>
-                  <TextFormField name="project_id" label="GCS Project ID:" />
-                  <TextFormField name="access_key_id" label="Access Key ID:" />
-                  <TextFormField
-                    name="secret_access_key"
-                    label="Secret Access Key:"
-                  />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                secret_access_key: Yup.string().required(
-                  "Client Email is required"
-                ),
-                access_key_id: Yup.string().required("Private Key is required"),
-              })}
-              initialValues={{
-                secret_access_key: "",
-                access_key_id: "",
-              }}
-              onSubmit={(isSuccess) => {
-                if (isSuccess) {
-                  refreshCredentials();
+            <CardContent>
+              <CredentialForm<GCSCredentialJson>
+                formBody={
+                  <>
+                    <TextFormField name="project_id" label="GCS Project ID:" />
+                    <TextFormField
+                      name="access_key_id"
+                      label="Access Key ID:"
+                    />
+                    <TextFormField
+                      name="secret_access_key"
+                      label="Secret Access Key:"
+                    />
+                  </>
                 }
-              }}
-            />
+                validationSchema={Yup.object().shape({
+                  secret_access_key: Yup.string().required(
+                    "Client Email is required"
+                  ),
+                  access_key_id: Yup.string().required(
+                    "Private Key is required"
+                  ),
+                })}
+                initialValues={{
+                  secret_access_key: "",
+                  access_key_id: "",
+                }}
+                onSubmit={(isSuccess) => {
+                  if (isSuccess) {
+                    refreshCredentials();
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
         </>
       )}
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Which GCS bucket do you want to make searchable?
       </Title>
 
       {gcsConnectorIndexingStatuses.length > 0 && (
         <>
-          <Title className="mb-2 mt-6 ml-auto mr-auto">
+          <Title className="mt-6 mb-2 ml-auto mr-auto">
             GCS indexing status
           </Title>
           <Text className="mb-2">
@@ -197,43 +206,45 @@ const GCSMain = () => {
       {gcsCredential && (
         <>
           <Card className="mt-4">
-            <h2 className="font-bold mb-3">Create Connection</h2>
-            <Text className="mb-4">
-              Press connect below to start the connection to your GCS bucket.
-            </Text>
-            <ConnectorForm<GCSConfig>
-              nameBuilder={(values) => `GCSConnector-${values.bucket_name}`}
-              ccPairNameBuilder={(values) =>
-                `GCSConnector-${values.bucket_name}`
-              }
-              source="google_cloud_storage"
-              inputType="poll"
-              formBodyBuilder={(values) => (
-                <div>
-                  <TextFormField name="bucket_name" label="Bucket Name:" />
-                  <TextFormField
-                    name="prefix"
-                    label="Path Prefix (optional):"
-                  />
-                </div>
-              )}
-              validationSchema={Yup.object().shape({
-                bucket_type: Yup.string()
-                  .oneOf(["google_cloud_storage"])
-                  .required("Bucket type must be google_cloud_storage"),
-                bucket_name: Yup.string().required(
-                  "Please enter the name of the GCS bucket to index, e.g. my-gcs-bucket"
-                ),
-                prefix: Yup.string().default(""),
-              })}
-              initialValues={{
-                bucket_type: "google_cloud_storage",
-                bucket_name: "",
-                prefix: "",
-              }}
-              refreshFreq={60 * 60 * 24} // 1 day
-              credentialId={gcsCredential.id}
-            />
+            <CardContent>
+              <h2 className="mb-3 font-bold">Create Connection</h2>
+              <Text className="mb-4">
+                Press connect below to start the connection to your GCS bucket.
+              </Text>
+              <ConnectorForm<GCSConfig>
+                nameBuilder={(values) => `GCSConnector-${values.bucket_name}`}
+                ccPairNameBuilder={(values) =>
+                  `GCSConnector-${values.bucket_name}`
+                }
+                source="google_cloud_storage"
+                inputType="poll"
+                formBodyBuilder={(values) => (
+                  <div>
+                    <TextFormField name="bucket_name" label="Bucket Name:" />
+                    <TextFormField
+                      name="prefix"
+                      label="Path Prefix (optional):"
+                    />
+                  </div>
+                )}
+                validationSchema={Yup.object().shape({
+                  bucket_type: Yup.string()
+                    .oneOf(["google_cloud_storage"])
+                    .required("Bucket type must be google_cloud_storage"),
+                  bucket_name: Yup.string().required(
+                    "Please enter the name of the GCS bucket to index, e.g. my-gcs-bucket"
+                  ),
+                  prefix: Yup.string().default(""),
+                })}
+                initialValues={{
+                  bucket_type: "google_cloud_storage",
+                  bucket_name: "",
+                  prefix: "",
+                }}
+                refreshFreq={60 * 60 * 24} // 1 day
+                credentialId={gcsCredential.id}
+              />
+            </CardContent>
           </Card>
         </>
       )}
@@ -243,10 +254,11 @@ const GCSMain = () => {
 
 export default function Page() {
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
       <AdminPageTitle
         icon={<GoogleStorageIcon size={32} />}
         title="Google Cloud Storage"

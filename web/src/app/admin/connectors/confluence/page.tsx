@@ -18,10 +18,12 @@ import { LoadingAnimation } from "@/components/Loading";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { usePublicCredentials } from "@/lib/hooks";
-import { Card, Divider, Text, Title } from "@tremor/react";
+import { Divider, Text, Title, Button } from "@tremor/react";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast";
 
 const extractSpaceFromCloudUrl = (wikiUrl: string): string => {
   const parsedUrl = new URL(wikiUrl);
@@ -58,7 +60,7 @@ const extractSpaceFromUrl = (wikiUrl: string): string | null => {
 };
 
 const Main = () => {
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const { mutate } = useSWRConfig();
   const {
@@ -115,41 +117,36 @@ const Main = () => {
 
   return (
     <>
-      {popup}
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your access token
       </Title>
 
       {confluenceCredential ? (
         <>
           <div className="flex mb-1 text-sm">
-            {/* <div className="flex">
-                <p className="my-auto">Existing Username: </p>
-                <p className="ml-1 italic my-auto max-w-md truncate">
-                  {confluenceCredential.credential_json?.confluence_username}
-                </p>{" "}
-              </div> */}
             <p className="my-auto">Existing Access Token: </p>
-            <p className="ml-1 italic my-auto max-w-md truncate">
+            <p className="max-w-md my-auto ml-1 italic truncate">
               {confluenceCredential.credential_json?.confluence_access_token}
             </p>
-            <button
-              className="ml-1 hover:bg-hover rounded p-1"
+            <Button
+              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (confluenceConnectorIndexingStatuses.length > 0) {
-                  setPopup({
-                    type: "error",
-                    message:
+                  toast({
+                    title: "Error",
+                    description:
                       "Must delete all connectors before deleting credentials",
+                    variant: "destructive",
                   });
                   return;
                 }
                 await adminDeleteCredential(confluenceCredential.id);
                 refreshCredentials();
               }}
+              variant="light"
             >
               <TrashIcon />
-            </button>
+            </Button>
           </div>
         </>
       ) : (
@@ -166,45 +163,50 @@ const Main = () => {
             to generate an Access Token.
           </Text>
           <Card className="mt-4">
-            <CredentialForm<ConfluenceCredentialJson>
-              formBody={
-                <>
-                  <TextFormField name="confluence_username" label="Username:" />
-                  <TextFormField
-                    name="confluence_access_token"
-                    label="Access Token:"
-                    type="password"
-                  />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                confluence_username: Yup.string().required(
-                  "Please enter your username on Confluence"
-                ),
-                confluence_access_token: Yup.string().required(
-                  "Please enter your Confluence access token"
-                ),
-              })}
-              initialValues={{
-                confluence_username: "",
-                confluence_access_token: "",
-              }}
-              onSubmit={(isSuccess) => {
-                if (isSuccess) {
-                  refreshCredentials();
+            <CardContent>
+              <CredentialForm<ConfluenceCredentialJson>
+                formBody={
+                  <>
+                    <TextFormField
+                      name="confluence_username"
+                      label="Username:"
+                    />
+                    <TextFormField
+                      name="confluence_access_token"
+                      label="Access Token:"
+                      type="password"
+                    />
+                  </>
                 }
-              }}
-            />
+                validationSchema={Yup.object().shape({
+                  confluence_username: Yup.string().required(
+                    "Please enter your username on Confluence"
+                  ),
+                  confluence_access_token: Yup.string().required(
+                    "Please enter your Confluence access token"
+                  ),
+                })}
+                initialValues={{
+                  confluence_username: "",
+                  confluence_access_token: "",
+                }}
+                onSubmit={(isSuccess) => {
+                  if (isSuccess) {
+                    refreshCredentials();
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
         </>
       )}
 
-      <h2 className="font-bold mb-2 mt-6 ml-auto mr-auto">
+      <h2 className="mt-6 mb-2 ml-auto mr-auto font-bold">
         Step 2: Which spaces do you want to make searchable?
       </h2>
       {confluenceCredential ? (
         <>
-          <p className="text-sm mb-4">
+          <p className="mb-4 text-sm">
             Specify any link to a Confluence page below and click
             &quot;Index&quot; to Index. Based on the provided link, we will
             index the ENTIRE SPACE, not just the specified page. For example,
@@ -218,7 +220,7 @@ const Main = () => {
 
           {confluenceConnectorIndexingStatuses.length > 0 && (
             <>
-              <p className="text-sm mb-2">
+              <p className="mb-2 text-sm">
                 We pull the latest pages and comments from each space listed
                 below every <b>10</b> minutes.
               </p>
@@ -276,32 +278,37 @@ const Main = () => {
           )}
 
           <Card className="mt-4">
-            <h2 className="font-bold mb-3">Add a New Space</h2>
-            <ConnectorForm<ConfluenceConfig>
-              nameBuilder={(values) =>
-                `ConfluenceConnector-${values.wiki_page_url}`
-              }
-              ccPairNameBuilder={(values) =>
-                extractSpaceFromUrl(values.wiki_page_url)
-              }
-              source="confluence"
-              inputType="poll"
-              formBody={
-                <>
-                  <TextFormField name="wiki_page_url" label="Confluence URL:" />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                wiki_page_url: Yup.string().required(
-                  "Please enter any link to your confluence"
-                ),
-              })}
-              initialValues={{
-                wiki_page_url: "",
-              }}
-              refreshFreq={10 * 60} // 10 minutes
-              credentialId={confluenceCredential.id}
-            />
+            <CardContent>
+              <h2 className="mb-3 font-bold">Add a New Space</h2>
+              <ConnectorForm<ConfluenceConfig>
+                nameBuilder={(values) =>
+                  `ConfluenceConnector-${values.wiki_page_url}`
+                }
+                ccPairNameBuilder={(values) =>
+                  extractSpaceFromUrl(values.wiki_page_url)
+                }
+                source="confluence"
+                inputType="poll"
+                formBody={
+                  <>
+                    <TextFormField
+                      name="wiki_page_url"
+                      label="Confluence URL:"
+                    />
+                  </>
+                }
+                validationSchema={Yup.object().shape({
+                  wiki_page_url: Yup.string().required(
+                    "Please enter any link to your confluence"
+                  ),
+                })}
+                initialValues={{
+                  wiki_page_url: "",
+                }}
+                refreshFreq={10 * 60} // 10 minutes
+                credentialId={confluenceCredential.id}
+              />
+            </CardContent>
           </Card>
         </>
       ) : (
@@ -317,10 +324,11 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
 
       <AdminPageTitle icon={<ConfluenceIcon size={32} />} title="Confluence" />
 

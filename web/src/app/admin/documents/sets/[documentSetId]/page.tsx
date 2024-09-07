@@ -4,20 +4,19 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { refreshDocumentSets, useDocumentSets } from "../hooks";
 import {
   useConnectorCredentialIndexingStatus,
-  useUserGroups,
+  useTeamspaces,
 } from "@/lib/hooks";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { BookmarkIcon } from "@/components/icons/icons";
 import { BackButton } from "@/components/BackButton";
-import { Card } from "@tremor/react";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import { useRouter } from "next/navigation";
-import { usePopup } from "@/components/admin/connectors/Popup";
+import { Bookmark } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Main({ documentSetId }: { documentSetId: number }) {
   const router = useRouter();
-  const { popup, setPopup } = usePopup();
 
   const {
     data: documentSets,
@@ -32,9 +31,9 @@ function Main({ documentSetId }: { documentSetId: number }) {
   } = useConnectorCredentialIndexingStatus();
 
   // EE only
-  const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
+  const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
-  if (isDocumentSetsLoading || isCCPairsLoading || userGroupsIsLoading) {
+  if (isDocumentSetsLoading || isCCPairsLoading || teamspacesIsLoading) {
     return <ThreeDotsLoader />;
   }
 
@@ -70,24 +69,20 @@ function Main({ documentSetId }: { documentSetId: number }) {
 
   return (
     <div>
-      {popup}
-
-      <AdminPageTitle
-        icon={<BookmarkIcon size={32} />}
-        title={documentSet.name}
-      />
+      <AdminPageTitle icon={<Bookmark size={32} />} title={documentSet.name} />
 
       <Card>
-        <DocumentSetCreationForm
-          ccPairs={ccPairs}
-          userGroups={userGroups}
-          onClose={() => {
-            refreshDocumentSets();
-            router.push("/admin/documents/sets");
-          }}
-          setPopup={setPopup}
-          existingDocumentSet={documentSet}
-        />
+        <CardContent>
+          <DocumentSetCreationForm
+            ccPairs={ccPairs}
+            teamspaces={teamspaces}
+            onClose={() => {
+              refreshDocumentSets();
+              router.push("/admin/documents/sets");
+            }}
+            existingDocumentSet={documentSet}
+          />
+        </CardContent>
       </Card>
     </div>
   );

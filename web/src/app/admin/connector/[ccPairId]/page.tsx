@@ -18,6 +18,7 @@ import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { buildCCPairInfoUrl } from "./lib";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 // since the uploaded files are cleaned up after some period of time
 // re-indexing will not work for the file connector. Also, it would not
@@ -64,60 +65,55 @@ function Main({ ccPairId }: { ccPairId: number }) {
   return (
     <>
       <BackButton />
-      <div className="pb-1 flex mt-1">
-        <h1 className="text-3xl text-emphasis font-bold">{ccPair.name}</h1>
+      <div className="pb-5 flex">
+        <h1 className="text-3xl  font-bold">{ccPair.name}</h1>
 
         <div className="ml-auto">
           <ModifyStatusButtonCluster ccPair={ccPair} />
         </div>
       </div>
-
       <CCPairStatus
         status={lastIndexAttempt?.status || "not_started"}
         disabled={ccPair.connector.disabled}
         isDeleting={isDeleting}
       />
-
-      <div className="text-sm mt-1">
-        Total Documents Indexed:{" "}
-        <b className="text-emphasis">{totalDocsIndexed}</b>
+      <div className="text-sm pt-5">
+        Total Documents Indexed: <b className="">{totalDocsIndexed}</b>
       </div>
-
       <Divider />
-
       <ConfigDisplay
         connectorSpecificConfig={ccPair.connector.connector_specific_config}
         sourceType={ccPair.connector.source}
       />
       {/* NOTE: no divider / title here for `ConfigDisplay` since it is optional and we need
         to render these conditionally.*/}
+      <Card className="mt-6">
+        <CardHeader className="border-b pb-10">
+          <div className="flex items-center">
+            <h3 className="font-semibold">Indexing Attempts</h3>
 
-      <div className="mt-6">
-        <div className="flex">
-          <Title>Indexing Attempts</Title>
-
-          {!CONNECTOR_TYPES_THAT_CANT_REINDEX.includes(
-            ccPair.connector.source
-          ) && (
-            <ReIndexButton
-              ccPairId={ccPair.id}
-              connectorId={ccPair.connector.id}
-              credentialId={ccPair.credential.id}
-              isDisabled={ccPair.connector.disabled}
-            />
-          )}
-        </div>
-
-        <IndexingAttemptsTable ccPair={ccPair} />
-      </div>
-
+            {!CONNECTOR_TYPES_THAT_CANT_REINDEX.includes(
+              ccPair.connector.source
+            ) && (
+              <ReIndexButton
+                ccPairId={ccPair.id}
+                connectorId={ccPair.connector.id}
+                credentialId={ccPair.credential.id}
+                isDisabled={ccPair.connector.disabled}
+              />
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <IndexingAttemptsTable ccPair={ccPair} />
+        </CardContent>
+      </Card>
       <Divider />
-
       <div className="mt-4">
         <Title>Delete Connector</Title>
-        <Text>
+        <p className="text-sm text-subtle">
           Deleting the connector will also delete all associated documents.
-        </Text>
+        </p>
 
         <div className="flex mt-16">
           <div className="mx-auto">
@@ -125,7 +121,6 @@ function Main({ ccPairId }: { ccPairId: number }) {
           </div>
         </div>
       </div>
-
       {/* TODO: add document search*/}
     </>
   );
@@ -135,8 +130,8 @@ export default function Page({ params }: { params: { ccPairId: string } }) {
   const ccPairId = parseInt(params.ccPairId);
 
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
 

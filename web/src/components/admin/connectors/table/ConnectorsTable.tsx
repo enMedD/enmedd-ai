@@ -1,19 +1,20 @@
 import { ConnectorIndexingStatus, Credential } from "@/lib/types";
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
 import { LinkBreakIcon, LinkIcon } from "@/components/icons/icons";
 import { disableConnector } from "@/lib/connector";
 import { AttachCredentialButtonForTable } from "@/components/admin/connectors/buttons/AttachCredentialButtonForTable";
 import { DeleteColumn } from "./DeleteColumn";
+import { FiCheck, FiXCircle } from "react-icons/fi";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
-} from "@tremor/react";
-import { FiCheck, FiXCircle } from "react-icons/fi";
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { Badge } from "@/components/ui/badge";
 
 interface StatusRowProps<ConnectorConfigType, ConnectorCredentialType> {
   connectorIndexingStatus: ConnectorIndexingStatus<
@@ -21,73 +22,82 @@ interface StatusRowProps<ConnectorConfigType, ConnectorCredentialType> {
     ConnectorCredentialType
   >;
   hasCredentialsIssue: boolean;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   onUpdate: () => void;
 }
 
 export function StatusRow<ConnectorConfigType, ConnectorCredentialType>({
   connectorIndexingStatus,
   hasCredentialsIssue,
-  setPopup,
   onUpdate,
 }: StatusRowProps<ConnectorConfigType, ConnectorCredentialType>) {
-  const [statusHovered, setStatusHovered] = useState<boolean>(false);
   const connector = connectorIndexingStatus.connector;
 
   let shouldDisplayDisabledToggle = !hasCredentialsIssue;
   let statusDisplay;
+  let statusClass = "";
+  let badgeVariant:
+    | "default"
+    | "secondary"
+    | "warning"
+    | "destructive"
+    | "outline"
+    | "success" = "default";
+
   switch (connectorIndexingStatus.last_status) {
     case "failed":
-      statusDisplay = <div className="text-error">Failed</div>;
+      statusDisplay = <div>Failed</div>;
+      statusClass = "";
+      badgeVariant = "destructive";
       break;
     default:
-      statusDisplay = <div className="text-success flex">Enabled!</div>;
+      statusDisplay = <div className="flex">Enabled!</div>;
+      badgeVariant = "success";
   }
+
   if (connector.disabled) {
     const deletionAttempt = connectorIndexingStatus.deletion_attempt;
     if (!deletionAttempt || deletionAttempt.status === "FAILURE") {
-      statusDisplay = <div className="text-error">Paused</div>;
+      statusDisplay = <div className="text-black">Paused</div>;
+      statusClass = "text-black";
+      badgeVariant = "secondary";
     } else {
-      statusDisplay = <div className="text-error">Deleting...</div>;
+      statusDisplay = <div>Deleting...</div>;
       shouldDisplayDisabledToggle = false;
+      badgeVariant = "destructive";
     }
   }
 
   return (
-    <div className="flex">
-      {statusDisplay}
-      {shouldDisplayDisabledToggle && (
-        <div
-          className="cursor-pointer ml-1 my-auto relative"
-          onMouseEnter={() => setStatusHovered(true)}
-          onMouseLeave={() => setStatusHovered(false)}
-          onClick={() => disableConnector(connector, setPopup, onUpdate)}
+    <CustomTooltip
+      trigger={
+        <Badge
+          onClick={() => disableConnector(connector, onUpdate)}
+          className="flex items-center gap-1"
+          variant={badgeVariant}
         >
-          {statusHovered && (
-            <div className="flex flex-nowrap absolute top-0 left-0 ml-8 bg-background border border-border px-3 py-2 rounded shadow-lg">
-              {connector.disabled ? "Enable!" : "Pause!"}
-            </div>
-          )}
+          {statusDisplay}
           {connector.disabled ? (
-            <LinkIcon className="my-auto flex flex-shrink-0 text-error" />
+            <LinkIcon
+              className="my-auto flex flex-shrink-0 text-black" // Black color for disabled state
+              size={14}
+            />
           ) : (
             <LinkBreakIcon
-              className={`my-auto flex flex-shrink-0 ${
-                connectorIndexingStatus.last_status === "failed"
-                  ? "text-error"
-                  : "text-success"
-              }`}
+              className={`my-auto flex flex-shrink-0 ${statusClass}`}
+              size={14}
             />
           )}
-        </div>
-      )}
-    </div>
+        </Badge>
+      }
+    >
+      {connector.disabled ? "Enable!" : "Pause!"}
+    </CustomTooltip>
   );
 }
 
 export interface ColumnSpecification<
   ConnectorConfigType,
-  ConnectorCredentialType
+  ConnectorCredentialType,
 > {
   header: string;
   key: string;
@@ -101,7 +111,7 @@ export interface ColumnSpecification<
 
 export interface ConnectorsTableProps<
   ConnectorConfigType,
-  ConnectorCredentialType
+  ConnectorCredentialType,
 > {
   connectorIndexingStatuses: ConnectorIndexingStatus<
     ConnectorConfigType,
@@ -129,8 +139,6 @@ export function ConnectorsTable<ConnectorConfigType, ConnectorCredentialType>({
   onCredentialLink,
   includeName = false,
 }: ConnectorsTableProps<ConnectorConfigType, ConnectorCredentialType>) {
-  const { popup, setPopup } = usePopup();
-
   const connectorIncludesCredential =
     getCredential !== undefined && onCredentialLink !== undefined;
 
@@ -158,92 +166,88 @@ export function ConnectorsTable<ConnectorConfigType, ConnectorCredentialType>({
   });
 
   return (
-    <div>
-      {popup}
-
-      <Table className="overflow-visible">
-        <TableHead>
-          <TableRow>
-            {includeName && <TableHeaderCell>Name</TableHeaderCell>}
-            {specialColumns?.map(({ header }) => (
-              <TableHeaderCell key={header}>{header}</TableHeaderCell>
-            ))}
-            <TableHeaderCell>Status</TableHeaderCell>
-            <TableHeaderCell>Is Public</TableHeaderCell>
-            {connectorIncludesCredential && (
-              <TableHeaderCell>Credential</TableHeaderCell>
-            )}
-            <TableHeaderCell>Remove</TableHeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {connectorIndexingStatuses.map((connectorIndexingStatus) => {
-            const connector = connectorIndexingStatus.connector;
-            // const credential = connectorIndexingStatus.credential;
-            const hasValidCredentials =
-              liveCredential &&
-              connector.credential_ids.includes(liveCredential.id);
-            const credentialDisplay = connectorIncludesCredential ? (
-              hasValidCredentials ? (
-                <div className="max-w-sm truncate">
-                  {getCredential(liveCredential)}
-                </div>
-              ) : liveCredential ? (
-                <AttachCredentialButtonForTable
-                  onClick={() => onCredentialLink(connector.id)}
-                />
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {includeName && <TableHead>Name</TableHead>}
+              {specialColumns?.map(({ header }) => (
+                <TableHead key={header}>{header}</TableHead>
+              ))}
+              <TableHead>Status</TableHead>
+              <TableHead>Is Public</TableHead>
+              {connectorIncludesCredential && <TableHead>Credential</TableHead>}
+              <TableHead>Remove</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {connectorIndexingStatuses.map((connectorIndexingStatus) => {
+              const connector = connectorIndexingStatus.connector;
+              // const credential = connectorIndexingStatus.credential;
+              const hasValidCredentials =
+                liveCredential &&
+                connector.credential_ids.includes(liveCredential.id);
+              const credentialDisplay = connectorIncludesCredential ? (
+                hasValidCredentials ? (
+                  <div className="max-w-sm truncate">
+                    {getCredential(liveCredential)}
+                  </div>
+                ) : liveCredential ? (
+                  <AttachCredentialButtonForTable
+                    onClick={() => onCredentialLink(connector.id)}
+                  />
+                ) : (
+                  <p className="text-red-700">N/A</p>
+                )
               ) : (
-                <p className="text-red-700">N/A</p>
-              )
-            ) : (
-              "-"
-            );
-            return (
-              <TableRow key={connectorIndexingStatus.cc_pair_id}>
-                {includeName && (
-                  <TableCell className="whitespace-normal break-all">
-                    <p className="text font-medium">
-                      {connectorIndexingStatus.name}
-                    </p>
-                  </TableCell>
-                )}
-                {specialColumns?.map(({ key, getValue }) => (
-                  <TableCell key={key}>
-                    {getValue(connectorIndexingStatus)}
-                  </TableCell>
-                ))}
-                <TableCell>
-                  <StatusRow
-                    connectorIndexingStatus={connectorIndexingStatus}
-                    hasCredentialsIssue={
-                      !hasValidCredentials && connectorIncludesCredential
-                    }
-                    setPopup={setPopup}
-                    onUpdate={onUpdate}
-                  />
-                </TableCell>
-                <TableCell>
-                  {connectorIndexingStatus.public_doc ? (
-                    <FiCheck className="my-auto text-success" size="18" />
-                  ) : (
-                    <FiXCircle className="my-auto text-error" />
+                "-"
+              );
+              return (
+                <TableRow key={connectorIndexingStatus.cc_pair_id}>
+                  {includeName && (
+                    <TableCell className="whitespace-normal break-all">
+                      <p className="text font-medium">
+                        {connectorIndexingStatus.name}
+                      </p>
+                    </TableCell>
                   )}
-                </TableCell>
-                {connectorIncludesCredential && (
-                  <TableCell>{credentialDisplay}</TableCell>
-                )}
-                <TableCell>
-                  <DeleteColumn
-                    connectorIndexingStatus={connectorIndexingStatus}
-                    setPopup={setPopup}
-                    onUpdate={onUpdate}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                  {specialColumns?.map(({ key, getValue }) => (
+                    <TableCell key={key}>
+                      {getValue(connectorIndexingStatus)}
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <StatusRow
+                      connectorIndexingStatus={connectorIndexingStatus}
+                      hasCredentialsIssue={
+                        !hasValidCredentials && connectorIncludesCredential
+                      }
+                      onUpdate={onUpdate}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {connectorIndexingStatus.public_doc ? (
+                      <FiCheck className="my-auto text-success" size="18" />
+                    ) : (
+                      <FiXCircle className="my-auto text-error" />
+                    )}
+                  </TableCell>
+                  {connectorIncludesCredential && (
+                    <TableCell>{credentialDisplay}</TableCell>
+                  )}
+                  <TableCell>
+                    <DeleteColumn
+                      connectorIndexingStatus={connectorIndexingStatus}
+                      onUpdate={onUpdate}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

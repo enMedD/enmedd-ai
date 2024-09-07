@@ -1,26 +1,25 @@
-import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { FullLLMProvider, WellKnownLLMProviderDescriptor } from "./interfaces";
-import { Modal } from "@/components/Modal";
 import { LLMProviderUpdateForm } from "./LLMProviderUpdateForm";
 import { CustomLLMProviderUpdateForm } from "./CustomLLMProviderUpdateForm";
 import { useState } from "react";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
 import { mutate } from "swr";
-import { Badge, Button } from "@tremor/react";
 import isEqual from "lodash/isEqual";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CustomModal } from "@/components/CustomModal";
+import { useToast } from "@/hooks/use-toast";
 
 function LLMProviderUpdateModal({
   llmProviderDescriptor,
   onClose,
   existingLlmProvider,
   shouldMarkAsDefault,
-  setPopup,
 }: {
   llmProviderDescriptor: WellKnownLLMProviderDescriptor | null | undefined;
   onClose: () => void;
   existingLlmProvider?: FullLLMProvider;
   shouldMarkAsDefault?: boolean;
-  setPopup?: (popup: PopupSpec) => void;
 }) {
   const providerName = existingLlmProvider?.name
     ? `"${existingLlmProvider.name}"`
@@ -29,29 +28,25 @@ function LLMProviderUpdateModal({
       llmProviderDescriptor?.name ||
       "Custom LLM Provider";
   return (
-    <Modal
-      title={`${llmProviderDescriptor ? "Configure" : "Setup"} ${providerName}`}
-      onOutsideClick={() => onClose()}
-    >
-      <div className="max-h-[70vh] overflow-y-auto px-4">
-        {llmProviderDescriptor ? (
-          <LLMProviderUpdateForm
-            llmProviderDescriptor={llmProviderDescriptor}
-            onClose={onClose}
-            existingLlmProvider={existingLlmProvider}
-            shouldMarkAsDefault={shouldMarkAsDefault}
-            setPopup={setPopup}
-          />
-        ) : (
-          <CustomLLMProviderUpdateForm
-            onClose={onClose}
-            existingLlmProvider={existingLlmProvider}
-            shouldMarkAsDefault={shouldMarkAsDefault}
-            setPopup={setPopup}
-          />
-        )}
-      </div>
-    </Modal>
+    <div className="px-4">
+      <h2 className="text-2xl font-semibold pb-6">{`${
+        llmProviderDescriptor ? "Configure" : "Setup"
+      } ${providerName}`}</h2>
+      {llmProviderDescriptor ? (
+        <LLMProviderUpdateForm
+          llmProviderDescriptor={llmProviderDescriptor}
+          onClose={onClose}
+          existingLlmProvider={existingLlmProvider}
+          shouldMarkAsDefault={shouldMarkAsDefault}
+        />
+      ) : (
+        <CustomLLMProviderUpdateForm
+          onClose={onClose}
+          existingLlmProvider={existingLlmProvider}
+          shouldMarkAsDefault={shouldMarkAsDefault}
+        />
+      )}
+    </div>
   );
 }
 
@@ -65,83 +60,86 @@ function LLMProviderDisplay({
   shouldMarkAsDefault?: boolean;
 }) {
   const [formIsVisible, setFormIsVisible] = useState(false);
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const providerName =
     existingLlmProvider?.name ||
     llmProviderDescriptor?.display_name ||
     llmProviderDescriptor?.name;
+
+  const handleClose = () => {
+    setFormIsVisible(false);
+  };
+
   return (
-    <div>
-      {popup}
-      <div className="flex p-3 border rounded shadow-md border-border md:w-96">
-        <div className="my-auto">
-          <div className="font-bold">{providerName} </div>
-          <div className="text-xs italic">({existingLlmProvider.provider})</div>
-          {!existingLlmProvider.is_default_provider && (
-            <div
-              className="pt-1 text-xs cursor-pointer text-link"
-              onClick={async () => {
-                const response = await fetch(
-                  `${LLM_PROVIDERS_ADMIN_URL}/${existingLlmProvider.id}/default`,
-                  {
-                    method: "POST",
-                  }
-                );
-                if (!response.ok) {
-                  const errorMsg = (await response.json()).detail;
-                  setPopup({
-                    type: "error",
-                    message: `Failed to set provider as default: ${errorMsg}`,
-                  });
-                  return;
+    <div className="flex p-3 border rounded shadow-sm border-border md:w-96">
+      <div className="my-auto">
+        <div className="font-bold">{providerName} </div>
+        <div className="text-xs italic">({existingLlmProvider.provider})</div>
+        {!existingLlmProvider.is_default_provider && (
+          <div
+            className="pt-1 text-xs cursor-pointer text-link"
+            onClick={async () => {
+              const response = await fetch(
+                `${LLM_PROVIDERS_ADMIN_URL}/${existingLlmProvider.id}/default`,
+                {
+                  method: "POST",
                 }
-
-                mutate(LLM_PROVIDERS_ADMIN_URL);
-                setPopup({
-                  type: "success",
-                  message: "Provider set as default successfully!",
+              );
+              if (!response.ok) {
+                const errorMsg = (await response.json()).detail;
+                toast({
+                  title: "Error",
+                  description: `Failed to set provider as default: ${errorMsg}`,
+                  variant: "destructive",
                 });
-              }}
-            >
-              Set as default
-            </div>
-          )}
-        </div>
+                return;
+              }
 
-        {existingLlmProvider && (
-          <div className="my-auto ml-3">
-            {existingLlmProvider.is_default_provider ? (
-              <Badge color="orange" size="xs">
-                Default
-              </Badge>
-            ) : (
-              <Badge color="green" size="xs">
-                Enabled
-              </Badge>
-            )}
+              mutate(LLM_PROVIDERS_ADMIN_URL);
+              toast({
+                title: "Success",
+                description: "Provider set as default successfully!",
+                variant: "success",
+              });
+            }}
+          >
+            Set as default
           </div>
         )}
-
-        <div className="ml-auto">
-          <Button
-            color={existingLlmProvider ? "green" : "blue"}
-            size="xs"
-            onClick={() => setFormIsVisible(true)}
-          >
-            {existingLlmProvider ? "Edit" : "Set up"}
-          </Button>
-        </div>
       </div>
-      {formIsVisible && (
-        <LLMProviderUpdateModal
-          llmProviderDescriptor={llmProviderDescriptor}
-          onClose={() => setFormIsVisible(false)}
-          existingLlmProvider={existingLlmProvider}
-          shouldMarkAsDefault={shouldMarkAsDefault}
-          setPopup={setPopup}
-        />
+
+      {existingLlmProvider && (
+        <div className="my-auto ml-3">
+          {existingLlmProvider.is_default_provider ? (
+            <Badge variant="outline">Default</Badge>
+          ) : (
+            <Badge variant="success">Enabled</Badge>
+          )}
+        </div>
       )}
+
+      <div className="ml-auto">
+        <CustomModal
+          trigger={
+            <Button
+              variant={existingLlmProvider ? "outline" : "default"}
+              onClick={() => setFormIsVisible(true)}
+            >
+              {existingLlmProvider ? "Edit" : "Set up"}
+            </Button>
+          }
+          onClose={handleClose}
+          open={formIsVisible}
+        >
+          <LLMProviderUpdateModal
+            llmProviderDescriptor={llmProviderDescriptor}
+            onClose={handleClose}
+            existingLlmProvider={existingLlmProvider}
+            shouldMarkAsDefault={shouldMarkAsDefault}
+          />
+        </CustomModal>
+      </div>
     </div>
   );
 }
@@ -164,7 +162,7 @@ export function ConfiguredLLMProviderDisplay({
   });
 
   return (
-    <div className="flex flex-col gap-y-4">
+    <div className="flex flex-col gap-y-4 pb-10">
       {existingLlmProviders.map((provider) => {
         const defaultProviderDesciptor = llmProviderDescriptors.find(
           (llmProviderDescriptors) =>

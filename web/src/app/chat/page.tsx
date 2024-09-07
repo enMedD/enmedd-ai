@@ -5,8 +5,8 @@ import { WelcomeModal } from "@/components/initialSetup/welcome/WelcomeModalWrap
 import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { ChatPage } from "./ChatPage";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
-import { ChatProvider } from "@/components/context/ChatContext";
 import { fetchChatData } from "@/lib/chat/fetchChatData";
+import { ChatProvider } from "@/context/ChatContext";
 
 export default async function Page({
   searchParams,
@@ -27,12 +27,12 @@ export default async function Page({
     ccPairs,
     availableSources,
     documentSets,
-    personas,
+    assistants,
     tags,
     llmProviders,
     folders,
     openedFolders,
-    defaultPersonaId,
+    defaultAssistantId,
     finalDocumentSidebarInitialWidth,
     shouldShowWelcomeModal,
     shouldDisplaySourcesIncompleteModal,
@@ -42,29 +42,33 @@ export default async function Page({
     <>
       <InstantSSRAutoRefresh />
       {shouldShowWelcomeModal && <WelcomeModal user={user} />}
+
       {!shouldShowWelcomeModal && !shouldDisplaySourcesIncompleteModal && (
         <ApiKeyModal user={user} />
       )}
       {shouldDisplaySourcesIncompleteModal && (
         <NoCompleteSourcesModal ccPairs={ccPairs} />
       )}
+
       <ChatProvider
         value={{
           user,
           chatSessions,
           availableSources,
           availableDocumentSets: documentSets,
-          availablePersonas: personas,
+          availableAssistants: assistants,
           availableTags: tags,
           llmProviders,
           folders,
           openedFolders,
         }}
       >
-        <ChatPage
-          defaultSelectedPersonaId={defaultPersonaId}
-          documentSidebarInitialWidth={finalDocumentSidebarInitialWidth}
-        />
+        <div className="h-full overflow-hidden">
+          <ChatPage
+            defaultSelectedAssistantsId={defaultAssistantId}
+            documentSidebarInitialWidth={finalDocumentSidebarInitialWidth}
+          />
+        </div>
       </ChatProvider>
     </>
   );

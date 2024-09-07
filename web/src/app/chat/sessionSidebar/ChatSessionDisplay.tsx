@@ -7,36 +7,40 @@ import { deleteChatSession, renameChatSession } from "../lib";
 import { DeleteChatModal } from "../modal/DeleteChatModal";
 import { BasicSelectable } from "@/components/BasicClickable";
 import Link from "next/link";
-import {
-  FiCheck,
-  FiEdit2,
-  FiMoreHorizontal,
-  FiShare2,
-  FiTrash,
-  FiX,
-} from "react-icons/fi";
-import { DefaultDropdownElement } from "@/components/Dropdown";
-import { Popover } from "@/components/popover/Popover";
+
 import { ShareChatSessionModal } from "../modal/ShareChatSessionModal";
 import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
+import {
+  Ellipsis,
+  Share2,
+  X,
+  Check,
+  Pencil,
+  MessageCircleMore,
+} from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 export function ChatSessionDisplay({
   chatSession,
   isSelected,
   skipGradient,
+  toggleSideBar,
 }: {
   chatSession: ChatSession;
   isSelected: boolean;
   // needed when the parent is trying to apply some background effect
   // if not set, the gradient will still be applied and cause weirdness
   skipGradient?: boolean;
+  toggleSideBar?: () => void;
 }) {
   const router = useRouter();
   const [isDeletionModalVisible, setIsDeletionModalVisible] = useState(false);
   const [isRenamingChat, setIsRenamingChat] = useState(false);
-  const [isMoreOptionsDropdownOpen, setIsMoreOptionsDropdownOpen] =
-    useState(false);
-  const [isShareModalVisible, setIsShareModalVisible] = useState(false);
   const [chatName, setChatName] = useState(chatSession.name);
   const [delayedSkipGradient, setDelayedSkipGradient] = useState(skipGradient);
 
@@ -63,32 +67,8 @@ export function ChatSessionDisplay({
 
   return (
     <>
-      {isShareModalVisible && (
-        <ShareChatSessionModal
-          chatSessionId={chatSession.id}
-          existingSharedStatus={chatSession.shared_status}
-          onClose={() => setIsShareModalVisible(false)}
-        />
-      )}
-
-      {isDeletionModalVisible && (
-        <DeleteChatModal
-          onClose={() => setIsDeletionModalVisible(false)}
-          onSubmit={async () => {
-            const response = await deleteChatSession(chatSession.id);
-            if (response.ok) {
-              setIsDeletionModalVisible(false);
-              // go back to the main page
-              router.push("/chat");
-            } else {
-              alert("Failed to delete chat session");
-            }
-          }}
-          chatSessionName={chatSession.name}
-        />
-      )}
       <Link
-        className="flex my-1 relative"
+        className="flex relative"
         key={chatSession.id}
         href={`/chat?chatId=${chatSession.id}`}
         scroll={false}
@@ -103,10 +83,12 @@ export function ChatSessionDisplay({
             chatSession.folder_id?.toString() || ""
           );
         }}
+        onClick={toggleSideBar}
       >
         <BasicSelectable fullWidth selected={isSelected}>
           <>
-            <div className="flex relative">
+            <div className="flex relative items-center gap-2 w-full">
+              <MessageCircleMore size={16} className="min-w-4 min-h-4" />
               {isRenamingChat ? (
                 <input
                   value={chatName}
@@ -117,10 +99,10 @@ export function ChatSessionDisplay({
                       event.preventDefault();
                     }
                   }}
-                  className="-my-px px-1 mr-2 w-full rounded"
+                  className="-my-px px-1 py-[1px] mr-2 w-full rounded"
                 />
               ) : (
-                <p className="break-all overflow-hidden whitespace-nowrap mr-3 text-emphasis">
+                <p className="break-all overflow-hidden whitespace-nowrap mr-3  text-ellipsis">
                   {chatName || `Chat ${chatSession.id}`}
                 </p>
               )}
@@ -129,75 +111,78 @@ export function ChatSessionDisplay({
                   <div className="ml-auto my-auto flex">
                     <div
                       onClick={onRename}
-                      className={`hover:bg-black/10 p-1 -m-1 rounded`}
+                      className={`hover:bg-background-inverted/10 p-1 -m-1 rounded`}
                     >
-                      <FiCheck size={16} />
+                      <Check size={16} />
                     </div>
                     <div
                       onClick={() => {
                         setChatName(chatSession.name);
                         setIsRenamingChat(false);
                       }}
-                      className={`hover:bg-black/10 p-1 -m-1 rounded ml-2`}
+                      className={`hover:bg-background-inverted/10 p-1 -m-1 rounded ml-2`}
                     >
-                      <FiX size={16} />
+                      <X size={16} />
                     </div>
                   </div>
                 ) : (
-                  <div className="ml-auto my-auto flex z-30">
-                    <div>
-                      <div
-                        onClick={() => {
-                          setIsMoreOptionsDropdownOpen(
-                            !isMoreOptionsDropdownOpen
-                          );
-                        }}
-                        className={"-m-1"}
-                      >
-                        <Popover
-                          open={isMoreOptionsDropdownOpen}
-                          onOpenChange={(open: boolean) =>
-                            setIsMoreOptionsDropdownOpen(open)
-                          }
-                          content={
-                            <div className="hover:bg-black/10 p-1 rounded">
-                              <FiMoreHorizontal size={16} />
+                  <div className="ml-auto my-auto flex z-30 gap-1">
+                    <div className="flex items-center">
+                      <div className={"-m-1"}>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <div className="hover:bg-background-inverted/10 p-1 rounded">
+                              <Ellipsis size={16} />
                             </div>
-                          }
-                          popover={
-                            <div className="border border-border rounded-lg bg-background z-50 w-32">
-                              <DefaultDropdownElement
-                                name="Share"
-                                icon={FiShare2}
-                                onSelect={() => setIsShareModalVisible(true)}
-                              />
-                              <DefaultDropdownElement
-                                name="Rename"
-                                icon={FiEdit2}
-                                onSelect={() => setIsRenamingChat(true)}
-                              />
+                          </PopoverTrigger>
+                          <PopoverContent>
+                            <div className="flex flex-col w-full">
+                              {/* <ShareChatSessionModal
+                                chatSessionId={chatSession.id}
+                                existingSharedStatus={chatSession.shared_status}
+                              >
+                                <Button
+                                  variant="ghost"
+                                  className="w-full flex justify-start hover:bg-primary hover:text-inverted"
+                                >
+                                  <Share2 className="mr-2" size={16} />
+                                  Share
+                                </Button>
+                              </ShareChatSessionModal> */}
+                              <Button
+                                variant="ghost"
+                                onClick={() => setIsRenamingChat(true)}
+                                className="w-full hover:bg-primary hover:text-inverted"
+                              >
+                                <Pencil className="mr-2" size={16} />
+                                Rename
+                              </Button>
                             </div>
-                          }
-                          requiresContentPadding
-                          sideOffset={6}
-                          triggerMaxWidth
-                        />
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
-                    <div
-                      onClick={() => setIsDeletionModalVisible(true)}
-                      className={`hover:bg-black/10 p-1 -m-1 rounded ml-2`}
-                    >
-                      <FiTrash size={16} />
-                    </div>
+
+                    <DeleteChatModal
+                      onSubmit={async () => {
+                        const response = await deleteChatSession(
+                          chatSession.id
+                        );
+                        if (response.ok) {
+                          setIsDeletionModalVisible(false);
+                          // go back to the main page
+                          router.push("/chat");
+                        } else {
+                          alert("Failed to delete chat session");
+                        }
+                      }}
+                      chatSessionName={chatSession.name}
+                    />
                   </div>
                 ))}
             </div>
             {isSelected && !isRenamingChat && !delayedSkipGradient && (
               <div className="absolute bottom-0 right-0 top-0 bg-gradient-to-l to-transparent from-hover w-20 from-60% rounded" />
-            )}
-            {!isSelected && !delayedSkipGradient && (
-              <div className="absolute bottom-0 right-0 top-0 bg-gradient-to-l to-transparent from-background-weak w-8 from-0% rounded" />
             )}
           </>
         </BasicSelectable>

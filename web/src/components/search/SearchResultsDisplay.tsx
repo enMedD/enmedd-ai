@@ -2,7 +2,7 @@
 
 import React from "react";
 import {
-  DanswerDocument,
+  EnmeddDocument,
   SearchResponse,
   Quote,
   FlowType,
@@ -14,12 +14,15 @@ import { DocumentDisplay } from "./DocumentDisplay";
 import { QuotesSection } from "./results/QuotesSection";
 import { AnswerSection } from "./results/AnswerSection";
 import { ThreeDots } from "react-loader-spinner";
-import { usePopup } from "../admin/connectors/Popup";
 import { AlertIcon } from "../icons/icons";
 import { removeDuplicateDocs } from "@/lib/documentUtils";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import useSWR from "swr";
+import { ConnectorIndexingStatus } from "@/lib/types";
+import { errorHandlingFetcher } from "@/lib/fetcher";
 
 const getSelectedDocumentIds = (
-  documents: DanswerDocument[],
+  documents: EnmeddDocument[],
   selectedIndices: number[]
 ) => {
   const selectedDocumentIds = new Set<string>();
@@ -34,21 +37,29 @@ export const SearchResultsDisplay = ({
   validQuestionResponse,
   isFetching,
   defaultOverrides,
-  personaName = null,
+  assistantName = null,
 }: {
   searchResponse: SearchResponse | null;
   validQuestionResponse: ValidQuestionResponse;
   isFetching: boolean;
   defaultOverrides: SearchDefaultOverrides;
-  personaName?: string | null;
+  assistantName?: string | null;
 }) => {
-  const { popup, setPopup } = usePopup();
+  const {
+    data: indexAttemptData,
+    isLoading: indexAttemptIsLoading,
+    error: indexAttemptError,
+  } = useSWR<ConnectorIndexingStatus<any, any>[]>(
+    "/api/manage/admin/connector/indexing-status",
+    errorHandlingFetcher,
+    { refreshInterval: 10000 } // 10 seconds
+  );
 
   if (!searchResponse) {
     return null;
   }
 
-  const isPersona = personaName !== null;
+  const isAssistant = assistantName !== null;
   const { answer, quotes, documents, error, messageId } = searchResponse;
 
   if (isFetching && !answer && !documents) {
@@ -112,71 +123,74 @@ export const SearchResultsDisplay = ({
     searchResponse.suggestedFlowType === FlowType.QUESTION_ANSWER ||
     defaultOverrides.forceDisplayQA;
 
+  console.log(indexAttemptData);
+
   return (
-    <>
-      {popup}
+    <div className="px-2">
       {shouldDisplayQA && (
-        <div className="min-h-[16rem] p-4 border-2 border-border rounded-lg relative">
-          <div>
-            <div className="flex mb-1">
-              <h2 className="text-emphasis font-bold my-auto mb-1 w-full">
-                AI Answer
-              </h2>
-            </div>
+        <Card className="p-4 relative">
+          <CardHeader className="border-b p-0 pb-4">
+            <h2 className="text-dark-900 font-bold">AI Answer</h2>
+          </CardHeader>
 
-            <div className="mb-2 pt-1 border-t border-border w-full">
-              <AnswerSection
-                answer={answer}
-                quotes={quotes}
-                error={error}
-                nonAnswerableReason={
-                  validQuestionResponse.answerable === false && !isPersona
-                    ? validQuestionResponse.reasoning
-                    : ""
-                }
+          <CardContent className="px-0 py-2">
+            <AnswerSection
+              answer={answer}
+              quotes={quotes}
+              error={error}
+              nonAnswerableReason={
+                validQuestionResponse.answerable === false && !isAssistant
+                  ? validQuestionResponse.reasoning
+                  : ""
+              }
+              isFetching={isFetching}
+            />
+          </CardContent>
+
+          {quotes !== null && answer && !isAssistant && (
+            <CardFooter className="p-0 border-t pt-2">
+              <QuotesSection
+                quotes={dedupedQuotes}
                 isFetching={isFetching}
+                isAnswerable={validQuestionResponse.answerable}
               />
-            </div>
 
-            {quotes !== null && answer && !isPersona && (
-              <div className="pt-1 border-t border-border w-full">
-                <QuotesSection
-                  quotes={dedupedQuotes}
-                  isFetching={isFetching}
-                  isAnswerable={validQuestionResponse.answerable}
-                />
-
-                {searchResponse.messageId !== null && (
-                  <div className="absolute right-3 bottom-3">
-                    <QAFeedbackBlock
-                      messageId={searchResponse.messageId}
-                      setPopup={setPopup}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+              {searchResponse.messageId !== null && (
+                <div className="absolute right-4 bottom-4">
+                  <QAFeedbackBlock messageId={searchResponse.messageId} />
+                </div>
+              )}
+            </CardFooter>
+          )}
+        </Card>
       )}
 
       {documents && documents.length > 0 && (
-        <div className="mt-4">
-          <div className="font-bold text-emphasis border-b mb-3 pb-1 border-border text-lg">
+        <div className="h-full">
+          <div className="font-bold text-dark-900 border-b py-2.5 px-4 border-border text-lg">
             Results
           </div>
-          {removeDuplicateDocs(documents).map((document, ind) => (
-            <DocumentDisplay
-              key={document.document_id}
-              document={document}
-              documentRank={ind + 1}
-              messageId={messageId}
-              isSelected={selectedDocumentIds.has(document.document_id)}
-              setPopup={setPopup}
-            />
-          ))}
+          <div className="h-full">
+            {removeDuplicateDocs(documents).map((document, ind) => (
+              <div
+                key={document.document_id}
+                className={
+                  ind === removeDuplicateDocs(documents).length - 1
+                    ? "pb-20"
+                    : ""
+                }
+              >
+                <DocumentDisplay
+                  document={document}
+                  documentRank={ind + 1}
+                  messageId={messageId}
+                  isSelected={selectedDocumentIds.has(document.document_id)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 };

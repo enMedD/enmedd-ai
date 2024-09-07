@@ -2,33 +2,34 @@
 
 import { ArrayHelpers, FieldArray, Form, Formik } from "formik";
 import * as Yup from "yup";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { createDocumentSet, updateDocumentSet } from "./lib";
-import { ConnectorIndexingStatus, DocumentSet, UserGroup } from "@/lib/types";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import {
   BooleanFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { Button, Divider, Text } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { FiUsers } from "react-icons/fi";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
-  userGroups: UserGroup[] | undefined;
+  teamspaces: Teamspace[] | undefined;
   onClose: () => void;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   existingDocumentSet?: DocumentSet;
 }
 
 export const DocumentSetCreationForm = ({
   ccPairs,
-  userGroups,
+  teamspaces,
   onClose,
-  setPopup,
   existingDocumentSet,
 }: SetCreationPopupProps) => {
+  const { toast } = useToast();
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
   const isUpdate = existingDocumentSet !== undefined;
@@ -80,20 +81,22 @@ export const DocumentSetCreationForm = ({
           }
           formikHelpers.setSubmitting(false);
           if (response.ok) {
-            setPopup({
-              message: isUpdate
+            toast({
+              title: isUpdate ? "Update Successful" : "Creation Successful",
+              description: isUpdate
                 ? "Successfully updated document set!"
                 : "Successfully created document set!",
-              type: "success",
+              variant: "success",
             });
             onClose();
           } else {
             const errorMsg = await response.text();
-            setPopup({
-              message: isUpdate
+            toast({
+              title: "Error",
+              description: isUpdate
                 ? `Error updating document set - ${errorMsg}`
                 : `Error creating document set - ${errorMsg}`,
-              type: "error",
+              variant: "destructive",
             });
           }
         }}
@@ -119,7 +122,7 @@ export const DocumentSetCreationForm = ({
             <h2 className="mb-1 font-medium text-base">
               Pick your connectors:
             </h2>
-            <p className="mb-3 text-xs">
+            <p className="mb-3 text-xs text-subtle">
               All documents indexed by the selected connectors will be a part of
               this document set.
             </p>
@@ -131,22 +134,10 @@ export const DocumentSetCreationForm = ({
                     const ind = values.cc_pair_ids.indexOf(ccPair.cc_pair_id);
                     let isSelected = ind !== -1;
                     return (
-                      <div
+                      <Badge
                         key={`${ccPair.connector.id}-${ccPair.credential.id}`}
-                        className={
-                          `
-                              px-3 
-                              py-1
-                              rounded-lg 
-                              border
-                              border-border 
-                              w-fit 
-                              flex 
-                              cursor-pointer ` +
-                          (isSelected
-                            ? " bg-background-strong"
-                            : " hover:bg-hover")
-                        }
+                        variant={isSelected ? "default" : "outline"}
+                        className="cursor-pointer hover:opacity-75"
                         onClick={() => {
                           if (isSelected) {
                             arrayHelpers.remove(ind);
@@ -164,7 +155,7 @@ export const DocumentSetCreationForm = ({
                             showMetadata={false}
                           />
                         </div>
-                      </div>
+                      </Badge>
                     );
                   })}
                 </div>
@@ -172,8 +163,8 @@ export const DocumentSetCreationForm = ({
             />
 
             {isPaidEnterpriseFeaturesEnabled &&
-              userGroups &&
-              userGroups.length > 0 && (
+              teamspaces &&
+              teamspaces.length > 0 && (
                 <div>
                   <Divider />
 
@@ -184,60 +175,48 @@ export const DocumentSetCreationForm = ({
                       <>
                         If the document set is public, then it will be visible
                         to <b>all users</b>. If it is not public, then only
-                        users in the specified groups will be able to see it.
+                        users in the specified teamspace will be able to see it.
                       </>
                     }
                   />
 
                   <Divider />
                   <h2 className="mb-1 font-medium text-base">
-                    Groups with Access
+                    Teamspace with Access
                   </h2>
                   {!values.is_public ? (
                     <>
-                      <Text className="mb-3">
-                        If any groups are specified, then this Document Set will
-                        only be visible to the specified groups. If no groups
-                        are specified, then the Document Set will be visible to
-                        all users.
-                      </Text>
+                      <p className="mb-3 text-subtle text-xs ">
+                        If any teamspace are specified, then this Document Set
+                        will only be visible to the specified teamspace. If no
+                        teamspace are specified, then the Document Set will be
+                        visible to all users.
+                      </p>
                       <FieldArray
                         name="groups"
                         render={(arrayHelpers: ArrayHelpers) => (
                           <div className="flex gap-2 flex-wrap">
-                            {userGroups.map((userGroup) => {
-                              const ind = values.groups.indexOf(userGroup.id);
+                            {teamspaces.map((teamspace) => {
+                              const ind = values.groups.indexOf(teamspace.id);
                               let isSelected = ind !== -1;
                               return (
-                                <div
-                                  key={userGroup.id}
-                                  className={
-                                    `
-                              px-3 
-                              py-1
-                              rounded-lg 
-                              border
-                              border-border 
-                              w-fit 
-                              flex 
-                              cursor-pointer ` +
-                                    (isSelected
-                                      ? " bg-background-strong"
-                                      : " hover:bg-hover")
-                                  }
+                                <Badge
+                                  key={teamspace.id}
+                                  variant={isSelected ? "default" : "outline"}
+                                  className="cursor-pointer hover:opacity-75"
                                   onClick={() => {
                                     if (isSelected) {
                                       arrayHelpers.remove(ind);
                                     } else {
-                                      arrayHelpers.push(userGroup.id);
+                                      arrayHelpers.push(teamspace.id);
                                     }
                                   }}
                                 >
                                   <div className="my-auto flex">
                                     <FiUsers className="my-auto mr-2" />{" "}
-                                    {userGroup.name}
+                                    {teamspace.name}
                                   </div>
-                                </div>
+                                </Badge>
                               );
                             })}
                           </div>
@@ -245,11 +224,11 @@ export const DocumentSetCreationForm = ({
                       />
                     </>
                   ) : (
-                    <Text>
+                    <p className="text-sm text-subtle">
                       This Document Set is public, so this does not apply. If
-                      you want to control which user groups see this Document
-                      Set, mark it as non-public!
-                    </Text>
+                      you want to control which teamspace see this Document Set,
+                      mark it as non-public!
+                    </p>
                   )}
                 </div>
               )}
@@ -259,7 +238,7 @@ export const DocumentSetCreationForm = ({
                 disabled={isSubmitting}
                 className="w-64 mx-auto"
               >
-                {isUpdate ? "Update!" : "Create!"}
+                {isUpdate ? "Update" : "Create"}
               </Button>
             </div>
           </Form>

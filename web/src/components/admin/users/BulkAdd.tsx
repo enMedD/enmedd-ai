@@ -1,8 +1,16 @@
 "use client";
 
-import { withFormik, FormikProps, FormikErrors, Form, Field } from "formik";
+import {
+  withFormik,
+  FormikProps,
+  FormikErrors,
+  Form,
+  Field,
+  FieldProps,
+} from "formik";
 
-import { Button } from "@tremor/react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 const WHITESPACE_SPLIT = /\s+/;
 const EMAIL_REGEX = /[^@]+@[^.]+\.[^.]/;
@@ -32,30 +40,31 @@ const AddUserFormRenderer = ({
   isSubmitting,
 }: FormikProps<FormValues>) => (
   <Form>
-    <div className="flex flex-col gap-y-4">
-      <Field id="emails" name="emails" as="textarea" className="p-4" />
+    <div className="flex flex-col gap-y-2">
+      <Field name="emails">
+        {({ field }: FieldProps) => (
+          <Textarea
+            {...field}
+            placeholder="Type your emails here."
+            id="emails"
+            name="emails"
+          />
+        )}
+      </Field>
       {touched.emails && errors.emails && (
         <div className="text-error text-sm">{errors.emails}</div>
       )}
-      <Button
-        className="mx-auto"
-        color="green"
-        size="md"
-        type="submit"
-        disabled={isSubmitting}
-      >
-        Add!
+      <Button className="mx-auto mt-4" type="submit" disabled={isSubmitting}>
+        Add
       </Button>
     </div>
   </Form>
 );
 
 const AddUserForm = withFormik<FormProps, FormValues>({
-  mapPropsToValues: (props) => {
-    return {
-      emails: "",
-    };
-  },
+  mapPropsToValues: () => ({
+    emails: "",
+  }),
   validate: (values: FormValues): FormikErrors<FormValues> => {
     const emails = values.emails.trim().split(WHITESPACE_SPLIT);
     if (!emails.some(Boolean)) {

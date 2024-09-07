@@ -18,13 +18,15 @@ import { LoadingAnimation } from "@/components/Loading";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Card, Text, Title } from "@tremor/react";
+import { Text, Title, Button } from "@tremor/react";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast";
 
 const Main = () => {
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const { mutate } = useSWRConfig();
   const {
@@ -84,13 +86,12 @@ const Main = () => {
 
   return (
     <>
-      {popup}
       <Text>
         This connector allows you to sync all your HubSpot Tickets into enMedD
-        CHP.
+        AI.
       </Text>
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your Credentials
       </Title>
 
@@ -98,26 +99,28 @@ const Main = () => {
         <>
           <div className="flex mb-1 text-sm">
             <Text className="my-auto">Existing Access Token: </Text>
-            <Text className="ml-1 italic my-auto max-w-md truncate">
+            <Text className="max-w-md my-auto ml-1 italic truncate">
               {hubSpotCredential.credential_json?.hubspot_access_token}
             </Text>
-            <button
-              className="ml-1 hover:bg-hover rounded p-1"
+            <Button
+              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (hubSpotConnectorIndexingStatuses.length > 0) {
-                  setPopup({
-                    type: "error",
-                    message:
+                  toast({
+                    title: "Error",
+                    description:
                       "Must delete all connectors before deleting credentials",
+                    variant: "destructive",
                   });
                   return;
                 }
                 await adminDeleteCredential(hubSpotCredential.id);
                 refreshCredentials();
               }}
+              variant="light"
             >
               <TrashIcon />
-            </button>
+            </Button>
           </div>
         </>
       ) : (
@@ -126,35 +129,37 @@ const Main = () => {
             To use the HubSpot connector, provide the HubSpot Access Token.
           </Text>
           <Card className="mt-4">
-            <CredentialForm<HubSpotCredentialJson>
-              formBody={
-                <>
-                  <TextFormField
-                    name="hubspot_access_token"
-                    label="HubSpot Access Token:"
-                    type="password"
-                  />
-                </>
-              }
-              validationSchema={Yup.object().shape({
-                hubspot_access_token: Yup.string().required(
-                  "Please enter your HubSpot Access Token"
-                ),
-              })}
-              initialValues={{
-                hubspot_access_token: "",
-              }}
-              onSubmit={(isSuccess) => {
-                if (isSuccess) {
-                  refreshCredentials();
+            <CardContent>
+              <CredentialForm<HubSpotCredentialJson>
+                formBody={
+                  <>
+                    <TextFormField
+                      name="hubspot_access_token"
+                      label="HubSpot Access Token:"
+                      type="password"
+                    />
+                  </>
                 }
-              }}
-            />
+                validationSchema={Yup.object().shape({
+                  hubspot_access_token: Yup.string().required(
+                    "Please enter your HubSpot Access Token"
+                  ),
+                })}
+                initialValues={{
+                  hubspot_access_token: "",
+                }}
+                onSubmit={(isSuccess) => {
+                  if (isSuccess) {
+                    refreshCredentials();
+                  }
+                }}
+              />
+            </CardContent>
           </Card>
         </>
       )}
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <Title className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Start indexing!
       </Title>
       {hubSpotCredential ? (
@@ -220,10 +225,11 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="mx-auto container">
-      <div className="mb-4">
+    <div className="py-24 md:py-32 lg:pt-16">
+      <div>
         <HealthCheckBanner />
       </div>
+      <BackButton />
 
       <AdminPageTitle icon={<HubSpotIcon size={32} />} title="HubSpot" />
 

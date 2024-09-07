@@ -1,5 +1,10 @@
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 
 export function SectionHeader({
   children,
@@ -10,7 +15,9 @@ export function SectionHeader({
 }) {
   return (
     <div
-      className={"font-bold text-xl my-auto" + (includeMargin ? " mb-4" : "")}
+      className={
+        "font-bold text:lg md:text-xl my-auto" + (includeMargin ? " mb-4" : "")
+      }
     >
       {children}
     </div>
@@ -21,30 +28,27 @@ export function HidableSection({
   children,
   sectionTitle,
   defaultHidden = false,
+  defaultOpen,
 }: {
   children: string | JSX.Element;
   sectionTitle: string | JSX.Element;
   defaultHidden?: boolean;
+  defaultOpen?: boolean;
 }) {
   const [isHidden, setIsHidden] = useState(defaultHidden);
 
   return (
-    <div>
-      <div
-        className="flex hover:bg-hover-light rounded cursor-pointer p-2"
+    <Collapsible defaultOpen={defaultOpen}>
+      <CollapsibleTrigger
+        className="flex items-center justify-between hover:bg-hover-light rounded-regular cursor-pointer p-2 w-full"
         onClick={() => setIsHidden(!isHidden)}
       >
         <SectionHeader includeMargin={false}>{sectionTitle}</SectionHeader>
-        <div className="my-auto ml-auto p-1">
-          {isHidden ? (
-            <FiChevronRight size={24} />
-          ) : (
-            <FiChevronDown size={24} />
-          )}
-        </div>
-      </div>
 
-      {!isHidden && <div className="mx-2 mt-2">{children}</div>}
-    </div>
+        {isHidden ? <ChevronRight size={24} /> : <ChevronDown size={24} />}
+      </CollapsibleTrigger>
+
+      <CollapsibleContent className="mx-2 mt-2">{children}</CollapsibleContent>
+    </Collapsible>
   );
 }

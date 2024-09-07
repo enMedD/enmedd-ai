@@ -6,27 +6,15 @@ export function BasicClickable({
   children: string | JSX.Element;
   onClick?: () => void;
   fullWidth?: boolean;
+  isExpanded?: boolean;
 }) {
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`
-        border
-        border-gray-300
-        shadow-md
-        rounded-lg
-        font-medium 
-        text-emphasis 
-        text-sm
-        p-1
-        h-full
-        bg-background
-        select-none
-        hover:bg-hover-light
-        ${fullWidth ? "w-full" : ""}`}
+      className={`transition-all ease-in-out duration-300 h-full w-full shadow-sm rounded-regular bg-background p-3`}
     >
       {children}
-    </button>
+    </div>
   );
 }
 
@@ -43,18 +31,16 @@ export function EmphasizedClickable({
     <button
       onClick={onClick}
       className={`
-        border 
-        border-gray-400
-        shadow-md
-        rounded-lg
-        font-medium 
-        text-emphasis
-        text-sm
-        p-1
-        select-none
-        bg-hover-light
-        hover:bg-hover
-        ${fullWidth ? "w-full" : ""}`}
+          border 
+          border-gray-400
+          shadow-md
+          rounded-regular
+          p-1
+          select-none
+          bg-hover-light
+          hover:bg-hover
+          text-sm
+          ${fullWidth ? "w-full" : ""}`}
     >
       {children}
     </button>
@@ -77,15 +63,15 @@ export function BasicSelectable({
   return (
     <div
       className={`
-        rounded-lg
-        font-medium 
-        text-emphasis 
-        text-sm
-        ${padding && "p-1"}
-        select-none
-        ${hasBorder ? "border border-border" : ""}
-        ${selected ? "bg-hover" : "hover:bg-hover"}
-        ${fullWidth ? "w-full" : ""}`}
+          rounded-regular
+          text-sm
+          ${padding && "px-4 py-2"}
+          select-none
+          flex items-center
+          h-10
+          ${hasBorder ? "border border-border" : ""}
+          ${selected ? "bg-hover" : "hover:bg-hover-light"} 
+          ${fullWidth ? "w-full" : ""}`}
     >
       {children}
     </div>

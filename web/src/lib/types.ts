@@ -1,4 +1,4 @@
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 export interface UserPreferences {
   chosen_assistants: number[] | null;
@@ -17,6 +17,13 @@ export interface User {
   is_superuser: string;
   is_verified: string;
   role: "basic" | "admin";
+  workspace?: Workspace;
+  full_name?: string;
+  company_name?: string;
+  company_email?: string;
+  company_billing?: string;
+  billing_email_address?: string;
+  vat?: string;
   preferences: UserPreferences;
   status: UserStatus;
 }
@@ -230,7 +237,7 @@ export interface IndexAttemptSnapshot {
 
 export interface ConnectorIndexingStatus<
   ConnectorConfigType,
-  ConnectorCredentialType
+  ConnectorCredentialType,
 > {
   cc_pair_id: number;
   name: string | null;
@@ -406,14 +413,21 @@ export interface Tag {
   source: ValidSources;
 }
 
+export interface Workspace {
+  id: number;
+  workspace_name: string;
+  custom_logo: string;
+  custom_header_logo: string;
+}
+
 /* EE Only Types */
-export interface UserGroup {
+export interface Teamspace {
   id: number;
   name: string;
   users: User[];
   cc_pairs: CCPairDescriptor<any, any>[];
   document_sets: DocumentSet[];
-  personas: Persona[];
+  assistants: Assistant[];
   is_up_to_date: boolean;
   is_up_for_deletion: boolean;
 }

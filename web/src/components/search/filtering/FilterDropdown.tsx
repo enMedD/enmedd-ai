@@ -27,7 +27,7 @@ export function FilterDropdown({
             className={`
           border 
           border-border 
-          rounded-lg 
+          rounded-regular 
           bg-background
           flex 
           flex-col 
@@ -48,7 +48,7 @@ export function FilterDropdown({
                     py-2.5 
                     select-none 
                     cursor-pointer 
-                    text-emphasis
+                    
                     hover:bg-hover-light
                     ${
                       ind === options.length - 1 ? "" : "border-b border-border"
@@ -79,7 +79,7 @@ export function FilterDropdown({
         text-sm 
         px-3
         py-1.5 
-        rounded-lg 
+        rounded-regular 
         border 
         border-border
         cursor-pointer 

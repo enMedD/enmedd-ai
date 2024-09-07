@@ -1,7 +1,7 @@
 "use client";
 
-import { CCPairBasicInfo, DocumentSet, User, UserGroup } from "@/lib/types";
-import { Button, Divider, Italic, Text } from "@tremor/react";
+import { CCPairBasicInfo, DocumentSet, User, Teamspace } from "@/lib/types";
+import { Divider, Italic, Text } from "@tremor/react";
 import {
   ArrayHelpers,
   ErrorMessage,
@@ -12,10 +12,9 @@ import {
 } from "formik";
 
 import * as Yup from "yup";
-import { buildFinalPrompt, createPersona, updatePersona } from "./lib";
+import { buildFinalPrompt, createAssistant, updateAssistant } from "./lib";
 import { useRouter } from "next/navigation";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { Persona, StarterMessage } from "./interfaces";
+import { Assistant, StarterMessage } from "./interfaces";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -24,11 +23,10 @@ import {
   TextFormField,
 } from "@/components/admin/connectors/Field";
 import { HidableSection } from "./HidableSection";
-import { FiPlus, FiX } from "react-icons/fi";
-import { useUserGroups } from "@/lib/hooks";
+import { useTeamspaces } from "@/lib/hooks";
 import { Bubble } from "@/components/Bubble";
 import { GroupsIcon } from "@/components/icons/icons";
-import { SuccessfulPersonaUpdateRedirectType } from "./enums";
+import { SuccessfulAssistantUpdateRedirectType } from "./enums";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
 import { FullLLMProvider } from "../models/llm/interfaces";
 import { Option } from "@/components/Dropdown";
@@ -36,8 +34,18 @@ import { ToolSnapshot } from "@/lib/tools/interfaces";
 import { checkUserIsNoAuthUser } from "@/lib/user";
 import { addAssistantToList } from "@/lib/assistants/updateAssistantPreferences";
 import { checkLLMSupportsImageInput } from "@/lib/llm/utils";
-import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { Button } from "@/components/ui/button";
+import { X, Plus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 
 function findSearchTool(tools: ToolSnapshot[]) {
   return tools.find((tool) => tool.in_code_tool_id === "SearchTool");
@@ -47,18 +55,16 @@ function findImageGenerationTool(tools: ToolSnapshot[]) {
   return tools.find((tool) => tool.in_code_tool_id === "ImageGenerationTool");
 }
 
-function Label({ children }: { children: string | JSX.Element }) {
-  return (
-    <div className="block font-medium text-base text-emphasis">{children}</div>
-  );
-}
+/* function Label({ children }: { children: string | JSX.Element }) {
+  return <div className="block font-medium text-base ">{children}</div>;
+} */
 
 function SubLabel({ children }: { children: string | JSX.Element }) {
-  return <div className="text-sm text-subtle mb-2">{children}</div>;
+  return <span className="text-sm text-subtle mb-2">{children}</span>;
 }
 
 export function AssistantEditor({
-  existingPersona,
+  existingAssistant,
   ccPairs,
   documentSets,
   user,
@@ -68,23 +74,23 @@ export function AssistantEditor({
   tools,
   shouldAddAssistantToUserPreferences,
 }: {
-  existingPersona?: Persona | null;
+  existingAssistant?: Assistant | null;
   ccPairs: CCPairBasicInfo[];
   documentSets: DocumentSet[];
   user: User | null;
   defaultPublic: boolean;
-  redirectType: SuccessfulPersonaUpdateRedirectType;
+  redirectType: SuccessfulAssistantUpdateRedirectType;
   llmProviders: FullLLMProvider[];
   tools: ToolSnapshot[];
   shouldAddAssistantToUserPreferences?: boolean;
 }) {
   const router = useRouter();
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
   // EE only
-  const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
+  const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
   const [finalPrompt, setFinalPrompt] = useState<string | null>("");
   const [finalPromptError, setFinalPromptError] = useState<string>("");
@@ -104,15 +110,16 @@ export function AssistantEditor({
     }
   };
 
-  const isUpdate = existingPersona !== undefined && existingPersona !== null;
-  const existingPrompt = existingPersona?.prompts[0] ?? null;
+  const isUpdate =
+    existingAssistant !== undefined && existingAssistant !== null;
+  const existingPrompt = existingAssistant?.prompts[0] ?? null;
 
   useEffect(() => {
     if (isUpdate && existingPrompt) {
       triggerFinalPromptUpdate(
         existingPrompt.system_prompt,
         existingPrompt.task_prompt,
-        existingPersona.num_chunks === 0
+        existingAssistant.num_chunks === 0
       );
     }
   }, []);
@@ -144,8 +151,8 @@ export function AssistantEditor({
     (provider) => provider.provider === "openai"
   );
 
-  const personaCurrentToolIds =
-    existingPersona?.tools.map((tool) => tool.id) || [];
+  const assistantCurrentToolIds =
+    existingAssistant?.tools.map((tool) => tool.id) || [];
   const searchTool = findSearchTool(tools);
   const imageGenerationTool = providerSupportingImageGenerationExists
     ? findImageGenerationTool(tools)
@@ -163,40 +170,39 @@ export function AssistantEditor({
   ];
   const enabledToolsMap: { [key: number]: boolean } = {};
   availableTools.forEach((tool) => {
-    enabledToolsMap[tool.id] = personaCurrentToolIds.includes(tool.id);
+    enabledToolsMap[tool.id] = assistantCurrentToolIds.includes(tool.id);
   });
 
   const initialValues = {
-    name: existingPersona?.name ?? "",
-    description: existingPersona?.description ?? "",
+    name: existingAssistant?.name ?? "",
+    description: existingAssistant?.description ?? "",
     system_prompt: existingPrompt?.system_prompt ?? "",
     task_prompt: existingPrompt?.task_prompt ?? "",
-    is_public: existingPersona?.is_public ?? defaultPublic,
+    is_public: existingAssistant?.is_public ?? defaultPublic,
     document_set_ids:
-      existingPersona?.document_sets?.map((documentSet) => documentSet.id) ??
+      existingAssistant?.document_sets?.map((documentSet) => documentSet.id) ??
       ([] as number[]),
-    num_chunks: existingPersona?.num_chunks ?? null,
-    include_citations: existingPersona?.prompts[0]?.include_citations ?? true,
-    llm_relevance_filter: existingPersona?.llm_relevance_filter ?? false,
+    num_chunks: existingAssistant?.num_chunks ?? null,
+    include_citations: existingAssistant?.prompts[0]?.include_citations ?? true,
+    llm_relevance_filter: existingAssistant?.llm_relevance_filter ?? false,
     llm_model_provider_override:
-      existingPersona?.llm_model_provider_override ?? null,
+      existingAssistant?.llm_model_provider_override ?? null,
     llm_model_version_override:
-      existingPersona?.llm_model_version_override ?? null,
-    starter_messages: existingPersona?.starter_messages ?? [],
+      existingAssistant?.llm_model_version_override ?? null,
+    starter_messages: existingAssistant?.starter_messages ?? [],
     enabled_tools_map: enabledToolsMap,
-    //   search_tool_enabled: existingPersona
-    //   ? personaCurrentToolIds.includes(searchTool!.id)
+    //   search_tool_enabled: existingAssistant
+    //   ? assistantCurrentToolIds.includes(searchTool!.id)
     //   : ccPairs.length > 0,
     // image_generation_tool_enabled: imageGenerationTool
-    //   ? personaCurrentToolIds.includes(imageGenerationTool.id)
+    //   ? assistantCurrentToolIds.includes(imageGenerationTool.id)
     //   : false,
     // EE Only
-    groups: existingPersona?.groups ?? [],
+    groups: existingAssistant?.groups ?? [],
   };
 
   return (
     <div>
-      {popup}
       <Formik
         enableReinitialize={true}
         initialValues={initialValues}
@@ -247,9 +253,10 @@ export function AssistantEditor({
           )}
         onSubmit={async (values, formikHelpers) => {
           if (finalPromptError) {
-            setPopup({
-              type: "error",
-              message: "Cannot submit while there are errors in the form!",
+            toast({
+              title: "Error",
+              description: "Cannot submit while there are errors in the form!",
+              variant: "destructive",
             });
             return;
           }
@@ -258,10 +265,11 @@ export function AssistantEditor({
             values.llm_model_provider_override &&
             !values.llm_model_version_override
           ) {
-            setPopup({
-              type: "error",
-              message:
+            toast({
+              title: "Error",
+              description:
                 "Must select a model if a non-default LLM provider is chosen.",
+              variant: "destructive",
             });
             return;
           }
@@ -303,10 +311,10 @@ export function AssistantEditor({
           const groups = values.is_public ? [] : values.groups;
 
           let promptResponse;
-          let personaResponse;
+          let assistantResponse;
           if (isUpdate) {
-            [promptResponse, personaResponse] = await updatePersona({
-              id: existingPersona.id,
+            [promptResponse, assistantResponse] = await updateAssistant({
+              id: existingAssistant.id,
               existingPromptId: existingPrompt?.id,
               ...values,
               num_chunks: numChunks,
@@ -316,7 +324,7 @@ export function AssistantEditor({
               tool_ids: enabledTools,
             });
           } else {
-            [promptResponse, personaResponse] = await createPersona({
+            [promptResponse, assistantResponse] = await createAssistant({
               ...values,
               num_chunks: numChunks,
               users:
@@ -330,20 +338,21 @@ export function AssistantEditor({
           if (!promptResponse.ok) {
             error = await promptResponse.text();
           }
-          if (!personaResponse) {
+          if (!assistantResponse) {
             error = "Failed to create Assistant - no response received";
-          } else if (!personaResponse.ok) {
-            error = await personaResponse.text();
+          } else if (!assistantResponse.ok) {
+            error = await assistantResponse.text();
           }
 
-          if (error || !personaResponse) {
-            setPopup({
-              type: "error",
-              message: `Failed to create Assistant - ${error}`,
+          if (error || !assistantResponse) {
+            toast({
+              title: "Error",
+              description: `Failed to create Assistant - ${error}`,
+              variant: "destructive",
             });
             formikHelpers.setSubmitting(false);
           } else {
-            const assistant = await personaResponse.json();
+            const assistant = await assistantResponse.json();
             const assistantId = assistant.id;
             if (
               shouldAddAssistantToUserPreferences &&
@@ -354,20 +363,23 @@ export function AssistantEditor({
                 user.preferences.chosen_assistants
               );
               if (success) {
-                setPopup({
-                  message: `"${assistant.name}" has been added to your list.`,
-                  type: "success",
+                toast({
+                  title: "Success",
+                  description: `"${assistant.name}" has been added to your list.`,
+                  variant: "success",
                 });
+
                 router.refresh();
               } else {
-                setPopup({
-                  message: `"${assistant.name}" could not be added to your list.`,
-                  type: "error",
+                toast({
+                  title: "Error",
+                  description: `"${assistant.name}" could not be added to your list.`,
+                  variant: "destructive",
                 });
               }
             }
             router.push(
-              redirectType === SuccessfulPersonaUpdateRedirectType.ADMIN
+              redirectType === SuccessfulAssistantUpdateRedirectType.ADMIN
                 ? `/admin/assistants?u=${Date.now()}`
                 : `/chat?assistantId=${assistantId}`
             );
@@ -540,7 +552,7 @@ export function AssistantEditor({
                                       <>
                                         If this functionality would be useful,
                                         reach out to the administrators of
-                                        enMedD CHP for assistance.
+                                        enMedD AI for assistance.
                                       </>
                                     )}
                                   </Italic>
@@ -666,15 +678,10 @@ export function AssistantEditor({
 
                         <div className="flex mt-6">
                           <div className="w-96">
-                            <SubLabel>LLM Provider</SubLabel>
-                            <SelectorFormField
-                              name="llm_model_provider_override"
-                              options={llmProviders.map((llmProvider) => ({
-                                name: llmProvider.name,
-                                value: llmProvider.name,
-                              }))}
-                              includeDefault={true}
-                              onSelect={(selected) => {
+                            <Label>LLM Provider</Label>
+
+                            <Select
+                              onValueChange={(selected) => {
                                 if (
                                   selected !==
                                   values.llm_model_provider_override
@@ -689,12 +696,30 @@ export function AssistantEditor({
                                   selected
                                 );
                               }}
-                            />
+                              value={
+                                values.llm_model_provider_override || "default"
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select LLM Provider" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="default">Default</SelectItem>
+                                {llmProviders.map((llmProvider) => (
+                                  <SelectItem
+                                    key={llmProvider.name}
+                                    value={llmProvider.name}
+                                  >
+                                    {llmProvider.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           {values.llm_model_provider_override && (
                             <div className="w-96 ml-4">
-                              <SubLabel>Model</SubLabel>
+                              <Label>Model</Label>
                               <SelectorFormField
                                 name="llm_model_version_override"
                                 options={
@@ -719,7 +744,7 @@ export function AssistantEditor({
                   defaultHidden
                 >
                   <>
-                    <div className="mb-4">
+                    <div className="pb-4">
                       <SubLabel>
                         Starter Messages help guide users to use this Assistant.
                         They are shown to the user as clickable options when
@@ -745,103 +770,62 @@ export function AssistantEditor({
                                   <div className="flex">
                                     <div className="w-full mr-6 border border-border p-3 rounded">
                                       <div>
-                                        <Label>Name</Label>
-                                        <SubLabel>
-                                          Shows up as the &quot;title&quot; for
-                                          this Starter Message. For example,
-                                          &quot;Write an email&quot;.
-                                        </SubLabel>
-                                        <Field
+                                        <TextFormField
+                                          label="Name"
+                                          subtext={
+                                            <>
+                                              Shows up as the &quot;title&quot;
+                                              for this Starter Message. For
+                                              example, &quot;Write an
+                                              email&quot;.
+                                            </>
+                                          }
                                           name={`starter_messages[${index}].name`}
-                                          className={`
-                                        border 
-                                        border-border 
-                                        bg-background 
-                                        rounded 
-                                        w-full 
-                                        py-2 
-                                        px-3 
-                                        mr-4
-                                      `}
-                                          autoComplete="off"
-                                        />
-                                        <ErrorMessage
-                                          name={`starter_messages[${index}].name`}
-                                          component="div"
-                                          className="text-error text-sm mt-1"
                                         />
                                       </div>
 
                                       <div className="mt-3">
-                                        <Label>Description</Label>
-                                        <SubLabel>
-                                          A description which tells the user
-                                          what they might want to use this
-                                          Starter Message for. For example
-                                          &quot;to a client about a new
-                                          feature&quot;
-                                        </SubLabel>
-                                        <Field
+                                        <TextFormField
+                                          label="Description"
+                                          subtext={
+                                            <>
+                                              A description which tells the user
+                                              what they might want to use this
+                                              Starter Message for. For example
+                                              &quot;to a client about a new
+                                              feature&quot;
+                                            </>
+                                          }
                                           name={`starter_messages.${index}.description`}
-                                          className={`
-                                        border 
-                                        border-border 
-                                        bg-background 
-                                        rounded 
-                                        w-full 
-                                        py-2 
-                                        px-3 
-                                        mr-4
-                                      `}
-                                          autoComplete="off"
-                                        />
-                                        <ErrorMessage
-                                          name={`starter_messages[${index}].description`}
-                                          component="div"
-                                          className="text-error text-sm mt-1"
                                         />
                                       </div>
 
                                       <div className="mt-3">
-                                        <Label>Message</Label>
-                                        <SubLabel>
-                                          The actual message to be sent as the
-                                          initial user message if a user selects
-                                          this starter prompt. For example,
-                                          &quot;Write me an email to a client
-                                          about a new billing feature we just
-                                          released.&quot;
-                                        </SubLabel>
-                                        <Field
+                                        <TextFormField
+                                          label="Message"
+                                          subtext={
+                                            <>
+                                              The actual message to be sent as
+                                              the initial user message if a user
+                                              selects this starter prompt. For
+                                              example, &quot;Write me an email
+                                              to a client about a new billing
+                                              feature we just released.&quot;
+                                            </>
+                                          }
                                           name={`starter_messages[${index}].message`}
-                                          className={`
-                                        border 
-                                        border-border 
-                                        bg-background 
-                                        rounded 
-                                        w-full 
-                                        py-2 
-                                        px-3 
-                                        mr-4
-                                      `}
-                                          as="textarea"
-                                          autoComplete="off"
-                                        />
-                                        <ErrorMessage
-                                          name={`starter_messages[${index}].message`}
-                                          component="div"
-                                          className="text-error text-sm mt-1"
+                                          isTextArea
                                         />
                                       </div>
                                     </div>
-                                    <div className="my-auto">
-                                      <FiX
-                                        className="my-auto w-10 h-10 cursor-pointer hover:bg-hover rounded p-2"
-                                        onClick={() =>
-                                          arrayHelpers.remove(index)
-                                        }
-                                      />
-                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="my-auto"
+                                      onClick={() => arrayHelpers.remove(index)}
+                                    >
+                                      <X />
+                                    </Button>
                                   </div>
                                 </div>
                               );
@@ -856,12 +840,9 @@ export function AssistantEditor({
                               });
                             }}
                             className="mt-3"
-                            color="green"
-                            size="xs"
                             type="button"
-                            icon={FiPlus}
                           >
-                            Add New
+                            <Plus size={16} /> Add New
                           </Button>
                         </div>
                       )}
@@ -872,7 +853,7 @@ export function AssistantEditor({
                 <Divider />
 
                 {isPaidEnterpriseFeaturesEnabled &&
-                  userGroups &&
+                  teamspaces &&
                   (!user || user.role === "admin") && (
                     <>
                       <HidableSection sectionTitle="Access">
@@ -880,38 +861,38 @@ export function AssistantEditor({
                           <BooleanFormField
                             name="is_public"
                             label="Is Public?"
-                            subtext="If set, this Assistant will be available to all users. If not, only the specified User Groups will be able to access it."
+                            subtext="If set, this Assistant will be available to all users. If not, only the specified Teamspaces will be able to access it."
                           />
 
-                          {userGroups &&
-                            userGroups.length > 0 &&
+                          {teamspaces &&
+                            teamspaces.length > 0 &&
                             !values.is_public && (
                               <div>
-                                <Text>
-                                  Select which User Groups should have access to
+                                <p className="text-subtle text-sm">
+                                  Select which Teamspaces should have access to
                                   this Assistant.
-                                </Text>
+                                </p>
                                 <div className="flex flex-wrap gap-2 mt-2">
-                                  {userGroups.map((userGroup) => {
+                                  {teamspaces.map((teamspace) => {
                                     const isSelected = values.groups.includes(
-                                      userGroup.id
+                                      teamspace.id
                                     );
                                     return (
                                       <Bubble
-                                        key={userGroup.id}
+                                        key={teamspace.id}
                                         isSelected={isSelected}
                                         onClick={() => {
                                           if (isSelected) {
                                             setFieldValue(
                                               "groups",
                                               values.groups.filter(
-                                                (id) => id !== userGroup.id
+                                                (id) => id !== teamspace.id
                                               )
                                             );
                                           } else {
                                             setFieldValue("groups", [
                                               ...values.groups,
-                                              userGroup.id,
+                                              teamspace.id,
                                             ]);
                                           }
                                         }}
@@ -919,7 +900,7 @@ export function AssistantEditor({
                                         <div className="flex">
                                           <GroupsIcon />
                                           <div className="ml-1">
-                                            {userGroup.name}
+                                            {teamspace.name}
                                           </div>
                                         </div>
                                       </Bubble>
@@ -937,12 +918,10 @@ export function AssistantEditor({
                 <div className="flex">
                   <Button
                     className="mx-auto"
-                    color="green"
-                    size="md"
                     type="submit"
                     disabled={isSubmitting}
                   >
-                    {isUpdate ? "Update!" : "Create!"}
+                    {isUpdate ? "Update" : "Create"}
                   </Button>
                 </div>
               </div>

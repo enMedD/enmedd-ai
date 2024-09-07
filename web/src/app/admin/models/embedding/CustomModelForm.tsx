@@ -2,11 +2,12 @@ import {
   BooleanFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { Button, Divider, Text } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { Form, Formik } from "formik";
 
 import * as Yup from "yup";
 import { EmbeddingModelDescriptor } from "./embeddingModels";
+import { Button } from "@/components/ui/button";
 
 export function CustomModelForm({
   onSubmit,
@@ -14,7 +15,7 @@ export function CustomModelForm({
   onSubmit: (model: EmbeddingModelDescriptor) => void;
 }) {
   return (
-    <div>
+    <div className="h-full">
       <Formik
         initialValues={{
           model_name: "",

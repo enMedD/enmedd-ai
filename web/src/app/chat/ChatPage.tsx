@@ -14,8 +14,7 @@ import {
   StreamingError,
   ToolCallMetadata,
 } from "./interfaces";
-import { ChatSidebar } from "./sessionSidebar/ChatSidebar";
-import { Persona } from "../admin/assistants/interfaces";
+import { Assistant } from "../admin/assistants/interfaces";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import {
@@ -29,7 +28,7 @@ import {
   handleChatFeedback,
   nameChatSession,
   PacketType,
-  personaIncludesRetrieval,
+  assistantIncludesRetrieval,
   processRawChatHistory,
   removeMessage,
   sendMessage,
@@ -49,29 +48,37 @@ import { DocumentSidebar } from "./documentSidebar/DocumentSidebar";
 import { InitializingLoader } from "@/components/InitializingLoader";
 import { FeedbackModal } from "./modal/FeedbackModal";
 import { ShareChatSessionModal } from "./modal/ShareChatSessionModal";
-import { ChatPersonaSelector } from "./ChatPersonaSelector";
-import { FiArrowDown, FiMenu, FiShare } from "react-icons/fi";
 import { ChatIntro } from "./ChatIntro";
 import { AIMessage, HumanMessage } from "./message/Messages";
 import { ThreeDots } from "react-loader-spinner";
 import { StarterMessage } from "./StarterMessage";
-import { AnswerPiecePacket, DanswerDocument } from "@/lib/search/interfaces";
+import { AnswerPiecePacket, EnmeddDocument } from "@/lib/search/interfaces";
 import { buildFilters } from "@/lib/search/utils";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import Dropzone from "react-dropzone";
 import { checkLLMSupportsImageInput, getFinalLLM } from "@/lib/llm/utils";
 import { ChatInputBar } from "./input/ChatInputBar";
 import { ConfigurationModal } from "./modal/configuration/ConfigurationModal";
-import { useChatContext } from "@/components/context/ChatContext";
+import { useChatContext } from "@/context/ChatContext";
 import { v4 as uuidv4 } from "uuid";
 import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
 import { ChatPopup } from "./ChatPopup";
 import { ChatBanner } from "./ChatBanner";
-import { TbLayoutSidebarRightExpand } from "react-icons/tb";
 import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 
 import ResizableSection from "@/components/resizable/ResizableSection";
-import { UserDropdown } from "@/components/UserDropdown";
+import {
+  CircleArrowDown,
+  PanelLeftClose,
+  PanelRightClose,
+  Share,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DynamicSidebar } from "@/components/DynamicSidebar";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChatSidebar } from "./sessionSidebar/ChatSidebar";
+import { Skeleton } from "@/components/ui/skeleton";
+import TopBar from "@/components/TopBar";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -79,10 +86,10 @@ const SYSTEM_MESSAGE_ID = -3;
 
 export function ChatPage({
   documentSidebarInitialWidth,
-  defaultSelectedPersonaId,
+  defaultSelectedAssistantsId,
 }: {
   documentSidebarInitialWidth?: number;
-  defaultSelectedPersonaId?: number;
+  defaultSelectedAssistantsId?: number;
 }) {
   const [configModalActiveTab, setConfigModalActiveTab] = useState<
     string | null
@@ -92,19 +99,19 @@ export function ChatPage({
     chatSessions,
     availableSources,
     availableDocumentSets,
-    availablePersonas,
+    availableAssistants,
     llmProviders,
     folders,
     openedFolders,
   } = useChatContext();
 
-  const filteredAssistants = orderAssistantsForUser(availablePersonas, user);
+  const filteredAssistants = orderAssistantsForUser(availableAssistants, user);
 
-  const [selectedAssistant, setSelectedAssistant] = useState<Persona | null>(
+  const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(
     null
   );
   const [alternativeGeneratingAssistant, setAlternativeGeneratingAssistant] =
-    useState<Persona | null>(null);
+    useState<Assistant | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -119,7 +126,7 @@ export function ChatPage({
 
   const llmOverrideManager = useLlmOverride(selectedChatSession);
 
-  const existingChatSessionPersonaId = selectedChatSession?.persona_id;
+  const existingChatSessionAssistantId = selectedChatSession?.assistant_id;
 
   // used to track whether or not the initial "submit on load" has been performed
   // this only applies if `?submit-on-load=true` or `?submit-on-load=1` is in the URL
@@ -176,14 +183,14 @@ export function ChatPage({
     async function initialSessionFetch() {
       if (existingChatSessionId === null) {
         setIsFetchingChatMessages(false);
-        if (defaultSelectedPersonaId !== undefined) {
-          setSelectedPersona(
+        if (defaultSelectedAssistantsId !== undefined) {
+          setSelectedAssistants(
             filteredAssistants.find(
-              (persona) => persona.id === defaultSelectedPersonaId
+              (assistant) => assistant.id === defaultSelectedAssistantsId
             )
           );
         } else {
-          setSelectedPersona(undefined);
+          setSelectedAssistants(undefined);
         }
         setCompleteMessageDetail({
           sessionId: null,
@@ -209,9 +216,9 @@ export function ChatPage({
 
       const chatSession = (await response.json()) as BackendChatSession;
 
-      setSelectedPersona(
+      setSelectedAssistants(
         filteredAssistants.find(
-          (persona) => persona.id === chatSession.persona_id
+          (assistant) => assistant.id === chatSession.assistant_id
         )
       );
 
@@ -380,32 +387,36 @@ export function ChatPage({
       )
     : { aiMessage: null };
 
-  const [selectedPersona, setSelectedPersona] = useState<Persona | undefined>(
-    existingChatSessionPersonaId !== undefined
-      ? filteredAssistants.find(
-          (persona) => persona.id === existingChatSessionPersonaId
-        )
-      : defaultSelectedPersonaId !== undefined
-      ? filteredAssistants.find(
-          (persona) => persona.id === defaultSelectedPersonaId
-        )
-      : undefined
-  );
-  const livePersona =
-    selectedPersona || filteredAssistants[0] || availablePersonas[0];
+  const [selectedAssistants, setSelectedAssistants] = useState<
+    Assistant | undefined
+  >(() => {
+    if (existingChatSessionAssistantId !== undefined) {
+      return filteredAssistants.find(
+        (assistant) => assistant.id === existingChatSessionAssistantId
+      );
+    } else if (defaultSelectedAssistantsId !== undefined) {
+      return filteredAssistants.find(
+        (assistant) => assistant.id === defaultSelectedAssistantsId
+      );
+    } else {
+      return undefined;
+    }
+  });
+  const liveAssistant =
+    selectedAssistants || filteredAssistants[0] || availableAssistants[0];
 
   const [chatSessionSharedStatus, setChatSessionSharedStatus] =
     useState<ChatSessionSharedStatus>(ChatSessionSharedStatus.Private);
 
   useEffect(() => {
     if (messageHistory.length === 0 && chatSessionIdRef.current === null) {
-      setSelectedPersona(
+      setSelectedAssistants(
         filteredAssistants.find(
-          (persona) => persona.id === defaultSelectedPersonaId
+          (assistant) => assistant.id === defaultSelectedAssistantsId
         )
       );
     }
-  }, [defaultSelectedPersonaId]);
+  }, [defaultSelectedAssistantsId]);
 
   const [
     selectedDocuments,
@@ -414,14 +425,14 @@ export function ChatPage({
     selectedDocumentTokens,
   ] = useDocumentSelection();
   // just choose a conservative default, this will be updated in the
-  // background on initial load / on persona change
+  // background on initial load / on assistant change
   const [maxTokens, setMaxTokens] = useState<number>(4096);
 
-  // fetch # of allowed document tokens for the selected Persona
+  // fetch # of allowed document tokens for the selected Assistant
   useEffect(() => {
     async function fetchMaxTokens() {
       const response = await fetch(
-        `/api/chat/max-selected-document-tokens?persona_id=${livePersona.id}`
+        `/api/chat/max-selected-document-tokens?assistant_id=${liveAssistant.id}`
       );
       if (response.ok) {
         const maxTokens = (await response.json()).max_tokens as number;
@@ -430,12 +441,12 @@ export function ChatPage({
     }
 
     fetchMaxTokens();
-  }, [livePersona]);
+  }, [liveAssistant]);
 
   const filterManager = useFilters();
   const [finalAvailableSources, finalAvailableDocumentSets] =
     computeAvailableFilters({
-      selectedPersona,
+      selectedAssistant,
       availableSources,
       availableDocumentSets,
     });
@@ -551,17 +562,15 @@ export function ChatPage({
   const [maxDocumentSidebarWidth, setMaxDocumentSidebarWidth] = useState<
     number | null
   >(null);
+
   const adjustDocumentSidebarWidth = () => {
     if (masterFlexboxRef.current && document.documentElement.clientWidth) {
-      // numbers below are based on the actual width the center section for different
-      // screen sizes. `1700` corresponds to the custom "3xl" tailwind breakpoint
-      // NOTE: some buffer is needed to account for scroll bars
       if (document.documentElement.clientWidth > 1700) {
-        setMaxDocumentSidebarWidth(masterFlexboxRef.current.clientWidth - 950);
+        setMaxDocumentSidebarWidth(450);
       } else if (document.documentElement.clientWidth > 1420) {
-        setMaxDocumentSidebarWidth(masterFlexboxRef.current.clientWidth - 760);
+        setMaxDocumentSidebarWidth(350);
       } else {
-        setMaxDocumentSidebarWidth(masterFlexboxRef.current.clientWidth - 660);
+        setMaxDocumentSidebarWidth(300);
       }
     }
   };
@@ -639,10 +648,9 @@ export function ChatPage({
     queryOverride?: string;
     forceSearch?: boolean;
     isSeededChat?: boolean;
-    alternativeAssistant?: Persona | null;
+    alternativeAssistant?: Assistant | null;
   } = {}) => {
     setAlternativeGeneratingAssistant(alternativeAssistant);
-
     clientScrollToBottom();
     let currChatSessionId: number;
     let isNewSession = chatSessionIdRef.current === null;
@@ -650,8 +658,9 @@ export function ChatPage({
       searchParams.get(SEARCH_PARAM_NAMES.TITLE) || null;
 
     if (isNewSession) {
+      toggleSidebar();
       currChatSessionId = await createChatSession(
-        livePersona?.id || 0,
+        liveAssistant?.id || 0,
         searchParamBasedChatSessionName
       );
     } else {
@@ -742,7 +751,7 @@ export function ChatPage({
       selectedDocuments.length > 0
         ? RetrievalType.SelectedDocs
         : RetrievalType.None;
-    let documents: DanswerDocument[] = selectedDocuments;
+    let documents: EnmeddDocument[] = selectedDocuments;
     let aiMessageImages: FileDescriptor[] | null = null;
     let error: string | null = null;
     let finalMessage: BackendMessage | null = null;
@@ -759,7 +768,7 @@ export function ChatPage({
         fileDescriptors: currentMessageFiles,
         parentMessageId: lastSuccessfulMessageId,
         chatSessionId: currChatSessionId,
-        promptId: livePersona?.prompts[0]?.id || 0,
+        promptId: liveAssistant?.prompts[0]?.id || 0,
         filters: buildFilters(
           filterManager.selectedSources,
           filterManager.selectedDocumentSets,
@@ -971,19 +980,23 @@ export function ChatPage({
     }
   };
 
-  const onPersonaChange = (persona: Persona | null) => {
-    if (persona && persona.id !== livePersona.id) {
+  const onAssistantChange = (assistant: Assistant | null) => {
+    if (assistant && assistant.id !== liveAssistant.id) {
       // remove uploaded files
       setCurrentMessageFiles([]);
-      setSelectedPersona(persona);
+      setSelectedAssistants(assistant);
       textAreaRef.current?.focus();
-      router.push(buildChatUrl(searchParams, null, persona.id));
+      router.push(buildChatUrl(searchParams, null, assistant.id));
     }
   };
 
   const handleImageUpload = (acceptedFiles: File[]) => {
     const llmAcceptsImages = checkLLMSupportsImageInput(
-      ...getFinalLLM(llmProviders, livePersona, llmOverrideManager.llmOverride)
+      ...getFinalLLM(
+        llmProviders,
+        liveAssistant,
+        llmOverrideManager.llmOverride
+      )
     );
     const imageFiles = acceptedFiles.filter((file) =>
       file.type.startsWith("image/")
@@ -1039,60 +1052,102 @@ export function ChatPage({
     router.push("/search");
   }
 
-  const [showDocSidebar, setShowDocSidebar] = useState(true); // State to track if sidebar is open
+  const [showDocSidebar, setShowDocSidebar] = useState(true);
+  const [isWide, setIsWide] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsWide(window.innerWidth >= 1024);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const toggleSidebar = () => {
     if (sidebarElementRef.current) {
       sidebarElementRef.current.style.transition = "width 0.3s ease-in-out";
 
-      sidebarElementRef.current.style.width = showDocSidebar
-        ? "0px"
-        : `${usedSidebarWidth}px`;
+      sidebarElementRef.current.style.width = showDocSidebar ? "300px" : "0px";
     }
 
-    setShowDocSidebar((showDocSidebar) => !showDocSidebar); // Toggle the state which will in turn toggle the class
+    setShowDocSidebar((showDocSidebar) => !showDocSidebar);
   };
 
   useEffect(() => {
     const includes = checkAnyAssistantHasSearch(
       messageHistory,
-      availablePersonas,
-      livePersona
+      availableAssistants,
+      liveAssistant
     );
     setRetrievalEnabled(includes);
-  }, [messageHistory, availablePersonas, livePersona]);
+  }, [messageHistory, availableAssistants, liveAssistant]);
 
   const [retrievalEnabled, setRetrievalEnabled] = useState(() => {
     return checkAnyAssistantHasSearch(
       messageHistory,
-      availablePersonas,
-      livePersona
+      availableAssistants,
+      liveAssistant
     );
   });
   const [editingRetrievalEnabled, setEditingRetrievalEnabled] = useState(false);
   const sidebarElementRef = useRef<HTMLDivElement>(null);
   const innerSidebarElementRef = useRef<HTMLDivElement>(null);
 
-  const currentPersona = selectedAssistant || livePersona;
+  const currentAssistant = selectedAssistant || liveAssistant;
 
-  const updateSelectedAssistant = (newAssistant: Persona | null) => {
+  const updateSelectedAssistant = (newAssistant: Assistant | null) => {
     setSelectedAssistant(newAssistant);
     if (newAssistant) {
-      setEditingRetrievalEnabled(personaIncludesRetrieval(newAssistant));
+      setEditingRetrievalEnabled(assistantIncludesRetrieval(newAssistant));
     } else {
       setEditingRetrievalEnabled(false);
     }
   };
-  console.log(hasPerformedInitialScroll);
 
   const [openSidebar, setOpenSidebar] = useState(false);
 
-  const handleClose = () => {
-    setOpenSidebar(false);
+  const toggleLeftSideBar = () => {
+    setOpenSidebar((prevState) => !prevState);
   };
 
   return (
     <>
+      {liveAssistant && (
+        <TopBar toggleLeftSideBar={toggleLeftSideBar}>
+          <div className="flex ml-auto gap-2 items-center">
+            {/* {chatSessionIdRef.current !== null && (
+              <ShareChatSessionModal
+                chatSessionId={chatSessionIdRef.current}
+                existingSharedStatus={chatSessionSharedStatus}
+                onShare={(shared) =>
+                  setChatSessionSharedStatus(
+                    shared
+                      ? ChatSessionSharedStatus.Public
+                      : ChatSessionSharedStatus.Private
+                  )
+                }
+              >
+                <div
+                  onClick={() => setSharingModalVisible(true)}
+                  className="h-10 w-10 hover:bg-light hover:text-accent-foreground inline-flex items-center gap-1.5 justify-center whitespace-nowrap rounded-regular text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Share size={20} />
+                </div>
+              </ShareChatSessionModal>
+            )} */}
+
+            {retrievalEnabled && showDocSidebar && (
+              <Button onClick={toggleSidebar} variant="ghost" size="icon">
+                <PanelLeftClose size={24} />
+              </Button>
+            )}
+          </div>
+        </TopBar>
+      )}
+
       <HealthCheckBanner />
       <InstantSSRAutoRefresh />
 
@@ -1100,15 +1155,20 @@ export function ChatPage({
       Only used in the EE version of the app. */}
       <ChatPopup />
 
-      <div className="relative flex overflow-x-hidden bg-background text-default">
-        <ChatSidebar
-          existingChats={chatSessions}
-          currentChatSession={selectedChatSession}
-          folders={folders}
-          openedFolders={openedFolders}
-          handleClose={handleClose}
+      <div className="relative flex overflow-x-hidden bg-background ault h-full">
+        <DynamicSidebar
+          user={user}
           openSidebar={openSidebar}
-        />
+          toggleLeftSideBar={toggleLeftSideBar}
+        >
+          <ChatSidebar
+            existingChats={chatSessions}
+            currentChatSession={selectedChatSession}
+            folders={folders}
+            openedFolders={openedFolders}
+            toggleSideBar={toggleLeftSideBar}
+          />
+        </DynamicSidebar>
 
         <div ref={masterFlexboxRef} className="flex w-full overflow-x-hidden">
           {popup}
@@ -1128,21 +1188,6 @@ export function ChatPage({
             />
           )}
 
-          {sharingModalVisible && chatSessionIdRef.current !== null && (
-            <ShareChatSessionModal
-              chatSessionId={chatSessionIdRef.current}
-              existingSharedStatus={chatSessionSharedStatus}
-              onClose={() => setSharingModalVisible(false)}
-              onShare={(shared) =>
-                setChatSessionSharedStatus(
-                  shared
-                    ? ChatSessionSharedStatus.Public
-                    : ChatSessionSharedStatus.Private
-                )
-              }
-            />
-          )}
-
           <ConfigurationModal
             chatSessionId={chatSessionIdRef.current!}
             activeTab={configModalActiveTab}
@@ -1150,8 +1195,8 @@ export function ChatPage({
             onClose={() => setConfigModalActiveTab(null)}
             filterManager={filterManager}
             availableAssistants={filteredAssistants}
-            selectedAssistant={livePersona}
-            setSelectedAssistant={onPersonaChange}
+            selectedAssistant={liveAssistant}
+            setSelectedAssistant={onAssistantChange}
             llmProviders={llmProviders}
             llmOverrideManager={llmOverrideManager}
           />
@@ -1161,8 +1206,8 @@ export function ChatPage({
               {({ getRootProps }) => (
                 <>
                   <div
-                    className={`w-full sm:relative h-screen ${
-                      !retrievalEnabled ? "pb-[111px]" : "pb-[140px]"
+                    className={`w-full sm:relative flex flex-col lg:px-10 3xl:px-0 ${
+                      !retrievalEnabled ? "" : ""
                     }
                       flex-auto transition-margin duration-300 
                       overflow-x-auto
@@ -1172,77 +1217,55 @@ export function ChatPage({
                     {/* <input {...getInputProps()} /> */}
 
                     <div
-                      className={`w-full h-full flex flex-col overflow-y-auto overflow-x-hidden relative`}
+                      className={`w-full h-full flex flex-col overflow-y-auto overflow-x-hidden relative scroll-smooth flex-1`}
                       ref={scrollableDivRef}
                     >
                       {/* ChatBanner is a custom banner that displays a admin-specified message at 
                       the top of the chat page. Only used in the EE version of the app. */}
-                      <ChatBanner />
-
-                      {livePersona && (
-                        <div className="sticky top-0 z-10 flex w-full lg:left-80 bg-background">
-                          <div className="flex w-full mt-2">
-                            <div className="flex items-center w-full gap-3 p-1 ml-2 rounded">
-                              <FiMenu
-                                size={18}
-                                className="lg:hidden"
-                                onClick={() => setOpenSidebar(true)}
-                              />
-                              <ChatPersonaSelector
-                                personas={filteredAssistants}
-                                selectedPersonaId={livePersona.id}
-                                onPersonaChange={onPersonaChange}
-                                userId={user?.id}
-                              />
-
-                              {/* <UserDropdown user={user} hideChatAndSearch /> */}
-                            </div>
-
-                            <div className="flex ml-auto">
-                              {chatSessionIdRef.current !== null && (
-                                <div
-                                  onClick={() => setSharingModalVisible(true)}
-                                  className={`
-                                    my-auto
-                                    p-2
-                                    rounded
-                                    cursor-pointer
-                                    hover:bg-hover-light
-                                  `}
-                                >
-                                  <FiShare size="18" />
-                                </div>
-                              )}
-
-                              <div className="flex my-auto ml-4">
-                                {retrievalEnabled && !showDocSidebar && (
-                                  <button
-                                    className="mt-auto ml-4"
-                                    onClick={() => toggleSidebar()}
-                                  >
-                                    <TbLayoutSidebarRightExpand size={24} />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      {/*  <ChatBanner /> */}
 
                       {messageHistory.length === 0 &&
                         !isFetchingChatMessages &&
                         !isStreaming && (
                           <ChatIntro
                             availableSources={finalAvailableSources}
-                            selectedPersona={livePersona}
-                          />
+                            liveAssistant={liveAssistant}
+                          >
+                            {currentAssistant &&
+                              currentAssistant.starter_messages &&
+                              currentAssistant.starter_messages.length > 0 &&
+                              messageHistory.length === 0 &&
+                              !isFetchingChatMessages && (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 md:pt-8">
+                                  {currentAssistant.starter_messages.map(
+                                    (starterMessage, i) => (
+                                      <div
+                                        key={i}
+                                        className={`w-full ${
+                                          i > 1 ? "hidden md:flex" : ""
+                                        }`}
+                                      >
+                                        <StarterMessage
+                                          starterMessage={starterMessage}
+                                          onClick={() =>
+                                            onSubmit({
+                                              messageOverride:
+                                                starterMessage.message,
+                                            })
+                                          }
+                                        />
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              )}
+                          </ChatIntro>
                         )}
 
                       <div
-                        className={
-                          "mt-4 pt-12 sm:pt-0 mx-6 sm:mx-8" +
-                          (hasPerformedInitialScroll ? "" : " invisible")
-                        }
+                        className={`mt-4 pt-20 pb-10 md:pb-14 lg:py-16 px-5 2xl:px-0 max-w-full mx-auto 2xl:w-searchbar w-full ${
+                          hasPerformedInitialScroll ? "" : " invisible"
+                        } ${messageHistory.length === 0 ? "hidden" : "block"}`}
                       >
                         {messageHistory.map((message, i) => {
                           const messageMap = completeMessageDetail.messageMap;
@@ -1254,6 +1277,7 @@ export function ChatPage({
                             return (
                               <div key={messageReactComponentKey}>
                                 <HumanMessage
+                                  user={user}
                                   content={message.message}
                                   files={message.files}
                                   messageId={message.messageId}
@@ -1312,9 +1336,10 @@ export function ChatPage({
 
                             const currentAlternativeAssistant =
                               message.alternateAssistantID != null
-                                ? availablePersonas.find(
-                                    (persona) =>
-                                      persona.id == message.alternateAssistantID
+                                ? availableAssistants.find(
+                                    (assistant) =>
+                                      assistant.id ==
+                                      message.alternateAssistantID
                                   )
                                 : null;
 
@@ -1328,7 +1353,7 @@ export function ChatPage({
                                 }
                               >
                                 <AIMessage
-                                  currentPersona={livePersona}
+                                  currentAssistant={liveAssistant}
                                   alternativeAssistant={
                                     currentAlternativeAssistant
                                   }
@@ -1336,7 +1361,7 @@ export function ChatPage({
                                   content={message.message}
                                   files={message.files}
                                   query={messageHistory[i]?.query || undefined}
-                                  personaName={livePersona.name}
+                                  assistantName={liveAssistant.name}
                                   citedDocuments={getCitedDocumentsFromMessage(
                                     message
                                   )}
@@ -1432,7 +1457,7 @@ export function ChatPage({
                                   }}
                                   retrievalDisabled={
                                     currentAlternativeAssistant
-                                      ? !personaIncludesRetrieval(
+                                      ? !assistantIncludesRetrieval(
                                           currentAlternativeAssistant!
                                         )
                                       : !retrievalEnabled
@@ -1444,9 +1469,9 @@ export function ChatPage({
                             return (
                               <div key={messageReactComponentKey}>
                                 <AIMessage
-                                  currentPersona={livePersona}
+                                  currentAssistant={liveAssistant}
                                   messageId={message.messageId}
-                                  personaName={livePersona.name}
+                                  assistantName={liveAssistant.name}
                                   content={
                                     <p className="my-auto text-sm text-red-700">
                                       {message.message}
@@ -1465,25 +1490,17 @@ export function ChatPage({
                               key={`${messageHistory.length}-${chatSessionIdRef.current}`}
                             >
                               <AIMessage
-                                currentPersona={livePersona}
+                                currentAssistant={liveAssistant}
                                 alternativeAssistant={
                                   alternativeGeneratingAssistant ??
                                   selectedAssistant
                                 }
                                 messageId={null}
-                                personaName={livePersona.name}
+                                assistantName={liveAssistant.name}
                                 content={
-                                  <div className="my-auto text-sm">
-                                    <ThreeDots
-                                      height="30"
-                                      width="50"
-                                      color="#3b82f6"
-                                      ariaLabel="grid-loading"
-                                      radius="12.5"
-                                      wrapperStyle={{}}
-                                      wrapperClass=""
-                                      visible={true}
-                                    />
+                                  <div className="my-auto text-sm flex flex-col gap-1">
+                                    <Skeleton className="h-5 w-full" />
+                                    <Skeleton className="h-5 w-full" />
                                   </div>
                                 }
                               />
@@ -1491,122 +1508,105 @@ export function ChatPage({
                           )}
 
                         {/* Some padding at the bottom so the search bar has space at the bottom to not cover the last message*/}
-                        <div ref={endPaddingRef} className=" h-[95px]" />
+
                         <div ref={endDivRef}></div>
 
-                        {currentPersona &&
-                          currentPersona.starter_messages &&
-                          currentPersona.starter_messages.length > 0 &&
-                          selectedPersona &&
-                          messageHistory.length === 0 &&
-                          !isFetchingChatMessages && (
-                            <div
-                              className={`
-                            mx-auto 
-                            px-4 
-                            w-searchbar-xs 
-                            2xl:w-searchbar-sm 
-                            3xl:w-searchbar 
-                            grid 
-                            gap-4 
-                            grid-cols-1 
-                            grid-rows-1 
-                            mt-4 
-                            md:grid-cols-2 
-                            mb-6`}
-                            >
-                              {currentPersona.starter_messages.map(
-                                (starterMessage, i) => (
-                                  <div key={i} className="w-full">
-                                    <StarterMessage
-                                      starterMessage={starterMessage}
-                                      onClick={() =>
-                                        onSubmit({
-                                          messageOverride:
-                                            starterMessage.message,
-                                        })
-                                      }
-                                    />
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          )}
                         <div ref={endDivRef} />
                       </div>
                     </div>
 
-                    <div
-                      ref={inputRef}
-                      className="absolute bottom-0 left-0 z-10 w-full"
-                    >
-                      <div className="relative w-full pb-4">
-                        {aboveHorizon && (
-                          <div className="sticky flex justify-center w-full bg-transparent pointer-events-none">
-                            <button
-                              onClick={() => clientScrollToBottom(true)}
-                              className="p-1 mx-auto mb-2 border pointer-events-auto rounded-2xl bg-background-strong border-border "
-                            >
-                              <FiArrowDown size={18} />
-                            </button>
-                          </div>
-                        )}
-
+                    <div ref={inputRef} className="z-10 w-full">
+                      {aboveHorizon && (
+                        <CircleArrowDown
+                          onClick={() => clientScrollToBottom(true)}
+                          size={24}
+                          className="absolute bottom-[calc(100%_+_16px)] left-1/2 -translate-x-1/2 pointer-events-auto !rounded-full cursor-pointer bg-background"
+                        />
+                      )}
+                      <div className="w-full pb-4">
                         <ChatInputBar
                           onSetSelectedAssistant={(
-                            alternativeAssistant: Persona | null
+                            alternativeAssistant: Assistant | null
                           ) => {
                             updateSelectedAssistant(alternativeAssistant);
                           }}
                           alternativeAssistant={selectedAssistant}
-                          personas={filteredAssistants}
+                          assistants={filteredAssistants}
                           message={message}
                           setMessage={setMessage}
                           onSubmit={onSubmit}
                           isStreaming={isStreaming}
                           setIsCancelled={setIsCancelled}
                           retrievalDisabled={
-                            !personaIncludesRetrieval(currentPersona)
+                            !assistantIncludesRetrieval(currentAssistant)
                           }
                           filterManager={filterManager}
                           llmOverrideManager={llmOverrideManager}
-                          selectedAssistant={livePersona}
+                          selectedAssistant={liveAssistant}
                           files={currentMessageFiles}
                           setFiles={setCurrentMessageFiles}
                           handleFileUpload={handleImageUpload}
                           setConfigModalActiveTab={setConfigModalActiveTab}
                           textAreaRef={textAreaRef}
+                          activeTab={configModalActiveTab}
                         />
                       </div>
                     </div>
                   </div>
 
                   {retrievalEnabled || editingRetrievalEnabled ? (
-                    <div
-                      ref={sidebarElementRef}
-                      className={`relative flex-none  overflow-y-hidden sidebar bg-background-weak h-screen`}
-                      style={{ width: showDocSidebar ? usedSidebarWidth : 0 }}
-                    >
-                      <ResizableSection
-                        updateSidebarWidth={updateSidebarWidth}
-                        intialWidth={usedSidebarWidth}
-                        minWidth={300}
-                        maxWidth={maxDocumentSidebarWidth || undefined}
+                    <>
+                      <AnimatePresence>
+                        {!showDocSidebar && (
+                          <motion.div
+                            className={`fixed w-full h-full bg-background-inverted bg-opacity-20 inset-0 z-overlay 2xl:hidden`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: !showDocSidebar ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 0.2,
+                              opacity: { delay: !showDocSidebar ? 0 : 0.3 },
+                            }}
+                            style={{
+                              pointerEvents: !showDocSidebar ? "auto" : "none",
+                            }}
+                            onClick={toggleSidebar}
+                          />
+                        )}
+                      </AnimatePresence>
+
+                      <div
+                        ref={sidebarElementRef}
+                        className="fixed 2xl:relative top-0 right-0 z-overlay bg-background  flex-none overflow-y-hidden h-full"
+                        style={{
+                          width: !showDocSidebar
+                            ? Math.max(350, usedSidebarWidth)
+                            : 0,
+                        }}
                       >
-                        <DocumentSidebar
-                          initialWidth={showDocSidebar ? usedSidebarWidth : 0}
-                          ref={innerSidebarElementRef}
-                          closeSidebar={() => toggleSidebar()}
-                          selectedMessage={aiMessage}
-                          selectedDocuments={selectedDocuments}
-                          toggleDocumentSelection={toggleDocumentSelection}
-                          clearSelectedDocuments={clearSelectedDocuments}
-                          selectedDocumentTokens={selectedDocumentTokens}
-                          maxTokens={maxTokens}
-                          isLoading={isFetchingChatMessages}
-                        />
-                      </ResizableSection>
-                    </div>
+                        <ResizableSection
+                          updateSidebarWidth={updateSidebarWidth}
+                          intialWidth={usedSidebarWidth}
+                          minWidth={350}
+                          maxWidth={maxDocumentSidebarWidth || undefined}
+                        >
+                          <DocumentSidebar
+                            initialWidth={showDocSidebar ? usedSidebarWidth : 0}
+                            ref={innerSidebarElementRef}
+                            closeSidebar={() => toggleSidebar()}
+                            selectedMessage={aiMessage}
+                            selectedDocuments={selectedDocuments}
+                            toggleDocumentSelection={toggleDocumentSelection}
+                            clearSelectedDocuments={clearSelectedDocuments}
+                            selectedDocumentTokens={selectedDocumentTokens}
+                            maxTokens={maxTokens}
+                            isLoading={isFetchingChatMessages}
+                            showDocSidebar={showDocSidebar}
+                            isWide={isWide}
+                          />
+                        </ResizableSection>
+                      </div>
+                    </>
                   ) : // Another option is to use a div with the width set to the initial width, so that the
                   // chat section appears in the same place as before
                   // <div style={documentSidebarInitialWidth ? {width: documentSidebarInitialWidth} : {}}></div>

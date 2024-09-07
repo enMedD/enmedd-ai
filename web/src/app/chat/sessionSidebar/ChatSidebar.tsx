@@ -1,58 +1,51 @@
 "use client";
 
 import {
-  FiBook,
-  FiEdit,
-  FiFolderPlus,
-  FiMessageSquare,
-  FiPlusSquare,
-  FiSearch,
-  FiX,
-} from "react-icons/fi";
-import { useContext, useEffect, useRef, useState } from "react";
+  Search,
+  MessageCircleMore,
+  Headset,
+  FolderPlus,
+  Plus,
+  PanelLeftClose,
+} from "lucide-react";
+import { useContext, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { BasicClickable, BasicSelectable } from "@/components/BasicClickable";
 import { ChatSession } from "../interfaces";
 
-import {
-  NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED,
-  NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA,
-} from "@/lib/constants";
+import { NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT } from "@/lib/constants";
 
 import { ChatTab } from "./ChatTab";
 import { Folder } from "../folders/interfaces";
 import { createFolder } from "../folders/FolderManagement";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 
-import React from "react";
-import { FaBrain, FaHeadset } from "react-icons/fa";
-/* import { Logo } from "@/components/Logo"; */
-import Logo from "../../../../public/logo-brand.png";
-import { HeaderTitle } from "@/components/header/Header";
-import { UserSettingsButton } from "@/components/UserSettingsButton";
-import { useChatContext } from "@/components/context/ChatContext";
+import EnmeddLogo from "../../../../public/logo-brand.png";
+import { useChatContext } from "@/context/ChatContext";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Logo } from "@/components/Logo";
+import { useToast } from "@/hooks/use-toast";
 
 export const ChatSidebar = ({
   existingChats,
   currentChatSession,
   folders,
   openedFolders,
-  handleClose,
-  openSidebar,
+  toggleSideBar,
+  isAssistant,
 }: {
   existingChats: ChatSession[];
   currentChatSession: ChatSession | null | undefined;
   folders: Folder[];
   openedFolders: { [key: number]: boolean };
-  handleClose?: () => void;
-  openSidebar?: boolean;
+  toggleSideBar?: () => void;
+  isAssistant?: boolean;
 }) => {
   let { user } = useChatContext();
   const router = useRouter();
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   const currentChatId = currentChatSession?.id;
 
@@ -71,111 +64,108 @@ export const ChatSidebar = ({
 
   return (
     <>
-      {popup}
       <div
-        className={`py-4
-        flex-none
-        bg-background-weak
-        border-r 
-        border-border 
-        flex-col 
-        h-screen
-        transition-transform z-30 ${
-          openSidebar ? "w-full md:w-80 left-0 absolute flex" : "hidden lg:flex"
-        }`}
+        className={`
+            flex-col 
+            h-full
+            flex
+            z-overlay
+            w-full py-4
+            `}
         id="chat-sidebar"
       >
-        <div className="flex">
-          <div
-            className="w-full"
-            /*  href={
-              settings && settings.default_page === "chat" ? "/chat" : "/search"
-            } */
-          >
-            <div className="flex items-center w-full px-4">
-              <div className="flex items-center justify-between w-full">
-                <Image src={Logo} alt="enmedd-logo" width={112} />
-                <FiX onClick={handleClose} className="lg:hidden" />
-              </div>
-
-              {enterpriseSettings && enterpriseSettings.application_name ? (
-                <div>
-                  <HeaderTitle>
-                    {enterpriseSettings.application_name}
-                  </HeaderTitle>
-
-                  {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED && (
-                    <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD CHP
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <></>
-              )}
-            </div>
+        <div className="flex items-center gap-2 w-full relative justify-between px-4 pb-6">
+          <div className="flex">
+            {enterpriseSettings && enterpriseSettings.application_name ? (
+              <Image src={EnmeddLogo} alt="LogoBrand" height={40} />
+            ) : (
+              <Image src={EnmeddLogo} alt="enmedd-logo" height={40} />
+            )}
           </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSideBar}
+            className="lg:hidden"
+          >
+            <PanelLeftClose size={24} />
+          </Button>
         </div>
-        {/* <HeaderTitle>enMedD CHP</HeaderTitle> */}
-        {
-          <div className="mt-5">
+
+        <div className="h-full overflow-auto">
+          <div className="px-4 text-sm font-medium flex flex-col">
             {settings.search_page_enabled && (
-              <Link
-                href="/search"
-                className="flex px-4 py-2 rounded cursor-pointer hover:bg-hover-light"
-              >
-                <FiSearch className="my-auto mr-2 text-base" />
-                Search
-              </Link>
+              <>
+                <Separator className="mb-3" />
+                <Link
+                  href="/search"
+                  className="flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2"
+                >
+                  <Search size={16} className="min-w-4 min-h-4" />
+                  Search
+                </Link>
+              </>
             )}
             {settings.chat_page_enabled && (
               <>
                 <Link
                   href="/chat"
-                  className="flex px-4 py-2 rounded cursor-pointer hover:bg-hover-light"
+                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer items-center gap-2 ${
+                    !isAssistant
+                      ? "bg-primary text-white"
+                      : "hover:bg-hover-light"
+                  }`}
                 >
-                  <FiMessageSquare className="my-auto mr-2 text-base" />
+                  <MessageCircleMore size={16} className="min-w-4 min-h-4" />
                   Chat
                 </Link>
-                <Link
+                {/*  <Link
                   href="/assistants/mine"
-                  className="flex px-4 py-2 rounded cursor-pointer hover:bg-hover-light"
+                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer items-center gap-2 ${
+                    isAssistant
+                      ? "bg-primary text-white"
+                      : "hover:bg-hover-light"
+                  }`}
                 >
-                  <FaHeadset className="my-auto mr-2 text-base" />
-                  My Assistants
-                </Link>
+                  <Headset size={16} />
+                  <span className="truncate">Explore Assistants</span>
+                </Link> */}
               </>
             )}
+            <Separator className="mt-4" />
           </div>
-        }
-        <div className="pb-4 mx-3 border-b border-border" />
 
-        <ChatTab
-          existingChats={existingChats}
-          currentChatId={currentChatId}
-          folders={folders}
-          openedFolders={openedFolders}
-        />
+          <ChatTab
+            existingChats={existingChats}
+            currentChatId={currentChatId}
+            folders={folders}
+            openedFolders={openedFolders}
+            toggleSideBar={toggleSideBar}
+          />
+        </div>
 
-        <div className="flex items-center gap-3 px-3 pb-1">
+        <div className="flex items-center gap-3 px-4 pt-5 mt-auto">
           <Link
             href={
               "/chat" +
-              (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA &&
+              (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
               currentChatSession
-                ? `?assistantId=${currentChatSession.persona_id}`
+                ? `?assistantId=${currentChatSession.assistant_id}`
                 : "")
             }
-            className="w-full"
+            className=" w-full"
           >
-            <BasicClickable fullWidth>
-              <div className="flex items-center px-2 py-1 text-base">
-                <FiEdit className="ml-1 mr-2" /> New Chat
-              </div>
-            </BasicClickable>
+            <Button
+              className="transition-all ease-in-out duration-300 w-full"
+              onClick={toggleSideBar}
+            >
+              <Plus size={16} />
+              Start new chat
+            </Button>
           </Link>
-          <div className="h-full ">
-            <BasicClickable
+          <div>
+            <Button
               onClick={() =>
                 createFolder("New Folder")
                   .then((folderId) => {
@@ -184,20 +174,19 @@ export const ChatSidebar = ({
                   })
                   .catch((error) => {
                     console.error("Failed to create folder:", error);
-                    setPopup({
-                      message: `Failed to create folder: ${error.message}`,
-                      type: "error",
+                    toast({
+                      title: "Error",
+                      description: `Failed to create folder: ${error.message}`,
+                      variant: "destructive",
                     });
                   })
               }
+              size="icon"
             >
-              <div className="flex items-center h-full px-2 text-base aspect-square">
-                <FiFolderPlus className="mx-auto my-auto" />
-              </div>
-            </BasicClickable>
+              <FolderPlus size={16} />
+            </Button>
           </div>
         </div>
-        <UserSettingsButton user={user} />
       </div>
     </>
   );

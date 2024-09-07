@@ -10,9 +10,10 @@ import {
 import { AIMessage, HumanMessage } from "../../message/Messages";
 import { Button, Callout, Divider } from "@tremor/react";
 import { useRouter } from "next/navigation";
-import { useChatContext } from "@/components/context/ChatContext";
+import { useChatContext } from "@/context/ChatContext";
 
-function BackToDanswerButton() {
+// TODO: replace the component name
+function BackToEnmeddButton() {
   const router = useRouter();
 
   return (
@@ -29,7 +30,7 @@ export function SharedChatDisplay({
 }: {
   chatSession: BackendChatSession | null;
 }) {
-  let { availablePersonas } = useChatContext();
+  let { availableAssistants } = useChatContext();
   if (!chatSession) {
     return (
       <div className="min-h-full w-full">
@@ -39,13 +40,13 @@ export function SharedChatDisplay({
           </Callout>
         </div>
 
-        <BackToDanswerButton />
+        <BackToEnmeddButton />
       </div>
     );
   }
 
-  const currentPersona = availablePersonas.find(
-    (persona) => persona.id === chatSession.persona_id
+  const currentAssistant = availableAssistants.find(
+    (assistant) => assistant.id === chatSession.assistant_id
   );
 
   const messages = buildLatestMessageChain(
@@ -62,7 +63,7 @@ export function SharedChatDisplay({
                 {chatSession.description ||
                   `Chat ${chatSession.chat_session_id}`}
               </h1>
-              <p className="text-emphasis">
+              <p className="">
                 {humanReadableFormat(chatSession.time_created)}
               </p>
 
@@ -81,11 +82,11 @@ export function SharedChatDisplay({
                 } else {
                   return (
                     <AIMessage
-                      currentPersona={currentPersona!}
+                      currentAssistant={currentAssistant!}
                       key={message.messageId}
                       messageId={message.messageId}
                       content={message.message}
-                      personaName={chatSession.persona_name}
+                      assistantName={chatSession.assistant_name}
                       citedDocuments={getCitedDocumentsFromMessage(message)}
                       isComplete
                     />
@@ -97,7 +98,7 @@ export function SharedChatDisplay({
         </div>
       </div>
 
-      <BackToDanswerButton />
+      <BackToEnmeddButton />
     </div>
   );
 }

@@ -1,9 +1,7 @@
-import { Popup } from "../admin/connectors/Popup";
-import { useState } from "react";
-import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@tremor/react";
 import { WellKnownLLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { LLMProviderUpdateForm } from "@/app/admin/models/llm/LLMProviderUpdateForm";
 import { CustomLLMProviderUpdateForm } from "@/app/admin/models/llm/CustomLLMProviderUpdateForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export const ApiKeyForm = ({
   onSuccess,
@@ -12,11 +10,6 @@ export const ApiKeyForm = ({
   onSuccess: () => void;
   providerOptions: WellKnownLLMProviderDescriptor[];
 }) => {
-  const [popup, setPopup] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
-
   const defaultProvider = providerOptions[0]?.name;
   const providerNameToIndexMap = new Map<string, number>();
   providerOptions.forEach((provider, index) => {
@@ -29,49 +22,32 @@ export const ApiKeyForm = ({
     providerIndexToNameMap.set(providerNameToIndexMap.get(key)!, key);
   });
 
-  const [providerName, setProviderName] = useState<string>(defaultProvider);
-
   return (
-    <div>
-      {popup && <Popup message={popup.message} type={popup.type} />}
-      <TabGroup
-        index={providerNameToIndexMap.get(providerName) || 0}
-        onIndexChange={(index) =>
-          setProviderName(providerIndexToNameMap.get(index) || defaultProvider)
-        }
-      >
-        <TabList className="mt-3 mb-4">
-          <>
-            {providerOptions.map((provider) => (
-              <Tab key={provider.name}>
-                {provider.display_name || provider.name}
-              </Tab>
-            ))}
-            <Tab key="custom">Custom</Tab>
-          </>
-        </TabList>
-        <TabPanels>
-          {providerOptions.map((provider) => {
-            return (
-              <TabPanel key={provider.name}>
-                <LLMProviderUpdateForm
-                  llmProviderDescriptor={provider}
-                  onClose={() => onSuccess()}
-                  shouldMarkAsDefault
-                  setPopup={setPopup}
-                />
-              </TabPanel>
-            );
-          })}
-          <TabPanel key="custom">
-            <CustomLLMProviderUpdateForm
+    <Tabs defaultValue="openai">
+      <TabsList>
+        <TabsTrigger value="openai">OpenAI</TabsTrigger>
+        <TabsTrigger value="anthropic">Anthropic</TabsTrigger>
+        <TabsTrigger value="azure">Azure OpenAI</TabsTrigger>
+        <TabsTrigger value="bedrock">AWS Bedrock</TabsTrigger>
+        <TabsTrigger value="custom">Custom</TabsTrigger>
+      </TabsList>
+      {providerOptions.map((provider) => {
+        return (
+          <TabsContent value={provider.name} key={provider.name}>
+            <LLMProviderUpdateForm
+              llmProviderDescriptor={provider}
               onClose={() => onSuccess()}
               shouldMarkAsDefault
-              setPopup={setPopup}
             />
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
-    </div>
+          </TabsContent>
+        );
+      })}
+      <TabsContent value="custom">
+        <CustomLLMProviderUpdateForm
+          onClose={() => onSuccess()}
+          shouldMarkAsDefault
+        />
+      </TabsContent>
+    </Tabs>
   );
 };

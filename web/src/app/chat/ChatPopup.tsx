@@ -2,10 +2,10 @@
 
 import { Modal } from "@/components/Modal";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { Button } from "@tremor/react";
 import { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Button } from "@/components/ui/button";
 
 const ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED =
   "allUsersInitialPopupFlowCompleted";
@@ -27,7 +27,7 @@ export function ChatPopup() {
   let popupTitle = settings.enterpriseSettings.custom_popup_header;
   if (!popupTitle) {
     popupTitle = `Welcome to ${
-      settings.enterpriseSettings.application_name || "enMedD CHP"
+      settings.enterpriseSettings.application_name || "enMedD AI"
     }!`;
   }
 
@@ -54,8 +54,7 @@ export function ChatPopup() {
 
         <div className="flex w-full">
           <Button
-            className="mx-auto mt-4"
-            size="xs"
+            className="mx-auto mt-6"
             onClick={() => {
               localStorage.setItem(
                 ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED,

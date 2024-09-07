@@ -1,5 +1,6 @@
 import React, { KeyboardEvent, ChangeEvent } from "react";
 import { MagnifyingGlass } from "@phosphor-icons/react";
+import { Input } from "@/components/ui/input";
 
 interface SearchBarProps {
   query: string;
@@ -8,17 +9,12 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ query, setQuery, onSearch }: SearchBarProps) => {
-  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
     setQuery(target.value);
-
-    // Resize the textarea to fit the content
-    target.style.height = "24px";
-    const newHeight = target.scrollHeight;
-    target.style.height = `${newHeight}px`;
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
       onSearch();
       event.preventDefault();
@@ -26,21 +22,21 @@ export const SearchBar = ({ query, setQuery, onSearch }: SearchBarProps) => {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="flex items-center w-full px-4 py-2 border-2 rounded-lg opacity-100 border-border focus-within:border-accent bg-background-search">
-        <MagnifyingGlass className="text-emphasis" />
-        <textarea
-          autoFocus
-          className="flex-grow h-6 ml-2 overflow-hidden whitespace-normal outline-none resize-none placeholder-default"
-          role="textarea"
-          aria-multiline
-          placeholder="Search..."
-          value={query}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          suppressContentEditableWarning={true}
-        />
-      </div>
+    <div className="relative w-full">
+      <MagnifyingGlass
+        size={16}
+        className=" absolute left-2 top-1/2 -translate-y-1/2"
+      />
+      <Input
+        autoFocus
+        aria-multiline
+        placeholder="Search..."
+        value={query}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        suppressContentEditableWarning={true}
+        className="pl-7 placeholder:text-subtle"
+      />
     </div>
   );
 };
