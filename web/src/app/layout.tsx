@@ -2,8 +2,6 @@ import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { getCombinedSettings } from "@/components/settings/lib";
 import { CUSTOM_ANALYTICS_ENABLED } from "@/lib/constants";
-import { SettingsProvider } from "@/components/settings/SettingsProvider";
-import { Metadata } from "next";
 import { buildClientUrl } from "@/lib/utilsSS";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -18,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     dynamicSettings.enterpriseSettings &&
     dynamicSettings.enterpriseSettings?.use_custom_logo
       ? "/api/enterprise-settings/logo"
-      : buildClientUrl("/enmedd-chp.ico");
+      : buildClientUrl("/favicon.ico");
 
   return {
     title: dynamicSettings.enterpriseSettings?.application_name ?? "enMedD AI",

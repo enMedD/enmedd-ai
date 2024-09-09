@@ -4,15 +4,9 @@ import {
   Filters,
 } from "@/lib/search/interfaces";
 import { handleStream } from "@/lib/search/streamingUtils";
-import { FeedbackType } from "./types";
-import {
-  Dispatch,
-  MutableRefObject,
-  RefObject,
-  SetStateAction,
-  useEffect,
-  useRef,
-} from "react";
+import { ReadonlyURLSearchParams } from "next/navigation";
+import { MutableRefObject, RefObject, useEffect, useRef } from "react";
+import { Persona } from "../admin/assistants/interfaces";
 import {
   BackendMessage,
   ChatSession,
@@ -27,6 +21,7 @@ import {
 import { Assistant } from "../admin/assistants/interfaces";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { SEARCH_PARAM_NAMES } from "./searchParams";
+import { FeedbackType } from "./types";
 
 export async function updateModelOverrideForChatSession(
   chatSessionId: number,

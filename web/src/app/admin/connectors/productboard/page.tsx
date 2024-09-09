@@ -1,18 +1,5 @@
 "use client";
 
-import * as Yup from "yup";
-import { ProductboardIcon, TrashIcon } from "@/components/icons/icons";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
-import {
-  ProductboardConfig,
-  ConnectorIndexingStatus,
-  ProductboardCredentialJson,
-  Credential,
-} from "@/lib/types";
-import useSWR, { useSWRConfig } from "swr";
-import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";

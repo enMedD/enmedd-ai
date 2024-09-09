@@ -1,6 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import { DocumentSet, Tag, ValidSources } from "@/lib/types";
+import { BasicClickable } from "@/components/BasicClickable";
+import { ControlledPopup, DefaultDropdownElement } from "@/components/Dropdown";
+import { SourceIcon } from "@/components/SourceIcon";
+import { SourceSelectorProps } from "@/components/search/filtering/Filters";
+import { containsObject, objectsAreEquivalent } from "@/lib/contains";
+import { getXDaysAgo } from "@/lib/dateUtils";
 import { SourceMetadata } from "@/lib/search/interfaces";
+import { listSourceMetadata } from "@/lib/sources";
+import { DocumentSet, Tag } from "@/lib/types";
+import { DateRangePickerValue } from "@tremor/react";
+import { useEffect, useRef, useState } from "react";
 import {
   FiBook,
   FiBookmark,
@@ -10,14 +18,6 @@ import {
   FiTag,
   FiX,
 } from "react-icons/fi";
-import { DateRangePickerValue } from "@tremor/react";
-import { listSourceMetadata } from "@/lib/sources";
-import { SourceIcon } from "@/components/SourceIcon";
-import { BasicClickable } from "@/components/BasicClickable";
-import { ControlledPopup, DefaultDropdownElement } from "@/components/Dropdown";
-import { getXDaysAgo } from "@/lib/dateUtils";
-import { SourceSelectorProps } from "@/components/search/filtering/Filters";
-import { containsObject, objectsAreEquivalent } from "@/lib/contains";
 
 enum FilterType {
   Source = "Source",

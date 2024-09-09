@@ -209,6 +209,8 @@ services:
     ports:
       - "3000:3000"
     restart: always
+    ports:
+      - "3000:3000"
     environment:
       - INTERNAL_URL=http://api_server:8080
       - WEB_DOMAIN=${WEB_DOMAIN:-}

@@ -1,4 +1,5 @@
 "use client";
+import { Modal } from "@/components/Modal";
 import InvitedUserTable from "@/components/admin/users/InvitedUserTable";
 import SignedUpUserTable from "@/components/admin/users/SignedUpUserTable";
 import { SearchBar } from "@/components/search/SearchBar";

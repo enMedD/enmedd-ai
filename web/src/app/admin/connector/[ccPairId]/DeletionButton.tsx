@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { CCPairFullInfo } from "./types";
 import { deleteCCPair } from "@/lib/documentDeletion";
+import { Button } from "@tremor/react";
+import { FiTrash } from "react-icons/fi";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
 import {

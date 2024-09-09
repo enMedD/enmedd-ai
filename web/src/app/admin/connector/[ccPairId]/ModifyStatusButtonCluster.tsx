@@ -2,6 +2,7 @@
 
 import { CCPairFullInfo } from "./types";
 import { disableConnector } from "@/lib/connector";
+import { Button } from "@tremor/react";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
 import {

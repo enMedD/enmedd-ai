@@ -5,8 +5,11 @@ import { Button, Text } from "@tremor/react";
 import { FiPlus, FiX } from "react-icons/fi";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { SearchMultiSelectDropdown } from "@/components/Dropdown";
+import { Modal } from "@/components/Modal";
+import { Spinner } from "@/components/Spinner";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { UsersIcon } from "@/components/icons/icons";
-import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
 import {
   addUsersToAssistantSharedList,
   removeUsersFromAssistantSharedList,

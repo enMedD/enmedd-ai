@@ -1,21 +1,19 @@
 import { BasicTable } from "@/components/admin/connectors/BasicTable";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { StatusRow } from "@/components/admin/connectors/table/ConnectorsTable";
-import { deleteConnector } from "@/lib/connector";
-import {
-  GmailConfig,
-  ConnectorIndexingStatus,
-  GmailCredentialJson,
-} from "@/lib/types";
-import { useSWRConfig } from "swr";
 import { DeleteColumn } from "@/components/admin/connectors/table/DeleteColumn";
 import {
+  ConnectorIndexingStatus,
+  GmailConfig,
+  GmailCredentialJson,
+} from "@/lib/types";
+import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
 } from "@tremor/react";
 import { useToast } from "@/hooks/use-toast";
 

@@ -1,8 +1,8 @@
 "use client";
 
+import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect } from "react";
 import { buildImgUrl } from "./utils";
-import * as Dialog from "@radix-ui/react-dialog";
 
 export function FullImageModal({
   fileId,

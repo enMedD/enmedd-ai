@@ -6,11 +6,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { User as UserTypes } from "@/lib/types";
 import { checkUserIsNoAuthUser, logout } from "@/lib/user";
-import { BasicSelectable } from "@/components/BasicClickable";
-import { Popover } from "./popover/Popover";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useContext, useRef, useState } from "react";
 import { FaBrain } from "react-icons/fa";
-import { LOGOUT_DISABLED } from "@/lib/constants";
-import { Settings } from "@/app/admin/settings/interfaces";
+import { FiLogOut, FiMessageSquare, FiSearch, FiTool } from "react-icons/fi";
+import { Popover } from "./popover/Popover";
 import { SettingsContext } from "./settings/SettingsProvider";
 import { LogOut, User } from "lucide-react";
 

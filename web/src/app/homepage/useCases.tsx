@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Wrapper } from "./wrapper";
-import heroImg from "./assets/usecase.png";
 import AIOptions from "./aiOptions";
+import heroImg from "./assets/usecase.png";
+import { Wrapper } from "./wrapper";
 
 export default function UseCases() {
   return (

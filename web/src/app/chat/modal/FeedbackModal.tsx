@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { FeedbackType } from "../types";
 import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

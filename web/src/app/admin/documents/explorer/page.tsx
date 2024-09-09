@@ -1,6 +1,5 @@
 import { AdminPageTitle } from "@/components/admin/Title";
 import { ZoomInIcon } from "@/components/icons/icons";
-import { Explorer } from "./Explorer";
 import { fetchValidFilterInfo } from "@/lib/search/utilsSS";
 import { ZoomIn } from "lucide-react";
 

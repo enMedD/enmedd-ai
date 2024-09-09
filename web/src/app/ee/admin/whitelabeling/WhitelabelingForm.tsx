@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { EnterpriseSettings } from "@/app/admin/settings/interfaces";
 import { useContext, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";

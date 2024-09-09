@@ -9,17 +9,25 @@ import {
   MouseSensor,
   TouchSensor,
   UniqueIdentifier,
+  closestCenter,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
-  arrayMove,
   SortableContext,
+  arrayMove,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from "@tremor/react";
+import { useMemo, useState } from "react";
 import { DraggableRow } from "./DraggableRow";
-import { Row } from "./interfaces";
 import { StaticRow } from "./StaticRow";
 import {
   Table,

@@ -1,11 +1,27 @@
 "use client";
 
+import { DeleteButton } from "@/components/DeleteButton";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { PageSelector } from "@/components/PageSelector";
 import { InfoIcon } from "@/components/icons/icons";
 
 import { useConnectorCredentialIndexingStatus } from "@/lib/hooks";
 import { ConnectorIndexingStatus, DocumentSet } from "@/lib/types";
+import {
+  Badge,
+  Button,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  Text,
+  Title,
+} from "@tremor/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDocumentSets } from "./hooks";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";

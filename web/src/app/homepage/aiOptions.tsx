@@ -1,7 +1,7 @@
 "use client";
 
-import { aiOptionsData } from "./data/aiOptions";
 import { useState } from "react";
+import { aiOptionsData } from "./data/aiOptions";
 
 export default function AIOptions() {
   const categories = Array.from(

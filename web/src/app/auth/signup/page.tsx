@@ -1,15 +1,16 @@
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { User } from "@/lib/types";
 import {
-  getCurrentUserSS,
-  getAuthTypeMetadataSS,
   AuthTypeMetadata,
+  getAuthTypeMetadataSS,
+  getCurrentUserSS,
 } from "@/lib/userSS";
+import { Card, Text, Title } from "@tremor/react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SignupForms } from "./SignupForms";
 import Link from "next/link";
 
-import Logo from "../../../../public/logo-brand.png";
 import Image from "next/image";
 import {
   Card,

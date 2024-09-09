@@ -7,6 +7,7 @@ import {
   useField,
   useFormikContext,
 } from "formik";
+import { FiPlus, FiX } from "react-icons/fi";
 import * as Yup from "yup";
 import { FormBodyBuilder } from "./types";
 import { DefaultDropdown, StringOrNumberOption } from "@/components/Dropdown";

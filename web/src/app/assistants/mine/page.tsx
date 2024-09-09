@@ -3,7 +3,6 @@ import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { UserDropdown } from "@/components/UserDropdown";
 import { ChatProvider } from "@/context/ChatContext";
 import { WelcomeModal } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
-import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { fetchChatData } from "@/lib/chat/fetchChatData";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";

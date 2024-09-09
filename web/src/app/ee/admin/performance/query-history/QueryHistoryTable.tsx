@@ -7,7 +7,10 @@ import { Feedback } from "@/lib/types";
 import { DateRangeSelector } from "../DateRangeSelector";
 import { PageSelector } from "@/components/PageSelector";
 import Link from "next/link";
-import { FeedbackBadge } from "./FeedbackBadge";
+import { useState } from "react";
+import { FiFrown, FiMinus, FiSmile } from "react-icons/fi";
+import { DateRangeSelector } from "../DateRangeSelector";
+import { ChatSessionMinimal } from "../usage/types";
 import { DownloadAsCSV } from "./DownloadAsCSV";
 import {
   Table,

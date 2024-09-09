@@ -1,6 +1,33 @@
 "use client";
 
+import { InitializingLoader } from "@/components/InitializingLoader";
+import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { useChatContext } from "@/components/context/ChatContext";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
+import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
+import { computeAvailableFilters } from "@/lib/filters";
+import { useFilters, useLlmOverride } from "@/lib/hooks";
+import { checkLLMSupportsImageInput, getFinalLLM } from "@/lib/llm/utils";
+import { AnswerPiecePacket, DanswerDocument } from "@/lib/search/interfaces";
+import { buildFilters } from "@/lib/search/utils";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useContext, useEffect, useRef, useState } from "react";
+import Dropzone from "react-dropzone";
+import { FiArrowDown, FiMenu, FiShare } from "react-icons/fi";
+import { TbLayoutSidebarRightExpand } from "react-icons/tb";
+import { ThreeDots } from "react-loader-spinner";
+import { v4 as uuidv4 } from "uuid";
+import { Persona } from "../admin/assistants/interfaces";
+import { ChatBanner } from "./ChatBanner";
+import { ChatIntro } from "./ChatIntro";
+import { ChatPersonaSelector } from "./ChatPersonaSelector";
+import { ChatPopup } from "./ChatPopup";
+import { StarterMessage } from "./StarterMessage";
+import { DocumentSidebar } from "./documentSidebar/DocumentSidebar";
+import { ChatInputBar } from "./input/ChatInputBar";
 import {
   BackendChatSession,
   BackendMessage,
@@ -18,6 +45,7 @@ import { Assistant } from "../admin/assistants/interfaces";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import {
+  PacketType,
   buildChatUrl,
   buildLatestMessageChain,
   checkAnyAssistantHasSearch,
@@ -37,15 +65,7 @@ import {
   uploadFilesForChat,
   useScrollonStream,
 } from "./lib";
-import { useContext, useEffect, useRef, useState } from "react";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { SEARCH_PARAM_NAMES, shouldSubmitOnLoad } from "./searchParams";
-import { useDocumentSelection } from "./useDocumentSelection";
-import { useFilters, useLlmOverride } from "@/lib/hooks";
-import { computeAvailableFilters } from "@/lib/filters";
-import { FeedbackType } from "./types";
-import { DocumentSidebar } from "./documentSidebar/DocumentSidebar";
-import { InitializingLoader } from "@/components/InitializingLoader";
+import { AIMessage, HumanMessage } from "./message/Messages";
 import { FeedbackModal } from "./modal/FeedbackModal";
 import { ShareChatSessionModal } from "./modal/ShareChatSessionModal";
 import { ChatIntro } from "./ChatIntro";

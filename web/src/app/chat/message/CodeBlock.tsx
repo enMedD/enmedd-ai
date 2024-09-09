@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { FiCheck, FiCopy } from "react-icons/fi";
 
 const CODE_BLOCK_PADDING_TYPE = { padding: "1rem" };

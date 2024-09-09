@@ -1,12 +1,18 @@
+import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
+import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
+import {
+  WelcomeModal,
+  hasCompletedWelcomeFlowSS,
+} from "@/components/initialSetup/welcome/WelcomeModalWrapper";
+import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { SearchSection } from "@/components/search/SearchSection";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
-import { redirect } from "next/navigation";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { fetchSS } from "@/lib/utilsSS";
 import { CCPairBasicInfo, DocumentSet, Tag, User } from "@/lib/types";
 import { cookies } from "next/headers";
@@ -20,8 +26,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { assistantComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
-import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
-import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { ChatPopup } from "../chat/ChatPopup";
 import { SearchBars } from "./SearchBars";
 import { CustomModal } from "@/components/CustomModal";

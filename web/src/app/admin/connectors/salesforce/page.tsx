@@ -1,25 +1,18 @@
 "use client";
 
-import * as Yup from "yup";
-import { TrashIcon, SalesforceIcon } from "@/components/icons/icons";
-import { errorHandlingFetcher as fetcher } from "@/lib/fetcher";
-import useSWR, { useSWRConfig } from "swr";
 import { LoadingAnimation } from "@/components/Loading";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import {
-  SalesforceConfig,
-  SalesforceCredentialJson,
-  ConnectorIndexingStatus,
-  Credential,
-} from "@/lib/types"; // Modify or create these types as required
-import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import {
-  TextFormField,
   TextArrayFieldBuilder,
+  TextFormField,
 } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { SalesforceIcon, TrashIcon } from "@/components/icons/icons";
+import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher as fetcher } from "@/lib/fetcher";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Text, Title, Button } from "@tremor/react";

@@ -1,8 +1,8 @@
 "use client";
 
-import { errorHandlingFetcher, FetchError, RedirectError } from "@/lib/fetcher";
-import useSWR from "swr";
+import { errorHandlingFetcher, RedirectError } from "@/lib/fetcher";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import { Modal } from "../Modal";
 
 export const HealthCheckBanner = () => {

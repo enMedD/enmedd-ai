@@ -1,5 +1,5 @@
-import { buildUrl } from "./utilsSS";
 import getConfig from "next/config";
+import { buildUrl } from "./utilsSS";
 
 const { publicRuntimeConfig } = getConfig();
 const version = publicRuntimeConfig?.version;

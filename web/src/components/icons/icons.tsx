@@ -3,17 +3,16 @@
 import Image from "next/image";
 import jiraSVG from "../../../public/Jira.svg";
 import confluenceSVG from "../../../public/Confluence.svg";
-import OCIStorageSVG from "../../../public/OCI.svg";
-import googleCloudStorageIcon from "../../../public/GoogleCloudStorage.png";
-import hubSpotIcon from "../../../public/HubSpot.png";
-import googleSitesIcon from "../../../public/GoogleSites.png";
-import zendeskIcon from "../../../public/Zendesk.svg";
 import dropboxIcon from "../../../public/Dropbox.png";
+import googleCloudStorageIcon from "../../../public/GoogleCloudStorage.png";
+import googleSheets from "../../../public/GoogleSheets.svg";
+import googleSitesIcon from "../../../public/GoogleSites.png";
+import hubSpotIcon from "../../../public/HubSpot.png";
+import jiraSVG from "../../../public/Jira.svg";
+import OCIStorageSVG from "../../../public/OCI.svg";
 import s3Icon from "../../../public/S3.png";
-import r2Icon from "../../../public/r2.webp";
 import salesforceIcon from "../../../public/Salesforce.png";
 import sharepointIcon from "../../../public/Sharepoint.png";
-import googleSheets from "../../../public/GoogleSheets.svg";
 import teamsIcon from "../../../public/Teams.png";
 import {
   Database,

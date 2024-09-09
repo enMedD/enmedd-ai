@@ -12,6 +12,9 @@ import { ChatSession } from "@/app/chat/interfaces";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { Folder } from "@/app/chat/folders/interfaces";
+import { ChatSession } from "@/app/chat/interfaces";
+import { DocumentSet, Tag, User, ValidSources } from "@/lib/types";
+import React, { createContext, useContext } from "react";
 
 interface ChatContextProps {
   user: User | null;

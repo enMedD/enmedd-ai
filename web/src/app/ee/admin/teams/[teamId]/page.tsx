@@ -5,10 +5,12 @@ import { GroupDisplay } from "./GroupDisplay";
 import { FiAlertCircle, FiChevronLeft } from "react-icons/fi";
 import { useSpecificTeamspace } from "./hook";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { GroupsIcon } from "@/components/icons/icons";
 import { useConnectorCredentialIndexingStatus, useUsers } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
-import { BackButton } from "@/components/BackButton";
-import { AdminPageTitle } from "@/components/admin/Title";
+import { GroupDisplay } from "./GroupDisplay";
+import { useSpecificUserGroup } from "./hook";
 
 const Page = ({ params }: { params: { teamId: string } }) => {
   const router = useRouter();

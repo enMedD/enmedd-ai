@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CCPairBasicInfo } from "@/lib/types";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CustomModal } from "@/components/CustomModal";
 

@@ -1,17 +1,22 @@
 "use client";
 
-import * as Yup from "yup";
-import { GithubIcon, TrashIcon } from "@/components/icons/icons";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import useSWR, { useSWRConfig } from "swr";
-import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
+import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
+import { TextFormField } from "@/components/admin/connectors/Field";
+import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { GithubIcon, TrashIcon } from "@/components/icons/icons";
+import { adminDeleteCredential, linkCredential } from "@/lib/credential";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { usePublicCredentials } from "@/lib/hooks";
 import {
+  ConnectorIndexingStatus,
+  Credential,
   GithubConfig,
   GithubCredentialJson,
-  Credential,
-  ConnectorIndexingStatus,
 } from "@/lib/types";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { LoadingAnimation } from "@/components/Loading";

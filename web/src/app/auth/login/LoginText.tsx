@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { useContext } from "react";
 
 export const LoginText = () => {
   const settings = useContext(SettingsContext);

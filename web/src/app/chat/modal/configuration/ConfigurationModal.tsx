@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { Modal } from "../../../../components/Modal";
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { FilterManager, LlmOverrideManager } from "@/lib/hooks";
 import { FiltersTab } from "./FiltersTab";
 import { AssistantsTab } from "./AssistantsTab";

@@ -101,6 +101,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--load", action="store_true", help="Load enMedD AI state from save directory."
     )
+    # TODO: Change the name of this
     parser.add_argument(
         "--postgres_container_name",
         type=str,

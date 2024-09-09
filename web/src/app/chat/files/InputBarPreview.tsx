@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { FiLoader, FiX } from "react-icons/fi";
 import { ChatFileType, FileDescriptor } from "../interfaces";
 import { DocumentPreview } from "./documents/DocumentPreview";
 import { InputBarPreviewImage } from "./images/InputBarPreviewImage";
-import { FiX, FiLoader } from "react-icons/fi";
 
 function DeleteButton({ onDelete }: { onDelete: () => void }) {
   return (

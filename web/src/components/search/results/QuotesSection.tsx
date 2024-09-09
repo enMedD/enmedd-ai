@@ -1,7 +1,3 @@
-import { Quote } from "@/lib/search/interfaces";
-import { ResponseSection, StatusOptions } from "./ResponseSection";
-import { CheckmarkIcon, CopyIcon } from "@/components/icons/icons";
-import { useState } from "react";
 import { SourceIcon } from "@/components/SourceIcon";
 import { Button } from "@/components/ui/button";
 

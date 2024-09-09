@@ -1,7 +1,9 @@
 import { User } from "@/lib/types";
 import { Assistant } from "../admin/assistants/interfaces";
 import { checkUserOwnsAssistant } from "@/lib/assistants/checkOwnership";
+import { User } from "@/lib/types";
 import { FiLock, FiUnlock } from "react-icons/fi";
+import { Persona } from "../admin/assistants/interfaces";
 
 export function AssistantSharedStatusDisplay({
   assistant,

@@ -3,6 +3,7 @@
 import useSWR from "swr";
 
 import { LoadingAnimation } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
 import { NotebookIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ConnectorIndexingStatus } from "@/lib/types";

@@ -8,6 +8,16 @@ import { DateRangePickerValue } from "@tremor/react";
 import { FilterDropdown } from "./FilterDropdown";
 import { listSourceMetadata } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
+import { SourceMetadata } from "@/lib/search/interfaces";
+import { listSourceMetadata } from "@/lib/sources";
+import { DocumentSet, Tag, ValidSources } from "@/lib/types";
+import { DateRangePickerValue } from "@tremor/react";
+import React from "react";
+import { FiBook, FiBookmark, FiFilter, FiMap, FiX } from "react-icons/fi";
+import { HoverPopup } from "../../HoverPopup";
+import { InfoIcon, defaultTailwindCSS } from "../../icons/icons";
+import { DateRangeSelector } from "../DateRangeSelector";
+import { FilterDropdown } from "./FilterDropdown";
 import { TagFilter } from "./TagFilter";
 import {
   Select,

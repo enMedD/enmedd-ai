@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
-import Image from "next/image";
 
 export function Logo({
   height,
