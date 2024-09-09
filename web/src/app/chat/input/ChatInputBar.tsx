@@ -6,6 +6,7 @@ import { getFinalLLM } from "@/lib/llm/utils";
 import { FileDescriptor } from "../interfaces";
 import { InputBarPreview } from "../files/InputBarPreview";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
+import { useChatContext } from "@/components/context/ChatContext";
 import { Tooltip } from "@/components/tooltip/Tooltip";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

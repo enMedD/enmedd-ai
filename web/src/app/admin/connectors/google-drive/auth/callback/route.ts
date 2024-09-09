@@ -1,9 +1,9 @@
-import { getDomain } from "@/lib/redirectSS";
-import { buildUrl } from "@/lib/utilsSS";
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
+import { getDomain } from "@/lib/redirectSS";
 import { processCookies } from "@/lib/userSS";
+import { buildUrl } from "@/lib/utilsSS";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (request: NextRequest) => {
   // Wrapper around the FastAPI endpoint /connectors/google-drive/callback,

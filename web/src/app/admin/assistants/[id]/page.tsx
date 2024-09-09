@@ -1,5 +1,3 @@
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { AssistantEditor } from "../AssistantEditor";
 import { BackButton } from "@/components/BackButton";
 import { Title } from "@tremor/react";
 import { DeleteAssistantButton } from "./DeleteAssistantButton";

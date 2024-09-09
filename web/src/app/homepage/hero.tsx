@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { Wrapper } from "./wrapper";
+import Link from "next/link";
 import heroImg from "../../../public/login_page_img.webp";
 import placeholder from "../../../public/placeholder.svg";
-import Link from "next/link";
+import { Wrapper } from "./wrapper";
 
 export default function Hero() {
   return (

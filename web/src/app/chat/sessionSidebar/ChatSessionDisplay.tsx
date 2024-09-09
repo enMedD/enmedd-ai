@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ChatSession } from "../interfaces";
-import { useState, useEffect } from "react";
-import { deleteChatSession, renameChatSession } from "../lib";
-import { DeleteChatModal } from "../modal/DeleteChatModal";
 import { BasicSelectable } from "@/components/BasicClickable";
+import { DefaultDropdownElement } from "@/components/Dropdown";
+import { Popover } from "@/components/popover/Popover";
+import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
 import Link from "next/link";
 
 import { ShareChatSessionModal } from "../modal/ShareChatSessionModal";

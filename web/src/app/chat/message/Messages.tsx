@@ -7,10 +7,13 @@ import { EnmeddDocument } from "@/lib/search/interfaces";
 import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
 import { SourceIcon } from "@/components/SourceIcon";
 import { ThreeDots } from "react-loader-spinner";
-import { SkippedSearch } from "./SkippedSearch";
+import ReactMarkdown from "react-markdown";
+import rehypePrism from "rehype-prism-plus";
 import remarkGfm from "remark-gfm";
-import { CopyButton } from "@/components/CopyButton";
+import { DocumentPreview } from "../files/documents/DocumentPreview";
+import { InMessageImage } from "../files/images/InMessageImage";
 import { ChatFileType, FileDescriptor, ToolCallMetadata } from "../interfaces";
+import { ToolRunDisplay } from "../tools/ToolRunningAnimation";
 import {
   IMAGE_GENERATION_TOOL_NAME,
   SEARCH_TOOL_NAME,
@@ -19,11 +22,14 @@ import { ToolRunDisplay } from "../tools/ToolRunningAnimation";
 import { DocumentPreview } from "../files/documents/DocumentPreview";
 import { InMessageImage } from "../files/images/InMessageImage";
 import { CodeBlock } from "./CodeBlock";
-import rehypePrism from "rehype-prism-plus";
+import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
+import { SkippedSearch } from "./SkippedSearch";
 
 // Prism stuff
 import Prism from "prismjs";
 
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import "prismjs/themes/prism-tomorrow.css";
 import "./custom-code-styles.css";
 import { Assistant } from "@/app/admin/assistants/interfaces";

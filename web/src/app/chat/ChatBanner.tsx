@@ -1,8 +1,8 @@
 "use client";
 
-import ReactMarkdown from "react-markdown";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { useContext } from "react";
+import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export function ChatBanner() {

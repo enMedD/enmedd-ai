@@ -1,8 +1,8 @@
 "use client";
 
 import { AdminPageTitle } from "@/components/admin/Title";
-import { QueryHistoryTable } from "./QueryHistoryTable";
 import { DatabaseIcon } from "@/components/icons/icons";
+import { QueryHistoryTable } from "./QueryHistoryTable";
 
 export default function QueryHistoryPage() {
   return (

@@ -1,6 +1,4 @@
-import React, { useMemo, useState } from "react";
 import {
-  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
@@ -9,16 +7,18 @@ import {
   MouseSensor,
   TouchSensor,
   UniqueIdentifier,
+  closestCenter,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
-  arrayMove,
   SortableContext,
+  arrayMove,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { TableBody } from "@tremor/react";
+import React, { useMemo, useState } from "react";
 import { DraggableRow } from "./DraggableRow";
 import { Row } from "./interfaces";
 

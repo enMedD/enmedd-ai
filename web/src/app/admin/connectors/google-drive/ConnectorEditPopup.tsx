@@ -1,3 +1,4 @@
+import { Modal } from "@/components/Modal";
 import { UpdateConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import {
   BooleanFormField,
@@ -5,10 +6,9 @@ import {
 } from "@/components/admin/connectors/Field";
 import { XIcon } from "@/components/icons/icons";
 import { Connector, GoogleDriveConfig } from "@/lib/types";
+import { Divider, Text } from "@tremor/react";
 import * as Yup from "yup";
 import { googleDriveConnectorNameBuilder } from "./utils";
-import { Modal } from "@/components/Modal";
-import { Divider, Text } from "@tremor/react";
 
 interface Props {
   existingConnector: Connector<GoogleDriveConfig>;

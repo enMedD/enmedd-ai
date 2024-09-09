@@ -2,9 +2,6 @@ import { Assistant } from "@/app/admin/assistants/interfaces";
 import { CCPairBasicInfo, DocumentSet, User } from "../types";
 import { getCurrentUserSS } from "../userSS";
 import { fetchSS } from "../utilsSS";
-import { FullLLMProvider } from "@/app/admin/models/llm/interfaces";
-import { ToolSnapshot } from "../tools/interfaces";
-import { fetchToolsSS } from "../tools/fetchTools";
 
 export async function fetchAssistantEditorInfoSS(
   assistantId?: number | string

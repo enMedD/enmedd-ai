@@ -22,6 +22,25 @@ import { AssistantSharingModal } from "./AssistantSharingModal";
 import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { MinimalUserSnapshot, User } from "@/lib/types";
+import { Divider, Text } from "@tremor/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  FiArrowDown,
+  FiArrowUp,
+  FiEdit2,
+  FiMoreHorizontal,
+  FiPlus,
+  FiSearch,
+  FiShare2,
+  FiX,
+} from "react-icons/fi";
+import useSWR from "swr";
+import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
+import { AssistantsPageTitle } from "../AssistantsPageTitle";
+import { NavigationButton } from "../NavigationButton";
 import { ToolsDisplay } from "../ToolsDisplay";
 import { useToast } from "@/hooks/use-toast";
 import {

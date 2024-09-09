@@ -13,6 +13,10 @@ import {
   removeAssistantFromList,
 } from "@/lib/assistants/updateAssistantPreferences";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FiMinus, FiPlus } from "react-icons/fi";
+import { AssistantsPageTitle } from "../AssistantsPageTitle";
+import { NavigationButton } from "../NavigationButton";
 import { ToolsDisplay } from "../ToolsDisplay";
 import { useToast } from "@/hooks/use-toast";
 import { Minus, Plus, X } from "lucide-react";

@@ -1,18 +1,16 @@
 "use client";
 
-import React from "react";
+import { removeDuplicateDocs } from "@/lib/documentUtils";
 import {
   EnmeddDocument,
   SearchResponse,
   Quote,
   FlowType,
+  Quote,
   SearchDefaultOverrides,
+  SearchResponse,
   ValidQuestionResponse,
 } from "@/lib/search/interfaces";
-import { QAFeedbackBlock } from "./QAFeedback";
-import { DocumentDisplay } from "./DocumentDisplay";
-import { QuotesSection } from "./results/QuotesSection";
-import { AnswerSection } from "./results/AnswerSection";
 import { ThreeDots } from "react-loader-spinner";
 import { AlertIcon } from "../icons/icons";
 import { removeDuplicateDocs } from "@/lib/documentUtils";

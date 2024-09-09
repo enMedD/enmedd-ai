@@ -762,6 +762,7 @@ class VespaIndex(DocumentIndex):
         deploy_url = f"{VESPA_APPLICATION_ENDPOINT}/tenant/default/prepareandactivate"
         logger.debug(f"Sending Vespa zip to {deploy_url}")
 
+        # TODO: Check the name of this if this is right
         vespa_schema_path = os.path.join(
             os.getcwd(), "enmedd", "document_index", "vespa", "app_config"
         )

@@ -1,4 +1,3 @@
-import React, { KeyboardEvent, ChangeEvent } from "react";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 

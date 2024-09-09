@@ -4,6 +4,7 @@ import { requestEmailVerification } from "../lib";
 import { Spinner } from "@/components/Spinner";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { requestEmailVerification } from "../lib";
 
 export function RequestNewVerificationEmail({
   children,

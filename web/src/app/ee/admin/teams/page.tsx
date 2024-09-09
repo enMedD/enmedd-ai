@@ -5,6 +5,9 @@ import { TeamspacesTable } from "./TeamspacesTable";
 import { TeamspaceCreationForm } from "./TeamspaceCreationForm";
 import { useState } from "react";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { AdminPageTitle } from "@/components/admin/Title";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { GroupsIcon } from "@/components/icons/icons";
 import {
   useConnectorCredentialIndexingStatus,
   useTeamspaces,

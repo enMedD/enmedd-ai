@@ -1,11 +1,11 @@
+import { User } from "@/lib/types";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
-import { Verify } from "./Verify";
-import { User } from "@/lib/types";
 import { redirect } from "next/navigation";
+import { Verify } from "./Verify";
 
 export default async function Page() {
   // catch cases where the backend is completely unreachable here

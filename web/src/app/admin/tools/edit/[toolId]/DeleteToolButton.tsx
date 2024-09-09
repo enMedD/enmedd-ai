@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@tremor/react";
-import { FiTrash } from "react-icons/fi";
 import { deleteCustomTool } from "@/lib/tools/edit";
+import { Button } from "@tremor/react";
 import { useRouter } from "next/navigation";
+import { FiTrash } from "react-icons/fi";
 
 export function DeleteToolButton({ toolId }: { toolId: number }) {
   const router = useRouter();

@@ -1,4 +1,7 @@
 name: Python Unit Tests
+concurrency:
+  group: Python-Unit-Tests-${{ github.head_ref }}
+  cancel-in-progress: true
 
 on:
   pull_request:

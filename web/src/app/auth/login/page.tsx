@@ -1,10 +1,10 @@
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { User } from "@/lib/types";
 import {
-  getCurrentUserSS,
-  getAuthUrlSS,
-  getAuthTypeMetadataSS,
   AuthTypeMetadata,
+  getAuthTypeMetadataSS,
+  getAuthUrlSS,
+  getCurrentUserSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
 import { SignInButton } from "./SignInButton";
@@ -74,6 +74,7 @@ const Page = async ({
         <div>
           {authUrl && authTypeMetadata && (
             <>
+              {/* TODO: replace into enMedD AI */}
               <LoginText />
               <SignInButton
                 authorizeUrl={authUrl}
@@ -99,7 +100,7 @@ const Page = async ({
           )}
         </div>
         <Image
-          src={LoginImage}
+          src={LogoBrand}
           alt="LoginImage"
           className="hidden w-1/2 h-auto lg:flex"
         />

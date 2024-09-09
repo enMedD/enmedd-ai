@@ -1,6 +1,6 @@
+import { DateRangePickerValue } from "@tremor/react";
 import { Tag } from "../types";
 import { Filters, SourceMetadata } from "./interfaces";
-import { DateRangePickerValue } from "@tremor/react";
 
 export const buildFilters = (
   sources: SourceMetadata[],

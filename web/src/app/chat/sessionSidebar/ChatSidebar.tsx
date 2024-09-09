@@ -1,5 +1,10 @@
 "use client";
 
+import { BasicClickable } from "@/components/BasicClickable";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect } from "react";
 import {
   Search,
   MessageCircleMore,
@@ -20,6 +25,9 @@ import { ChatTab } from "./ChatTab";
 import { Folder } from "../folders/interfaces";
 import { createFolder } from "../folders/FolderManagement";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { createFolder } from "../folders/FolderManagement";
+import { Folder } from "../folders/interfaces";
+import { ChatTab } from "./ChatTab";
 
 import EnmeddLogo from "../../../../public/logo-brand.png";
 import { useChatContext } from "@/context/ChatContext";

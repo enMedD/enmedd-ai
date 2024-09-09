@@ -1,22 +1,20 @@
 "use client";
 
-import { CCPairFullInfo } from "./types";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { CCPairStatus } from "@/components/Status";
 import { BackButton } from "@/components/BackButton";
-import { Divider, Title } from "@tremor/react";
-import { IndexingAttemptsTable } from "./IndexingAttemptsTable";
-import { Text } from "@tremor/react";
-import { ConfigDisplay } from "./ConfigDisplay";
-import { ModifyStatusButtonCluster } from "./ModifyStatusButtonCluster";
-import { DeletionButton } from "./DeletionButton";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { ReIndexButton } from "./ReIndexButton";
-import { isCurrentlyDeleting } from "@/lib/documentDeletion";
-import { ValidSources } from "@/lib/types";
-import useSWR from "swr";
-import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ThreeDotsLoader } from "@/components/Loading";
+import { CCPairStatus } from "@/components/Status";
+import { HealthCheckBanner } from "@/components/health/healthcheck";
+import { isCurrentlyDeleting } from "@/lib/documentDeletion";
+import { errorHandlingFetcher } from "@/lib/fetcher";
+import { ValidSources } from "@/lib/types";
+import { Divider, Text, Title } from "@tremor/react";
+import useSWR from "swr";
+import { ConfigDisplay } from "./ConfigDisplay";
+import { DeletionButton } from "./DeletionButton";
+import { IndexingAttemptsTable } from "./IndexingAttemptsTable";
+import { ModifyStatusButtonCluster } from "./ModifyStatusButtonCluster";
+import { ReIndexButton } from "./ReIndexButton";
 import { buildCCPairInfoUrl } from "./lib";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 

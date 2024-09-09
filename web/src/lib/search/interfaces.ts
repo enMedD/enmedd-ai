@@ -1,3 +1,4 @@
+import { Persona } from "@/app/admin/assistants/interfaces";
 import { DateRangePickerValue } from "@tremor/react";
 import { Tag, ValidSources } from "../types";
 import { Assistant } from "@/app/admin/assistants/interfaces";

@@ -1,28 +1,28 @@
+import { Persona } from "@/app/admin/assistants/interfaces";
 import {
   ConfluenceIcon,
   DropboxIcon,
+  FileIcon,
   GithubIcon,
   GitlabIcon,
   GlobeIcon,
   GmailIcon,
   GoogleDriveIcon,
+  GoogleSheetsIcon,
   GoogleSitesIcon,
+  GoogleStorageIcon,
   HubSpotIcon,
   JiraIcon,
   NotionIcon,
+  OCIStorageIcon,
   ProductboardIcon,
+  R2Icon,
+  S3Icon,
+  SalesforceIcon,
   SharepointIcon,
   TeamsIcon,
   ZendeskIcon,
-  FileIcon,
-  S3Icon,
-  R2Icon,
-  GoogleStorageIcon,
-  OCIStorageIcon,
-  SalesforceIcon,
-  GoogleSheetsIcon,
 } from "@/components/icons/icons";
-import { ValidSources } from "./types";
 import { SourceCategory, SourceMetadata } from "./search/interfaces";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 

@@ -1,6 +1,5 @@
 import { useToast } from "@/hooks/use-toast";
 import { updateBoost } from "./lib";
-import { EditableValue } from "@/components/EditableValue";
 
 export const ScoreSection = ({
   documentId,

@@ -1,15 +1,15 @@
-import enmeddLogo from "../../../public/logo-brand.png";
 import Image from "next/image";
+import enmeddLogo from "../../../public/logo-brand.png";
 import { Wrapper } from "./wrapper";
 
 import SOC from "./assets/SOC2_white.webp";
 import GDPR from "./assets/gdpr-logo-2.webp";
 import HIPAA from "./assets/hipaa_blue.webp";
 
-import twitter from "./assets/twitter-icon.svg";
+import Link from "next/link";
 import github from "./assets/github-icon.svg";
 import linkedin from "./assets/linkedin-icon.svg";
-import Link from "next/link";
+import twitter from "./assets/twitter-icon.svg";
 
 export default function Footer() {
   return (
@@ -19,7 +19,7 @@ export default function Footer() {
           <div className="flex flex-col justify-between w-full gap-10 xl:flex-row">
             <div className="flex flex-col gap-3">
               <Link href="/">
-                <Image src={enmeddLogo} alt="enmedd-logo" width={150} />
+                <Image src={enmeddLogo} alt="enmedd-ai-logo" width={150} />
               </Link>
               <p>Build and Deploy AI Applications in minutes</p>
 

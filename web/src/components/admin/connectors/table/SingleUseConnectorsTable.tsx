@@ -1,15 +1,16 @@
 import { DeletionAttemptSnapshot, ValidStatuses } from "@/lib/types";
 import { updateConnector } from "@/lib/connector";
 import { AttachCredentialButtonForTable } from "@/components/admin/connectors/buttons/AttachCredentialButtonForTable";
+import { updateConnector } from "@/lib/connector";
 import { scheduleDeletionJobForConnector } from "@/lib/documentDeletion";
-import { ConnectorsTableProps } from "./ConnectorsTable";
+import { DeletionAttemptSnapshot, ValidStatuses } from "@/lib/types";
 import {
   Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
 } from "@tremor/react";
 import { DeleteButton } from "@/components/DeleteButton";
 import { useToast } from "@/hooks/use-toast";

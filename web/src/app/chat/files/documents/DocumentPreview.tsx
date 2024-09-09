@@ -1,6 +1,6 @@
-import { FiFileText } from "react-icons/fi";
-import { useState, useRef, useEffect } from "react";
 import { Tooltip } from "@/components/tooltip/Tooltip";
+import { useEffect, useRef, useState } from "react";
+import { FiFileText } from "react-icons/fi";
 
 export function DocumentPreview({
   fileName,

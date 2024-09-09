@@ -1,20 +1,19 @@
 name: Build and Push to ECR
 
 on:
-  push:
-    branches:
-      - main
-
+  push: 
+    tags: 
+      - "*"
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   ECR_MODEL_REPOSITORY: chp-model-server
   ECR_API_REPOSITORY: chp-api-server
   ECR_WEB_REPOSITORY: chp-web
-  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_TAG: ${{ github.head_ref }}
 
 jobs:
-  build-and-push:
+  build-and-push-image:
     runs-on: ubuntu-latest
 
     steps:

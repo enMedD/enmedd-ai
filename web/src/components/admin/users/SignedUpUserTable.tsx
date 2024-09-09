@@ -1,12 +1,11 @@
-import { type User, UserStatus } from "@/lib/types";
-import CenteredPageSelector from "./CenteredPageSelector";
-import { type PageSelectorProps } from "@/components/PageSelector";
 import { HidableSection } from "@/app/admin/assistants/HidableSection";
+import { type PageSelectorProps } from "@/components/PageSelector";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
 import useSWRMutation from "swr/mutation";
 import { Button } from "@/components/ui/button";
 import {
+  Button,
   Table,
   TableBody,
   TableCell,

@@ -1,6 +1,3 @@
-import { AssistantEditor } from "../AssistantEditor";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { RobotIcon } from "@/components/icons/icons";
 import { BackButton } from "@/components/BackButton";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchAssistantEditorInfoSS";

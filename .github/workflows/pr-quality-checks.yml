@@ -4,7 +4,11 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request: null
+  pull_request:
+    branches: 
+      - main
+      - staging-env
+      - dev-env
 
 jobs:
   quality-checks:

@@ -3,7 +3,6 @@ import { DocumentFeedbackBlock } from "./DocumentFeedbackBlock";
 import { useState } from "react";
 import { DocumentUpdatedAtBadge } from "./DocumentUpdatedAtBadge";
 import { FiInfo, FiRadio, FiTag } from "react-icons/fi";
-import { SourceIcon } from "../SourceIcon";
 import { MetadataBadge } from "../MetadataBadge";
 import { Badge } from "../ui/badge";
 import { CustomTooltip } from "../CustomTooltip";

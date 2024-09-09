@@ -1,8 +1,7 @@
 import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { useState } from "react";
-import { useSWRConfig } from "swr";
-import * as Yup from "yup";
-import { useRouter } from "next/navigation";
+import { GMAIL_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
+import { adminDeleteCredential } from "@/lib/credential";
+import { setupGmailOAuth } from "@/lib/gmail";
 import {
   Credential,
   GmailCredentialJson,

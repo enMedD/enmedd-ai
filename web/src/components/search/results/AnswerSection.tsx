@@ -1,7 +1,7 @@
 import { Quote } from "@/lib/search/interfaces";
-import { ResponseSection, StatusOptions } from "./ResponseSection";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ResponseSection, StatusOptions } from "./ResponseSection";
 
 const TEMP_STRING = "__$%^TEMP$%^__";
 
