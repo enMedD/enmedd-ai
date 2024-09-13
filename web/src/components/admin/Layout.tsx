@@ -10,6 +10,7 @@ import { BarLayout } from "../BarLayout";
 import { AdminBar } from "./AdminBar";
 import { HealthCheckBanner } from "../health/healthcheck";
 
+
 export async function Layout({ children }: { children: React.ReactNode }) {
   const tasks = [getAuthTypeMetadataSS(), getCurrentUserSS()];
 
