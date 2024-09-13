@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
-import { useChatContext } from "@/components/context/ChatContext";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { Badge } from "@/components/ui/badge";
 import { Assistants } from "./Assistants";
