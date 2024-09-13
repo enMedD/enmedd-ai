@@ -11,9 +11,9 @@ export const HealthCheckBanner = () => {
   const { error } = useSWR("/api/health", errorHandlingFetcher);
   const [isModalOpen, setIsModalOpen] = useState(true);
 
-  if (!error) {
+  /*   if (!error) {
     return null;
-  }
+  } */
 
   if (error instanceof RedirectError) {
     return (
@@ -36,7 +36,7 @@ export const HealthCheckBanner = () => {
     );
   } else {
     return (
-      <div className="text-sm bg-destructive p-3 rounded-xs border-hidden flex gap-2 m-1.5">
+      <div className="text-sm bg-destructive p-3 rounded-xs border-hidden flex gap-2 m-1.5 mb-0">
         <CircleAlert size={20} className="min-w-5 min-h-5" />
         <p className="font-bold">The backend is currently unavailable.</p>
 
