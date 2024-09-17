@@ -79,7 +79,7 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
 
   return (
     <div>
-      <p className="pb-6">
+      <p className="pb-4 text-sm">
         Assistants will be displayed as options on the Chat / Search interfaces
         in the order they are displayed below. Assistants marked as hidden will
         not be displayed.

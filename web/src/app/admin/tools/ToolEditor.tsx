@@ -169,8 +169,7 @@ function ToolForm({
         </div>
       )}
 
-      <Divider />
-      <div className="flex">
+      <div className="flex pt-4">
         <Button
           className="mx-auto"
           type="submit"

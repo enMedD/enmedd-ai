@@ -63,8 +63,12 @@ export const TokenRateLimitTable = ({
     return (
       <div>
         {!hideHeading && title && <h3>{title}</h3>}
-        {!hideHeading && description && <p className="my-2">{description}</p>}
-        <p className={`${!hideHeading && "my-8"}`}>No token rate limits set!</p>
+        {!hideHeading && description && (
+          <p className="mt-2 mb-4 text-sm">{description}</p>
+        )}
+        <p className={`text-sm ${!hideHeading && "my-8"}`}>
+          No token rate limits set!
+        </p>
       </div>
     );
   }
@@ -72,7 +76,9 @@ export const TokenRateLimitTable = ({
   return (
     <div>
       {!hideHeading && title && <h3>{title}</h3>}
-      {!hideHeading && description && <p className="my-2">{description}</p>}
+      {!hideHeading && description && (
+        <p className="mt-2 mb-4 text-sm">{description}</p>
+      )}
       <Card>
         <CardContent className="p-0">
           <Table>

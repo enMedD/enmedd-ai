@@ -88,7 +88,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
       />
       {/* NOTE: no divider / title here for `ConfigDisplay` since it is optional and we need
         to render these conditionally.*/}
-      <div className="flex items-start justify-between sm:items-center flex-col sm:flex-row gap-2 mt-16 mb-4">
+      <div className="flex items-start justify-between sm:items-center flex-col sm:flex-row gap-2 mt-12 mb-4">
         <h3>Indexing Attempts</h3>
 
         {!CONNECTOR_TYPES_THAT_CANT_REINDEX.includes(
@@ -108,7 +108,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
         </CardContent>
       </Card>
 
-      <div className="mt-16">
+      <div className="mt-12">
         <h3>Delete Connector</h3>
         <p className="text-sm text-subtle">
           Deleting the connector will also delete all associated documents.

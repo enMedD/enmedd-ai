@@ -128,9 +128,7 @@ export const DocumentSetCreationForm = ({
             <Divider />
 
             <div>
-              <h2 className="mb-1 font-medium text-base">
-                Pick your connectors:
-              </h2>
+              <h3 className="mb-1">Pick your connectors:</h3>
               <p className="mb-3 text-xs text-subtle">
                 All documents indexed by the selected connectors will be a part
                 of this document set.
@@ -201,12 +199,10 @@ export const DocumentSetCreationForm = ({
                   />
 
                   <Divider />
-                  <h2 className="mb-1 font-medium text-base">
-                    Teamspace with Access
-                  </h2>
+                  <h3 className="mb-1">Teamspace with Access</h3>
                   {!values.is_public ? (
                     <>
-                      <p className="mb-3 text-subtle text-xs ">
+                      <p className="mb-3 text-subtle text-sm">
                         If any teamspace are specified, then this Document Set
                         will only be visible to the specified teamspace. If no
                         teamspace are specified, then the Document Set will be

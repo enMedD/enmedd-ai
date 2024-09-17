@@ -126,7 +126,7 @@ function Main() {
   if (apiKeys.length === 0) {
     return (
       <div>
-        <p className="pb-5">{API_KEY_TEXT}</p>
+        <p className="pb-4">{API_KEY_TEXT}</p>
 
         <CustomModal
           trigger={newApiKeyButton}
@@ -166,7 +166,7 @@ function Main() {
 
       {keyIsGenerating && <Spinner />}
 
-      <p className="pb-5">{API_KEY_TEXT}</p>
+      <p className="pb-4">{API_KEY_TEXT}</p>
 
       <CustomModal
         trigger={newApiKeyButton}
