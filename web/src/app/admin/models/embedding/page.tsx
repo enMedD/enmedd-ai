@@ -168,7 +168,6 @@ function Main() {
       {currentModel ? (
         <>
           <h3 className="mt-8 pb-4">Current Embedding Model</h3>
-
           <p>
             <ModelOption model={currentModel} />
           </p>
@@ -178,7 +177,6 @@ function Main() {
         (!connectors || !connectors.length) && (
           <>
             <h3 className="mt-8 pb-4">Current Embedding Model</h3>
-
             <p>
               <ModelOption model={newModelSelection} />
             </p>
@@ -192,7 +190,6 @@ function Main() {
             {currentModel ? (
               <>
                 <h3 className="mt-8 pb-4">Switch your Embedding Model</h3>
-
                 <p className="pb-4 text-sm">
                   If the current model is not working for you, you can update
                   your model choice below. Note that this will require a
