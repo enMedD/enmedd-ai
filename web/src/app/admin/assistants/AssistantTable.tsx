@@ -93,28 +93,16 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
               return {
                 id: assistant.id.toString(),
                 cells: [
-                  <div key="name" className="flex gap-2 items-center">
-                    {!assistant.default_assistant && (
-                      <CustomTooltip
-                        trigger={
-                          <Button variant="ghost" size="icon">
-                            <Pencil
-                              size={16}
-                              onClick={() =>
-                                router.push(
-                                  `/admin/assistants/${
-                                    assistant.id
-                                  }?u=${Date.now()}`
-                                )
-                              }
-                            />
-                          </Button>
-                        }
-                        asChild
-                      >
-                        Edit
-                      </CustomTooltip>
-                    )}
+                  <div
+                    key="name"
+                    className="flex gap-4 items-center"
+                    onClick={() =>
+                      router.push(
+                        `/admin/assistants/${assistant.id}?u=${Date.now()}`
+                      )
+                    }
+                  >
+                    {!assistant.default_assistant && <Pencil size={16} />}
                     <p className="text font-medium whitespace-normal break-none">
                       {assistant.name}
                     </p>
