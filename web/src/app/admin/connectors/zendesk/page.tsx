@@ -82,9 +82,7 @@ const Main = () => {
 
   return (
     <>
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
-        Provide your API details
-      </Title>
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">Provide your API details</h3>
 
       {zendeskCredential ? (
         <>
@@ -176,9 +174,7 @@ const Main = () => {
 
       {zendeskConnectorIndexingStatuses.length > 0 && (
         <>
-          <Title className="mt-6 mb-2 ml-auto mr-auto">
-            Zendesk indexing status
-          </Title>
+          <h3 className="mt-6 mb-2 ml-auto mr-auto">Zendesk indexing status</h3>
           <Text className="mb-2">
             The latest article changes are fetched every 10 minutes.
           </Text>

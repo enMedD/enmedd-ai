@@ -117,9 +117,9 @@ const Main = () => {
 
   return (
     <>
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your access token
-      </Title>
+      </h3>
 
       {confluenceCredential ? (
         <>
@@ -201,9 +201,9 @@ const Main = () => {
         </>
       )}
 
-      <Title className="mt-6">
+      <h3 className="mt-6">
         Step 2: Which spaces do you want to make searchable?
-      </Title>
+      </h3>
       {confluenceCredential ? (
         <>
           <p className="mb-4 text-sm">

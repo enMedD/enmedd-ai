@@ -91,9 +91,9 @@ const Main = () => {
         AI.
       </Text>
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your Credentials
-      </Title>
+      </h3>
 
       {hubSpotCredential ? (
         <>
@@ -159,9 +159,7 @@ const Main = () => {
         </>
       )}
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
-        Step 2: Start indexing!
-      </Title>
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">Step 2: Start indexing!</h3>
       {hubSpotCredential ? (
         !hubSpotConnectorIndexingStatuses.length ? (
           <>

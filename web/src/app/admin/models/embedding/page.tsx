@@ -298,7 +298,7 @@ function Main() {
           connectors &&
           connectors.length > 0 && (
             <div>
-              <Title className="mt-8">Current Upgrade Status</Title>
+              <h3 className="mt-8">Current Upgrade Status</h3>
               <div className="mt-4">
                 <div className="mb-2 text-sm italic">
                   Currently in the process of switching to:

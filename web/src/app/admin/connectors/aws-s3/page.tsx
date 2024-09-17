@@ -85,9 +85,9 @@ const S3Main = () => {
 
   return (
     <>
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide your access info
-      </Title>
+      </h3>
       {s3Credential ? (
         <>
           {" "}
@@ -166,15 +166,13 @@ const S3Main = () => {
         </>
       )}
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Which S3 bucket do you want to make searchable?
-      </Title>
+      </h3>
 
       {s3ConnectorIndexingStatuses.length > 0 && (
         <>
-          <Title className="mt-6 mb-2 ml-auto mr-auto">
-            S3 indexing status
-          </Title>
+          <h3 className="mt-6 mb-2 ml-auto mr-auto">S3 indexing status</h3>
           <Text className="mb-2">
             The latest changes are fetched every 10 minutes.
           </Text>

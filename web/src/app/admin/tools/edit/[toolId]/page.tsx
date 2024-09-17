@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: { toolId: string } }) {
               </CardContent>
             </Card>
 
-            <Title className="mt-12">Delete Tool</Title>
+            <h3 className="mt-12">Delete Tool</h3>
             <Text>Click the button below to permanently delete this tool.</Text>
             <div className="flex mt-6">
               <DeleteToolButton toolId={tool.id} />

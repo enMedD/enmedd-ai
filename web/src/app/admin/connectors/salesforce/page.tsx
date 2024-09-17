@@ -80,9 +80,9 @@ const MainSection = () => {
         be queryable within enMedD AI.
       </Text>
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide Salesforce credentials
-      </Title>
+      </h3>
       {SalesforceCredential ? (
         <>
           <div className="flex mb-1 text-sm">
@@ -165,9 +165,9 @@ const MainSection = () => {
         </>
       )}
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Manage Salesforce Connector
-      </Title>
+      </h3>
 
       {SalesforceConnectorIndexingStatuses.length > 0 && (
         <>

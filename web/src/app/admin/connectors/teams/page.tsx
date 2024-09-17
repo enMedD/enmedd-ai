@@ -91,9 +91,9 @@ const MainSection = () => {
         specified teams will be queryable within enMedD AI.
       </Text>
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide Teams credentials
-      </Title>
+      </h3>
       {teamsCredential ? (
         <>
           <div className="flex mb-1 text-sm">
@@ -174,9 +174,9 @@ const MainSection = () => {
         </>
       )}
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Manage Teams Connector
-      </Title>
+      </h3>
 
       {teamsConnectorIndexingStatuses.length > 0 && (
         <>

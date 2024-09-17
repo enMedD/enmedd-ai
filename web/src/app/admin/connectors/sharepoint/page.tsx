@@ -92,9 +92,9 @@ const MainSection = () => {
         will be queryable within enMedD AI.
       </Text>
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide Sharepoint credentials
-      </Title>
+      </h3>
       {sharepointCredential ? (
         <>
           <div className="flex mb-1 text-sm">
@@ -175,9 +175,9 @@ const MainSection = () => {
         </>
       )}
 
-      <Title className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 2: Manage Sharepoint Connector
-      </Title>
+      </h3>
 
       {sharepointConnectorIndexingStatuses.length > 0 && (
         <>

@@ -159,7 +159,7 @@ const Main = () => {
             to generate an Access Token (for cloud) or Assistantl Access Token
             (for server). Submit only one form.
           </Text>
-          <Title className="mt-6 mb-2 ml-auto mr-auto">Cloud</Title>
+          <h3 className="mt-6 mb-2 ml-auto mr-auto">Cloud</h3>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<JiraCredentialJson>
@@ -193,7 +193,7 @@ const Main = () => {
               />
             </CardContent>
           </Card>
-          <Title className="mt-6 mb-2 ml-auto mr-auto">Server</Title>
+          <h3 className="mt-6 mb-2 ml-auto mr-auto">Server</h3>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<JiraServerCredentialJson>

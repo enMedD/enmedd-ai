@@ -113,7 +113,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
       </Card>
       <Divider />
       <div className="mt-4">
-        <Title>Delete Connector</Title>
+        <h3>Delete Connector</h3>
         <p className="text-sm text-subtle">
           Deleting the connector will also delete all associated documents.
         </p>
