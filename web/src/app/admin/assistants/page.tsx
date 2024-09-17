@@ -44,7 +44,7 @@ export default async function Page() {
       <div>
         <Divider />
 
-        <Title>Create an Assistant</Title>
+        <h3>Create an Assistant</h3>
         <Link href="/admin/assistants/new" className="flex items-center">
           <Button className="mt-2">
             <SquarePlus size={16} />
@@ -54,7 +54,7 @@ export default async function Page() {
 
         <Divider />
 
-        <Title>Existing Assistants</Title>
+        <h3>Existing Assistants</h3>
         <AssistantsTable assistants={assistants} />
       </div>
     </div>

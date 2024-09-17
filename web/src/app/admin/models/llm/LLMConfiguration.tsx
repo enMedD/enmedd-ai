@@ -32,7 +32,7 @@ function LLMProviderUpdateModal({
     "Custom LLM Provider";
   return (
     <div className="px-4">
-      {/* <h2 className="text-2xl font-semibold pb-6">{`Setup ${providerName}`}</h2> */}
+      {/* <h2 className="text-2xl pb-6">{`Setup ${providerName}`}</h2> */}
       {llmProviderDescriptor ? (
         <LLMProviderUpdateForm
           llmProviderDescriptor={llmProviderDescriptor}
@@ -140,7 +140,7 @@ export function LLMConfiguration() {
 
   return (
     <>
-      <h3 className="pb-5 font-semibold">Enabled LLM Providers</h3>
+      <h3 className="pb-5">Enabled LLM Providers</h3>
 
       {existingLlmProviders.length > 0 ? (
         <>
@@ -161,7 +161,7 @@ export function LLMConfiguration() {
         </Callout>
       )}
 
-      <h3 className="pb-5 font-semibold">Add LLM Provider</h3>
+      <h3 className="pb-5">Add LLM Provider</h3>
       <p className="pb-4">
         Add a new LLM provider by either selecting from one of the default
         providers or by specifying your own custom LLM provider.

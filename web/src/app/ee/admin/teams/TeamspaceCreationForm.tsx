@@ -92,7 +92,7 @@ export const TeamspaceCreationForm = ({
               />
 
               <div className="pb-4">
-                <h3 className="text-sm pb-1 font-semibold">
+                <h3 className="text-sm pb-1">
                   Select which connectors this group has access to:
                 </h3>
                 <p className="text-xs pb-2">
@@ -110,7 +110,7 @@ export const TeamspaceCreationForm = ({
               </div>
 
               <div className="pb-4">
-                <h3 className="text-sm pb-1 font-semibold">
+                <h3 className="text-sm pb-1">
                   Select which Users should be a part of this Group.
                 </h3>
                 <p className="text-xs">

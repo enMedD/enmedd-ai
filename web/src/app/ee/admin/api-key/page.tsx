@@ -187,7 +187,7 @@ function Main() {
 
       <Divider />
 
-      <h3 className="font-semibold pb-4">Existing API Keys</h3>
+      <h3 className="pb-4">Existing API Keys</h3>
       <Card>
         <CardContent className="p-0">
           <Table className="overflow-visible">

@@ -141,7 +141,7 @@ function ToolForm({
 
       {methodSpecs && methodSpecs.length > 0 && (
         <div className="pt-4">
-          <h3 className="font-semibold pb-2">Available methods</h3>
+          <h3 className="pb-2">Available methods</h3>
           <Card>
             <CardContent className="p-0">
               <Table>

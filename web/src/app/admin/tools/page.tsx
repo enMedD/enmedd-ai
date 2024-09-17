@@ -34,7 +34,7 @@ export default async function Page() {
       </p>
 
       <div className="pt-5">
-        <h3 className="font-semibold pb-2">Create a Tool</h3>
+        <h3 className="pb-2">Create a Tool</h3>
         <Link href="/admin/tools/new">
           <Button className="mt-2">
             <SquarePlus size={14} />
@@ -44,7 +44,7 @@ export default async function Page() {
 
         <Divider />
 
-        <h3 className="font-semibold pb-5">Existing Tools</h3>
+        <h3 className="pb-5">Existing Tools</h3>
         <ToolsTable tools={tools} />
       </div>
     </div>

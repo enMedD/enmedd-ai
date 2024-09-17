@@ -20,7 +20,7 @@ import { gmailConnectorNameBuilder } from "./utils";
 import { GmailOAuthSection, GmailJsonUploadSection } from "./Credential";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Divider, Text, Title } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -224,17 +224,15 @@ const Main = () => {
 
   return (
     <>
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
-        Step 1: Provide your Credentials
-      </Title>
+      <h3 className="mb-2 ml-auto mr-auto">Step 1: Provide your Credentials</h3>
       <GmailJsonUploadSection
         appCredentialData={appCredentialData}
         serviceAccountCredentialData={serviceAccountKeyData}
       />
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
+      <h3 className="mb-2 mt-6 ml-auto mr-auto">
         Step 2: Authenticate with enMedD AI
-      </Title>
+      </h3>
       <GmailOAuthSection
         refreshCredentials={refreshCredentials}
         gmailPublicCredential={gmailPublicCredential}
@@ -244,9 +242,7 @@ const Main = () => {
         connectorExists={gmailConnectorIndexingStatuses.length > 0}
       />
 
-      <Title className="mb-2 mt-6 ml-auto mr-auto">
-        Step 3: Start Indexing!
-      </Title>
+      <h3 className="mb-2 mt-6 ml-auto mr-auto">Step 3: Start Indexing!</h3>
       <GmailConnectorManagement
         gmailPublicCredential={gmailPublicCredential}
         gmailServiceAccountCredential={gmailServiceAccountCredential}

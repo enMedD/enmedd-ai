@@ -103,7 +103,7 @@ function GenerateReportInput() {
     <div className="flex gap-4 flex-col md:flex-row justify-between md:items-center">
       <div>
         <div className="flex flex-col">
-          <h3 className="font-semibold">Generate Usage Reports</h3>
+          <h3>Generate Usage Reports</h3>
           <span className="text-subtle text-sm">
             Generate usage statistics for users in the workspace.
           </span>
@@ -157,7 +157,7 @@ function UsageReportsTable() {
 
   return (
     <div>
-      <h3 className="font-semibold pt-8 p-4">Previous Reports</h3>
+      <h3 className="pt-8 p-4">Previous Reports</h3>
       {usageReportsIsLoading ? (
         <div className="flex justify-center w-full">
           <ThreeDotsLoader />

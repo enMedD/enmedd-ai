@@ -104,7 +104,7 @@ export function WhitelabelingForm() {
             {values.use_custom_logo ? (
               <div className="pt-3 flex flex-col items-start gap-3">
                 <div>
-                  <h3 className="font-semibold">Custom Logo</h3>
+                  <h3>Custom Logo</h3>
                   <SubLabel>Current Custom Logo: </SubLabel>
                 </div>
                 <Image
