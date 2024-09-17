@@ -119,17 +119,13 @@ const GCSMain = () => {
         </>
       ) : (
         <>
-          <Text>
-            <ul className="mt-2 ml-4 list-disc">
-              <li>
-                Provide your GCS Project ID, Client Email, and Private Key for
-                authentication.
-              </li>
-              <li>
-                These credentials will be used to access your GCS buckets.
-              </li>
-            </ul>
-          </Text>
+          <ul className="mt-2 ml-4 list-disc text-sm">
+            <li>
+              Provide your GCS Project ID, Client Email, and Private Key for
+              authentication.
+            </li>
+            <li>These credentials will be used to access your GCS buckets.</li>
+          </ul>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<GCSCredentialJson>

@@ -84,9 +84,7 @@ const OCIMain = () => {
 
   return (
     <>
-      <h3 className="mt-6 mb-2 ml-auto mr-auto">
-        Step 1: Provide your access info
-      </h3>
+      <h3 className="mb-2 ml-auto mr-auto">Step 1: Provide your access info</h3>
       {ociCredential ? (
         <>
           {" "}
@@ -123,17 +121,13 @@ const OCIMain = () => {
         </>
       ) : (
         <>
-          <Text>
-            <ul className="mt-2 ml-4 list-disc">
-              <li>
-                Provide your OCI Access Key ID, Secret Access Key, Namespace,
-                and Region for authentication.
-              </li>
-              <li>
-                These credentials will be used to access your OCI buckets.
-              </li>
-            </ul>
-          </Text>
+          <ul className="mt-2 ml-4 list-disc text-sm">
+            <li>
+              Provide your OCI Access Key ID, Secret Access Key, Namespace, and
+              Region for authentication.
+            </li>
+            <li>These credentials will be used to access your OCI buckets.</li>
+          </ul>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<OCICredentialJson>

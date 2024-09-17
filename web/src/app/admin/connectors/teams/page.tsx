@@ -85,11 +85,11 @@ const MainSection = () => {
 
   return (
     <>
-      <Text>
+      <p className="text-sm">
         The Teams connector allows you to index and search through your Teams
         channels. Once setup, all messages from the channels contained in the
         specified teams will be queryable within enMedD AI.
-      </Text>
+      </p>
 
       <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide Teams credentials
@@ -115,7 +115,7 @@ const MainSection = () => {
         </>
       ) : (
         <>
-          <Text className="mb-2">
+          <p className="text-sm">
             As a first step, please provide Application (client) ID, Directory
             (tenant) ID, and Client Secret. You can follow the guide{" "}
             <a
@@ -126,8 +126,8 @@ const MainSection = () => {
               here
             </a>{" "}
             to create an Azure AD application and obtain these values.
-          </Text>
-          <Card className="mt-2">
+          </p>
+          <Card className="mt-4">
             <CardContent>
               <CredentialForm<TeamsCredentialJson>
                 formBody={
@@ -257,11 +257,11 @@ const MainSection = () => {
           </CardContent>
         </Card>
       ) : (
-        <Text>
+        <p className="text-sm">
           Please provide all Azure info in Step 1 first! Once you&apos;re done
           with that, you can then specify which teams you want to make
           searchable.
-        </Text>
+        </p>
       )}
     </>
   );

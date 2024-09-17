@@ -117,7 +117,7 @@ const Main = () => {
 
   return (
     <>
-      <h3 className="mt-6 mb-2 ml-auto mr-auto">
+      <h3 className="mb-2 ml-auto mr-auto">
         Step 1: Provide your access token
       </h3>
 
@@ -151,7 +151,7 @@ const Main = () => {
         </>
       ) : (
         <>
-          <Text>
+          <p className="text-sm">
             To use the Confluence connector, first follow the guide{" "}
             <a
               className="text-link"
@@ -161,7 +161,7 @@ const Main = () => {
               here
             </a>{" "}
             to generate an Access Token.
-          </Text>
+          </p>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<ConfluenceCredentialJson>
@@ -201,7 +201,7 @@ const Main = () => {
         </>
       )}
 
-      <h3 className="mt-6">
+      <h3 className="mt-6 mb-2">
         Step 2: Which spaces do you want to make searchable?
       </h3>
       {confluenceCredential ? (
@@ -312,11 +312,11 @@ const Main = () => {
           </Card>
         </>
       ) : (
-        <Text>
+        <p className="text-sm">
           Please provide your access token in Step 1 first! Once done with that,
           you can then specify which Confluence spaces you want to make
           searchable.
-        </Text>
+        </p>
       )}
     </>
   );

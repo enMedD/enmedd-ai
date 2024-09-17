@@ -84,7 +84,7 @@ const Main = () => {
 
   return (
     <>
-      <h3 className="mt-6 mb-2 ml-auto mr-auto">Provide your API details</h3>
+      <h3 className="mb-2 ml-auto mr-auto">Provide your API details</h3>
 
       {dropboxCredential ? (
         <>
@@ -116,7 +116,7 @@ const Main = () => {
         </>
       ) : (
         <>
-          <Text>
+          <p className="text-sm">
             See the Dropbox connector{" "}
             <a
               className="text-blue-500"
@@ -125,7 +125,7 @@ const Main = () => {
               setup guide
             </a>{" "}
             on the enMedD AI docs to obtain a Dropbox token.
-          </Text>
+          </p>
           <Card className="mt-4 mb-4">
             <CardContent>
               <CredentialForm<DropboxCredentialJson>

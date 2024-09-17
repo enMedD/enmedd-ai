@@ -162,7 +162,9 @@ export const BooleanFormField = ({
         />
 
         <div className="grid gap-1.5 leading-none">
-          <ShadcnLabel htmlFor={label}>{label}</ShadcnLabel>
+          <ShadcnLabel htmlFor={label} className="font-semibold">
+            {label}
+          </ShadcnLabel>
           {subtext && (
             <p className="text-sm text-muted-foreground">{subtext}</p>
           )}

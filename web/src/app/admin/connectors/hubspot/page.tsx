@@ -86,14 +86,12 @@ const Main = () => {
 
   return (
     <>
-      <Text>
+      <p className="text-sm mb-6">
         This connector allows you to sync all your HubSpot Tickets into enMedD
         AI.
-      </Text>
+      </p>
 
-      <h3 className="mt-6 mb-2 ml-auto mr-auto">
-        Step 1: Provide your Credentials
-      </h3>
+      <h3 className="mb-2 ml-auto mr-auto">Step 1: Provide your Credentials</h3>
 
       {hubSpotCredential ? (
         <>
@@ -125,9 +123,9 @@ const Main = () => {
         </>
       ) : (
         <>
-          <Text>
+          <p className="text-sm">
             To use the HubSpot connector, provide the HubSpot Access Token.
-          </Text>
+          </p>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<HubSpotCredentialJson>
@@ -211,10 +209,10 @@ const Main = () => {
         )
       ) : (
         <>
-          <Text>
+          <p className="text-sm">
             Please provide your access token in Step 1 first! Once done with
             that, you can then start indexing all your HubSpot tickets.
-          </Text>
+          </p>
         </>
       )}
     </>

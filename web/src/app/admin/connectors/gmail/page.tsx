@@ -20,7 +20,6 @@ import { gmailConnectorNameBuilder } from "./utils";
 import { GmailOAuthSection, GmailJsonUploadSection } from "./Credential";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Divider, Text } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -49,16 +48,16 @@ const GmailConnectorManagement = ({
   const liveCredential = gmailPublicCredential || gmailServiceAccountCredential;
   if (!liveCredential) {
     return (
-      <Text>
+      <p className="text-sm">
         Please authenticate with Gmail as described in Step 2! Once done with
         that, you can then move on to enable this connector.
-      </Text>
+      </p>
     );
   }
 
   return (
     <div>
-      <Text>
+      <p>
         <div className="my-3">
           {gmailConnectorIndexingStatuses.length > 0 ? (
             <>
@@ -76,14 +75,13 @@ const GmailConnectorManagement = ({
             </p>
           )}
         </div>
-      </Text>
+      </p>
       {gmailConnectorIndexingStatuses.length > 0 && (
         <>
           <div className="text-sm mb-2 font-bold">Existing Connectors:</div>
           <GmailConnectorsTable
             gmailConnectorIndexingStatuses={gmailConnectorIndexingStatuses}
           />
-          <Divider />
         </>
       )}
 

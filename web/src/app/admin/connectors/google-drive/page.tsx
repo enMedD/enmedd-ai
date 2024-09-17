@@ -56,10 +56,10 @@ const GoogleDriveConnectorManagement = ({
     googleDrivePublicCredential || googleDriveServiceAccountCredential;
   if (!liveCredential) {
     return (
-      <Text>
+      <p className="text-sm">
         Please authenticate with Google Drive as described in Step 2! Once done
         with that, you can then move on to enable this connector.
-      </Text>
+      </p>
     );
   }
 
@@ -363,9 +363,7 @@ const Main = () => {
 
   return (
     <>
-      <h3 className="mb-2 mt-6 ml-auto mr-auto">
-        Step 1: Provide your Credentials
-      </h3>
+      <h3 className="mb-2 ml-auto mr-auto">Step 1: Provide your Credentials</h3>
       <DriveJsonUploadSection
         appCredentialData={appCredentialData}
         serviceAccountCredentialData={serviceAccountKeyData}

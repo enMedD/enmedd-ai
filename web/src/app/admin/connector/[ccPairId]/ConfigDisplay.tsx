@@ -56,7 +56,7 @@ export function ConfigDisplay({
 
   return (
     <>
-      <h3 className="mb-4">Configuration</h3>
+      <h3 className="mb-4 mt-16">Configuration</h3>
       <Card>
         <CardContent>
           <ul className="flex flex-col gap-4">

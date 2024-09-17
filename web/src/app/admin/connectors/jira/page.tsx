@@ -99,7 +99,7 @@ const Main = () => {
 
   return (
     <>
-      <h2 className="mt-6 mb-2 ml-auto mr-auto font-bold">
+      <h2 className="mb-2 ml-auto mr-auto font-bold">
         Step 1: Provide your Credentials
       </h2>
 
@@ -147,7 +147,7 @@ const Main = () => {
         </>
       ) : (
         <>
-          <Text>
+          <p className="text-sm">
             To use the Jira connector, first follow the guide{" "}
             <a
               className="text-link"
@@ -158,7 +158,7 @@ const Main = () => {
             </a>{" "}
             to generate an Access Token (for cloud) or Assistantl Access Token
             (for server). Submit only one form.
-          </Text>
+          </p>
           <h3 className="mt-6 mb-2 ml-auto mr-auto">Cloud</h3>
           <Card className="mt-4">
             <CardContent>
@@ -359,11 +359,11 @@ const Main = () => {
         </>
       ) : (
         <>
-          <Text>
+          <p className="text-sm">
             Please provide your access token in Step 1 first! Once done with
             that, you can then specify which Jira projects you want to make
             searchable.
-          </Text>
+          </p>
         </>
       )}
     </>

@@ -74,11 +74,11 @@ const MainSection = () => {
 
   return (
     <>
-      <Text>
+      <p className="text-sm">
         The Salesforce connector allows you to index and search through your
         Salesforce data. Once setup, all indicated Salesforce data will be will
         be queryable within enMedD AI.
-      </Text>
+      </p>
 
       <h3 className="mt-6 mb-2 ml-auto mr-auto">
         Step 1: Provide Salesforce credentials
@@ -104,7 +104,7 @@ const MainSection = () => {
         </>
       ) : (
         <>
-          <Text className="mb-2">
+          <p className="text-sm">
             As a first step, please provide the Salesforce admin account&apos;s
             username, password, and Salesforce security token. You can follow
             the guide{" "}
@@ -116,8 +116,8 @@ const MainSection = () => {
               here
             </a>{" "}
             to create get your Salesforce Security Token.
-          </Text>
-          <Card className="mt-2">
+          </p>
+          <Card className="mt-4">
             <CardContent>
               <CredentialForm<SalesforceCredentialJson>
                 formBody={
@@ -273,11 +273,11 @@ const MainSection = () => {
           </CardContent>
         </Card>
       ) : (
-        <Text>
+        <p className="text-sm">
           Please provide all Salesforce info in Step 1 first! Once you&apos;re
           done with that, you can then specify which Salesforce objects you want
           to make searchable.
-        </Text>
+        </p>
       )}
     </>
   );

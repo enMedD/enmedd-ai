@@ -85,9 +85,7 @@ const R2Main = () => {
 
   return (
     <>
-      <h3 className="mt-6 mb-2 ml-auto mr-auto">
-        Step 1: Provide your access info
-      </h3>
+      <h3 className="mb-2 ml-auto mr-auto">Step 1: Provide your access info</h3>
       {r2Credential ? (
         <>
           {" "}
@@ -124,15 +122,13 @@ const R2Main = () => {
         </>
       ) : (
         <>
-          <Text>
-            <ul className="mt-2 ml-4 list-disc">
-              <li>
-                Provide your R2 Access Key ID, Secret Access Key, and Account ID
-                for authentication.
-              </li>
-              <li>These credentials will be used to access your R2 buckets.</li>
-            </ul>
-          </Text>
+          <ul className="mt-2 ml-4 list-disc text-sm">
+            <li>
+              Provide your R2 Access Key ID, Secret Access Key, and Account ID
+              for authentication.
+            </li>
+            <li>These credentials will be used to access your R2 buckets.</li>
+          </ul>
           <Card className="mt-4">
             <CardContent>
               <CredentialForm<R2CredentialJson>
