@@ -255,7 +255,7 @@ export default function Page() {
   const [selectedStorage, setSelectedStorage] = useState<string>("s3");
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
+    <div className="container">
       <BackButton />
       <AdminPageTitle icon={<R2Icon size={32} />} title="R2 Storage" />
       <R2Main key={2} />

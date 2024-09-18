@@ -65,7 +65,7 @@ function Main() {
 
 export default function Status() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
+    <div className="container">
       <AdminPageTitle
         icon={<NotebookIcon size={32} />}
         title="Existing Data Sources"

@@ -333,7 +333,7 @@ function Main() {
 
 function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
+    <div className="container">
       <AdminPageTitle
         title="Embedding"
         icon={<FiPackage size={32} className="my-auto" />}

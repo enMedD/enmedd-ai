@@ -265,7 +265,7 @@ function Main() {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
+    <div className="container">
       <AdminPageTitle title="API Keys" icon={<KeyIcon size={32} />} />
 
       <Main />

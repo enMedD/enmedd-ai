@@ -87,7 +87,7 @@ export default function QueryPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <main className="py-24 md:py-32 lg:pt-16">
+    <main className="">
       <BackButton />
 
       <Card className="mt-4">

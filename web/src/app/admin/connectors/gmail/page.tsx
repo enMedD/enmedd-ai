@@ -254,7 +254,7 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
+    <div className="container">
       <BackButton />
 
       <AdminPageTitle icon={<GmailIcon size={32} />} title="Gmail" />
