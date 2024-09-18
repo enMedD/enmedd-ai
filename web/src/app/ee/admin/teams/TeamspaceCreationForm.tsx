@@ -90,7 +90,6 @@ export const TeamspaceCreationForm = ({
                 disabled={isUpdate}
                 autoCompleteDisabled={true}
               />
-
               <div className="pb-4 pt-1">
                 <h3 className="text-sm pb-1">
                   Select which connectors this group has access to:
@@ -108,7 +107,6 @@ export const TeamspaceCreationForm = ({
                   }
                 />
               </div>
-
               <div className="pb-4 pt-1">
                 <h3 className="text-sm pb-1">
                   Select which Users should be a part of this Group.
