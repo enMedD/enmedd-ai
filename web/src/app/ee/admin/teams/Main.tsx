@@ -20,11 +20,15 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
   );
   const { isLoading, error, data, refreshTeamspaces } = useTeamspaces();
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const handleShowTeamspace = (teamspaceId: number) => {
     if (teamspaceId === selectedTeamspaceId) {
       setSelectedTeamspaceId(null);
+      setIsExpanded(false);
     } else {
       setSelectedTeamspaceId(teamspaceId);
+      setIsExpanded(true);
     }
   };
 
@@ -39,6 +43,7 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
 
   const handleCloseSidebar = () => {
     setSelectedTeamspaceId(null);
+    setIsExpanded(false);
   };
 
   return (
@@ -60,6 +65,7 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
         selectedTeamspace={selectedTeamspace}
         generateGradient={generateGradient}
         onClose={handleCloseSidebar}
+        isExpanded={isExpanded}
       />
     </>
   );

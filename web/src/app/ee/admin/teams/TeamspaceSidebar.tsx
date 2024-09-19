@@ -8,40 +8,42 @@ interface TeamspaceSidebarProps {
   selectedTeamspace?: Teamspace;
   generateGradient: (teamspaceName: string) => string;
   onClose: () => void;
+  isExpanded: boolean;
 }
 
 export const TeamspaceSidebar = ({
   selectedTeamspace,
   generateGradient,
   onClose,
+  isExpanded,
 }: TeamspaceSidebarProps) => {
   return (
     <>
       <AnimatePresence>
-        {selectedTeamspace && (
+        {isExpanded && (
           <motion.div
             className={`fixed w-full h-full bg-background-inverted bg-opacity-20 inset-0 z-overlay lg:hidden`}
             initial={{ opacity: 0 }}
-            animate={{ opacity: selectedTeamspace ? 1 : 0 }}
+            animate={{ opacity: isExpanded ? 1 : 0 }}
             exit={{ opacity: 0 }}
             transition={{
               duration: 0.2,
-              opacity: { delay: selectedTeamspace ? 0 : 0.3 },
+              opacity: { delay: isExpanded ? 0 : 0.3 },
             }}
-            style={{ pointerEvents: selectedTeamspace ? "auto" : "none" }}
+            style={{ pointerEvents: isExpanded ? "auto" : "none" }}
             onClick={onClose}
           />
         )}
       </AnimatePresence>
 
       <div
-        className={`fixed flex-none h-full z-overlay top-0 right-0 transition-[width] ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:relative ${
-          selectedTeamspace
+        className={`fixed flex-none h-full z-overlay top-0 right-0 transition-all ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:relative ${
+          isExpanded
             ? "translate-x-0 w-[85vw] md:w-[450px]"
             : "translate-x-full w-0"
         }`}
       >
-        {selectedTeamspace && (
+        {isExpanded && (
           <div className="h-full flex items-center justify-center absolute right-full">
             <CustomTooltip
               trigger={
@@ -62,7 +64,7 @@ export const TeamspaceSidebar = ({
 
         <div
           className={`h-full bg-background border-l w-full transition-opacity duration-300 ease-in-out overflow-y-auto ${
-            selectedTeamspace ? "lg:opacity-100 delay-200" : "lg:opacity-0"
+            isExpanded ? "lg:opacity-100 delay-200" : "lg:opacity-0"
           }`}
         >
           {selectedTeamspace && (
