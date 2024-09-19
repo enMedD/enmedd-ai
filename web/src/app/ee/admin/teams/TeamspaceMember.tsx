@@ -1,5 +1,6 @@
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -106,32 +107,36 @@ export const TeamspaceMember = ({ teamspace }: TeamspaceMemberProps) => {
         </div>
       }
     >
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>
-              <Checkbox />
-            </TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Email Address</TableHead>
-            <TableHead>Team</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {teamspace.users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>
-                <Checkbox />
-              </TableCell>
-              <TableCell>{user.full_name}</TableCell>
-              <TableCell>{user.status}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{teamspace.name}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                  <Checkbox />
+                </TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Email Address</TableHead>
+                <TableHead>Team</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {teamspace.users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>{user.full_name}</TableCell>
+                  <TableCell>{user.status}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{teamspace.name}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </CustomModal>
   );
 };

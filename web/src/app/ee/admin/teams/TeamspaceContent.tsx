@@ -87,6 +87,7 @@ export const TeamspaceContent = ({
             onClose={() => setShowForm(false)}
             open={showForm}
             title="Create a new Teamspace"
+            description="Streamline team collaboration and communication"
           >
             <TeamspaceCreationForm
               onClose={() => {
