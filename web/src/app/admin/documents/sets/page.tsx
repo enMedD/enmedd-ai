@@ -272,10 +272,12 @@ const Main = () => {
 
 const Page = () => {
   return (
-    <div className="container">
-      <AdminPageTitle icon={<Bookmark size={32} />} title="Document Sets" />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle icon={<Bookmark size={32} />} title="Document Sets" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 };

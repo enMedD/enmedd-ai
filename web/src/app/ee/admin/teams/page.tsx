@@ -22,12 +22,13 @@ export default async function Page() {
   const assistants = (await assistantResponse.json()) as Assistant[];
 
   return (
-    <div className="container">
-      {/*  <AdminPageTitle
+    <div className="h-full w-full flex">
+      <div className="h-full w-full overflow-y-auto">
+        {/*  <AdminPageTitle
         title="Manage Teamspaces"
         icon={<GroupsIcon size={32} />}
       /> */}
-      {/*     <div className="flex justify-between items-center">
+        {/*     <div className="flex justify-between items-center">
         <h1 className="font-bold text-xl md:text-[28px]">Team Space</h1>
         <Button>
           <div className="flex items-center">
@@ -37,8 +38,11 @@ export default async function Page() {
           Create team
         </Button>
       </div> */}
-
-      <Main assistants={assistants} />
+        <div className="container">
+          <Main assistants={assistants} />
+        </div>
+      </div>
+      <div className="w-96 h-full bg-red-500 " />
     </div>
   );
 }

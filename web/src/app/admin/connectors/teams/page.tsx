@@ -269,12 +269,14 @@ const MainSection = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<TeamsIcon size={32} />} title="Teams" />
+        <AdminPageTitle icon={<TeamsIcon size={32} />} title="Teams" />
 
-      <MainSection />
+        <MainSection />
+      </div>
     </div>
   );
 }

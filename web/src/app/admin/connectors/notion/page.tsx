@@ -266,12 +266,14 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<NotionIcon size={32} />} title="Notion" />
+        <AdminPageTitle icon={<NotionIcon size={32} />} title="Notion" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

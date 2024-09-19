@@ -30,15 +30,17 @@ export default async function Page() {
   }
 
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        title="Create a New Assistant"
-        icon={<RobotIcon size={32} />}
-      />
+        <AdminPageTitle
+          title="Create a New Assistant"
+          icon={<RobotIcon size={32} />}
+        />
 
-      {body}
+        {body}
+      </div>
     </div>
   );
 }

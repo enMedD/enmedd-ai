@@ -257,15 +257,17 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        icon={<GitlabIcon size={32} />}
-        title="Gitlab MRs + Issues"
-      />
+        <AdminPageTitle
+          icon={<GitlabIcon size={32} />}
+          title="Gitlab MRs + Issues"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

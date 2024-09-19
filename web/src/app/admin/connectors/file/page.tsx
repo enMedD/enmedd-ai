@@ -292,12 +292,14 @@ const Main = () => {
 
 export default function File() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<FileIcon size={32} />} title="File" />
+        <AdminPageTitle icon={<FileIcon size={32} />} title="File" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

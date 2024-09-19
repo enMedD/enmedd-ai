@@ -243,12 +243,14 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<ZendeskIcon size={32} />} title="Zendesk" />
+        <AdminPageTitle icon={<ZendeskIcon size={32} />} title="Zendesk" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

@@ -239,15 +239,17 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        icon={<ProductboardIcon size={32} />}
-        title="Productboard"
-      />
+        <AdminPageTitle
+          icon={<ProductboardIcon size={32} />}
+          title="Productboard"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

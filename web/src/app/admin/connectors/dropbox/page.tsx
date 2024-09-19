@@ -214,10 +214,12 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
-      <AdminPageTitle icon={<DropboxIcon size={32} />} title="Dropbox" />
-      <Main />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
+        <AdminPageTitle icon={<DropboxIcon size={32} />} title="Dropbox" />
+        <Main />
+      </div>
     </div>
   );
 }

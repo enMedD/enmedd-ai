@@ -278,12 +278,17 @@ const MainSection = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<SharepointIcon size={32} />} title="Sharepoint" />
+        <AdminPageTitle
+          icon={<SharepointIcon size={32} />}
+          title="Sharepoint"
+        />
 
-      <MainSection />
+        <MainSection />
+      </div>
     </div>
   );
 }

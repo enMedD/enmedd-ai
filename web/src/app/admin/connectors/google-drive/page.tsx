@@ -401,15 +401,17 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        icon={<GoogleDriveIcon size={32} />}
-        title="Google Drive"
-      />
+        <AdminPageTitle
+          icon={<GoogleDriveIcon size={32} />}
+          title="Google Drive"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }
