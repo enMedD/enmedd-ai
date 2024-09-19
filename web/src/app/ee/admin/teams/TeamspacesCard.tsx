@@ -47,14 +47,14 @@ export const TeamspacesCard = ({
                   <span className="text-sm text-subtle">@mrquilbot</span>
                 </div>
 
-                <div className="w-full flex items-center justify-between">
+                <div className="w-full flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2">
-                    <Users size={20} />
+                    <Users size={16} />
                     {teamspace.users.length} People
                   </span>
 
                   <span className="flex items-center gap-2">
-                    <Cpu size={20} />
+                    <Cpu size={16} />
                     {teamspace.cc_pairs.length} Assistant
                   </span>
                 </div>

@@ -37,6 +37,10 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     gradient: generateGradient(teamspace.name),
   }));
 
+  const handleCloseSidebar = () => {
+    setSelectedTeamspaceId(null);
+  };
+
   return (
     <>
       <div className="h-full w-full overflow-y-auto">
@@ -52,26 +56,11 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
         </div>
       </div>
 
-      <div
-        className={`h-full relative transition-all ease-in-out duration-300 ${
-          selectedTeamspace ? "translate-x-0 w-[500px]" : "translate-x-full w-0"
-        }`}
-      >
-        <div
-          className={`h-full bg-background border-l w-full transition-opacity duration-300 ease-in-out ${
-            selectedTeamspace ? "lg:opacity-100 delay-100" : "lg:opacity-0"
-          }`}
-        >
-          {selectedTeamspace && (
-            <TeamspaceSidebar
-              teamspace={{
-                ...selectedTeamspace,
-                gradient: generateGradient(selectedTeamspace.name),
-              }}
-            />
-          )}
-        </div>
-      </div>
+      <TeamspaceSidebar
+        selectedTeamspace={selectedTeamspace}
+        generateGradient={generateGradient}
+        onClose={handleCloseSidebar}
+      />
     </>
   );
 };
