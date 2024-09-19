@@ -2,17 +2,23 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Teamspace } from "@/lib/types";
 import { Cpu, Users } from "lucide-react";
 
+interface TeamspaceWithGradient extends Teamspace {
+  gradient?: string;
+}
+
 interface TeamspacesCardProps {
-  teamspaces: Teamspace[];
+  teamspaces: TeamspaceWithGradient[];
   refresh: () => void;
+  onClick: (teamspaceId: number) => void;
 }
 
 export const TeamspacesCard = ({
   teamspaces,
   refresh,
+  onClick,
 }: TeamspacesCardProps) => {
   return (
-    <div className="grid grid-cols-3 gap-16 px-10">
+    <>
       {teamspaces
         .filter((teamspace) => !teamspace.is_up_for_deletion)
         .map((teamspace) => {
@@ -20,18 +26,25 @@ export const TeamspacesCard = ({
             <Card
               key={teamspace.id}
               className="overflow-hidden !rounded-xl cursor-pointer"
+              onClick={() => onClick(teamspace.id)}
             >
-              <CardHeader className="bg-red-500 p-10"></CardHeader>
+              <CardHeader
+                style={{ background: teamspace.gradient }}
+                className="p-10"
+              ></CardHeader>
               <CardContent className="flex flex-col justify-between min-h-52 relative bg-muted/50">
                 <div className="absolute top-0 -translate-y-1/2 right-4">
-                  <span className="text-3xl uppercase font-bold min-w-16 min-h-16 bg-primary flex items-center justify-center rounded-xl text-inverted border-[5px] border-inverted">
+                  <span
+                    style={{ background: teamspace.gradient }}
+                    className="text-3xl uppercase font-bold min-w-16 min-h-16 flex items-center justify-center rounded-xl text-inverted border-[5px] border-inverted"
+                  >
                     {teamspace.name.charAt(0)}
                   </span>
                 </div>
 
                 <div>
                   <h2 className="font-bold md:text-xl">{teamspace.name}</h2>
-                  <span>@mrquilbot</span>
+                  <span className="text-sm text-subtle">@mrquilbot</span>
                 </div>
 
                 <div className="w-full flex items-center justify-between">
@@ -49,6 +62,6 @@ export const TeamspacesCard = ({
             </Card>
           );
         })}
-    </div>
+    </>
   );
 };
