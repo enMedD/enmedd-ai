@@ -71,7 +71,7 @@ export const TeamspaceContent = ({
 
   return (
     <div>
-      <div className="pb-20">
+      <div className="pb-10 md:pb-12 xl:pb-20">
         <div className="flex justify-between items-center pb-10">
           <h1 className="font-bold text-xl md:text-[28px]">Team Space</h1>
           <CustomModal
@@ -117,7 +117,7 @@ export const TeamspaceContent = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-10 px-10">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 md:px-10">
         {filteredTeamspaces.length > 0 ? (
           <TeamspacesCard
             onClick={onClick}
