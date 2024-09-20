@@ -41,7 +41,6 @@ export const TeamspacesCard = ({
                     {teamspace.name.charAt(0)}
                   </span>
                 </div>
-
                 <div className="pb-6">
                   <h2 className="font-bold whitespace-normal break-all w-full">
                     {teamspace.name}
