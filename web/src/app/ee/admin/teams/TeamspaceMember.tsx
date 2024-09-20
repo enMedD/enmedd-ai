@@ -1,3 +1,5 @@
+"use client";
+
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,9 +21,11 @@ import {
 } from "@/components/ui/select";
 import { useTeamspaces } from "@/lib/hooks";
 import { Teamspace } from "@/lib/types";
-import { Copy, Plus, EllipsisVertical } from "lucide-react";
+import { Copy, Plus, EllipsisVertical, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 interface TeamspaceMemberProps {
   teamspace: Teamspace & { gradient: string };
@@ -32,19 +36,26 @@ export const TeamspaceMember = ({
   teamspace,
   selectedTeamspaceId,
 }: TeamspaceMemberProps) => {
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const { isLoading, error, data, refreshTeamspaces } = useTeamspaces();
 
   return (
     <div className="relative">
       <CustomModal
         trigger={
-          <Button className="absolute top-4 right-4">
+          <Button
+            className="absolute top-4 right-4"
+            onClick={() => setIsInviteModalOpen(true)}
+          >
             <Plus size={16} /> Invite
           </Button>
         }
         title="Invite to Your Teamspace"
         description="Your invite link has been created. Share this link to join
             your workspace."
+        open={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
       >
         <div className="space-y-4 pt-5">
           <div>
@@ -78,14 +89,19 @@ export const TeamspaceMember = ({
           </div>
 
           <div className="flex gap-2 justify-end pt-6">
-            <Button variant="ghost">Cancel</Button>
+            <Button variant="ghost" onClick={() => setIsInviteModalOpen(false)}>
+              Cancel
+            </Button>
             <Button>Send Invite</Button>
           </div>
         </div>
       </CustomModal>
       <CustomModal
         trigger={
-          <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between cursor-pointer">
+          <div
+            className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between cursor-pointer"
+            onClick={() => setIsMemberModalOpen(true)}
+          >
             <h3>
               Members <span className="px-2 font-normal">|</span>{" "}
               {teamspace.users.length}
@@ -113,43 +129,69 @@ export const TeamspaceMember = ({
           </div>
         }
         title="Member"
+        open={isMemberModalOpen}
+        onClose={() => setIsMemberModalOpen(false)}
       >
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>
-                    <Checkbox />
-                  </TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Email Address</TableHead>
-                  <TableHead>Teams</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {teamspace.users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
+        {teamspace.users.length > 0 ? (
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>
                       <Checkbox />
-                    </TableCell>
-                    <TableCell>{user.full_name}</TableCell>
-                    <TableCell>{user.status}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.workspace?.workspace_name}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon">
-                        <EllipsisVertical size={20} />
-                      </Button>
-                    </TableCell>
+                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Email Address</TableHead>
+                    <TableHead>Teams</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {teamspace.users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <Checkbox />
+                      </TableCell>
+                      <TableCell className="flex items-center gap-2">
+                        <div className="border rounded-full h-10 w-10 flex items-center justify-center">
+                          <User />
+                        </div>
+                        <div className="grid">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold whitespace-nowrap">
+                              {user.full_name}
+                            </span>
+                            <Badge
+                              variant={
+                                user.role === "admin" ? "success" : "secondary"
+                              }
+                            >
+                              {user.role.charAt(0).toUpperCase() +
+                                user.role.slice(1)}
+                            </Badge>
+                          </div>
+                          <span className="text-xs">@username</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.status}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.workspace?.workspace_name}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon">
+                          <EllipsisVertical size={20} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ) : (
+          "There are no member."
+        )}
       </CustomModal>
     </div>
   );
