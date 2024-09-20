@@ -10,6 +10,15 @@ import { Logo } from "@/components/Logo";
 import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import Link from "next/link";
+import { useTeamspaces } from "@/lib/hooks";
+
+const generateGradient = (teamspaceName: string) => {
+  const colors = ["#f9a8d4", "#8b5cf6", "#34d399", "#60a5fa", "#f472b6"];
+  const index = teamspaceName.charCodeAt(0) % colors.length;
+  return `linear-gradient(135deg, ${colors[index]}, ${
+    colors[(index + 1) % colors.length]
+  })`;
+};
 
 interface GlobalSidebarProps {
   openSidebar?: boolean;
@@ -17,6 +26,8 @@ interface GlobalSidebarProps {
 }
 
 export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
+  const { data } = useTeamspaces();
+
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -56,6 +67,28 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
                 : "enMedD AI"}
             </CustomTooltip>
           </div>
+          <Separator className="mt-6" />
+
+          {data?.map((teamspace, i) => (
+            <div key={i} className="flex flex-col items-center gap-4 pt-4">
+              <CustomTooltip
+                trigger={
+                  <Link href={`/${defaultPage}`} className="flex items-center">
+                    <div
+                      style={{ background: generateGradient(teamspace.name) }}
+                      className="font-bold text-inverted w-10 h-10 shrink-0 rounded-md bg-primary flex justify-center items-center uppercase"
+                    >
+                      {teamspace.name.charAt(0)}
+                    </div>
+                  </Link>
+                }
+                side="right"
+                delayDuration={0}
+              >
+                {teamspace.name}
+              </CustomTooltip>
+            </div>
+          ))}
         </div>
         <div className="flex flex-col items-center gap-4">
           <UserSettingsButton user={user} defaultPage={defaultPage} />
