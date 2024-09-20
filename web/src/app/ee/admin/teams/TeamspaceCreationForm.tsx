@@ -208,7 +208,7 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex pt-4 border-t justify-end">
+              <div className="flex pt-4 justify-end">
                 <Button
                   disabled={isSubmitting}
                   className=""
