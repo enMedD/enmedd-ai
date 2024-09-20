@@ -28,7 +28,7 @@ export const TeamspaceDocumentSet = ({
           })}
         </div>
       ) : (
-        <p>There are no members.</p>
+        <p>There are no member.</p>
       )}
     </div>
   );
