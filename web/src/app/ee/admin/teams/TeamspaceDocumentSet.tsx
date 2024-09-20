@@ -12,7 +12,7 @@ export const TeamspaceDocumentSet = ({
   return (
     <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between">
       <h3>
-        Document Set <span className="px-2">|</span>{" "}
+        Document Set <span className="px-2 font-normal">|</span>{" "}
         {teamspace.document_sets.length}
       </h3>
 
@@ -28,7 +28,7 @@ export const TeamspaceDocumentSet = ({
           })}
         </div>
       ) : (
-        <p>There are no member.</p>
+        <p>There are document set.</p>
       )}
     </div>
   );

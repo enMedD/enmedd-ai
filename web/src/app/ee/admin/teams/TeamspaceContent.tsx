@@ -102,7 +102,7 @@ export const TeamspaceContent = ({
           </CustomModal>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex gap-4">
           <Input
             placeholder="Type a command or search..."
             value={searchTerm}

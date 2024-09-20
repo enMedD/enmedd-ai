@@ -1,5 +1,4 @@
 import { UserSettingsButton } from "@/components/UserSettingsButton";
-import { Ellipsis } from "lucide-react";
 import Image from "next/image";
 
 import ArnoldAi from "../../../../public/arnold_ai.png";
@@ -11,14 +10,8 @@ import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import Link from "next/link";
 import { useTeamspaces } from "@/lib/hooks";
-
-const generateGradient = (teamspaceName: string) => {
-  const colors = ["#f9a8d4", "#8b5cf6", "#34d399", "#60a5fa", "#f472b6"];
-  const index = teamspaceName.charCodeAt(0) % colors.length;
-  return `linear-gradient(135deg, ${colors[index]}, ${
-    colors[(index + 1) % colors.length]
-  })`;
-};
+import { TeamspaceBubble } from "@/components/TeamspaceBubble";
+import { Ellipsis } from "lucide-react";
 
 interface GlobalSidebarProps {
   openSidebar?: boolean;
@@ -43,7 +36,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
           openSidebar ? "opacity-100 delay-200" : "opacity-0 delay-100"
         }`}
       >
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center h-full">
           <Image
             src={ArnoldAi}
             alt="ArnoldAi Logo"
@@ -51,7 +44,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             height={40}
             className="rounded-regular shrink-0"
           />
-          <Separator className="mt-6" />
+          <Separator className="mt-4" />
           <div className="flex flex-col items-center gap-4 pt-4">
             <CustomTooltip
               trigger={
@@ -67,26 +60,11 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
                 : "enMedD AI"}
             </CustomTooltip>
           </div>
-          <Separator className="mt-6" />
+          <Separator className="mt-4" />
 
           {data?.map((teamspace, i) => (
             <div key={i} className="flex flex-col items-center gap-4 pt-4">
-              <CustomTooltip
-                trigger={
-                  <Link href={`/${defaultPage}`} className="flex items-center">
-                    <div
-                      style={{ background: generateGradient(teamspace.name) }}
-                      className="font-bold text-inverted w-10 h-10 shrink-0 rounded-md bg-primary flex justify-center items-center uppercase"
-                    >
-                      {teamspace.name.charAt(0)}
-                    </div>
-                  </Link>
-                }
-                side="right"
-                delayDuration={0}
-              >
-                {teamspace.name}
-              </CustomTooltip>
+              <TeamspaceBubble teamspace={teamspace} link={defaultPage} />
             </div>
           ))}
         </div>
