@@ -11,7 +11,7 @@ export const TeamspaceDocumentSet = ({
 }: TeamspaceDocumentSetProps) => {
   return (
     <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between">
-      <h3 className="md:text-lg">
+      <h3>
         Document Set <span className="px-2">|</span>{" "}
         {teamspace.document_sets.length}
       </h3>

@@ -1,6 +1,4 @@
-import { Badge } from "@/components/ui/badge";
 import { Teamspace } from "@/lib/types";
-import { BookmarkIcon } from "lucide-react";
 
 interface TeamspaceAssistantProps {
   teamspace: Teamspace & { gradient: string };
@@ -9,13 +7,20 @@ interface TeamspaceAssistantProps {
 export const TeamspaceAssistant = ({ teamspace }: TeamspaceAssistantProps) => {
   return (
     <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between">
-      <h3 className="md:text-lg">
+      <h3>
         Assistant <span className="px-2">|</span> {teamspace.assistants.length}
       </h3>
       {teamspace.assistants.length > 0 ? (
-        <div className="pt-4 flex flex-wrap gap-2">
+        <div className="pt-4 flex flex-wrap -space-x-3">
           {teamspace.assistants.map((assistant) => {
-            return <Badge key={assistant.id}>{assistant.name}</Badge>;
+            return (
+              <div
+                key={assistant.id}
+                className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg`}
+              >
+                {assistant.name!.charAt(0)}
+              </div>
+            );
           })}
         </div>
       ) : (
