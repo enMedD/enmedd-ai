@@ -73,6 +73,7 @@ export const TeamspaceSidebar = ({
                 ...selectedTeamspace,
                 gradient: generateGradient(selectedTeamspace.name),
               }}
+              selectedTeamspaceId={selectedTeamspace.id}
             />
           )}
         </div>

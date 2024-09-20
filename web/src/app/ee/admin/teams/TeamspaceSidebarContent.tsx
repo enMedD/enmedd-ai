@@ -5,10 +5,12 @@ import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
+  selectedTeamspaceId?: number;
 }
 
 export const TeamspaceSidebarContent = ({
   teamspace,
+  selectedTeamspaceId,
 }: TeamspaceSidebarContentProps) => {
   return (
     <>
@@ -40,7 +42,10 @@ export const TeamspaceSidebarContent = ({
         </div>
 
         <div className="w-full flex flex-col gap-4 pt-14">
-          <TeamspaceMember teamspace={teamspace} />
+          <TeamspaceMember
+            teamspace={teamspace}
+            selectedTeamspaceId={selectedTeamspaceId}
+          />
           <TeamspaceAssistant teamspace={teamspace} />
           <TeamspaceDocumentSet teamspace={teamspace} />
         </div>
