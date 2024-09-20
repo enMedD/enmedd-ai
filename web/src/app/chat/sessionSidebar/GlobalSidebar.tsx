@@ -9,18 +9,14 @@ import { CustomTooltip } from "@/components/CustomTooltip";
 import { Logo } from "@/components/Logo";
 import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { fetchSettingsSS } from "@/components/settings/lib";
 import Link from "next/link";
 
-interface WorkSpaceSidebarProps {
+interface GlobalSidebarProps {
   openSidebar?: boolean;
   user?: User | null;
 }
 
-export const WorkSpaceSidebar = ({
-  openSidebar,
-  user,
-}: WorkSpaceSidebarProps) => {
+export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;

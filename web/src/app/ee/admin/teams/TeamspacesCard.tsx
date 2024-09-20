@@ -25,12 +25,12 @@ export const TeamspacesCard = ({
           return (
             <Card
               key={teamspace.id}
-              className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[300px] md:max-w-[400px] justify-start items-start"
+              className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[300px] md:max-w-[350px] justify-start items-start"
               onClick={() => onClick(teamspace.id)}
             >
               <CardHeader
                 style={{ background: teamspace.gradient }}
-                className="p-10"
+                className="p-8"
               ></CardHeader>
               <CardContent className="flex flex-col justify-between min-h-52 relative bg-muted/50">
                 <div className="absolute top-0 -translate-y-1/2 right-4">
