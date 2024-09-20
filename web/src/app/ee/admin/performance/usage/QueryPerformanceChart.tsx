@@ -52,16 +52,13 @@ export function QueryPerformanceChart({ timeRange }: { timeRange: DateRange }) {
       </div>
     );
   } else {
-    // Ensure the time range's start and end dates are normalized to UTC
     const initialDate = normalizeToUTC(
       timeRange.from || new Date(queryAnalyticsData[0]?.date)
     );
     const endDate = normalizeToUTC(timeRange.to || new Date());
 
-    // Get the list of dates between start and end date in UTC
     const dateRange = getDatesList(initialDate, endDate);
 
-    // Prepare data for the chart by mapping over the normalized dateRange
     const data = dateRange.map((dateStr) => {
       const queryAnalyticsForDate = queryAnalyticsData.find(
         (entry) =>
