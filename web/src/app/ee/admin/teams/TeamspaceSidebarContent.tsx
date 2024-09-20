@@ -1,20 +1,7 @@
-import { CustomModal } from "@/components/CustomModal";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Teamspace } from "@/lib/types";
-import { Bookmark, Copy, Plus } from "lucide-react";
 import { TeamspaceMember } from "./TeamspaceMember";
 import { TeamspaceAssistant } from "./TeamspaceAssistant";
+import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
@@ -55,19 +42,7 @@ export const TeamspaceSidebarContent = ({
         <div className="w-full flex flex-col gap-4 pt-14">
           <TeamspaceMember teamspace={teamspace} />
           <TeamspaceAssistant teamspace={teamspace} />
-          <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between">
-            <h3 className="md:text-lg">
-              Document Set <span className="px-2">|</span> 3
-            </h3>
-            <div className="pt-4 flex flex-wrap gap-2">
-              <Badge variant="secondary">
-                <Bookmark size={14} /> React
-              </Badge>
-              <Badge variant="secondary">
-                <Bookmark size={14} /> Tailwind
-              </Badge>
-            </div>
-          </div>
+          <TeamspaceDocumentSet teamspace={teamspace} />
         </div>
       </div>
     </>

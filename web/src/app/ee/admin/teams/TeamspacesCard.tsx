@@ -25,7 +25,7 @@ export const TeamspacesCard = ({
           return (
             <Card
               key={teamspace.id}
-              className="overflow-hidden !rounded-xl cursor-pointer"
+              className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[300px] md:max-w-[400px] justify-start items-start"
               onClick={() => onClick(teamspace.id)}
             >
               <CardHeader
