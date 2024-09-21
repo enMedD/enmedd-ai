@@ -25,13 +25,17 @@ export const TeamspacesCard = ({
           return (
             <Card
               key={teamspace.id}
-              className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[280px] md:max-w-[350px] justify-start items-start"
+              className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[280px] md:max-w-[400px] justify-start items-start"
               onClick={() => onClick(teamspace.id)}
             >
               <CardHeader
                 style={{ background: teamspace.gradient }}
-                className="p-8"
-              ></CardHeader>
+                className="p-10 relative"
+              >
+                <div
+                  className={`absolute top-4 right-4 w-2.5 h-2.5 rounded-full ${teamspace.is_up_to_date ? "bg-[#666F8D]" : "bg-secondary"}`}
+                />
+              </CardHeader>
               <CardContent className="flex flex-col justify-between min-h-48 relative bg-muted/50">
                 <div className="absolute top-0 -translate-y-1/2 right-4">
                   <span
@@ -48,16 +52,33 @@ export const TeamspacesCard = ({
                   <span className="text-sm text-subtle">@mrquilbot</span>
                 </div>
 
-                <div className="w-full flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <Users size={16} />
-                    {teamspace.users.length} People
-                  </span>
+                {/* <div className="w-full grid grid-cols-2 text-sm gap-y-2 gap-x-6"> */}
+                <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] text-sm gap-y-2 gap-x-6">
+                  <div className="flex items-center gap-2">
+                    <Users size={16} className="shrink-0" />
+                    <span className="whitespace-nowrap">
+                      {teamspace.users.length} People
+                    </span>
+                  </div>
 
-                  <span className="flex items-center gap-2">
-                    <Cpu size={16} />
-                    {teamspace.cc_pairs.length} Assistant
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Cpu size={16} className="shrink-0" />
+                    <span className="whitespace-nowrap">
+                      {teamspace.cc_pairs.length} Assistant
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Users size={16} className="shrink-0" />
+                    <span className="whitespace-nowrap">
+                      {teamspace.document_sets.length} Document Sets
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Users size={16} className="shrink-0" />
+                    <span className="whitespace-nowrap">1 Token Rate</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

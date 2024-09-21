@@ -88,7 +88,7 @@ export function TextFormField({
   return (
     <div className={`grid pb-4 ${fullWidth ? "w-full" : ""}`}>
       {(label || subtext) && (
-        <div className="grid leading-none pb-2">
+        <div className="grid leading-none">
           <ShadcnLabel
             htmlFor={label}
             className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed"

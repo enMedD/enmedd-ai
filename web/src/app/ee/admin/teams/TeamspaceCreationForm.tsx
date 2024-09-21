@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { FileUpload } from "@/components/admin/connectors/FileUpload";
+import { useState } from "react";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -34,6 +36,7 @@ export const TeamspaceCreationForm = ({
   existingTeamspace,
   assistants,
 }: TeamspaceCreationFormProps) => {
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const isUpdate = existingTeamspace !== undefined;
   const { toast } = useToast();
 
@@ -105,11 +108,10 @@ export const TeamspaceCreationForm = ({
                   Teamspace Logo
                 </p>
                 <div className="flex items-center gap-2 w-full">
-                  <input className="hidden" />
-                  <Button type="button">Upload</Button>
-                  <b className="text-emphasis text-sm md:text-base">
-                    Drag and drop a image.
-                  </b>
+                  <FileUpload
+                    selectedFiles={selectedFiles}
+                    setSelectedFiles={setSelectedFiles}
+                  />
                 </div>
               </div>
 
@@ -202,7 +204,7 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex pt-4 justify-end">
+              <div className="flex gap-2 pt-4 justify-end">
                 <Button
                   disabled={isSubmitting}
                   className=""
