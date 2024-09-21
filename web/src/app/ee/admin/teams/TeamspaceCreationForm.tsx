@@ -86,9 +86,9 @@ export const TeamspaceCreationForm = ({
       >
         {({ isSubmitting, values, setFieldValue }) => (
           <Form>
-            <div className="pt-8 pb-4 space-y-2">
-              <div className="flex justify-between">
-                <p className="whitespace-nowrap w-[500px] font-semibold">
+            <div className="pt-8 space-y-2">
+              <div className="flex justify-between gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
                   Teamspace Name
                 </p>
                 <TextFormField
@@ -100,24 +100,24 @@ export const TeamspaceCreationForm = ({
                 />
               </div>
 
-              <div className="flex justify-between pb-4">
-                <p className="whitespace-nowrap w-[500px] font-semibold">
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
                   Teamspace Logo
                 </p>
-                <div className="flex items-center gap-4 w-full">
+                <div className="flex items-center gap-2 w-full">
                   <input className="hidden" />
-                  <Button>Upload</Button>
+                  <Button type="button">Upload</Button>
                   <b className="text-emphasis text-sm md:text-base">
                     Drag and drop a image.
                   </b>
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4">
-                <p className="whitespace-nowrap w-[500px] font-semibold">
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
                   Security Setting
                 </p>
-                <div className="flex items-center gap-4 w-full">
+                <div className="flex items-center gap-2 w-full">
                   <Switch />
                   <p className="text-sm">
                     Activates private mode, chat and search activities
@@ -127,8 +127,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4">
-                <p className="whitespace-nowrap w-[500px] font-semibold">
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
                   Setup Storage Size
                 </p>
                 <div className="w-full">
@@ -144,8 +144,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4">
-                <p className="whitespace-nowrap w-[500px] font-semibold">
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
                   Set Token Rate Limit
                 </p>
                 <div className="flex items-center gap-2 w-full">
@@ -153,8 +153,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4">
-                <p className="whitespace-nowrap w-[500px] font-semibold">
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
                   Invite Users
                 </p>
                 <div className="flex items-center gap-2 w-full">
@@ -171,32 +171,26 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="pb-4 pt-1">
-                <h3 className="text-sm pb-1">
-                  Select which connectors this group has access to:
-                </h3>
-                <p className="text-xs pb-2">
-                  All documents indexed by the selected connectors will be
-                  visible to users in this group.
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Select connectors
                 </p>
-
-                <ConnectorEditor
-                  allCCPairs={ccPairs}
-                  selectedCCPairIds={values.cc_pair_ids}
-                  setSetCCPairIds={(ccPairsIds) =>
-                    setFieldValue("cc_pair_ids", ccPairsIds)
-                  }
-                />
+                <div className="w-full">
+                  <ConnectorEditor
+                    allCCPairs={ccPairs}
+                    selectedCCPairIds={values.cc_pair_ids}
+                    setSetCCPairIds={(ccPairsIds) =>
+                      setFieldValue("cc_pair_ids", ccPairsIds)
+                    }
+                  />
+                </div>
               </div>
-              <div className="pb-4 pt-1">
-                <h3 className="text-sm pb-1">
-                  Select which Users should be a part of this Group.
-                </h3>
-                <p className="text-xs">
-                  All selected users will be able to search through all
-                  documents indexed by the selected connectors.
+
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Select Users
                 </p>
-                <div>
+                <div className="w-full">
                   <UserEditor
                     selectedUserIds={values.user_ids}
                     setSelectedUserIds={(userIds) =>
