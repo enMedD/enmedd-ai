@@ -5,10 +5,10 @@ import { useRef, useState } from "react";
 import { Text } from "@tremor/react";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
 import { Bubble } from "@/components/Bubble";
-import { FiX } from "react-icons/fi";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { FilterDatePicker } from "./FilterDatePicker";
+import { X } from "lucide-react";
 
 export function FiltersTab({
   filterManager,
@@ -166,7 +166,7 @@ export function FiltersTab({
                       <p>
                         {tag.tag_key}={tag.tag_value}
                       </p>{" "}
-                      <FiX />
+                      <X />
                     </div>
                   </Bubble>
                 ))

@@ -1,5 +1,5 @@
-import { FiTrash } from "react-icons/fi";
 import { Button } from "./ui/button";
+import { Trash } from "lucide-react";
 
 export function DeleteButton({
   onClick,
@@ -10,7 +10,7 @@ export function DeleteButton({
 }) {
   return (
     <Button onClick={onClick} variant="destructive" disabled={disabled}>
-      <FiTrash className="mr-1 my-auto" />
+      <Trash className="mr-1 my-auto" size={16} />
       Delete
     </Button>
   );

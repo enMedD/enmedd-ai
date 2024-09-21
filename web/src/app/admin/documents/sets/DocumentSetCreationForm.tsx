@@ -10,13 +10,13 @@ import {
 } from "@/components/admin/connectors/Field";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { Divider, Text } from "@tremor/react";
-import { FiUsers } from "react-icons/fi";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Users } from "lucide-react";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -228,7 +228,7 @@ export const DocumentSetCreationForm = ({
                                 }}
                               >
                                 <div className="my-auto flex">
-                                  <FiUsers className="my-auto mr-2" />{" "}
+                                  <Users className="my-auto mr-2" />{" "}
                                   {teamspace.name}
                                 </div>
                               </Badge>

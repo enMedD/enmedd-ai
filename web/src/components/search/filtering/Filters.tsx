@@ -2,8 +2,6 @@ import React from "react";
 import { DocumentSet, Tag, ValidSources } from "@/lib/types";
 import { SourceMetadata } from "@/lib/search/interfaces";
 import { InfoIcon, defaultTailwindCSS } from "../../icons/icons";
-import { HoverPopup } from "../../HoverPopup";
-import { FiBook, FiBookmark, FiMap, FiX } from "react-icons/fi";
 import { listSourceMetadata } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
 import { TagFilter } from "./TagFilter";
@@ -15,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Brain } from "lucide-react";
+import { Book, Bookmark, Brain, Map, X } from "lucide-react";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { SortSearch } from "../SortSearch";
 import { DateRangeSearchSelector } from "../DateRangeSearchSelector";
@@ -197,7 +195,7 @@ function SelectedBubble({
       onClick={onClick}
     >
       {children}
-      <FiX className="ml-2" size={14} />
+      <X className="ml-2" size={14} />
     </div>
   );
 }
@@ -257,7 +255,7 @@ export function HorizontalFilters({
         >
           <SelectTrigger className="w-full lg:w-64">
             <div className="flex items-center gap-3">
-              <FiMap size={16} />
+              <Map size={16} />
               <SelectValue placeholder="All Sources" />
             </div>
           </SelectTrigger>
@@ -279,7 +277,7 @@ export function HorizontalFilters({
         >
           <SelectTrigger className="w-full lg:w-64">
             <div className="flex items-center gap-3">
-              <FiBook size={16} />
+              <Book size={16} />
               <SelectValue placeholder="All Document Sets" />
             </div>
           </SelectTrigger>
@@ -287,7 +285,7 @@ export function HorizontalFilters({
             {availableDocumentSets.map((documentSet) => (
               <SelectItem key={documentSet.name} value={documentSet.name}>
                 <div className="flex items-center gap-2">
-                  <FiBookmark /> {documentSet.name}
+                  <Bookmark /> {documentSet.name}
                 </div>
               </SelectItem>
             ))}
@@ -322,7 +320,7 @@ export function HorizontalFilters({
               >
                 <>
                   <div>
-                    <FiBookmark />
+                    <Bookmark />
                   </div>
                   <span className="ml-2 text-sm">{documentSetName}</span>
                 </>
