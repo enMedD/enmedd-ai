@@ -30,12 +30,8 @@ export const TeamspacesCard = ({
             >
               <CardHeader
                 style={{ background: teamspace.gradient }}
-                className="p-9 relative"
-              >
-                <div
-                  className={`absolute top-4 right-4 w-2.5 h-2.5 rounded-full ${teamspace.is_up_to_date ? "bg-[#666F8D]" : "bg-secondary"}`}
-                />
-              </CardHeader>
+                className="p-8"
+              ></CardHeader>
               <CardContent className="flex flex-col justify-between min-h-48 relative bg-muted/50">
                 <div className="absolute top-0 -translate-y-1/2 right-4">
                   <span
@@ -47,13 +43,18 @@ export const TeamspacesCard = ({
                 </div>
                 <div className="pb-6">
                   <h2 className="font-bold whitespace-normal break-all w-full">
-                    {teamspace.name}
+                    <span className="inline">{teamspace.name}</span>
+                    <div
+                      className={`inline-block ml-2 w-2.5 h-2.5 rounded-full ${
+                        teamspace.is_up_to_date ? "bg-success" : "bg-secondary"
+                      }`}
+                    />
                   </h2>
+
                   <span className="text-sm text-subtle">@mrquilbot</span>
                 </div>
 
-                {/* <div className="w-full grid grid-cols-2 text-sm gap-y-2 gap-x-6"> */}
-                <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] text-sm gap-y-2 gap-x-6">
+                <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] text-sm gap-y-2 gap-x-6 font-light">
                   <div className="flex items-center gap-2">
                     <Users size={16} className="shrink-0" />
                     <span className="whitespace-nowrap">

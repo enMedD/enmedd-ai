@@ -31,8 +31,8 @@ export const TeamspaceSidebarContent = ({
           <h1 className="text-center font-bold text-xl md:text-[28px]">
             {teamspace.name}
           </h1>
-          <span className="text-center text-primary pt-3 font-medium">
-            @MR.AI
+          <span className="text-center text-primary pt-1 font-medium">
+            @mrquilbot
           </span>
           <p className="text-center text-subtle pt-4 text-sm">
             Lorem ipsum dolor, sit amet consectetur adipisicing elit.
