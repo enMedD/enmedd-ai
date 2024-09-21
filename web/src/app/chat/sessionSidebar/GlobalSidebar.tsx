@@ -60,11 +60,14 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
                 : "enMedD AI"}
             </CustomTooltip>
           </div>
-          g
           <Separator className="mt-4" />
           <div className="flex flex-col gap-3 pt-4">
-            {data?.map((teamspace, i) => (
-              <TeamspaceBubble teamspace={teamspace} link={defaultPage} />
+            {data?.map((teamspace) => (
+              <TeamspaceBubble
+                key={teamspace.id}
+                teamspace={teamspace}
+                link={defaultPage}
+              />
             ))}
           </div>
         </div>

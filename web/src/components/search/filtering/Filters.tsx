@@ -4,8 +4,6 @@ import { SourceMetadata } from "@/lib/search/interfaces";
 import { InfoIcon, defaultTailwindCSS } from "../../icons/icons";
 import { HoverPopup } from "../../HoverPopup";
 import { FiBook, FiBookmark, FiMap, FiX } from "react-icons/fi";
-import { DateRangePickerValue } from "@tremor/react";
-import { FilterDropdown } from "./FilterDropdown";
 import { listSourceMetadata } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
 import { TagFilter } from "./TagFilter";
@@ -27,11 +25,15 @@ const SectionTitle = ({ children }: { children: string }) => (
   <div className="flex px-2 py-3 text-sm font-bold">{children}</div>
 );
 
+import { DateRange as BaseDateRange } from "react-day-picker";
+
+interface CustomDateRange extends BaseDateRange {
+  selectValue?: string;
+}
+
 export interface SourceSelectorProps {
-  timeRange: DateRangePickerValue | null;
-  setTimeRange: React.Dispatch<
-    React.SetStateAction<DateRangePickerValue | null>
-  >;
+  timeRange: CustomDateRange | null;
+  setTimeRange: React.Dispatch<React.SetStateAction<CustomDateRange | null>>;
   selectedSources: SourceMetadata[];
   setSelectedSources: React.Dispatch<React.SetStateAction<SourceMetadata[]>>;
   selectedDocumentSets: string[];

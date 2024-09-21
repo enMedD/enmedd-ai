@@ -18,6 +18,7 @@ import { ControlledPopup, DefaultDropdownElement } from "@/components/Dropdown";
 import { getXDaysAgo } from "@/lib/dateUtils";
 import { SourceSelectorProps } from "@/components/search/filtering/Filters";
 import { containsObject, objectsAreEquivalent } from "@/lib/contains";
+import { DateRange } from "react-day-picker";
 
 enum FilterType {
   Source = "Source",
@@ -155,12 +156,16 @@ const LAST_30_DAYS = "Last 30 days";
 const LAST_7_DAYS = "Last 7 days";
 const TODAY = "Today";
 
+interface CustomDateRange extends DateRange {
+  selectValue?: string;
+}
+
 function TimeRangeSection({
   selectedTimeRange,
   onSelect,
 }: {
   selectedTimeRange: string | null;
-  onSelect: (timeRange: DateRangePickerValue) => void;
+  onSelect: (timeRange: CustomDateRange) => void;
 }) {
   return (
     <div className="w-64">
