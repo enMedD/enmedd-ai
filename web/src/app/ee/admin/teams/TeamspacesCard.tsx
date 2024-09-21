@@ -30,7 +30,7 @@ export const TeamspacesCard = ({
             >
               <CardHeader
                 style={{ background: teamspace.gradient }}
-                className="p-10 relative"
+                className="p-9 relative"
               >
                 <div
                   className={`absolute top-4 right-4 w-2.5 h-2.5 rounded-full ${teamspace.is_up_to_date ? "bg-[#666F8D]" : "bg-secondary"}`}
