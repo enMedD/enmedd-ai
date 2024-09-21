@@ -2,6 +2,7 @@ import { Teamspace } from "@/lib/types";
 import { TeamspaceMember } from "./TeamspaceMember";
 import { TeamspaceAssistant } from "./TeamspaceAssistant";
 import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
+import { TeamspaceDataSource } from "./TeamspaceDataSource";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
@@ -48,6 +49,7 @@ export const TeamspaceSidebarContent = ({
           />
           <TeamspaceAssistant teamspace={teamspace} />
           <TeamspaceDocumentSet teamspace={teamspace} />
+          <TeamspaceDataSource teamspace={teamspace} />
         </div>
       </div>
     </>
