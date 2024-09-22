@@ -1,7 +1,7 @@
-import { UserSettingsButton } from "@/components/UserSettingsButton";
-import Image from "next/image";
+"use client";
 
-import ArnoldAi from "../../../../public/arnold_ai.png";
+import { UserSettingsButton } from "@/components/UserSettingsButton";
+import ArnoldAi from "../../../public/arnold_ai.png";
 import { Separator } from "@/components/ui/separator";
 import { User } from "@/lib/types";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -11,7 +11,8 @@ import { SettingsContext } from "@/components/settings/SettingsProvider";
 import Link from "next/link";
 import { useTeamspaces } from "@/lib/hooks";
 import { TeamspaceBubble } from "@/components/TeamspaceBubble";
-import { Ellipsis } from "lucide-react";
+import Image from "next/image";
+import { GlobalSidebarModal } from "./GlobalSidebarModal";
 
 interface GlobalSidebarProps {
   openSidebar?: boolean;
@@ -64,20 +65,18 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             </CustomTooltip>
           </div>
           <Separator className="mt-4" />
-          <div className="flex flex-col gap-3 pt-4">
-            {displayedTeamspaces?.map((teamspace) => (
-              <TeamspaceBubble
-                key={teamspace.id}
-                teamspace={teamspace}
-                link={defaultPage}
-              />
-            ))}
-            {showEllipsis && (
-              <div className="flex items-center justify-center text-gray-500">
-                <Ellipsis className="h-5 w-5" />
-              </div>
-            )}
-          </div>
+          {data && (
+            <div className="flex flex-col gap-3 pt-4">
+              {displayedTeamspaces?.map((teamspace) => (
+                <TeamspaceBubble
+                  key={teamspace.id}
+                  teamspace={teamspace}
+                  link={defaultPage}
+                />
+              ))}
+              {showEllipsis && <GlobalSidebarModal teamspace={data} />}
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-center gap-4">
           <UserSettingsButton user={user} defaultPage={defaultPage} />
