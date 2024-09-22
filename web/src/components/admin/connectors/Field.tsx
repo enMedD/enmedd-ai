@@ -96,7 +96,7 @@ export function TextFormField({
             {label}
           </ShadcnLabel>
           {subtext && (
-            <p className="text-sm text-muted-foreground">{subtext}</p>
+            <p className="text-sm text-muted-foreground pb-1.5">{subtext}</p>
           )}
         </div>
       )}

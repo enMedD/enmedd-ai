@@ -3,6 +3,7 @@
 import { CustomModal } from "@/components/CustomModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Teamspace } from "@/lib/types";
-import { BookmarkIcon, Copy, Plus } from "lucide-react";
+import { BookmarkIcon, Copy, Globe, Plus } from "lucide-react";
 import { useState } from "react";
 
 interface TeamspaceDocumentSetProps {
@@ -24,6 +25,7 @@ export const TeamspaceDocumentSet = ({
   teamspace,
 }: TeamspaceDocumentSetProps) => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isDocumentSetModalOpen, setIsDocumentSetModalOpen] = useState(false);
 
   return (
     <div className="relative">
@@ -42,7 +44,7 @@ export const TeamspaceDocumentSet = ({
         open={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
       >
-        <div className="space-y-4 pt-5">
+        <div className="space-y-4">
           <div>
             <Label>Share link</Label>
             <div className="flex items-center gap-2">
@@ -81,27 +83,61 @@ export const TeamspaceDocumentSet = ({
           </div>
         </div>
       </CustomModal>
-      <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between">
-        <h3>
-          Document Set <span className="px-2 font-normal">|</span>{" "}
-          {teamspace.document_sets.length}
-        </h3>
+      <CustomModal
+        trigger={
+          <div
+            className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
+            onClick={() => setIsDocumentSetModalOpen(true)}
+          >
+            <h3>
+              Document Set <span className="px-2 font-normal">|</span>{" "}
+              {teamspace.document_sets.length}
+            </h3>
 
+            {teamspace.document_sets.length > 0 ? (
+              <div className="pt-4 flex flex-wrap gap-2">
+                {teamspace.document_sets.map((documentSet) => {
+                  return (
+                    <Badge key={documentSet.id}>
+                      <BookmarkIcon size={16} className="shrink-0" />
+                      <span className="truncate">{documentSet.name}</span>
+                    </Badge>
+                  );
+                })}
+              </div>
+            ) : (
+              <p>There are document set.</p>
+            )}
+          </div>
+        }
+        title="Document Sets"
+        open={isDocumentSetModalOpen}
+        onClose={() => setIsDocumentSetModalOpen(false)}
+      >
         {teamspace.document_sets.length > 0 ? (
-          <div className="pt-4 flex flex-wrap gap-2">
-            {teamspace.document_sets.map((documentSet) => {
-              return (
-                <Badge key={documentSet.id}>
-                  <BookmarkIcon size={16} />
-                  {documentSet.name}
-                </Badge>
-              );
-            })}
+          <div className="grid gap-4 md:grid-cols-3">
+            {teamspace.document_sets.map((document) => (
+              <div
+                key={document.id}
+                className="border rounded-md flex p-4 gap-4"
+              >
+                <Globe />
+                <div className="w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <h3>{document.name}</h3>
+                    <Checkbox />
+                  </div>
+                  <p className="text-sm pt-2 line-clamp">
+                    {document.description}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <p>There are document set.</p>
+          "There are no document sets."
         )}
-      </div>
+      </CustomModal>
     </div>
   );
 };

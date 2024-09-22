@@ -42,7 +42,7 @@ export const TeamspaceDataSource = ({
         open={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
       >
-        <div className="space-y-4 pt-5">
+        <div className="space-y-4">
           <div>
             <Label>Share link</Label>
             <div className="flex items-center gap-2">
@@ -91,9 +91,9 @@ export const TeamspaceDataSource = ({
           <div className="pt-4 flex flex-wrap gap-2">
             {teamspace.cc_pairs.map((cc_pair) => {
               return (
-                <Badge key={cc_pair.id}>
-                  <BookmarkIcon size={16} />
-                  {cc_pair.name}
+                <Badge key={cc_pair.id} className="truncate whitespace-nowrap">
+                  <BookmarkIcon size={16} className="shrink-0" />
+                  <span className="truncate">{cc_pair.name}</span>
                 </Badge>
               );
             })}

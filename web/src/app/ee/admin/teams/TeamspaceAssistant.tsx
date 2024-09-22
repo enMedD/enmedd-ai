@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Teamspace } from "@/lib/types";
 import { Copy, Plus } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
+import Logo from "../../../../../public/logo.png";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TeamspaceAssistantProps {
   teamspace: Teamspace & { gradient: string };
@@ -21,6 +24,7 @@ interface TeamspaceAssistantProps {
 
 export const TeamspaceAssistant = ({ teamspace }: TeamspaceAssistantProps) => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
 
   return (
     <div className="relative">
@@ -39,7 +43,7 @@ export const TeamspaceAssistant = ({ teamspace }: TeamspaceAssistantProps) => {
         open={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
       >
-        <div className="space-y-4 pt-5">
+        <div className="space-y-4">
           <div>
             <Label>Share link</Label>
             <div className="flex items-center gap-2">
@@ -78,28 +82,66 @@ export const TeamspaceAssistant = ({ teamspace }: TeamspaceAssistantProps) => {
           </div>
         </div>
       </CustomModal>
-      <div className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between">
-        <h3>
-          Assistant <span className="px-2 font-normal">|</span>{" "}
-          {teamspace.assistants.length}
-        </h3>
+      <CustomModal
+        trigger={
+          <div
+            className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
+            onClick={() => setIsAssistantModalOpen(true)}
+          >
+            <h3>
+              Assistant <span className="px-2 font-normal">|</span>{" "}
+              {teamspace.assistants.length}
+            </h3>
+            {teamspace.assistants.length > 0 ? (
+              <div className="pt-4 flex flex-wrap -space-x-3">
+                {teamspace.assistants.map((assistant) => {
+                  return (
+                    <div
+                      key={assistant.id}
+                      className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg`}
+                    >
+                      {assistant.name!.charAt(0)}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p>There are no asssitant.</p>
+            )}
+          </div>
+        }
+        title="Assistants"
+        open={isAssistantModalOpen}
+        onClose={() => setIsAssistantModalOpen(false)}
+      >
         {teamspace.assistants.length > 0 ? (
-          <div className="pt-4 flex flex-wrap -space-x-3">
-            {teamspace.assistants.map((assistant) => {
-              return (
-                <div
-                  key={assistant.id}
-                  className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg`}
-                >
-                  {assistant.name!.charAt(0)}
+          <div className="grid gap-4 md:grid-cols-2">
+            {teamspace.assistants.map((assistant) => (
+              <div key={assistant.id} className="border rounded-md flex">
+                <div className="rounded-l-md flex items-center justify-center p-4 border-r">
+                  <Image
+                    src={Logo}
+                    alt={assistant.name}
+                    width={150}
+                    height={150}
+                  />
                 </div>
-              );
-            })}
+                <div className="w-full p-4">
+                  <div className="flex items-center justify-between w-full">
+                    <h3>{assistant.name}</h3>
+                    <Checkbox />
+                  </div>
+                  <p className="text-sm pt-2 line-clamp">
+                    {assistant.description}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <p>There are no asssitant.</p>
+          "There are no assistants."
         )}
-      </div>
+      </CustomModal>
     </div>
   );
 };

@@ -128,7 +128,7 @@ export const DocumentSetCreationForm = ({
             <Divider />
 
             <div>
-              <h3 className="mb-1">Pick your connectors:</h3>
+              <h3 className="mb-1 text-sm">Pick your connectors:</h3>
               <p className="mb-3 text-xs text-subtle">
                 All documents indexed by the selected connectors will be a part
                 of this document set.
@@ -162,7 +162,7 @@ export const DocumentSetCreationForm = ({
                             }
                           }}
                         >
-                          <div className="my-auto">
+                          <div className="my-auto truncate">
                             <ConnectorTitle
                               connector={ccPair.connector}
                               ccPairId={ccPair.cc_pair_id}
@@ -196,7 +196,7 @@ export const DocumentSetCreationForm = ({
                 />
 
                 <Divider />
-                <h2 className="mb-1 font-medium text-base">
+                <h2 className="mb-1 font-medium text-sm">
                   Teamspace with Access
                 </h2>
                 {!values.is_public ? (

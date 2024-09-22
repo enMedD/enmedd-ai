@@ -3,6 +3,7 @@ import { TeamspaceMember } from "./TeamspaceMember";
 import { TeamspaceAssistant } from "./TeamspaceAssistant";
 import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 import { TeamspaceDataSource } from "./TeamspaceDataSource";
+import { Shield } from "lucide-react";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
@@ -31,8 +32,12 @@ export const TeamspaceSidebarContent = ({
           <h1 className="text-center font-bold text-xl md:text-[28px]">
             {teamspace.name}
           </h1>
-          <span className="text-center text-primary pt-1 font-medium">
+          <span className="text-center text-primary pt-1 font-medium text-sm">
             @mrquilbot
+          </span>
+          <span className="text-center pt-4 font-bold text-sm flex items-center gap-1">
+            <Shield size={16} />
+            10231 Token rate
           </span>
           <p className="text-center text-subtle pt-4 text-sm">
             Lorem ipsum dolor, sit amet consectetur adipisicing elit.

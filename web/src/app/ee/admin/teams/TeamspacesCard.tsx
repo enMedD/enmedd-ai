@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Teamspace } from "@/lib/types";
-import { Cpu, Users } from "lucide-react";
+import { Cpu, File, Shield, Users } from "lucide-react";
 
 interface TeamspaceWithGradient extends Teamspace {
   gradient?: string;
@@ -65,19 +65,19 @@ export const TeamspacesCard = ({
                   <div className="flex items-center gap-2">
                     <Cpu size={16} className="shrink-0" />
                     <span className="whitespace-nowrap">
-                      {teamspace.cc_pairs.length} Assistant
+                      {teamspace.assistants.length} Assistant
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Users size={16} className="shrink-0" />
+                    <File size={16} className="shrink-0" />
                     <span className="whitespace-nowrap">
-                      {teamspace.document_sets.length} Document Sets
+                      {teamspace.document_sets.length} Document Set
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Users size={16} className="shrink-0" />
+                    <Shield size={16} className="shrink-0" />
                     <span className="whitespace-nowrap">1 Token Rate</span>
                   </div>
                 </div>
