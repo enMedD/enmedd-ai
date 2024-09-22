@@ -50,7 +50,6 @@ export const TeamspacesCard = ({
                       }`}
                     />
                   </h2>
-
                   <span className="text-sm text-subtle">@mrquilbot</span>
                 </div>
 
