@@ -91,7 +91,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
             />
             <TextFormField
               name="confirm_password"
-              label="Confirm Password"
+              label="Retype Password"
               type="password"
               placeholder="Enter your password"
             />
