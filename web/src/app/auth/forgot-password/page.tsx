@@ -21,7 +21,7 @@ import { Fingerprint } from "lucide-react";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { Form, Formik } from "formik";
 import { Progress } from "@/components/ui/progress";
-import { EnterEmail } from "./steps/enterEmail";
+import { EnterEmail } from "./steps/EnterEmail";
 import { EnterVerification } from "./steps/EmailVerification";
 import { SetNewPassword } from "./steps/SetNewPassword";
 import { SuccessChangePassword } from "./steps/Done";
