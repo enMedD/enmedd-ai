@@ -23,6 +23,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { PlusSquare } from "lucide-react";
+import { AllUsers } from "./AllUsers";
+import { PendingInvites } from "./PedingInvites";
+import { Separator } from "@/components/ui/separator";
+import { CustomModal } from "@/components/CustomModal";
+import { AddUserButton } from "./AddUserButton";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -135,13 +140,12 @@ const UsersTables = ({ q }: { q: string }) => {
 };
 
 const SearchableTables = () => {
-  const { toast } = useToast();
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
 
   return (
-    <div>
-      <div className="flex flex-col gap-y-4">
+    <div className="pb-20 w-full">
+      {/* <div className="flex flex-col gap-y-4">
         <div className="flex flex-col gap-4 md:flex-row">
           <AddUserButton />
           <div className="flex-grow">
@@ -153,61 +157,22 @@ const SearchableTables = () => {
           </div>
         </div>
         <UsersTables q={q} />
-      </div>
-    </div>
-  );
-};
+      </div> */}
 
-const AddUserButton = () => {
-  const [modal, setModal] = useState(false);
-  const { toast } = useToast();
-  const onSuccess = () => {
-    mutate(
-      (key) => typeof key === "string" && key.startsWith("/api/manage/users")
-    );
-    setModal(false);
-    toast({
-      title: "Success",
-      description: "Users invited!",
-      variant: "success",
-    });
-  };
-  const onFailure = async (res: Response) => {
-    const error = (await res.json()).detail;
-    toast({
-      title: "Error",
-      description: `Failed to invite users - ${error}`,
-      variant: "destructive",
-    });
-  };
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <PlusSquare className="mr-2" />
-          Invite Users
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-full w-1/2">
-        <DialogHeader>
-          <DialogTitle>Bulk Add Users</DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col gap-y-3 pt-4">
-          <Label>
-            Add the email addresses to import, separated by whitespaces.
-          </Label>
-          <BulkAdd onSuccess={onSuccess} onFailure={onFailure} />
-        </div>
-      </DialogContent>
-    </Dialog>
+      <AllUsers q={q} />
+      <Separator className="my-10" />
+      <PendingInvites q={q} />
+    </div>
   );
 };
 
 const Page = () => {
   return (
-    <div className="container">
-      <AdminPageTitle title="Manage Users" icon={<UsersIcon size={32} />} />
-      <SearchableTables />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle title="Manage Users" icon={<UsersIcon size={32} />} />
+        <SearchableTables />
+      </div>
     </div>
   );
 };
