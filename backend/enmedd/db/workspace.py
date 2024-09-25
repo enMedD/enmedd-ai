@@ -194,7 +194,7 @@ def get_workspaces_for_user(user_id: int, db_session: Session) -> list[Workspace
     return workspaces
 
 
-def get_workspace_by_id(
+def get_workspace_for_user_by_id(
     workspace_id: int,
     db_session: Session,
     user: User | None = None,
