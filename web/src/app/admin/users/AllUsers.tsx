@@ -158,7 +158,7 @@ export const AllUsers = ({ q }: { q: string }) => {
 
   return (
     <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
-      <div className="xl:w-1/3">
+      <div className="xl:w-2/5">
         <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
         <div className="text-sm pt-2 pb-4 space-y-2">
           <p>
@@ -174,7 +174,7 @@ export const AllUsers = ({ q }: { q: string }) => {
         <AddUserButton />
       </div>
 
-      <div className="w-full overflow-auto">
+      <div className="flex-1 overflow-x-auto">
         <Input
           placeholder="Search user..."
           value={searchQuery}
@@ -186,9 +186,8 @@ export const AllUsers = ({ q }: { q: string }) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead>Space</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Deactivate</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -210,24 +209,13 @@ export const AllUsers = ({ q }: { q: string }) => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Select>
-                        <SelectTrigger className="w-36">
-                          <SelectValue placeholder="Space" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="teamspace">Teamspace</SelectItem>
-                          <SelectItem value="workspace">Workspace</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
                       <Select
                         onValueChange={(value) =>
                           handleRoleChange(user.email, value)
                         }
                         value={user.role}
                       >
-                        <SelectTrigger className="w-28">
+                        <SelectTrigger className="w-32">
                           <SelectValue>
                             {user.role === "admin" ? "Admin" : "User"}
                           </SelectValue>
@@ -239,11 +227,13 @@ export const AllUsers = ({ q }: { q: string }) => {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <DeactivaterButton
-                        user={user}
-                        deactivate={user.status === UserStatus.live}
-                        mutate={mutate}
-                      />
+                      <div className="flex justify-end">
+                        <DeactivaterButton
+                          user={user}
+                          deactivate={user.status === UserStatus.live}
+                          mutate={mutate}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

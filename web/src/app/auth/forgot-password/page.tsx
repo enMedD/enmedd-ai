@@ -6,25 +6,11 @@ import {
   AuthTypeMetadata,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 import Logo from "../../../../public/logo-brand.png";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import DefaultUserChart from "../../../../public/default-user-chart.png";
-import LoginImage from "../../../../public/LoginImage.png";
-import GmailIcon from "../../../../public/Gmail.png";
-import MicrosoftIcon from "../../../../public/microsoft.svg";
-import { Separator } from "@/components/ui/separator";
-import { SignupForms } from "../signup/SignupForms";
-import { Fingerprint } from "lucide-react";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { Form, Formik } from "formik";
 import { Progress } from "@/components/ui/progress";
-import { EnterEmail } from "./steps/enterEmail";
-import { EnterVerification } from "./steps/EmailVerification";
-import { SetNewPassword } from "./steps/SetNewPassword";
-import { SuccessChangePassword } from "./steps/Done";
+import { EnterEmail } from "./steps/EnterEmail";
 
 const Page = async () => {
   // catch cases where the backend is completely unreachable here
@@ -60,7 +46,7 @@ const Page = async () => {
   }
 
   return (
-    <main className="relative h-full">
+    <main className="relative h-full px-6 md:px-0">
       <HealthCheckBanner />
       <div className="absolute top-6 left-10">
         <Image src={Logo} alt="Logo" className="w-28 xl:w-32" />
@@ -69,16 +55,11 @@ const Page = async () => {
       <div className="flex justify-center items-center h-full">
         <div className="w-[500px]">
           <EnterEmail />
-          {/*   <EnterVerification /> */}
-          {/* <SetNewPassword /> */}
-          {/* <SuccessChangePassword /> */}
         </div>
       </div>
 
       <div className="w-[500px] flex gap-2 absolute bottom-10 left-1/2 -translate-x-1/2">
         <Progress value={100} />
-        <Progress value={0} />
-        <Progress value={0} />
         <Progress value={0} />
       </div>
     </main>

@@ -5,14 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, CircleCheck, RectangleEllipsis } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 
-export const SetNewPassword = () => {
+export const SetNewPasswordForms = () => {
+  const searchParams = useSearchParams();
+  const resetToken = searchParams.get("token");
+
+  const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-center">
-        <div className="bg-primary p-5 rounded-md">
-          <RectangleEllipsis size={40} stroke="white" />
+        <div className="bg-primary p-3 rounded-md">
+          <RectangleEllipsis size={60} stroke="white" />
         </div>
       </div>
 
@@ -33,6 +40,9 @@ export const SetNewPassword = () => {
             name="password"
             type="password"
             placeholder="Enter your new password"
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+            }}
           />
         </div>
 
