@@ -108,6 +108,15 @@ const Page = () => {
             Didn’t receive a code?{" "}
             <Link
               href=""
+              onClick={async () => {
+                await fetch("/api/users/generate-otp", {
+                  method: "PATCH",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
+                });
+              }}
               className="text-sm font-medium text-link hover:underline"
             >
               Resend Code
