@@ -278,7 +278,7 @@ def bulk_invite_users(
     normalized_emails = []
     for email in emails:
         email_info = validate_email(email)
-        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email_info}"
+        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email_info.email}"
         subject, body = generate_invite_email(signup_link)
         send_invite_user_email(email, subject, body)
         normalized_emails.append(email_info.normalized)
@@ -291,7 +291,9 @@ def remove_invited_user(
     user_email: UserByEmail,
     _: User | None = Depends(current_admin_user),
 ) -> int:
+    print(f"Removing user with the email: {user_email}")
     user_emails = get_invited_users()
+    print(f"Invited users: {str(user_emails)}")
     remaining_users = [user for user in user_emails if user != user_email.user_email]
     return write_invited_users(remaining_users)
 
