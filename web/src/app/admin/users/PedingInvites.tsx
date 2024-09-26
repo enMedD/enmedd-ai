@@ -67,7 +67,7 @@ export const PendingInvites = ({ q }: { q: string }) => {
 
   const filteredUsers = finalInvited.filter(
     (user) =>
-      user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -105,19 +105,16 @@ export const PendingInvites = ({ q }: { q: string }) => {
                             <div className="border rounded-full w-10 h-10 flex items-center justify-center">
                               <UserIcon />
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col justify-center">
                               <span className="truncate max-w-44">
-                                {user.full_name}
-                              </span>
-                              <span className="text-sm text-subtle truncate max-w-44">
-                                {user.email}
+                                {user.full_name || user.email}
                               </span>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2 justify-end">
-                            <Button>Resend Invite</Button>
+                            {/* <Button>Resend Invite</Button> */}
                             <CustomModal
                               trigger={
                                 <Button
