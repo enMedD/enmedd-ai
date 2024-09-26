@@ -10,13 +10,15 @@ import {
 import { ShieldEllipsis } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
 const Page = () => {
   const { toast } = useToast();
   const [value, setValue] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const user_email = searchParams.get("email");
 
   const handleContinue = async () => {
     try {
@@ -63,9 +65,7 @@ const Page = () => {
           <p className="text-center pt-2 text-sm text-subtle">
             Please check your email a 6 digit code has been sent to your
             registered email{" "}
-            <span className="font-semibold text-default">
-              “john.doe@gmail.com”
-            </span>
+            <span className="font-semibold text-default">“{user_email}”</span>
           </p>
         </div>
 
