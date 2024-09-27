@@ -176,10 +176,6 @@ export function useLlmOverride(
   };
 }
 
-/* 
-EE Only APIs
-*/
-
 const TEAMSPACE_URL = "/api/manage/admin/teamspace";
 
 export const useTeamspaces = (): {
@@ -189,18 +185,6 @@ export const useTeamspaces = (): {
   refreshTeamspaces: () => void;
 } => {
   const swrResponse = useSWR<Teamspace[]>(TEAMSPACE_URL, errorHandlingFetcher);
-  const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
-
-  if (!isPaidEnterpriseFeaturesEnabled) {
-    return {
-      ...{
-        data: [],
-        isLoading: false,
-        error: "",
-      },
-      refreshTeamspaces: () => {},
-    };
-  }
 
   return {
     ...swrResponse,
