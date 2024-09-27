@@ -22,7 +22,7 @@ import { assistantComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
-import { ChatPopup } from "../chat/ChatPopup";
+import { ChatPopup } from "../chat/[teamspace_id]/ChatPopup";
 import { SearchSidebar } from "./SearchSidebar";
 import { BarLayout } from "@/components/BarLayout";
 import { HelperFab } from "@/components/HelperFab";

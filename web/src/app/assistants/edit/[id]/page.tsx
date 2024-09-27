@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { ChatProvider } from "@/context/ChatContext";
 import { AssistantsBars } from "../../mine/AssistantsBars";
-import { ChatSidebar } from "@/app/chat/sessionSidebar/ChatSidebar";
+import { ChatSidebar } from "@/app/chat/[teamspace_id]/sessionSidebar/ChatSidebar";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const [values, error] = await fetchAssistantEditorInfoSS(params.id);

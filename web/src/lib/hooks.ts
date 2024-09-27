@@ -10,7 +10,7 @@ import { errorHandlingFetcher } from "./fetcher";
 import { useState } from "react";
 import { SourceMetadata } from "./search/interfaces";
 import { destructureValue } from "./llm/utils";
-import { ChatSession } from "@/app/chat/interfaces";
+import { ChatSession } from "@/app/chat/[teamspace_id]/interfaces";
 import { UsersResponse } from "./users/interfaces";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import { DateRange } from "react-day-picker";

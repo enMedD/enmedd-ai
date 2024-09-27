@@ -1,4 +1,4 @@
-import { BackendMessage } from "@/app/chat/interfaces";
+import { BackendMessage } from "@/app/chat/[teamspace_id]/interfaces";
 import {
   AnswerPiecePacket,
   EnmeddDocument,

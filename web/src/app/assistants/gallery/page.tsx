@@ -1,4 +1,4 @@
-import { ChatSidebar } from "@/app/chat/sessionSidebar/ChatSidebar";
+import { ChatSidebar } from "@/app/chat/[teamspace_id]/sessionSidebar/ChatSidebar";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { UserDropdown } from "@/components/UserDropdown";
 import { ChatProvider } from "@/context/ChatContext";
