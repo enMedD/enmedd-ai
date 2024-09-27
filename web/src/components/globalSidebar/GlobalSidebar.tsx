@@ -13,6 +13,8 @@ import { useTeamspaces } from "@/lib/hooks";
 import { TeamspaceBubble } from "@/components/TeamspaceBubble";
 import Image from "next/image";
 import { TeamspaceModal } from "./TeamspaceModal";
+import { buildChatUrl } from "@/app/chat/[teamspace_id]/lib";
+import { INTERNAL_URL } from "@/lib/constants";
 
 interface GlobalSidebarProps {
   openSidebar?: boolean;
@@ -69,7 +71,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
                 <TeamspaceBubble
                   key={teamspace.id}
                   teamspace={teamspace}
-                  link={defaultPage}
+                  link={`chat/${teamspace.id}`}
                 />
               ))}
               {showEllipsis && <TeamspaceModal teamspace={user.groups} />}
