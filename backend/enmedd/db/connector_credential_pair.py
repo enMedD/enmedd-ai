@@ -13,6 +13,7 @@ from enmedd.db.models import EmbeddingModel
 from enmedd.db.models import IndexAttempt
 from enmedd.db.models import IndexingStatus
 from enmedd.db.models import IndexModelStatus
+from enmedd.db.models import Teamspace
 from enmedd.db.models import User
 from enmedd.server.models import StatusResponse
 from enmedd.utils.logger import setup_logger
@@ -24,6 +25,18 @@ def get_connector_credential_pairs(
     db_session: Session, include_disabled: bool = True
 ) -> list[ConnectorCredentialPair]:
     stmt = select(ConnectorCredentialPair)
+    if not include_disabled:
+        stmt = stmt.where(ConnectorCredentialPair.connector.disabled == False)  # noqa
+    results = db_session.scalars(stmt)
+    return list(results.all())
+
+
+def get_connector_credential_pairs_by_teamspace_id(
+    teamspace_id: int, db_session: Session, include_disabled: bool = True
+) -> list[ConnectorCredentialPair]:
+    stmt = select(ConnectorCredentialPair).where(
+        ConnectorCredentialPair.groups.any(Teamspace.id == teamspace_id)
+    )
     if not include_disabled:
         stmt = stmt.where(ConnectorCredentialPair.connector.disabled == False)  # noqa
     results = db_session.scalars(stmt)
