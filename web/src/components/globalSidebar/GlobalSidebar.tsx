@@ -20,8 +20,6 @@ interface GlobalSidebarProps {
 }
 
 export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
-  const { data } = useTeamspaces();
-
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -30,8 +28,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
-  const displayedTeamspaces = data?.slice(0, 8);
-  const showEllipsis = data && data.length > 8;
+  const showEllipsis = user?.groups && user.groups.length > 8;
 
   return (
     <div className={`bg-background h-full p-4 border-r border-border z-10`}>
@@ -41,6 +38,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
         }`}
       >
         <div className="flex flex-col items-center h-full">
+          <p>{JSON.stringify(user?.groups)}</p>
           <Image
             src={ArnoldAi}
             alt="ArnoldAi Logo"
@@ -66,16 +64,16 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             </CustomTooltip>
           </div>
           <Separator className="mt-4" />
-          {data && (
+          {user?.groups && (
             <div className="flex flex-col gap-3 pt-4">
-              {displayedTeamspaces?.map((teamspace) => (
+              {user.groups?.map((teamspace) => (
                 <TeamspaceBubble
                   key={teamspace.id}
                   teamspace={teamspace}
                   link={defaultPage}
                 />
               ))}
-              {showEllipsis && <TeamspaceModal teamspace={data} />}
+              {showEllipsis && <TeamspaceModal teamspace={user.groups} />}
             </div>
           )}
         </div>

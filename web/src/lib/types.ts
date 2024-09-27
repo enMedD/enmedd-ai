@@ -26,6 +26,7 @@ export interface User {
   vat?: string;
   preferences: UserPreferences;
   status: UserStatus;
+  groups?: MinimalTeamspaceSnapshot[];
 }
 
 export interface MinimalUserSnapshot {
@@ -430,4 +431,9 @@ export interface Teamspace {
   assistants: Assistant[];
   is_up_to_date: boolean;
   is_up_for_deletion: boolean;
+}
+
+export interface MinimalTeamspaceSnapshot {
+  id: number;
+  name: string;
 }
