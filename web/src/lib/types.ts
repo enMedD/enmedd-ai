@@ -1,4 +1,5 @@
 import { Assistant } from "@/app/admin/assistants/interfaces";
+import { ChatSession } from "@/app/chat/interfaces";
 
 export interface UserPreferences {
   chosen_assistants: number[] | null;
@@ -421,6 +422,11 @@ export interface Workspace {
   custom_header_logo: string;
 }
 
+export interface MinimalWorkspaceSnapshot {
+  id: number;
+  workspace_name: string;
+}
+
 /* EE Only Types */
 export interface Teamspace {
   id: number;
@@ -436,4 +442,9 @@ export interface Teamspace {
 export interface MinimalTeamspaceSnapshot {
   id: number;
   name: string;
+}
+
+export interface TeamspaceChatData extends Teamspace {
+  chat_sessions: ChatSession[];
+  workspace: MinimalWorkspaceSnapshot[];
 }
