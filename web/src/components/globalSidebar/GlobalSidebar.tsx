@@ -38,7 +38,6 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
         }`}
       >
         <div className="flex flex-col items-center h-full">
-          <p>{JSON.stringify(user?.groups)}</p>
           <Image
             src={ArnoldAi}
             alt="ArnoldAi Logo"
