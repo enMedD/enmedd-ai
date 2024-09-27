@@ -13,10 +13,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { Spinner } from "@/components/Spinner";
 
 const Page = () => {
   const { toast } = useToast();
   const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const user_email = searchParams.get("email");
@@ -50,8 +52,34 @@ const Page = () => {
     }
   };
 
+  const handleResendOTP = async () => {
+    setIsLoading(true);
+    const response = await fetch("/api/users/generate-otp", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+    if (!response.ok) {
+      toast({
+        title: "Failed to Resend OTP Code",
+        description: `We encountered an issue while trying to resend the OTP code. Please try again or contact support if the problem persists. ${response.statusText}`,
+        variant: "destructive",
+      });
+    }
+    toast({
+      title: "OTP Code Resent Successfully",
+      description:
+        "A new OTP code has been sent to your registered email/phone. Please check your inbox or messages to retrieve it.",
+      variant: "success",
+    });
+    setIsLoading(false);
+  };
+
   return (
     <main className="h-full">
+      {isLoading && <Spinner />}
       <WelcomeTopBar />
       <div className="w-full h-full flex items-center justify-center px-6">
         <div className="md:w-[500px]">
@@ -114,18 +142,10 @@ const Page = () => {
             </Button>
 
             <p className="text-center text-sm">
-              Didn&apos;t receive a code?
+              Didn&apos;t receive a code?{" "}
               <Link
                 href=""
-                onClick={async () => {
-                  await fetch("/api/users/generate-otp", {
-                    method: "PATCH",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                  });
-                }}
+                onClick={handleResendOTP}
                 className="text-sm font-medium text-link hover:underline"
               >
                 Resend Code
