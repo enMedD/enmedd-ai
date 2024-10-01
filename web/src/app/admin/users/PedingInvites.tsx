@@ -16,38 +16,9 @@ import { UsersResponse } from "@/lib/users/interfaces";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { LoadingAnimation } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
-
-import { UserIcon } from "lucide-react";
-import { User } from "@/lib/types";
+import { User, UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomModal } from "@/components/CustomModal";
-import { useToast } from "@/hooks/use-toast";
-import useSWRMutation from "swr/mutation";
-import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
-
-const RemoveUserButton = ({
-  user,
-  onSuccess,
-  onError,
-}: {
-  user: User;
-  onSuccess: () => void;
-  onError: () => void;
-}) => {
-  const { trigger } = useSWRMutation(
-    "/api/manage/admin/remove-invited-user",
-    userMutationFetcher,
-    { onSuccess, onError }
-  );
-  return (
-    <Button
-      variant="destructive"
-      onClick={() => trigger({ user_email: user.email })}
-    >
-      Uninvite User
-    </Button>
-  );
-};
 
 export const PendingInvites = ({ q }: { q: string }) => {
   const { toast } = useToast();
@@ -98,10 +69,9 @@ export const PendingInvites = ({ q }: { q: string }) => {
 
   const filteredUsers = finalInvited.filter(
     (user) =>
-      user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   const onRemovalSuccess = () => {
     toast({
       title: "User Removed Successfully",
@@ -121,14 +91,13 @@ export const PendingInvites = ({ q }: { q: string }) => {
     });
     setIsCancelModalVisible(false);
   };
-
   return (
     <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
       <div className="xl:w-2/5">
         <h2 className="text-lg md:text-2xl text-strong font-bold">
           Pending Invites
         </h2>
-        <p className="text-sm pt-1 pb-4">Invitations awaiting a response.</p>
+        <p className="text-sm mt-2">Invitations awaiting a response.</p>
       </div>
 
       <div className="flex-1">
@@ -156,9 +125,12 @@ export const PendingInvites = ({ q }: { q: string }) => {
                             <div className="border rounded-full w-10 h-10 flex items-center justify-center">
                               <UserIcon />
                             </div>
-                            <div className="flex flex-col justify-center">
+                            <div className="flex flex-col">
                               <span className="truncate max-w-44">
-                                {user.full_name || user.email}
+                                {user.full_name}
+                              </span>
+                              <span className="text-sm text-subtle truncate max-w-44">
+                                {user.email}
                               </span>
                             </div>
                           </div>
