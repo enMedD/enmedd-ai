@@ -51,6 +51,7 @@ const RemoveUserButton = ({
 
 export const PendingInvites = ({ q }: { q: string }) => {
   const { toast } = useToast();
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [invitedPage, setInvitedPage] = useState(1);
   const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,6 +108,7 @@ export const PendingInvites = ({ q }: { q: string }) => {
       description: "The invited user has been removed from your list",
       variant: "success",
     });
+    mutate();
     setIsCancelModalVisible(false);
   };
 
@@ -163,36 +165,48 @@ export const PendingInvites = ({ q }: { q: string }) => {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2 justify-end">
-                            {/* <Button>Resend Invite</Button> */}
                             <CustomModal
                               trigger={
                                 <Button
                                   variant="destructive"
-                                  onClick={() => setIsCancelModalVisible(true)}
+                                  onClick={() => {
+                                    setIsCancelModalVisible(true);
+                                    setSelectedUser(user);
+                                  }}
                                 >
                                   Cancel Invite
                                 </Button>
                               }
                               title="Revoke Invite"
-                              onClose={() => setIsCancelModalVisible(false)}
+                              onClose={() => {
+                                setIsCancelModalVisible(false);
+                                setSelectedUser(null);
+                              }}
                               open={isCancelModalVisible}
                             >
                               <div>
                                 <p>
-                                  Revoking on invite will no longer allow this
+                                  Revoking an invite will no longer allow this
                                   person to become a member of your space. You
-                                  can always invite the again if you change your
-                                  mind.{" "}
+                                  can always invite them again if you change
+                                  your mind.
                                 </p>
 
                                 <div className="flex gap-2 pt-8 justify-end">
-                                  <Button>Keep Member</Button>
-                                  <RemoveUserButton
-                                    user={user}
-                                    onSuccess={onRemovalSuccess}
-                                    onError={onRemovalError}
-                                    key={user.id}
-                                  />
+                                  <Button
+                                    onClick={() =>
+                                      setIsCancelModalVisible(false)
+                                    }
+                                  >
+                                    Keep Member
+                                  </Button>
+                                  {selectedUser && (
+                                    <RemoveUserButton
+                                      user={selectedUser}
+                                      onSuccess={onRemovalSuccess}
+                                      onError={onRemovalError}
+                                    />
+                                  )}
                                 </div>
                               </div>
                             </CustomModal>
