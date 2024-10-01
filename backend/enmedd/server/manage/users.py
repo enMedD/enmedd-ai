@@ -298,7 +298,6 @@ def remove_invited_user(
 ) -> int:
     print(f"Removing user with the email: {user_email}")
     user_emails = get_invited_users()
-    print(f"Invited users: {str(user_emails)}")
     remaining_users = [user for user in user_emails if user != user_email.user_email]
     return write_invited_users(remaining_users)
 
