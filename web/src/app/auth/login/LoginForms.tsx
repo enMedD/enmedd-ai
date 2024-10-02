@@ -41,9 +41,7 @@ export function LogInForms({}: {}) {
 
           const loginResponse = await basicLogin(values.email, values.password);
           if (loginResponse.ok) {
-            console.log(JSON.stringify(settings?.featureFlags));
             if (settings?.featureFlags.two_factor_auth == true) {
-              console.log("This has been activated");
               router.push(`/auth/2factorverification/?email=${values.email}`);
               await fetch("/api/users/generate-otp", {
                 method: "PATCH",
