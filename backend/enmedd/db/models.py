@@ -1369,6 +1369,7 @@ class Teamspace(Base):
         secondary="token_rate_limit__teamspace",
         viewonly=True,
     )
+    
     chat_folders: Mapped[list[ChatFolder]] = relationship(
         "ChatFolder",
         secondary=ChatFolder__Teamspace.__table__,
