@@ -72,7 +72,7 @@ const Page = async () => {
 
             <div className="pt-8">
               <div className="flex items-center gap-3 md:gap-6 w-full flex-col md:flex-row">
-                <Button className="flex-1 w-full" variant="outline">
+                <Button disabled className="flex-1 w-full" variant="outline">
                   <Image
                     src={GmailIcon}
                     alt="gmail-icon"
@@ -82,6 +82,7 @@ const Page = async () => {
                   Continue with Gmail
                 </Button>
                 <Button
+                  disabled
                   className="flex-1 w-full"
                   variant="outline"
                   type="button"
@@ -120,7 +121,7 @@ const Page = async () => {
             </div>
           </div>
         </div>
-        <div className="w-1/2 h-full relative rounded-l-[50px] overflow-hidden hidden xl:flex">
+        <div className="w-1/2 h-full relative overflow-hidden hidden xl:flex">
           <Image
             src={SignupImage}
             alt="signup-image"
