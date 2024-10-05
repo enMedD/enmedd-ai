@@ -27,8 +27,6 @@ export const TeamspacesCard = ({
 
   const tokenRate = data && data.length > 0 ? data[0] : null;
 
-  console.log(teamspace);
-
   return (
     <Card
       key={teamspace.id}
