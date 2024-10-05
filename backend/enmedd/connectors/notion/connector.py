@@ -52,7 +52,7 @@ class NotionSearchResponse:
     """Represents the response from the Notion Search API"""
 
     results: list[dict[str, Any]]
-    next_cursor: Optional[str] = None
+    next_cursor: Optional[str]
     has_more: bool = False
 
     def __init__(self, **kwargs: dict[str, Any]) -> None:

@@ -37,15 +37,15 @@ class UserInfo(BaseModel):
     is_superuser: bool
     is_verified: bool
     role: UserRole
-    full_name: Optional[str] = None
-    company_name: Optional[str] = None
-    company_email: Optional[str] = None
-    company_billing: Optional[str] = None
-    billing_email_address: Optional[str] = None
-    vat: Optional[str] = None
+    full_name: Optional[str]
+    company_name: Optional[str]
+    company_email: Optional[str]
+    company_billing: Optional[str]
+    billing_email_address: Optional[str]
+    vat: Optional[str]
     preferences: UserPreferences
-    workspace: Optional[list[WorkspaceResponse]] = None
-    groups: Optional[list[TeamspaceResponse]] = None
+    workspace: Optional[list[WorkspaceResponse]]
+    groups: Optional[list[TeamspaceResponse]]
 
     @classmethod
     def from_model(cls, user: "UserModel") -> "UserInfo":
