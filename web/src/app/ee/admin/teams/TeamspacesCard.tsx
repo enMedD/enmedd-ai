@@ -63,7 +63,8 @@ export const TeamspacesCard = ({
               {teamspace.is_up_to_date ? "Updated" : "Outdated"}
             </CustomTooltip>
           </h2>
-          <span className="text-sm text-subtle">@mrquilbot</span>
+          {/* TODO: replace with teamspace creator  */}
+          {/* <span className="text-sm text-subtle">@mrquilbot</span> */}
         </div>
 
         <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] text-sm gap-y-2 gap-x-6 font-light">
