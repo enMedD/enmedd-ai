@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 from typing import Optional
 from uuid import UUID
@@ -15,6 +16,7 @@ from enmedd.server.manage.models import UserPreferences
 from enmedd.server.models import MinimalTeamspaceSnapshot
 from enmedd.server.models import MinimalWorkspaceSnapshot
 from enmedd.server.query_and_chat.models import ChatSessionDetails
+from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 
 
 class Teamspace(BaseModel):
@@ -28,6 +30,7 @@ class Teamspace(BaseModel):
     is_up_to_date: bool
     is_up_for_deletion: bool
     workspace: list[MinimalWorkspaceSnapshot]
+    token_rate_limit: Optional[TokenRateLimitDisplay] = None
 
     @classmethod
     def from_model(cls, teamspace_model: TeamspaceModel) -> "Teamspace":
@@ -110,6 +113,11 @@ class Teamspace(BaseModel):
                 )
                 for workspace in teamspace_model.workspace
             ],
+            token_rate_limit=(
+                TokenRateLimitDisplay.from_db(teamspace_model.token_rate_limit)
+                if teamspace_model.token_rate_limit is not None
+                else None
+            ),
         )
 
 
@@ -127,3 +135,14 @@ class TeamspaceUpdate(BaseModel):
     cc_pair_ids: list[int]
     document_set_ids: Optional[List[int]] = []
     assistant_ids: Optional[List[int]] = []
+
+
+class TeamspaceUserRole(str, Enum):
+    BASIC = "basic"
+    CREATOR = "creator"
+    ADMIN = "admin"
+
+
+class UpdateUserRoleRequest(BaseModel):
+    user_email: str
+    new_role: TeamspaceUserRole

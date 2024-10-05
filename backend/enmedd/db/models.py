@@ -1364,6 +1364,12 @@ class Teamspace(Base):
         secondary=ChatSession__Teamspace.__table__,
         viewonly=True,
     )
+    token_rate_limit: Mapped["TokenRateLimit"] = relationship(
+        "TokenRateLimit",
+        secondary="token_rate_limit__teamspace",
+        viewonly=True,
+    )
+    
     chat_folders: Mapped[list[ChatFolder]] = relationship(
         "ChatFolder",
         secondary=ChatFolder__Teamspace.__table__,
@@ -1388,6 +1394,11 @@ class TokenRateLimit(Base):
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+    groups: Mapped["Teamspace"] = relationship(
+        "Teamspace",
+        secondary="token_rate_limit__teamspace",
+        viewonly=True,
     )
 
 
