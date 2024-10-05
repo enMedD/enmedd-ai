@@ -95,11 +95,8 @@ export const PendingInvites = ({ q }: { q: string }) => {
     (user) => !accepted.map((u) => u.email).includes(user.email)
   );
 
-  const filteredUsers = finalInvited.filter(
-    (user) =>
-      user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = finalInvited.filter((user) =>
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const onRemovalSuccess = () => {
