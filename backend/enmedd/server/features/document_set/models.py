@@ -1,4 +1,3 @@
-from typing import List
 from typing import Optional
 from uuid import UUID
 
@@ -15,21 +14,21 @@ from enmedd.server.models import MinimalWorkspaceSnapshot
 class DocumentSetCreationRequest(BaseModel):
     name: str
     description: str
-    cc_pair_ids: List[int]
+    cc_pair_ids: list[int]
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: Optional[List[UUID]] = None
-    groups: Optional[List[int]] = None
+    users: list[UUID] | None = None
+    groups: list[int] | None = None
 
 
 class DocumentSetUpdateRequest(BaseModel):
     id: int
     description: str
-    cc_pair_ids: List[int]
+    cc_pair_ids: list[int]
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: List[UUID]
-    groups: List[int]
+    users: list[UUID]
+    groups: list[int]
 
 
 class CheckDocSetPublicRequest(BaseModel):
@@ -37,7 +36,7 @@ class CheckDocSetPublicRequest(BaseModel):
     Rather, this refers to the CC-Pairs in the Document Set, and if every CC-Pair is public
     """
 
-    document_set_ids: List[int]
+    document_set_ids: list[int]
 
 
 class CheckDocSetPublicResponse(BaseModel):
@@ -48,13 +47,13 @@ class DocumentSet(BaseModel):
     id: int
     name: str
     description: str
-    cc_pair_descriptors: List[ConnectorCredentialPairDescriptor]
+    cc_pair_descriptors: list[ConnectorCredentialPairDescriptor]
     is_up_to_date: bool
     contains_non_public: bool
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: List[UUID]
-    groups: Optional[List[MinimalTeamspaceSnapshot]] = None
+    users: list[UUID]
+    groups: Optional[list[MinimalTeamspaceSnapshot]]
 
     @classmethod
     def from_model(cls, document_set_model: DocumentSetDBModel) -> "DocumentSet":

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel
-from pydantic import field_validator
+from pydantic import validator
 
 from enmedd.configs.chat_configs import DISABLE_LLM_CHUNK_FILTER
 from enmedd.configs.chat_configs import HYBRID_ALPHA
@@ -45,16 +45,15 @@ class ChunkMetric(BaseModel):
 
 
 class ChunkContext(BaseModel):
-    # If not specified (None), picked up from Persona settings if there is space
-    # if specified (even if 0), it always uses the specified number of chunks above and below
-    chunks_above: int | None = None
-    chunks_below: int | None = None
+    # Additional surrounding context options, if full doc, then chunks are deduped
+    # If surrounding context overlap, it is combined into one
+    chunks_above: int = 0
+    chunks_below: int = 0
     full_doc: bool = False
 
-    @field_validator("chunks_above", "chunks_below")
-    @classmethod
+    @validator("chunks_above", "chunks_below", pre=True, each_item=False)
     def check_non_negative(cls, value: int, field: Any) -> int:
-        if value is not None and value < 0:
+        if value < 0:
             raise ValueError(f"{field.name} must be non-negative")
         return value
 

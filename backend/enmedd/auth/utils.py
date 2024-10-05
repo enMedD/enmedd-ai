@@ -32,7 +32,7 @@ def generate_password_reset_email(email: str, reset_url: str):
 
 
 def generate_user_verification_email(full_name: str, verify_url: str):
-    subject = "Almost There! Confirm Your Email to Activate Your Account"
+    subject = "Password Reset Request"
 
     body = f"""
     Hi {full_name},

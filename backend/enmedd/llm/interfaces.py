@@ -18,12 +18,7 @@ class LLMConfig(BaseModel):
     model_provider: str
     model_name: str
     temperature: float
-    api_key: str | None = None
-    api_base: str | None = None
-    api_version: str | None = None
-
-    # This disables the "model_" protected namespace for pydantic
-    model_config = {"protected_namespaces": ()}
+    api_key: str | None
 
 
 class LLM(abc.ABC):

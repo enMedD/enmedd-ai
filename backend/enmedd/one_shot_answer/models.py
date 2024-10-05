@@ -1,11 +1,8 @@
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import Field
-from pydantic import model_validator
+from pydantic import root_validator
 
 from enmedd.chat.models import CitationInfo
 from enmedd.chat.models import EnmeddContexts
@@ -27,27 +24,28 @@ class ThreadMessage(BaseModel):
 
 
 class DirectQARequest(ChunkContext):
-    messages: List[ThreadMessage]
-    prompt_id: Optional[int] = None
+    messages: list[ThreadMessage]
+    prompt_id: int | None
     assistant_id: int
     retrieval_options: RetrievalDetails = Field(default_factory=RetrievalDetails)
-    skip_rerank: Optional[bool] = None  # Forcibly skip (or run) the step
-    skip_llm_chunk_filter: Optional[bool] = None
+    # This is to forcibly skip (or run) the step, if None it uses the system defaults
+    skip_rerank: bool | None = None
+    skip_llm_chunk_filter: bool | None = None
     chain_of_thought: bool = False
     return_contexts: bool = False
 
-    @model_validator(mode="before")
+    @root_validator
     def check_chain_of_thought_and_prompt_id(
-        cls, values: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        cls, values: dict[str, Any]
+    ) -> dict[str, Any]:
         chain_of_thought = values.get("chain_of_thought")
         prompt_id = values.get("prompt_id")
 
         if chain_of_thought and prompt_id is not None:
             raise ValueError(
-                "If chain_of_thought is True, prompt_id must be None. "
-                "The chain of thought prompt is only for question answering "
-                "and does not accept customizing."
+                "If chain_of_thought is True, prompt_id must be None"
+                "The chain of thought prompt is only for question "
+                "answering and does not accept customizing."
             )
 
         return values
