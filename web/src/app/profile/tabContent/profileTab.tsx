@@ -5,7 +5,7 @@ import { User as UserTypes } from "@/lib/types";
 import { Upload, User } from "lucide-react";
 import { UserProfile } from "@/components/UserProfile";
 import { CombinedSettings } from "@/components/settings/lib";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -24,6 +24,25 @@ export default function ProfileTab({
   const [companyName, setCompanyName] = useState(user?.company_name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  // Fetch profile image on mount
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const response = await fetch("/api/me/profile");
+        if (response.ok) {
+          const imageBlob = await response.blob();
+          const imageUrl = URL.createObjectURL(imageBlob);
+          setProfileImageUrl(imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching profile image:", error);
+      }
+    };
+
+    fetchProfileImage();
+  }, []);
 
   const handleSaveChanges = async () => {
     const updatedUser = {
@@ -55,12 +74,12 @@ export default function ProfileTab({
       const formData = new FormData();
       formData.append("file", selectedFile);
       setSelectedFile(null);
-      const response = await fetch("/api/me/profile", {
+      const uploadResponse = await fetch("/api/me/profile", {
         method: "PUT",
         body: formData,
       });
-      if (!response.ok) {
-        const errorMsg = (await response.json()).detail;
+      if (!uploadResponse.ok) {
+        const errorMsg = (await uploadResponse.json()).detail;
         toast({
           title: "Failed to upload logo.",
           description: errorMsg,
@@ -94,6 +113,7 @@ export default function ProfileTab({
       method: "DELETE",
     });
     if (response.ok) {
+      setProfileImageUrl(null);
       toast({
         title: "Profile photo removed",
         description: "Your profile photo has been successfully removed.",
@@ -131,18 +151,18 @@ export default function ProfileTab({
                 alt="Profile"
                 className="rounded-full object-cover object-center h-[65px] w-[65px]"
               />
-            ) : user && user.full_name ? (
+            ) : profileImageUrl ? (
               <img
-                src={"/api/me/profile"}
-                alt="Profile"
+                src={profileImageUrl}
+                alt="Fetch Profile"
                 className="rounded-full object-cover object-center h-[65px] w-[65px]"
               />
             ) : (
-              <User size={25} className="mx-auto" />
+              <UserProfile size={65} user={user} textSize="text-2xl" />
             )}
           </div>
 
-          {(selectedFile || (user && user.full_name)) && (
+          {isEditing && (selectedFile || profileImageUrl) && (
             <div className="py-4">
               <Button
                 variant="link"
@@ -219,14 +239,14 @@ export default function ProfileTab({
             <Button
               variant="outline"
               className="border-destructive-foreground hover:bg-destructive-foreground"
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => setIsEditing(false)}
             >
               Cancel
             </Button>
             <Button onClick={handleSaveChanges}>Save Changes</Button>
           </>
         ) : (
-          <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
             Edit
           </Button>
         )}
