@@ -104,17 +104,17 @@ const Page = async ({
             )}
           </div>
         </div>
-        <div className="w-1/2 h-full relative rounded-l-[50px] overflow-hidden hidden xl:flex">
+        <div className="w-1/2 h-full relative overflow-hidden hidden xl:flex">
           <Image
             src={LoginImage}
             alt="login-image"
             className="w-full h-full object-cover"
           />
-          <Image
+          {/* <Image
             src={DefaultUserChart}
             alt="user-chart-image"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4"
-          />
+          /> */}
         </div>
       </div>
     </main>

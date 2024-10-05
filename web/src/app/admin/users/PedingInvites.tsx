@@ -153,7 +153,7 @@ export const PendingInvites = ({ q }: { q: string }) => {
                             <div className="border rounded-full w-10 h-10 flex items-center justify-center">
                               <UserIcon />
                             </div>
-                            <span className="text-sm text-subtle truncate max-w-44">
+                            <span className="text-sm text-subtle truncate">
                               {user.email}
                             </span>
                           </div>

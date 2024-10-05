@@ -115,7 +115,7 @@ export function LogInForms({}: {}) {
             </div>
 
             <div className="flex items-center gap-3 md:gap-6 w-full flex-col md:flex-row pt-8">
-              <Button className="flex-1 w-full" variant="outline">
+              <Button disabled className="flex-1 w-full" variant="outline">
                 <Image
                   src={GmailIcon}
                   alt="gmail-icon"
@@ -124,7 +124,12 @@ export function LogInForms({}: {}) {
                 />{" "}
                 Continue with Gmail
               </Button>
-              <Button className="flex-1 w-full" variant="outline" type="button">
+              <Button
+                disabled
+                className="flex-1 w-full"
+                variant="outline"
+                type="button"
+              >
                 <Image
                   src={MicrosoftIcon}
                   alt="microsoft-icon"
