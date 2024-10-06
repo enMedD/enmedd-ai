@@ -3,16 +3,65 @@
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { Teamspace } from "@/lib/types";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import Logo from "../../../../../public/logo.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SearchInput } from "@/components/SearchInput";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { DeleteModal } from "./DeleteModal";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 interface TeamspaceAssistantProps {
   teamspace: Teamspace & { gradient: string };
 }
+
+interface AssistantContentProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  filteredAssistants: Assistant[];
+}
+
+const AssistantContent = ({
+  searchTerm,
+  setSearchTerm,
+  filteredAssistants,
+}: AssistantContentProps) => {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg leading-none tracking-tight lg:text-2xl font-semibold">
+          Current Assistants
+        </h2>
+        <div className="w-1/2">
+          <SearchInput
+            placeholder="Search assistants..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {filteredAssistants.map((assistant) => (
+          <div key={assistant.id} className="border rounded-md flex">
+            <div className="rounded-l-md flex items-center justify-center p-4 border-r">
+              <Image src={Logo} alt={assistant.name} width={150} height={150} />
+            </div>
+            <div className="w-full p-4">
+              <div className="flex items-center justify-between w-full">
+                <h3>{assistant.name}</h3>
+
+                <DeleteModal type="Assistant" />
+              </div>
+              <p className="text-sm pt-2 line-clamp">{assistant.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const TeamspaceAssistant = ({ teamspace }: TeamspaceAssistantProps) => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -78,38 +127,18 @@ export const TeamspaceAssistant = ({ teamspace }: TeamspaceAssistantProps) => {
         onClose={() => setIsAssistantModalOpen(false)}
       >
         {teamspace.assistants.length > 0 ? (
-          <>
-            <div className="w-1/2 ml-auto mb-4">
-              <SearchInput
-                placeholder="Search assistants..."
-                value={searchTerm}
-                onChange={setSearchTerm}
-              />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {filteredAssistants.map((assistant) => (
-                <div key={assistant.id} className="border rounded-md flex">
-                  <div className="rounded-l-md flex items-center justify-center p-4 border-r">
-                    <Image
-                      src={Logo}
-                      alt={assistant.name}
-                      width={150}
-                      height={150}
-                    />
-                  </div>
-                  <div className="w-full p-4">
-                    <div className="flex items-center justify-between w-full">
-                      <h3>{assistant.name}</h3>
-                      <Checkbox />
-                    </div>
-                    <p className="text-sm pt-2 line-clamp">
-                      {assistant.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+          <div className="space-y-12">
+            <AssistantContent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredAssistants={filteredAssistants}
+            />
+            <AssistantContent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredAssistants={filteredAssistants}
+            />
+          </div>
         ) : (
           "There are no assistants."
         )}
