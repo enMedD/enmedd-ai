@@ -17,6 +17,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Users } from "lucide-react";
 import { Divider } from "@/components/Divider";
+import { Combobox } from "@/components/Combobox";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -41,6 +42,11 @@ export const DocumentSetCreationForm = ({
   const filteredCcPairs = ccPairs.filter((ccPair) =>
     ccPair.name!.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const connectorItems = filteredCcPairs.map((ccPair) => ({
+    value: ccPair.cc_pair_id.toString(),
+    label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
+  }));
 
   return (
     <div>
@@ -111,7 +117,7 @@ export const DocumentSetCreationForm = ({
           }
         }}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <Form>
             <TextFormField
               name="name"
@@ -131,53 +137,16 @@ export const DocumentSetCreationForm = ({
 
             <div>
               <h3 className="mb-1 text-sm">Pick your connectors:</h3>
-              <p className="mb-3 text-xs text-subtle">
-                All documents indexed by the selected connectors will be a part
-                of this document set.
-              </p>
-              <Input
-                type="text"
-                placeholder="Search connectors..."
-                className="mb-3"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-
-              <FieldArray
-                name="cc_pair_ids"
-                render={(arrayHelpers: ArrayHelpers) => (
-                  <div className="mb-3 flex gap-2 flex-wrap">
-                    {filteredCcPairs.map((ccPair) => {
-                      const ind = values.cc_pair_ids.indexOf(ccPair.cc_pair_id);
-                      const isSelected = ind !== -1;
-
-                      return (
-                        <Badge
-                          key={`${ccPair.connector.id}-${ccPair.credential.id}`}
-                          variant={isSelected ? "default" : "outline"}
-                          className="cursor-pointer hover:bg-opacity-75"
-                          onClick={() => {
-                            if (isSelected) {
-                              arrayHelpers.remove(ind);
-                            } else {
-                              arrayHelpers.push(ccPair.cc_pair_id);
-                            }
-                          }}
-                        >
-                          <div className="my-auto truncate">
-                            <ConnectorTitle
-                              connector={ccPair.connector}
-                              ccPairId={ccPair.cc_pair_id}
-                              ccPairName={ccPair.name}
-                              isLink={false}
-                              showMetadata={false}
-                            />
-                          </div>
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                )}
+              <Combobox
+                items={connectorItems}
+                onSelect={(selectedValues) => {
+                  const selectedIds = selectedValues.map((val) =>
+                    parseInt(val, 10)
+                  );
+                  setFieldValue("cc_pair_ids", selectedIds);
+                }}
+                placeholder="Search connectors"
+                label="Select connectors"
               />
             </div>
 
