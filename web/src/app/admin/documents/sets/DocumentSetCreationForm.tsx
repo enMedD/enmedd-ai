@@ -178,35 +178,21 @@ export const DocumentSetCreationForm = ({
                       teamspace are specified, then the Document Set will be
                       visible to all users.
                     </p>
-                    <FieldArray
-                      name="groups"
-                      render={(arrayHelpers: ArrayHelpers) => (
-                        <div className="flex gap-2 flex-wrap">
-                          {teamspaces.map((teamspace) => {
-                            const ind = values.groups.indexOf(teamspace.id);
-                            let isSelected = ind !== -1;
-                            return (
-                              <Badge
-                                key={teamspace.id}
-                                variant={isSelected ? "default" : "outline"}
-                                className="cursor-pointer hover:bg-opacity-80"
-                                onClick={() => {
-                                  if (isSelected) {
-                                    arrayHelpers.remove(ind);
-                                  } else {
-                                    arrayHelpers.push(teamspace.id);
-                                  }
-                                }}
-                              >
-                                <Users className="my-auto mr-2" size={14} />
-                                {teamspace.name}
-                              </Badge>
-                            );
-                          })}
-                        </div>
-                      )}
+                    <Combobox
+                      items={teamspaces.map((teamspace) => ({
+                        value: teamspace.id.toString(),
+                        label: teamspace.name,
+                      }))}
+                      onSelect={(selectedTeamspaceIds) => {
+                        const selectedIds = selectedTeamspaceIds.map((val) =>
+                          parseInt(val, 10)
+                        );
+                        setFieldValue("groups", selectedIds);
+                      }}
+                      placeholder="Select teamspaces"
+                      label="Teamspaces"
                     />
-                  </>
+git                   </>
                 ) : (
                   <p className="text-sm text-subtle">
                     This Document Set is public, so this does not apply. If you
