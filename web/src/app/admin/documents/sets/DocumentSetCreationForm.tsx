@@ -40,7 +40,7 @@ export const DocumentSetCreationForm = ({
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredCcPairs = ccPairs.filter((ccPair) =>
-    ccPair.name!.toLowerCase().includes(searchTerm.toLowerCase())
+    ccPair.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const connectorItems = filteredCcPairs.map((ccPair) => ({

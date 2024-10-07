@@ -4,24 +4,89 @@ import { CustomModal } from "@/components/CustomModal";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Teamspace } from "@/lib/types";
-import { BookmarkIcon, Copy, Globe, Plus } from "lucide-react";
+import { DocumentSet, Teamspace } from "@/lib/types";
+import { BookmarkIcon, Globe, Plus } from "lucide-react";
 import { useState } from "react";
+import { DeleteModal } from "./DeleteModal";
+import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 
 interface TeamspaceDocumentSetProps {
   teamspace: Teamspace & { gradient: string };
 }
 
+interface DocumentSetProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  filteredDocumentSets: DocumentSet[] | undefined;
+  isGlobal?: boolean;
+}
+
+const DocumentSetContent = ({
+  searchTerm,
+  setSearchTerm,
+  filteredDocumentSets,
+  isGlobal,
+}: DocumentSetProps) => {
+  return (
+    <div className={isGlobal ? "cursor-pointer" : ""}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg leading-none tracking-tight lg:text-xl font-semibold">
+          {isGlobal ? "Available" : "Current"} Document Sets
+        </h2>
+        <div className="w-1/2 ml-auto mb-4">
+          <SearchInput
+            placeholder="Search document sets..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        {filteredDocumentSets?.map((document) => (
+          <div key={document.id} className="border rounded-md flex p-4 gap-4">
+            <Globe className="shrink-0" />
+            <div className="w-full">
+              <div className="flex items-center justify-between w-full">
+                <h3 className="line-clamp">{document.name}</h3>
+                {!isGlobal ? (
+                  <DeleteModal type="Document Set" />
+                ) : (
+                  <Button variant="ghost" size="smallIcon">
+                    <Plus size={16} />
+                  </Button>
+                )}
+              </div>
+              <p className="text-sm pt-2 line-clamp">{document.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const TeamspaceDocumentSet = ({
   teamspace,
 }: TeamspaceDocumentSetProps) => {
+  const {
+    data: documentSets,
+    isLoading: isDocumentSetsLoading,
+    error: documentSetsError,
+    refreshDocumentSets,
+  } = useDocumentSets();
+
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDocumentSetModalOpen, setIsDocumentSetModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredDocumentSets = teamspace.document_sets.filter((docSet) =>
+  const filteredCurrentDocSet = teamspace.document_sets.filter((docSet) =>
     docSet.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredGlobalDocSet = documentSets?.filter(
+    (docSet) =>
+      docSet.is_public &&
+      docSet.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -75,34 +140,19 @@ export const TeamspaceDocumentSet = ({
         onClose={() => setIsDocumentSetModalOpen(false)}
       >
         {teamspace.document_sets.length > 0 ? (
-          <>
-            <div className="w-1/2 ml-auto mb-4">
-              <SearchInput
-                placeholder="Search document sets..."
-                value={searchTerm}
-                onChange={setSearchTerm}
-              />
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {filteredDocumentSets.map((document) => (
-                <div
-                  key={document.id}
-                  className="border rounded-md flex p-4 gap-4"
-                >
-                  <Globe className="shrink-0" />
-                  <div className="w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <h3 className="line-clamp">{document.name}</h3>
-                      <Checkbox />
-                    </div>
-                    <p className="text-sm pt-2 line-clamp">
-                      {document.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+          <div className="space-y-12">
+            <DocumentSetContent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredDocumentSets={filteredCurrentDocSet}
+            />
+            <DocumentSetContent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredDocumentSets={filteredGlobalDocSet}
+              isGlobal
+            />
+          </div>
         ) : (
           "There are no document sets."
         )}

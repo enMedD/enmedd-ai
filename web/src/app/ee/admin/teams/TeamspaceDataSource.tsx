@@ -4,24 +4,92 @@ import { CustomModal } from "@/components/CustomModal";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Teamspace } from "@/lib/types";
+import {
+  CCPairDescriptor,
+  ConnectorIndexingStatus,
+  Teamspace,
+} from "@/lib/types";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { BookmarkIcon, Copy, Globe, Plus } from "lucide-react";
 import { useState } from "react";
+import { DeleteModal } from "./DeleteModal";
+import { useConnectorCredentialIndexingStatus } from "@/lib/hooks";
 
 interface TeamspaceDataSourceProps {
   teamspace: Teamspace & { gradient: string };
 }
 
+interface DataSourceProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  filteredDataSources:
+    | ConnectorIndexingStatus<any, any>[]
+    | CCPairDescriptor<any, any>[]
+    | undefined;
+  isGlobal?: boolean;
+}
+
+const DataSourceContent = ({
+  searchTerm,
+  setSearchTerm,
+  filteredDataSources,
+  isGlobal,
+}: DataSourceProps) => {
+  return (
+    <div className={isGlobal ? "cursor-pointer" : ""}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg leading-none tracking-tight lg:text-xl font-semibold">
+          {isGlobal ? "Available" : "Current"} Data Source
+        </h2>
+        <div className="w-1/2 ml-auto mb-4">
+          <SearchInput
+            placeholder="Search document sets..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        {filteredDataSources?.map((document, i) => (
+          <div
+            key={i}
+            className="border rounded-md p-4 gap-4 flex items-center"
+          >
+            <Globe className="shrink-0 my-auto" />
+            <h3 className="truncate">{document.name}</h3>
+            {!isGlobal ? (
+              <DeleteModal type="Data Source" />
+            ) : (
+              <Button variant="ghost" size="smallIcon" className="ml-auto">
+                <Plus size={16} className="shrink-0" />
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const TeamspaceDataSource = ({
   teamspace,
 }: TeamspaceDataSourceProps) => {
+  const {
+    data: ccPairs,
+    isLoading: isCCPairsLoading,
+    error: ccPairsError,
+  } = useConnectorCredentialIndexingStatus();
+
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredCCPairs = teamspace.cc_pairs.filter((cc_pair) =>
+  const filteredCurrentCCPairs = teamspace.cc_pairs.filter((cc_pair) =>
     cc_pair.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredGlobalCCPairs = ccPairs?.filter((ccPair) =>
+    ccPair.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -78,28 +146,19 @@ export const TeamspaceDataSource = ({
         onClose={() => setIsDataSourceModalOpen(false)}
       >
         {teamspace.cc_pairs.length > 0 ? (
-          <>
-            <div className="w-1/2 ml-auto mb-4">
-              <SearchInput
-                placeholder="Search data source..."
-                value={searchTerm}
-                onChange={setSearchTerm}
-              />
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {filteredCCPairs.map((cc_pair) => (
-                <div
-                  key={cc_pair.id}
-                  className="border rounded-md flex p-4 gap-4"
-                >
-                  <Globe className="shrink-0" />
-                  <div className="w-full truncate">
-                    <h3 className="truncate">{cc_pair.name}</h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+          <div className="space-y-12">
+            <DataSourceContent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredDataSources={filteredCurrentCCPairs}
+            />
+            <DataSourceContent
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filteredDataSources={filteredGlobalCCPairs}
+              isGlobal
+            />
+          </div>
         ) : (
           "There are no data source"
         )}

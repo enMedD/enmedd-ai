@@ -197,18 +197,16 @@ export const TeamspaceAssistant = ({
 }; */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { Teamspace } from "@/lib/types";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import Logo from "../../../../../public/logo.png";
 import { SearchInput } from "@/components/SearchInput";
 import { DeleteModal } from "./DeleteModal";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { updateTeamspace } from "./[teamId]/lib";
-import { TeamspaceUpdate } from "./types";
 
 interface TeamspaceAssistantProps {
   teamspace: Teamspace & { gradient: string };
@@ -233,8 +231,8 @@ const AssistantContent = ({
   return (
     <div className={isGlobal ? "cursor-pointer" : ""}>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg leading-none tracking-tight lg:text-2xl font-semibold">
-          {isGlobal ? "Global" : "Current"} Assistants
+        <h2 className="text-lg leading-none tracking-tight lg:text-xl font-semibold">
+          {isGlobal ? "Available" : "Current"} Assistants
         </h2>
         <div className="w-1/2">
           <SearchInput
@@ -257,8 +255,9 @@ const AssistantContent = ({
             <div className="w-full p-4">
               <div className="flex items-center justify-between w-full">
                 <h3>{assistant.name}</h3>
-                {!isGlobal && <DeleteModal type="Assistant" />}
-                {isGlobal && (
+                {!isGlobal ? (
+                  <DeleteModal type="Assistant" />
+                ) : (
                   <Button variant="ghost" size="smallIcon">
                     <Plus size={16} />
                   </Button>
@@ -308,29 +307,8 @@ export const TeamspaceAssistant = ({
     );
   };
 
-  /*   const handleSaveChanges = () => {
+  const handleSaveChanges = () => {
     console.log("Saving changes:", tempCurrentAssistants);
-    // You can call an API or trigger a prop function here to save the state
-  }; */
-  const handleSaveChanges = async () => {
-    // Convert assistant IDs to strings
-    const userIds = tempCurrentAssistants.map((assistant) =>
-      assistant.id.toString()
-    );
-
-    const teamspaceUpdate: TeamspaceUpdate = {
-      user_ids: userIds,
-      cc_pair_ids: [], // Include any relevant data if needed
-    };
-
-    try {
-      await updateTeamspace(teamspace.id, teamspaceUpdate); // Assuming teamspace has an `id`
-      console.log("Successfully updated teamspace assistants.");
-      // Optionally refresh your data or handle success state
-    } catch (error) {
-      console.error("Error updating teamspace assistants:", error);
-      // Handle error state
-    }
   };
 
   return (

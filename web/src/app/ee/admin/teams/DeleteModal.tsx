@@ -17,6 +17,7 @@ export function DeleteModal({ type }: { type: string }) {
             <Button
               variant="ghost"
               size="smallIcon"
+              className="ml-auto"
               onClick={() => setDeleteModalIsOpen(true)}
             >
               <X size={16} />
