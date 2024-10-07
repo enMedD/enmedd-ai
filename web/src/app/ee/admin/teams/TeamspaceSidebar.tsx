@@ -4,12 +4,14 @@ import { ChevronLeft, ChevronRight, PanelRightClose } from "lucide-react";
 import { TeamspaceSidebarContent } from "./TeamspaceSidebarContent";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 interface TeamspaceSidebarProps {
   selectedTeamspace?: Teamspace;
   generateGradient: (teamspaceName: string) => string;
   onClose: () => void;
   isExpanded: boolean;
+  assistants: Assistant[];
 }
 
 export const TeamspaceSidebar = ({
@@ -17,6 +19,7 @@ export const TeamspaceSidebar = ({
   generateGradient,
   onClose,
   isExpanded,
+  assistants,
 }: TeamspaceSidebarProps) => {
   return (
     <>
@@ -83,6 +86,7 @@ export const TeamspaceSidebar = ({
                 gradient: generateGradient(selectedTeamspace.name),
               }}
               selectedTeamspaceId={selectedTeamspace.id}
+              assistants={assistants}
             />
           )}
         </div>

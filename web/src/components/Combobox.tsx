@@ -80,7 +80,7 @@ export function Combobox({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="min-w-[300px] sm:min-w-[495px] md:min-w-[550px] lg:min-w-[495px] xl:min-w-[630px]"
+          className="min-w-[300px] sm:min-w-[495px] md:min-w-[550px] lg:min-w-[495px] xl:min-w-[625px]"
           align="start"
         >
           <Command>

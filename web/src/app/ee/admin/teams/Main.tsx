@@ -62,6 +62,7 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
       </div>
 
       <TeamspaceSidebar
+        assistants={assistants}
         selectedTeamspace={selectedTeamspace}
         generateGradient={generateGradient}
         onClose={handleCloseSidebar}

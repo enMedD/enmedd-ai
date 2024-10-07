@@ -6,15 +6,18 @@ import { TeamspaceDataSource } from "./TeamspaceDataSource";
 import { Shield } from "lucide-react";
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
   selectedTeamspaceId?: number;
+  assistants: Assistant[];
 }
 
 export const TeamspaceSidebarContent = ({
   teamspace,
   selectedTeamspaceId,
+  assistants,
 }: TeamspaceSidebarContentProps) => {
   const { data, isLoading, error } = useSWR(
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
@@ -64,7 +67,7 @@ export const TeamspaceSidebarContent = ({
             teamspace={teamspace}
             selectedTeamspaceId={selectedTeamspaceId}
           />
-          <TeamspaceAssistant teamspace={teamspace} />
+          <TeamspaceAssistant teamspace={teamspace} assistants={assistants} />
           <TeamspaceDocumentSet teamspace={teamspace} />
           <TeamspaceDataSource teamspace={teamspace} />
         </div>

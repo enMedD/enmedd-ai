@@ -167,12 +167,10 @@ export const DocumentSetCreationForm = ({
                 />
 
                 <Divider />
-                <h2 className="mb-1 font-medium text-sm">
-                  Teamspace with Access
-                </h2>
+                <h3 className="mb-1 text-sm">Teamspace with Access</h3>
                 {!values.is_public ? (
                   <>
-                    <p className="mb-3 text-subtle text-xs ">
+                    <p className="mb-2 text-subtle text-xs ">
                       If any teamspace are specified, then this Document Set
                       will only be visible to the specified teamspace. If no
                       teamspace are specified, then the Document Set will be
@@ -192,7 +190,7 @@ export const DocumentSetCreationForm = ({
                       placeholder="Select teamspaces"
                       label="Teamspaces"
                     />
-git                   </>
+                  </>
                 ) : (
                   <p className="text-sm text-subtle">
                     This Document Set is public, so this does not apply. If you
