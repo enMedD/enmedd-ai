@@ -69,6 +69,8 @@ export default async function Page({ params }: { params: { chatId: string } }) {
     return redirect("/auth/waiting-on-verification");
   }
 
+  console.log(user);
+
   return (
     <ChatProvider
       value={{

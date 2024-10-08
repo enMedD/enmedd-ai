@@ -10,12 +10,6 @@ const config = {
   ],
   prefix: "",
   theme: {
-    /*   container: {
-      center: true,
-      screens: {
-        "2xl": "1400px",
-      },
-    }, */
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)"],

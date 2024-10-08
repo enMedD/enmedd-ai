@@ -19,6 +19,8 @@ interface DocumentSetProps {
   setSearchTerm: (term: string) => void;
   filteredDocumentSets: DocumentSet[] | undefined;
   isGlobal?: boolean;
+  onSelect: (documentSet: DocumentSet) => void;
+  selectedDocumentSets: DocumentSet[];
 }
 
 const DocumentSetContent = ({
@@ -26,6 +28,8 @@ const DocumentSetContent = ({
   setSearchTerm,
   filteredDocumentSets,
   isGlobal,
+  onSelect,
+  selectedDocumentSets,
 }: DocumentSetProps) => {
   return (
     <div className={isGlobal ? "cursor-pointer" : ""}>
@@ -43,7 +47,17 @@ const DocumentSetContent = ({
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {filteredDocumentSets?.map((document) => (
-          <div key={document.id} className="border rounded-md flex p-4 gap-4">
+          <div
+            key={document.id}
+            className={`border rounded-md flex items-start p-4 gap-4 ${
+              selectedDocumentSets.some(
+                (selected) => selected.id === document.id
+              )
+                ? "bg-primary-300 border-input-colored"
+                : ""
+            }`}
+            onClick={() => onSelect(document)}
+          >
             <Globe className="shrink-0" />
             <div className="w-full">
               <div className="flex items-center justify-between w-full">
@@ -78,6 +92,9 @@ export const TeamspaceDocumentSet = ({
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDocumentSetModalOpen, setIsDocumentSetModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDocumentSets, setSelectedDocumentSets] = useState<
+    DocumentSet[]
+  >([]);
 
   const filteredCurrentDocSet = teamspace.document_sets.filter((docSet) =>
     docSet.name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -88,6 +105,23 @@ export const TeamspaceDocumentSet = ({
       docSet.is_public &&
       docSet.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleSelectDocumentSet = (documentSet: DocumentSet) => {
+    setSelectedDocumentSets((prev) => {
+      const isSelected = prev.some(
+        (selected) => selected.id === documentSet.id
+      );
+      if (isSelected) {
+        return prev.filter((selected) => selected.id !== documentSet.id);
+      } else {
+        return [...prev, documentSet];
+      }
+    });
+  };
+
+  const handleSaveChanges = () => {
+    console.log(selectedDocumentSets);
+  };
 
   return (
     <div className="relative">
@@ -145,17 +179,23 @@ export const TeamspaceDocumentSet = ({
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               filteredDocumentSets={filteredCurrentDocSet}
+              onSelect={handleSelectDocumentSet}
+              selectedDocumentSets={selectedDocumentSets}
             />
             <DocumentSetContent
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               filteredDocumentSets={filteredGlobalDocSet}
               isGlobal
+              onSelect={handleSelectDocumentSet}
+              selectedDocumentSets={selectedDocumentSets}
             />
           </div>
         ) : (
           "There are no document sets."
         )}
+
+        <Button onClick={handleSaveChanges}>Save changes</Button>
       </CustomModal>
     </div>
   );
