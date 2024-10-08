@@ -1,4 +1,4 @@
-import { Teamspace } from "@/lib/types";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { TeamspaceMember } from "./TeamspaceMember";
 import { TeamspaceAssistant } from "./TeamspaceAssistant";
 import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
@@ -12,12 +12,18 @@ interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
   selectedTeamspaceId?: number;
   assistants: Assistant[];
+  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
+  documentSets: DocumentSet[] | undefined;
+  refreshTeamspaces: () => void;
 }
 
 export const TeamspaceSidebarContent = ({
   teamspace,
   selectedTeamspaceId,
   assistants,
+  ccPairs,
+  documentSets,
+  refreshTeamspaces,
 }: TeamspaceSidebarContentProps) => {
   const { data, isLoading, error } = useSWR(
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
@@ -67,9 +73,16 @@ export const TeamspaceSidebarContent = ({
             teamspace={teamspace}
             selectedTeamspaceId={selectedTeamspaceId}
           />
-          <TeamspaceAssistant teamspace={teamspace} assistants={assistants} />
-          <TeamspaceDocumentSet teamspace={teamspace} />
-          <TeamspaceDataSource teamspace={teamspace} />
+          <TeamspaceAssistant
+            teamspace={teamspace}
+            assistants={assistants}
+            refreshTeamspaces={refreshTeamspaces}
+          />
+          <TeamspaceDocumentSet
+            teamspace={teamspace}
+            documentSets={documentSets}
+          />
+          <TeamspaceDataSource teamspace={teamspace} ccPairs={ccPairs} />
         </div>
       </div>
     </>

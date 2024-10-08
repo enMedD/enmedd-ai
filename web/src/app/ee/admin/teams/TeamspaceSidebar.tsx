@@ -1,5 +1,5 @@
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { Teamspace } from "@/lib/types";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { ChevronLeft, ChevronRight, PanelRightClose } from "lucide-react";
 import { TeamspaceSidebarContent } from "./TeamspaceSidebarContent";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,6 +12,9 @@ interface TeamspaceSidebarProps {
   onClose: () => void;
   isExpanded: boolean;
   assistants: Assistant[];
+  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
+  documentSets: DocumentSet[] | undefined;
+  refreshTeamspaces: () => void;
 }
 
 export const TeamspaceSidebar = ({
@@ -20,6 +23,9 @@ export const TeamspaceSidebar = ({
   onClose,
   isExpanded,
   assistants,
+  ccPairs,
+  documentSets,
+  refreshTeamspaces,
 }: TeamspaceSidebarProps) => {
   return (
     <>
@@ -87,6 +93,9 @@ export const TeamspaceSidebar = ({
               }}
               selectedTeamspaceId={selectedTeamspace.id}
               assistants={assistants}
+              ccPairs={ccPairs}
+              documentSets={documentSets}
+              refreshTeamspaces={refreshTeamspaces}
             />
           )}
         </div>

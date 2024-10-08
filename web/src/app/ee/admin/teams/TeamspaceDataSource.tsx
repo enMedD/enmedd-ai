@@ -17,6 +17,7 @@ import { useConnectorCredentialIndexingStatus } from "@/lib/hooks";
 
 interface TeamspaceDataSourceProps {
   teamspace: Teamspace & { gradient: string };
+  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
 }
 
 interface DataSourceProps {
@@ -73,13 +74,8 @@ const DataSourceContent = ({
 
 export const TeamspaceDataSource = ({
   teamspace,
+  ccPairs,
 }: TeamspaceDataSourceProps) => {
-  const {
-    data: ccPairs,
-    isLoading: isCCPairsLoading,
-    error: ccPairsError,
-  } = useConnectorCredentialIndexingStatus();
-
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");

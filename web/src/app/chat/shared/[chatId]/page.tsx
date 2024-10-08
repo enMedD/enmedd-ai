@@ -22,6 +22,16 @@ async function getSharedChat(chatId: string) {
   return null;
 }
 
+async function fetchSharedChatSession(sessionId: number) {
+  const response = await fetch(
+    `/chat/get-chat-session/${sessionId}?is_shared=true`
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch the shared chat session.");
+  }
+  return response.json();
+}
+
 export default async function Page({ params }: { params: { chatId: string } }) {
   const data = await fetchChatData(params);
 
@@ -38,7 +48,6 @@ export default async function Page({ params }: { params: { chatId: string } }) {
     llmProviders,
     folders,
     openedFolders,
-    shouldShowWelcomeModal,
   } = data;
 
   const tasks = [

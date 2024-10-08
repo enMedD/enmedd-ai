@@ -25,7 +25,7 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 interface TeamspaceCreationFormProps {
   onClose: () => void;
   users: User[];
-  ccPairs: ConnectorIndexingStatus<any, any>[];
+  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
   existingTeamspace?: Teamspace;
   assistants: Assistant[];
   documentSets: DocumentSet[] | undefined;

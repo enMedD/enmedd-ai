@@ -10,6 +10,7 @@ import {
   MessageCircleReply,
 } from "lucide-react";
 import Link from "next/link";
+import { CustomModal } from "./CustomModal";
 
 export function HelperFab() {
   return (
@@ -35,13 +36,61 @@ export function HelperFab() {
         >
           <BookText size={16} /> User Guide & FAQ
         </Link>
-        <Link
-          href=""
-          className="flex items-center gap-2 py-3 px-4 cursor-not-allowed rounded-regular hover:bg-primary hover:text-inverted opacity-50 pointer-events-none"
-          target="_blank"
+        <CustomModal
+          trigger={
+            <div className="flex items-center gap-2 py-3 px-4 rounded-regular hover:bg-primary hover:text-inverted">
+              <Command size={16} /> Shortcut Keys
+            </div>
+          }
+          title="Shortcut Keys"
         >
-          <Command size={16} /> Shortcut Keys
-        </Link>
+          <div className="grid grid-cols-2 gap-y-6 gap-x-20 pb-4">
+            <div className="flex justify-between items-center">
+              <span>Open chat page</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  D
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span>Open search page</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  S
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span>Open search page</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  S
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span>Open search page</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  S
+                </span>
+              </div>
+            </div>
+          </div>
+        </CustomModal>
       </PopoverContent>
     </Popover>
   );
