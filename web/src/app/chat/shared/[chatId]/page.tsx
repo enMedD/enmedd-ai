@@ -7,10 +7,10 @@ import {
 import { fetchSS } from "@/lib/utilsSS";
 import { redirect } from "next/navigation";
 import { BackendChatSession } from "../../interfaces";
-import { Header } from "@/components/header/Header";
 import { SharedChatDisplay } from "./SharedChatDisplay";
 import { fetchChatData } from "@/lib/chat/fetchChatData";
 import { ChatProvider } from "@/context/ChatContext";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 async function getSharedChat(chatId: string) {
   const response = await fetchSS(
@@ -50,7 +50,12 @@ export default async function Page({ params }: { params: { chatId: string } }) {
   // catch cases where the backend is completely unreachable here
   // without try / catch, will just raise an exception and the page
   // will not render
-  let results: (User | AuthTypeMetadata | null)[] = [null, null, null];
+  let results: (
+    | User
+    | AuthTypeMetadata
+    | [Assistant[], string | null]
+    | null
+  )[] = [null, null, null];
   try {
     results = await Promise.all(tasks);
   } catch (e) {
@@ -59,6 +64,7 @@ export default async function Page({ params }: { params: { chatId: string } }) {
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
   const user = results[1] as User | null;
   const chatSession = results[2] as BackendChatSession | null;
+  const availableAssistants = results[3] as Assistant[] | null;
 
   const authDisabled = authTypeMetadata?.authType === "disabled";
   if (!authDisabled && !user) {
@@ -68,8 +74,6 @@ export default async function Page({ params }: { params: { chatId: string } }) {
   if (user && !user.is_verified && authTypeMetadata?.requiresVerification) {
     return redirect("/auth/waiting-on-verification");
   }
-
-  console.log(user);
 
   return (
     <ChatProvider
@@ -86,7 +90,10 @@ export default async function Page({ params }: { params: { chatId: string } }) {
       }}
     >
       <div className="flex relative bg-background overflow-hidden h-full">
-        <SharedChatDisplay chatSession={chatSession} />
+        <SharedChatDisplay
+          chatSession={chatSession}
+          availableAssistants={availableAssistants}
+        />
       </div>
     </ChatProvider>
   );
