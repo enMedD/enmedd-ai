@@ -46,6 +46,7 @@ from enmedd.db.engine import get_session
 from enmedd.db.models import AccessToken
 from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
@@ -197,19 +198,28 @@ def list_all_users(
     q: str | None = None,
     accepted_page: int | None = None,
     invited_page: int | None = None,
+    teamspace_id: int | None = None,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> AllUsersResponse:
     if not q:
         q = ""
 
-    users = [
-        user
-        for user in list_users(db_session, q=q)
-        if not is_api_key_email_address(user.email)
-    ]
+    if teamspace_id is not None:
+        users = (
+            db_session.query(User)
+            .join(User__Teamspace)
+            .filter(User__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+    else:
+        users = list_users(db_session, q=q)
+
+    users = [user for user in users if not is_api_key_email_address(user.email)]
+
     accepted_emails = {user.email for user in users}
     invited_emails = get_invited_users()
+
     if q:
         invited_emails = [
             email for email in invited_emails if re.search(r"{}".format(q), email, re.I)
