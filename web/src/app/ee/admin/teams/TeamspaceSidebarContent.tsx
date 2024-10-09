@@ -83,7 +83,11 @@ export const TeamspaceSidebarContent = ({
             documentSets={documentSets}
             refreshTeamspaces={refreshTeamspaces}
           />
-          <TeamspaceDataSource teamspace={teamspace} ccPairs={ccPairs} />
+          <TeamspaceDataSource
+            teamspace={teamspace}
+            ccPairs={ccPairs}
+            refreshTeamspaces={refreshTeamspaces}
+          />
         </div>
       </div>
     </>
