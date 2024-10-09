@@ -1,3 +1,5 @@
+"use client";
+
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -13,6 +15,8 @@ import { Cpu, EllipsisVertical, File, Shield, Users } from "lucide-react";
 import useSWR from "swr";
 import { deleteTeamspace } from "./lib";
 import { useToast } from "@/hooks/use-toast";
+import { CustomModal } from "@/components/CustomModal";
+import { useState } from "react";
 
 interface TeamspaceWithGradient extends Teamspace {
   gradient?: string;
@@ -24,6 +28,42 @@ interface TeamspacesCardProps {
   onClick: (teamspaceId: number) => void;
 }
 
+const DeleteArchiveModal = ({
+  trigger,
+  onClose,
+  open,
+  type,
+  onConfirm,
+}: {
+  trigger: JSX.Element;
+  onClose: () => void;
+  open: boolean;
+  type: string;
+  onConfirm: (event: any) => Promise<void>;
+}) => {
+  return (
+    <CustomModal
+      trigger={trigger}
+      title={`Are you sure you want to ${type} this Team Space?`}
+      onClose={onClose}
+      open={open}
+    >
+      <p className="pb-4">
+        You are about to {type} this Team Space. Members will no longer have
+        access to it, and it will be removed from their sidebar
+      </p>
+      <div className="flex justify-end gap-2 pt-6 border-t w-full">
+        <Button onClick={onClose} variant="secondary">
+          Cancel
+        </Button>
+        <Button onClick={onConfirm} variant="destructive">
+          Confirm
+        </Button>
+      </div>
+    </CustomModal>
+  );
+};
+
 export const TeamspacesCard = ({
   teamspace,
   refresh,
@@ -34,6 +74,8 @@ export const TeamspacesCard = ({
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
     errorHandlingFetcher
   );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
   const tokenRate = data && data.length > 0 ? data[0] : null;
 
@@ -48,12 +90,36 @@ export const TeamspacesCard = ({
         </PopoverTrigger>
         <PopoverContent side="top" align="start">
           <div className="min-w-32">
-            <button className="flex py-2 px-4 text-sm cursor-pointer rounded-regular hover:bg-primary hover:text-inverted w-full focus:outline-none">
-              Archive
-            </button>
-            <button
-              className="flex py-2 px-4 text-sm cursor-pointer rounded-regular hover:bg-primary hover:text-inverted w-full focus:outline-none"
-              onClick={async (event) => {
+            <DeleteArchiveModal
+              trigger={
+                <button
+                  className="flex py-2 px-4 text-sm cursor-pointer rounded-regular hover:bg-primary hover:text-inverted w-full focus:outline-none"
+                  onClick={() => setIsArchiveModalOpen(true)}
+                >
+                  Archive
+                </button>
+              }
+              onClose={() => setIsArchiveModalOpen(false)}
+              open={isArchiveModalOpen}
+              type="Archive"
+              onConfirm={async () => {
+                setIsArchiveModalOpen(false);
+              }}
+            />
+
+            <DeleteArchiveModal
+              trigger={
+                <button
+                  className="flex py-2 px-4 text-sm cursor-pointer rounded-regular hover:bg-primary hover:text-inverted w-full focus:outline-none"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                >
+                  Delete
+                </button>
+              }
+              onClose={() => setIsDeleteModalOpen(false)}
+              open={isDeleteModalOpen}
+              type="Delete"
+              onConfirm={async (event) => {
                 event.stopPropagation();
                 const response = await deleteTeamspace(teamspace.id);
                 if (response.ok) {
@@ -72,9 +138,7 @@ export const TeamspacesCard = ({
                 }
                 refresh();
               }}
-            >
-              Delete
-            </button>
+            />
           </div>
         </PopoverContent>
       </Popover>
