@@ -1,10 +1,18 @@
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { Teamspace } from "@/lib/types";
 import { Cpu, EllipsisVertical, File, Shield, Users } from "lucide-react";
 import useSWR from "swr";
+import { deleteTeamspace } from "./lib";
+import { useToast } from "@/hooks/use-toast";
 
 interface TeamspaceWithGradient extends Teamspace {
   gradient?: string;
@@ -21,6 +29,7 @@ export const TeamspacesCard = ({
   refresh,
   onClick,
 }: TeamspacesCardProps) => {
+  const { toast } = useToast();
   const { data, isLoading, error } = useSWR(
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
     errorHandlingFetcher
@@ -30,10 +39,45 @@ export const TeamspacesCard = ({
 
   return (
     <div className="relative">
-      <EllipsisVertical
-        stroke="#ffffff"
-        className="absolute top-3 right-3 cursor-pointer"
-      />
+      <Popover>
+        <PopoverTrigger
+          asChild
+          className="absolute top-3 right-3 cursor-pointer"
+        >
+          <EllipsisVertical stroke="#ffffff" />
+        </PopoverTrigger>
+        <PopoverContent side="top" align="start">
+          <div className="min-w-32">
+            <button className="flex py-2 px-4 text-sm cursor-pointer rounded-regular hover:bg-primary hover:text-inverted w-full focus:outline-none">
+              Archive
+            </button>
+            <button
+              className="flex py-2 px-4 text-sm cursor-pointer rounded-regular hover:bg-primary hover:text-inverted w-full focus:outline-none"
+              onClick={async (event) => {
+                event.stopPropagation();
+                const response = await deleteTeamspace(teamspace.id);
+                if (response.ok) {
+                  toast({
+                    title: "Teamspace Deleted!",
+                    description: `Successfully deleted the teamspace: "${teamspace.name}".`,
+                    variant: "success",
+                  });
+                } else {
+                  const errorMsg = (await response.json()).detail;
+                  toast({
+                    title: "Deletion Error",
+                    description: `Failed to delete the teamspace: ${errorMsg}. Please try again.`,
+                    variant: "destructive",
+                  });
+                }
+                refresh();
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </PopoverContent>
+      </Popover>
       <Card
         key={teamspace.id}
         className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[280px] md:max-w-[400px] justify-start items-start"
