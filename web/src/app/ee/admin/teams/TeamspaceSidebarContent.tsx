@@ -25,7 +25,7 @@ export const TeamspaceSidebarContent = ({
   documentSets,
   refreshTeamspaces,
 }: TeamspaceSidebarContentProps) => {
-  const { data, isLoading, error } = useSWR(
+  const { data, error } = useSWR(
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
     errorHandlingFetcher
   );

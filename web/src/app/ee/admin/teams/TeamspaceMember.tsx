@@ -37,16 +37,18 @@ const InviteModal = ({
   setOpenModal,
   setCloseModal,
   isInviteModalOpen,
+  disabled,
 }: {
   setOpenModal: () => void;
   setCloseModal: () => void;
   isInviteModalOpen: boolean;
+  disabled: boolean;
 }) => {
   return (
     <CustomModal
       trigger={
         <div className="flex justify-end">
-          <Button onClick={setOpenModal}>
+          <Button onClick={setOpenModal} disabled={disabled}>
             <Plus size={16} /> Invite
           </Button>
         </div>
@@ -158,6 +160,7 @@ export const TeamspaceMember = ({
             isInviteModalOpen={isInviteModalOpen}
             setOpenModal={() => setIsInviteModalOpen(true)}
             setCloseModal={() => setIsInviteModalOpen(false)}
+            disabled={!teamspace.is_up_to_date || teamspace.is_up_for_deletion}
           />
           <div className="w-1/2 ml-auto">
             <SearchInput

@@ -92,8 +92,6 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
           <TeamspaceContent
             assistants={assistants}
             onClick={handleShowTeamspace}
-            isLoading={isLoading}
-            error={error}
             data={teamspacesWithGradients}
             refreshTeamspaces={refreshTeamspaces}
             ccPairs={ccPairs}

@@ -184,7 +184,7 @@ export const TeamspaceDocumentSet = ({
         >
           <div className="flex items-center justify-between">
             <h3>
-              DocumentSet <span className="px-2 font-normal">|</span>{" "}
+              Document Set <span className="px-2 font-normal">|</span>{" "}
               {teamspace.document_sets.length}
             </h3>
             <Pencil size={16} />
@@ -240,7 +240,12 @@ export const TeamspaceDocumentSet = ({
       </div>
 
       <div className="pt-10 ml-auto">
-        <Button onClick={handleSaveChanges}>Save changes</Button>
+        <Button
+          onClick={handleSaveChanges}
+          disabled={!teamspace.is_up_to_date || teamspace.is_up_for_deletion}
+        >
+          Save changes
+        </Button>
       </div>
     </CustomModal>
   );

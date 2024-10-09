@@ -231,7 +231,12 @@ export const TeamspaceAssistant = ({
       </div>
 
       <div className="pt-10 ml-auto">
-        <Button onClick={handleSaveChanges}>Save changes</Button>
+        <Button
+          onClick={handleSaveChanges}
+          disabled={!teamspace.is_up_to_date || teamspace.is_up_for_deletion}
+        >
+          Save changes
+        </Button>
       </div>
     </CustomModal>
   );

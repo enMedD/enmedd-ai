@@ -2,8 +2,6 @@
 
 import { TeamspaceCreationForm } from "./TeamspaceCreationForm";
 import { useState } from "react";
-import { ThreeDotsLoader } from "@/components/Loading";
-import { useConnectorCredentialIndexingStatus, useUsers } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { CustomModal } from "@/components/CustomModal";
 import { Assistant } from "@/app/admin/assistants/interfaces";
@@ -18,14 +16,11 @@ import {
 } from "@/components/ui/select";
 import { TeamspacesCard } from "./TeamspacesCard";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
-import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { UsersResponse } from "@/lib/users/interfaces";
 
 export const TeamspaceContent = ({
   assistants,
   onClick,
-  isLoading,
-  error,
   data,
   refreshTeamspaces,
   ccPairs,
@@ -35,8 +30,6 @@ export const TeamspaceContent = ({
   assistants: Assistant[];
   onClick: (teamspaceId: number) => void;
   data: Teamspace[] | undefined;
-  isLoading: boolean;
-  error: string;
   refreshTeamspaces: () => void;
   ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
   users: UsersResponse;

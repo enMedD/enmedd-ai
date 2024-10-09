@@ -200,8 +200,6 @@ export const TeamspaceDataSource = ({
     }
   };
 
-  console.log(filteredCurrentDataSources);
-
   return (
     <CustomModal
       trigger={
@@ -211,7 +209,7 @@ export const TeamspaceDataSource = ({
         >
           <div className="flex items-center justify-between">
             <h3>
-              DataSource <span className="px-2 font-normal">|</span>
+              Data Source <span className="px-2 font-normal">|</span>
               {teamspace.cc_pairs.length}
             </h3>
             <Pencil size={16} />
@@ -265,7 +263,12 @@ export const TeamspaceDataSource = ({
       </div>
 
       <div className="pt-10 ml-auto">
-        <Button onClick={handleSaveChanges}>Save changes</Button>
+        <Button
+          onClick={handleSaveChanges}
+          disabled={!teamspace.is_up_to_date || teamspace.is_up_for_deletion}
+        >
+          Save changes
+        </Button>
       </div>
     </CustomModal>
   );
