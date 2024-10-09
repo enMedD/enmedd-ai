@@ -4,7 +4,7 @@ import { CustomModal } from "@/components/CustomModal";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { DocumentSet, Teamspace } from "@/lib/types";
-import { Globe, Plus } from "lucide-react";
+import { Globe, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DeleteModal } from "./DeleteModal";
 import { useToast } from "@/hooks/use-toast";
@@ -82,7 +82,6 @@ export const TeamspaceDocumentSet = ({
   refreshTeamspaces,
 }: TeamspaceDocumentSetProps) => {
   const { toast } = useToast();
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDocumentSetModalOpen, setIsDocumentSetModalOpen] = useState(false);
   const [selectedDocumentSets, setSelectedDocumentSets] = useState<
     DocumentSet[]
@@ -177,88 +176,72 @@ export const TeamspaceDocumentSet = ({
   };
 
   return (
-    <div className="relative">
-      <CustomModal
-        trigger={
-          <Button
-            className="absolute top-4 right-4"
-            onClick={() => setIsInviteModalOpen(true)}
-          >
-            <Plus size={16} /> Add
-          </Button>
-        }
-        title="Add new document set"
-        description="Your invite link has been created. Share this link to join your workspace."
-        open={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-      >
-        Add
-      </CustomModal>
-
-      <CustomModal
-        trigger={
-          <div
-            className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
-            onClick={() => setIsDocumentSetModalOpen(true)}
-          >
+    <CustomModal
+      trigger={
+        <div
+          className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
+          onClick={() => setIsDocumentSetModalOpen(true)}
+        >
+          <div className="flex items-center justify-between">
             <h3>
               DocumentSet <span className="px-2 font-normal">|</span>{" "}
               {teamspace.document_sets.length}
             </h3>
-            {teamspace.document_sets.length > 0 ? (
-              <div className="pt-8 flex flex-wrap -space-x-3">
-                {teamspace.document_sets
-                  .slice(0, 8)
-                  .map((teamspaceDocumentSet) => (
-                    <div
-                      key={teamspaceDocumentSet.id}
-                      className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
-                    >
-                      {teamspaceDocumentSet.name!.charAt(0)}
-                    </div>
-                  ))}
-                {teamspace.document_sets.length > 8 && (
-                  <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                    +{teamspace.document_sets.length - 8}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p>There are no document sets.</p>
-            )}
+            <Pencil size={16} />
           </div>
-        }
-        title="DocumentSets"
-        open={isDocumentSetModalOpen}
-        onClose={() => {
-          setIsDocumentSetModalOpen(false);
-          setSelectedDocumentSets([]);
-        }}
-      >
-        <div className="space-y-12">
           {teamspace.document_sets.length > 0 ? (
-            <DocumentSetContent
-              searchTerm={searchTermCurrent}
-              setSearchTerm={setSearchTermCurrent}
-              filteredDocumentSets={filteredCurrentDocumentSets}
-            />
+            <div className="pt-8 flex flex-wrap -space-x-3">
+              {teamspace.document_sets
+                .slice(0, 8)
+                .map((teamspaceDocumentSet) => (
+                  <div
+                    key={teamspaceDocumentSet.id}
+                    className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
+                  >
+                    {teamspaceDocumentSet.name!.charAt(0)}
+                  </div>
+                ))}
+              {teamspace.document_sets.length > 8 && (
+                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                  +{teamspace.document_sets.length - 8}
+                </div>
+              )}
+            </div>
           ) : (
-            <p>There are no current document sets.</p>
+            <p>There are no document sets.</p>
           )}
+        </div>
+      }
+      title="DocumentSets"
+      open={isDocumentSetModalOpen}
+      onClose={() => {
+        setIsDocumentSetModalOpen(false);
+        setSelectedDocumentSets([]);
+      }}
+    >
+      <div className="space-y-12">
+        {teamspace.document_sets.length > 0 ? (
           <DocumentSetContent
-            searchTerm={searchTermGlobal}
-            setSearchTerm={setSearchTermGlobal}
-            filteredDocumentSets={filteredGlobalDocumentSets}
-            isGlobal
-            onSelect={handleSelectDocumentSet}
-            selectedDocumentSets={selectedDocumentSets}
+            searchTerm={searchTermCurrent}
+            setSearchTerm={setSearchTermCurrent}
+            filteredDocumentSets={filteredCurrentDocumentSets}
           />
-        </div>
+        ) : (
+          <p>There are no current document sets.</p>
+        )}
+        <DocumentSetContent
+          searchTerm={searchTermGlobal}
+          setSearchTerm={setSearchTermGlobal}
+          filteredDocumentSets={filteredGlobalDocumentSets}
+          isGlobal
+          onSelect={handleSelectDocumentSet}
+          selectedDocumentSets={selectedDocumentSets}
+        />
+      </div>
 
-        <div className="pt-10 ml-auto">
-          <Button onClick={handleSaveChanges}>Save changes</Button>
-        </div>
-      </CustomModal>
-    </div>
+      <div className="pt-10 ml-auto">
+        <Button onClick={handleSaveChanges}>Save changes</Button>
+      </div>
+    </CustomModal>
   );
 };

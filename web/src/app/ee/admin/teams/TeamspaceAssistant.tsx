@@ -5,7 +5,7 @@ import Image from "next/image";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { Teamspace } from "@/lib/types";
-import { Plus } from "lucide-react";
+import { Pencil } from "lucide-react";
 import Logo from "../../../../../public/logo.png";
 import { SearchInput } from "@/components/SearchInput";
 import { DeleteModal } from "./DeleteModal";
@@ -85,7 +85,6 @@ export const TeamspaceAssistant = ({
   refreshTeamspaces,
 }: TeamspaceAssistantProps) => {
   const { toast } = useToast();
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
   const [selectedAssistants, setSelectedAssistants] = useState<Assistant[]>([]);
   const [searchTermCurrent, setSearchTermCurrent] = useState("");
@@ -170,86 +169,70 @@ export const TeamspaceAssistant = ({
   };
 
   return (
-    <div className="relative">
-      <CustomModal
-        trigger={
-          <Button
-            className="absolute top-4 right-4"
-            onClick={() => setIsInviteModalOpen(true)}
-          >
-            <Plus size={16} /> Add
-          </Button>
-        }
-        title="Add new assistant"
-        description="Your invite link has been created. Share this link to join your workspace."
-        open={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-      >
-        Add
-      </CustomModal>
-
-      <CustomModal
-        trigger={
-          <div
-            className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
-            onClick={() => setIsAssistantModalOpen(true)}
-          >
+    <CustomModal
+      trigger={
+        <div
+          className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
+          onClick={() => setIsAssistantModalOpen(true)}
+        >
+          <div className="flex items-center justify-between">
             <h3>
               Assistant <span className="px-2 font-normal">|</span>{" "}
               {teamspace.assistants.length}
             </h3>
-            {teamspace.assistants.length > 0 ? (
-              <div className="pt-8 flex flex-wrap -space-x-3">
-                {teamspace.assistants.slice(0, 8).map((teamspaceAssistant) => (
-                  <div
-                    key={teamspaceAssistant.id}
-                    className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
-                  >
-                    {teamspaceAssistant.name!.charAt(0)}
-                  </div>
-                ))}
-                {teamspace.assistants.length > 8 && (
-                  <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                    +{teamspace.assistants.length - 8}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p>There are no assistants.</p>
-            )}
+            <Pencil size={16} />
           </div>
-        }
-        title="Assistants"
-        open={isAssistantModalOpen}
-        onClose={() => {
-          setIsAssistantModalOpen(false);
-          setSelectedAssistants([]);
-        }}
-      >
-        <div className="space-y-12">
           {teamspace.assistants.length > 0 ? (
-            <AssistantContent
-              searchTerm={searchTermCurrent}
-              setSearchTerm={setSearchTermCurrent}
-              filteredAssistants={filteredCurrentAssistants}
-            />
+            <div className="pt-8 flex flex-wrap -space-x-3">
+              {teamspace.assistants.slice(0, 8).map((teamspaceAssistant) => (
+                <div
+                  key={teamspaceAssistant.id}
+                  className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
+                >
+                  {teamspaceAssistant.name!.charAt(0)}
+                </div>
+              ))}
+              {teamspace.assistants.length > 8 && (
+                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                  +{teamspace.assistants.length - 8}
+                </div>
+              )}
+            </div>
           ) : (
-            <p>There are no current assistants.</p>
+            <p>There are no assistants.</p>
           )}
+        </div>
+      }
+      title="Assistants"
+      open={isAssistantModalOpen}
+      onClose={() => {
+        setIsAssistantModalOpen(false);
+        setSelectedAssistants([]);
+      }}
+    >
+      <div className="space-y-12">
+        {teamspace.assistants.length > 0 ? (
           <AssistantContent
-            searchTerm={searchTermGlobal}
-            setSearchTerm={setSearchTermGlobal}
-            filteredAssistants={filteredGlobalAssistants}
-            isGlobal
-            onSelect={handleSelectAssistant}
-            selectedAssistants={selectedAssistants}
+            searchTerm={searchTermCurrent}
+            setSearchTerm={setSearchTermCurrent}
+            filteredAssistants={filteredCurrentAssistants}
           />
-        </div>
+        ) : (
+          <p>There are no current assistants.</p>
+        )}
+        <AssistantContent
+          searchTerm={searchTermGlobal}
+          setSearchTerm={setSearchTermGlobal}
+          filteredAssistants={filteredGlobalAssistants}
+          isGlobal
+          onSelect={handleSelectAssistant}
+          selectedAssistants={selectedAssistants}
+        />
+      </div>
 
-        <div className="pt-10 ml-auto">
-          <Button onClick={handleSaveChanges}>Save changes</Button>
-        </div>
-      </CustomModal>
-    </div>
+      <div className="pt-10 ml-auto">
+        <Button onClick={handleSaveChanges}>Save changes</Button>
+      </div>
+    </CustomModal>
   );
 };

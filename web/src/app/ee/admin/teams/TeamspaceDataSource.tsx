@@ -8,7 +8,7 @@ import {
   ConnectorIndexingStatus,
   Teamspace,
 } from "@/lib/types";
-import { Globe, Plus } from "lucide-react";
+import { Globe, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DeleteModal } from "./DeleteModal";
 import { useToast } from "@/hooks/use-toast";
@@ -108,7 +108,6 @@ export const TeamspaceDataSource = ({
   refreshTeamspaces,
 }: TeamspaceDataSourceProps) => {
   const { toast } = useToast();
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(false);
   const [selectedDataSources, setSelectedDataSources] = useState<
     ConnectorIndexingStatus<any, any>[]
@@ -204,86 +203,70 @@ export const TeamspaceDataSource = ({
   console.log(filteredCurrentDataSources);
 
   return (
-    <div className="relative">
-      <CustomModal
-        trigger={
-          <Button
-            className="absolute top-4 right-4"
-            onClick={() => setIsInviteModalOpen(true)}
-          >
-            <Plus size={16} /> Add
-          </Button>
-        }
-        title="Add new document set"
-        description="Your invite link has been created. Share this link to join your workspace."
-        open={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-      >
-        Add
-      </CustomModal>
-
-      <CustomModal
-        trigger={
-          <div
-            className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
-            onClick={() => setIsDataSourceModalOpen(true)}
-          >
+    <CustomModal
+      trigger={
+        <div
+          className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
+          onClick={() => setIsDataSourceModalOpen(true)}
+        >
+          <div className="flex items-center justify-between">
             <h3>
-              DataSource <span className="px-2 font-normal">|</span>{" "}
+              DataSource <span className="px-2 font-normal">|</span>
               {teamspace.cc_pairs.length}
             </h3>
-            {teamspace.cc_pairs.length > 0 ? (
-              <div className="pt-8 flex flex-wrap -space-x-3">
-                {teamspace.cc_pairs.slice(0, 8).map((teamspaceDataSource) => (
-                  <div
-                    key={teamspaceDataSource.id}
-                    className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
-                  >
-                    {teamspaceDataSource.name!.charAt(0)}
-                  </div>
-                ))}
-                {teamspace.cc_pairs.length > 8 && (
-                  <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                    +{teamspace.cc_pairs.length - 8}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p>There are no document sets.</p>
-            )}
+            <Pencil size={16} />
           </div>
-        }
-        title="DataSources"
-        open={isDataSourceModalOpen}
-        onClose={() => {
-          setIsDataSourceModalOpen(false);
-          setSelectedDataSources([]);
-        }}
-      >
-        <div className="space-y-12">
           {teamspace.cc_pairs.length > 0 ? (
-            <DataSourceContent
-              searchTerm={searchTermCurrent}
-              setSearchTerm={setSearchTermCurrent}
-              filteredCurrentDataSources={filteredCurrentDataSources}
-            />
+            <div className="pt-8 flex flex-wrap -space-x-3">
+              {teamspace.cc_pairs.slice(0, 8).map((teamspaceDataSource) => (
+                <div
+                  key={teamspaceDataSource.id}
+                  className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
+                >
+                  {teamspaceDataSource.name!.charAt(0)}
+                </div>
+              ))}
+              {teamspace.cc_pairs.length > 8 && (
+                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                  +{teamspace.cc_pairs.length - 8}
+                </div>
+              )}
+            </div>
           ) : (
-            <p>There are no current document sets.</p>
+            <p>There are no document sets.</p>
           )}
+        </div>
+      }
+      title="DataSources"
+      open={isDataSourceModalOpen}
+      onClose={() => {
+        setIsDataSourceModalOpen(false);
+        setSelectedDataSources([]);
+      }}
+    >
+      <div className="space-y-12">
+        {teamspace.cc_pairs.length > 0 ? (
           <DataSourceContent
-            searchTerm={searchTermGlobal}
-            setSearchTerm={setSearchTermGlobal}
-            filteredGlobalDataSources={filteredGlobalDataSources}
-            isGlobal
-            onSelect={handleSelectDataSource}
-            selectedDataSources={selectedDataSources}
+            searchTerm={searchTermCurrent}
+            setSearchTerm={setSearchTermCurrent}
+            filteredCurrentDataSources={filteredCurrentDataSources}
           />
-        </div>
+        ) : (
+          <p>There are no current document sets.</p>
+        )}
+        <DataSourceContent
+          searchTerm={searchTermGlobal}
+          setSearchTerm={setSearchTermGlobal}
+          filteredGlobalDataSources={filteredGlobalDataSources}
+          isGlobal
+          onSelect={handleSelectDataSource}
+          selectedDataSources={selectedDataSources}
+        />
+      </div>
 
-        <div className="pt-10 ml-auto">
-          <Button onClick={handleSaveChanges}>Save changes</Button>
-        </div>
-      </CustomModal>
-    </div>
+      <div className="pt-10 ml-auto">
+        <Button onClick={handleSaveChanges}>Save changes</Button>
+      </div>
+    </CustomModal>
   );
 };
