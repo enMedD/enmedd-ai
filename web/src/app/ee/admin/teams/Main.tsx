@@ -110,7 +110,7 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
         onClose={handleCloseSidebar}
         isExpanded={isExpanded}
         ccPairs={ccPairs}
-        documentSets={documentSets}
+        documentSets={documentSets || []}
         refreshTeamspaces={refreshTeamspaces}
       />
     </>

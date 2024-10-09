@@ -68,13 +68,7 @@ const AssistantContent = ({
             <div className="w-full p-4">
               <div className="flex items-center justify-between w-full">
                 <h3>{assistant.name}</h3>
-                {!isGlobal ? (
-                  <DeleteModal type="Assistant" />
-                ) : (
-                  <Button variant="ghost" size="smallIcon">
-                    <Plus size={16} />
-                  </Button>
-                )}
+                {!isGlobal && <DeleteModal type="Assistant" />}
               </div>
               <p className="text-sm pt-2 line-clamp">{assistant.description}</p>
             </div>
@@ -249,7 +243,7 @@ export const TeamspaceAssistant = ({
           />
         </div>
 
-        <div className="pt-20 pb-8 ml-auto">
+        <div className="pt-10 ml-auto">
           <Button onClick={handleSaveChanges}>Save changes</Button>
         </div>
       </CustomModal>

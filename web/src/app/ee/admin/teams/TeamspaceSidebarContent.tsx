@@ -13,7 +13,7 @@ interface TeamspaceSidebarContentProps {
   selectedTeamspaceId?: number;
   assistants: Assistant[];
   ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
-  documentSets: DocumentSet[] | undefined;
+  documentSets: DocumentSet[];
   refreshTeamspaces: () => void;
 }
 
@@ -81,6 +81,7 @@ export const TeamspaceSidebarContent = ({
           <TeamspaceDocumentSet
             teamspace={teamspace}
             documentSets={documentSets}
+            refreshTeamspaces={refreshTeamspaces}
           />
           <TeamspaceDataSource teamspace={teamspace} ccPairs={ccPairs} />
         </div>
