@@ -212,7 +212,9 @@ export const TeamspaceDataSource = ({
               Data Source <span className="px-2 font-normal">|</span>
               {teamspace.cc_pairs.length}
             </h3>
-            <Pencil size={16} />
+            <Button size="smallIcon">
+              <Pencil size={16} />
+            </Button>
           </div>
           {teamspace.cc_pairs.length > 0 ? (
             <div className="pt-8 flex flex-wrap -space-x-3">

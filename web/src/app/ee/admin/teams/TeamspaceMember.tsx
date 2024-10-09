@@ -126,7 +126,9 @@ export const TeamspaceMember = ({
               Members <span className="px-2 font-normal">|</span>{" "}
               {teamspace.users.length}
             </h3>
-            <Pencil size={16} />
+            <Button size="smallIcon">
+              <Pencil size={16} />
+            </Button>
           </div>
 
           {teamspace.users.length > 0 ? (

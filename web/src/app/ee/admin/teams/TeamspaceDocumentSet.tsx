@@ -187,7 +187,9 @@ export const TeamspaceDocumentSet = ({
               Document Set <span className="px-2 font-normal">|</span>{" "}
               {teamspace.document_sets.length}
             </h3>
-            <Pencil size={16} />
+            <Button size="smallIcon">
+              <Pencil size={16} />
+            </Button>
           </div>
           {teamspace.document_sets.length > 0 ? (
             <div className="pt-8 flex flex-wrap -space-x-3">

@@ -180,7 +180,9 @@ export const TeamspaceAssistant = ({
               Assistant <span className="px-2 font-normal">|</span>{" "}
               {teamspace.assistants.length}
             </h3>
-            <Pencil size={16} />
+            <Button size="smallIcon">
+              <Pencil size={16} />
+            </Button>
           </div>
           {teamspace.assistants.length > 0 ? (
             <div className="pt-8 flex flex-wrap -space-x-3">
