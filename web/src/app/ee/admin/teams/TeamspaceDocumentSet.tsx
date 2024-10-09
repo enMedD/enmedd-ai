@@ -84,12 +84,16 @@ export const TeamspaceDocumentSet = ({
   const { toast } = useToast();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDocumentSetModalOpen, setIsDocumentSetModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedDocumentSets, setSelectedDocumentSets] = useState<
     DocumentSet[]
   >([]);
+  const [searchTermCurrent, setSearchTermCurrent] = useState("");
+  const [searchTermGlobal, setSearchTermGlobal] = useState("");
 
-  const filterDocumentSets = (documentSets: DocumentSet[]) =>
+  const filterDocumentSets = (
+    documentSets: DocumentSet[],
+    searchTerm: string
+  ) =>
     documentSets.filter(
       (documentSet) =>
         documentSet.is_public &&
@@ -101,16 +105,18 @@ export const TeamspaceDocumentSet = ({
 
   const filteredCurrentDocumentSets = teamspace.document_sets.filter(
     (documentSet) =>
-      documentSet.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      documentSet.name?.toLowerCase().includes(searchTermCurrent.toLowerCase())
   );
 
   const [filteredGlobalDocumentSets, setFilteredGlobalDocumentSets] = useState(
-    () => filterDocumentSets(documentSets)
+    () => filterDocumentSets(documentSets, searchTermGlobal)
   );
 
   useEffect(() => {
-    setFilteredGlobalDocumentSets(filterDocumentSets(documentSets));
-  }, [documentSets, teamspace.document_sets, searchTerm]);
+    setFilteredGlobalDocumentSets(
+      filterDocumentSets(documentSets, searchTermGlobal)
+    );
+  }, [documentSets, teamspace.document_sets, searchTermGlobal]);
 
   const handleSelectDocumentSet = (documentSet: DocumentSet) => {
     setSelectedDocumentSets((prevSelected) =>
@@ -157,7 +163,9 @@ export const TeamspaceDocumentSet = ({
           variant: "success",
         });
         refreshTeamspaces();
-        setFilteredGlobalDocumentSets(filterDocumentSets(documentSets));
+        setFilteredGlobalDocumentSets(
+          filterDocumentSets(documentSets, searchTermGlobal)
+        );
       }
     } catch (error) {
       toast({
@@ -230,16 +238,16 @@ export const TeamspaceDocumentSet = ({
         <div className="space-y-12">
           {teamspace.document_sets.length > 0 ? (
             <DocumentSetContent
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
+              searchTerm={searchTermCurrent}
+              setSearchTerm={setSearchTermCurrent}
               filteredDocumentSets={filteredCurrentDocumentSets}
             />
           ) : (
             <p>There are no current document sets.</p>
           )}
           <DocumentSetContent
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            searchTerm={searchTermGlobal}
+            setSearchTerm={setSearchTermGlobal}
             filteredDocumentSets={filteredGlobalDocumentSets}
             isGlobal
             onSelect={handleSelectDocumentSet}

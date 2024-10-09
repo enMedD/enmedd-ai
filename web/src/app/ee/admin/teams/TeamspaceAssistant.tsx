@@ -87,10 +87,11 @@ export const TeamspaceAssistant = ({
   const { toast } = useToast();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedAssistants, setSelectedAssistants] = useState<Assistant[]>([]);
+  const [searchTermCurrent, setSearchTermCurrent] = useState("");
+  const [searchTermGlobal, setSearchTermGlobal] = useState("");
 
-  const filterAssistants = (assistantsList: Assistant[]) =>
+  const filterAssistants = (assistantsList: Assistant[], searchTerm: string) =>
     assistantsList.filter(
       (assistant) =>
         assistant.is_public &&
@@ -101,16 +102,16 @@ export const TeamspaceAssistant = ({
     );
 
   const filteredCurrentAssistants = teamspace.assistants.filter((assistant) =>
-    assistant.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    assistant.name?.toLowerCase().includes(searchTermCurrent.toLowerCase())
   );
 
   const [filteredGlobalAssistants, setFilteredGlobalAssistants] = useState(() =>
-    filterAssistants(assistants)
+    filterAssistants(assistants, searchTermGlobal)
   );
 
   useEffect(() => {
-    setFilteredGlobalAssistants(filterAssistants(assistants));
-  }, [assistants, teamspace.assistants, searchTerm]);
+    setFilteredGlobalAssistants(filterAssistants(assistants, searchTermGlobal));
+  }, [assistants, teamspace.assistants, searchTermGlobal]);
 
   const handleSelectAssistant = (assistant: Assistant) => {
     setSelectedAssistants((prevSelected) =>
@@ -155,7 +156,9 @@ export const TeamspaceAssistant = ({
           variant: "success",
         });
         refreshTeamspaces();
-        setFilteredGlobalAssistants(filterAssistants(assistants));
+        setFilteredGlobalAssistants(
+          filterAssistants(assistants, searchTermGlobal)
+        );
       }
     } catch (error) {
       toast({
@@ -226,16 +229,16 @@ export const TeamspaceAssistant = ({
         <div className="space-y-12">
           {teamspace.assistants.length > 0 ? (
             <AssistantContent
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
+              searchTerm={searchTermCurrent}
+              setSearchTerm={setSearchTermCurrent}
               filteredAssistants={filteredCurrentAssistants}
             />
           ) : (
             <p>There are no current assistants.</p>
           )}
           <AssistantContent
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            searchTerm={searchTermGlobal}
+            setSearchTerm={setSearchTermGlobal}
             filteredAssistants={filteredGlobalAssistants}
             isGlobal
             onSelect={handleSelectAssistant}
