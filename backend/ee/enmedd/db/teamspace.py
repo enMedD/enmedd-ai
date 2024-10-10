@@ -3,6 +3,7 @@ from operator import and_
 from typing import Optional
 from uuid import UUID
 
+from sqlalchemy import delete
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -200,8 +201,8 @@ def _add_teamspace__assistant_relationships__no_commit(
 ) -> list[Assistant__Teamspace]:
     """NOTE: does not commit the transaction."""
     relationships = [
-        Assistant__Teamspace(teamspace_id=teamspace_id, assistant_id=id)
-        for id in assistant_ids
+        Assistant__Teamspace(teamspace_id=teamspace_id, assistant_id=assistant_id)
+        for assistant_id in assistant_ids
     ]
     db_session.add_all(relationships)
     return relationships
@@ -304,6 +305,109 @@ def _mark_teamspace__assistant_relationships_outdated__no_commit(
         teamspace__assistant_relationship.is_current = False
 
 
+def _sync_relationships(
+    db_session: Session,
+    teamspace_id: int,
+    updated_user_ids: list[UUID],
+    updated_cc_pair_ids: list[int],
+    updated_document_set_ids: list[int],
+    updated_assistant_ids: list[int]
+) -> None:
+    current_user_ids = set(
+        db_session.scalars(
+            select(User__Teamspace.user_id).where(User__Teamspace.teamspace_id == teamspace_id)
+        ).all()
+    )
+    current_cc_pair_ids = set(
+        db_session.scalars(
+            select(Teamspace__ConnectorCredentialPair.cc_pair_id)
+            .where(Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id)
+        ).all()
+    )
+    current_document_set_ids = set(
+        db_session.scalars(
+            select(DocumentSet__Teamspace.document_set_id)
+            .where(DocumentSet__Teamspace.teamspace_id == teamspace_id)
+        ).all()
+    )
+    current_assistant_ids = set(
+        db_session.scalars(
+            select(Assistant__Teamspace.assistant_id)
+            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+        ).all()
+    )
+
+    users_to_delete = current_user_ids - set(updated_user_ids)
+    users_to_add = set(updated_user_ids) - current_user_ids
+
+    cc_pairs_to_delete = current_cc_pair_ids - set(updated_cc_pair_ids)
+    cc_pairs_to_add = set(updated_cc_pair_ids) - current_cc_pair_ids
+
+    document_sets_to_delete = current_document_set_ids - set(updated_document_set_ids)
+    document_sets_to_add = set(updated_document_set_ids) - current_document_set_ids
+
+    assistants_to_delete = current_assistant_ids - set(updated_assistant_ids)
+    assistants_to_add = set(updated_assistant_ids) - current_assistant_ids
+
+    if users_to_delete:
+        db_session.execute(
+            delete(User__Teamspace)
+            .where(User__Teamspace.teamspace_id == teamspace_id)
+            .where(User__Teamspace.user_id.in_(users_to_delete))
+        )
+
+    if cc_pairs_to_delete:
+        db_session.execute(
+            delete(Teamspace__ConnectorCredentialPair)
+            .where(Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id)
+            .where(Teamspace__ConnectorCredentialPair.cc_pair_id.in_(cc_pairs_to_delete))
+        )
+
+    if document_sets_to_delete:
+        db_session.execute(
+            delete(DocumentSet__Teamspace)
+            .where(DocumentSet__Teamspace.teamspace_id == teamspace_id)
+            .where(DocumentSet__Teamspace.document_set_id.in_(document_sets_to_delete))
+        )
+
+    if assistants_to_delete:
+        db_session.execute(
+            delete(Assistant__Teamspace)
+            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+            .where(Assistant__Teamspace.assistant_id.in_(assistants_to_delete))
+        )
+
+    if users_to_add:
+        _add_user__teamspace_relationships__no_commit(
+            db_session=db_session,
+            teamspace_id=teamspace_id,
+            user_ids=list(users_to_add),
+        )
+
+    if cc_pairs_to_add:
+        _add_teamspace__cc_pair_relationships__no_commit(
+            db_session=db_session,
+            teamspace_id=teamspace_id,
+            cc_pair_ids=list(cc_pairs_to_add),
+        )
+
+    if document_sets_to_add:
+        _add_teamspace__document_set_relationships__no_commit(
+            db_session=db_session,
+            teamspace_id=teamspace_id,
+            document_set_ids=list(document_sets_to_add),
+        )
+
+    if assistants_to_add:
+        _add_teamspace__assistant_relationships__no_commit(
+            db_session=db_session,
+            teamspace_id=teamspace_id,
+            assistant_ids=list(assistants_to_add),
+        )
+
+    db_session.commit()
+
+
 def update_teamspace(
     db_session: Session, teamspace_id: int, teamspace: TeamspaceUpdate
 ) -> Teamspace:
@@ -314,58 +418,16 @@ def update_teamspace(
 
     _check_teamspace_is_modifiable(db_teamspace)
 
-    cc_pairs_updated = set([cc_pair.id for cc_pair in db_teamspace.cc_pairs]) != set(
-        teamspace.cc_pair_ids
-    )
-    document_set_updated = set(
-        [document_set.id for document_set in db_teamspace.document_sets]
-    ) != set(teamspace.document_set_ids)
-    assistant_updated = set(
-        [assistant.id for assistant in db_teamspace.assistants]
-    ) != set(teamspace.assistant_ids)
-    users_updated = set([user.id for user in db_teamspace.users]) != set(
-        teamspace.user_ids
+    _sync_relationships(
+        db_session=db_session,
+        teamspace_id=teamspace_id,
+        updated_user_ids=teamspace.user_ids,
+        updated_cc_pair_ids=teamspace.cc_pair_ids,
+        updated_document_set_ids=teamspace.document_set_ids,
+        updated_assistant_ids=teamspace.assistant_ids,
     )
 
-    if users_updated:
-        _cleanup_user__teamspace_relationships__no_commit(
-            db_session=db_session, teamspace_id=teamspace_id
-        )
-        _add_user__teamspace_relationships__no_commit(
-            db_session=db_session,
-            teamspace_id=teamspace_id,
-            user_ids=teamspace.user_ids,
-        )
-    if cc_pairs_updated:
-        _mark_teamspace__cc_pair_relationships_outdated__no_commit(
-            db_session=db_session, teamspace_id=teamspace_id
-        )
-        _add_teamspace__cc_pair_relationships__no_commit(
-            db_session=db_session,
-            teamspace_id=db_teamspace.id,
-            cc_pair_ids=teamspace.cc_pair_ids,
-        )
-    if document_set_updated:
-        _mark_teamspace__document_set_relationships_outdated__no_commit(
-            db_session=db_session, teamspace_id=teamspace_id
-        )
-        _add_teamspace__document_set_relationships__no_commit(
-            db_session=db_session,
-            teamspace_id=db_teamspace.id,
-            document_set_ids=teamspace.document_set_ids,
-        )
-    if assistant_updated:
-        _mark_teamspace__assistant_relationships_outdated__no_commit(
-            db_session=db_session, teamspace_id=teamspace_id
-        )
-        _add_teamspace__assistant_relationships__no_commit(
-            db_session=db_session,
-            teamspace_id=db_teamspace.id,
-            assistant_ids=teamspace.assistant_ids,
-        )
-
-    # only needs to sync with Vespa if the cc_pairs have been updated
-    if cc_pairs_updated:
+    if set([cc_pair.id for cc_pair in db_teamspace.cc_pairs]) != set(teamspace.cc_pair_ids):
         db_teamspace.is_up_to_date = False
 
     db_session.commit()
@@ -399,6 +461,12 @@ def prepare_teamspace_for_deletion(db_session: Session, teamspace_id: int) -> No
         db_session=db_session, teamspace_id=teamspace_id
     )
     _mark_teamspace__cc_pair_relationships_outdated__no_commit(
+        db_session=db_session, teamspace_id=teamspace_id
+    )
+    _mark_teamspace__document_set_relationships_outdated__no_commit(
+        db_session=db_session, teamspace_id=teamspace_id
+    )
+    _mark_teamspace__assistant_relationships_outdated__no_commit(
         db_session=db_session, teamspace_id=teamspace_id
     )
     _cleanup_token_rate_limit__teamspace_relationships__no_commit(

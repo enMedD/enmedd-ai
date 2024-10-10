@@ -24,6 +24,7 @@ interface AssistantContentProps {
   isGlobal?: boolean;
   onSelect?: (assistant: Assistant) => void;
   selectedAssistants?: Assistant[];
+  hasAssistant?: boolean;
 }
 
 const AssistantContent = ({
@@ -32,7 +33,7 @@ const AssistantContent = ({
   filteredAssistants,
   isGlobal,
   onSelect,
-  selectedAssistants,
+  hasAssistant,
 }: AssistantContentProps) => {
   return (
     <div className={isGlobal ? "cursor-pointer" : ""}>
@@ -48,31 +49,36 @@ const AssistantContent = ({
           />
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {filteredAssistants.map((assistant) => (
-          <div
-            key={assistant.id}
-            className={`border rounded-md flex items-start gap-4 ${
-              selectedAssistants?.some(
-                (selected) => selected.id === assistant.id
-              )
-                ? "bg-primary-300 border-input-colored"
-                : ""
-            }`}
-            onClick={() => onSelect && onSelect(assistant)}
-          >
-            <div className="rounded-l-md flex items-center justify-center p-4 border-r">
-              <Image src={Logo} alt={assistant.name} width={150} height={150} />
-            </div>
-            <div className="w-full p-4">
-              <div className="flex items-center justify-between w-full">
-                <h3>{assistant.name}</h3>
+      {hasAssistant ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {filteredAssistants.map((assistant) => (
+            <div
+              key={assistant.id}
+              className="border rounded-md flex items-start gap-4"
+              onClick={() => onSelect && onSelect(assistant)}
+            >
+              <div className="rounded-l-md flex items-center justify-center p-4 border-r">
+                <Image
+                  src={Logo}
+                  alt={assistant.name}
+                  width={150}
+                  height={150}
+                />
               </div>
-              <p className="text-sm pt-2 line-clamp">{assistant.description}</p>
+              <div className="w-full p-4">
+                <div className="flex items-center justify-between w-full">
+                  <h3>{assistant.name}</h3>
+                </div>
+                <p className="text-sm pt-2 line-clamp">
+                  {assistant.description}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p>There are no {isGlobal ? "Available" : "Current"} Assistants.</p>
+      )}
     </div>
   );
 };
@@ -84,38 +90,59 @@ export const TeamspaceAssistant = ({
 }: TeamspaceAssistantProps) => {
   const { toast } = useToast();
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
-  const [selectedAssistants, setSelectedAssistants] = useState<Assistant[]>([]);
   const [searchTermCurrent, setSearchTermCurrent] = useState("");
   const [searchTermGlobal, setSearchTermGlobal] = useState("");
 
-  const filterAssistants = (assistantsList: Assistant[], searchTerm: string) =>
-    assistantsList.filter(
+  const [currentAssistants, setCurrentAssistants] = useState<Assistant[]>(
+    teamspace.assistants
+  );
+
+  useEffect(() => {
+    setCurrentAssistants(teamspace.assistants);
+  }, [teamspace]);
+
+  const [globalAssistants, setGlobalAssistants] = useState<Assistant[]>(() =>
+    assistants.filter(
       (assistant) =>
         assistant.is_public &&
         !teamspace.assistants.some(
           (currentAssistant) => currentAssistant.id === assistant.id
-        ) &&
-        assistant.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-  const filteredCurrentAssistants = teamspace.assistants.filter((assistant) =>
-    assistant.name?.toLowerCase().includes(searchTermCurrent.toLowerCase())
+        )
+    )
   );
 
-  const [filteredGlobalAssistants, setFilteredGlobalAssistants] = useState(() =>
-    filterAssistants(assistants, searchTermGlobal)
-  );
+  const [tempCurrentAssistants, setTempCurrentAssistants] =
+    useState<Assistant[]>(currentAssistants);
+  const [tempGlobalAssistants, setTempGlobalAssistants] =
+    useState<Assistant[]>(globalAssistants);
 
   useEffect(() => {
-    setFilteredGlobalAssistants(filterAssistants(assistants, searchTermGlobal));
-  }, [assistants, teamspace.assistants, searchTermGlobal]);
+    setTempCurrentAssistants(currentAssistants);
+
+    const updatedGlobalAssistants = assistants.filter(
+      (assistant) =>
+        assistant.is_public &&
+        !currentAssistants.some(
+          (currentAssistant) => currentAssistant.id === assistant.id
+        )
+    );
+
+    setGlobalAssistants(updatedGlobalAssistants);
+    setTempGlobalAssistants(updatedGlobalAssistants);
+  }, [currentAssistants, assistants]);
 
   const handleSelectAssistant = (assistant: Assistant) => {
-    setSelectedAssistants((prevSelected) =>
-      prevSelected.some((selected) => selected.id === assistant.id)
-        ? prevSelected.filter((selected) => selected.id !== assistant.id)
-        : [...prevSelected, assistant]
-    );
+    if (tempCurrentAssistants.some((a) => a.id === assistant.id)) {
+      setTempCurrentAssistants((prev) =>
+        prev.filter((a) => a.id !== assistant.id)
+      );
+      setTempGlobalAssistants((prev) => [...prev, assistant]);
+    } else {
+      setTempCurrentAssistants((prev) => [...prev, assistant]);
+      setTempGlobalAssistants((prev) =>
+        prev.filter((a) => a.id !== assistant.id)
+      );
+    }
   };
 
   const handleSaveChanges = async () => {
@@ -131,7 +158,9 @@ export const TeamspaceAssistant = ({
             document_set_ids: teamspace.document_sets.map(
               (docSet) => docSet.id
             ),
-            assistant_ids: selectedAssistants.map((assistant) => assistant.id),
+            assistant_ids: tempCurrentAssistants.map(
+              (assistant) => assistant.id
+            ),
           }),
         }
       );
@@ -145,18 +174,17 @@ export const TeamspaceAssistant = ({
           variant: "destructive",
         });
         return;
-      } else {
-        toast({
-          title: "Assistants Updated",
-          description:
-            "Assistants have been successfully updated in the teamspace.",
-          variant: "success",
-        });
-        refreshTeamspaces();
-        setFilteredGlobalAssistants(
-          filterAssistants(assistants, searchTermGlobal)
-        );
       }
+
+      setCurrentAssistants(tempCurrentAssistants);
+      setGlobalAssistants(tempGlobalAssistants);
+      toast({
+        title: "Assistants Updated",
+        description:
+          "Assistants have been successfully updated in the teamspace.",
+        variant: "success",
+      });
+      refreshTeamspaces();
     } catch (error) {
       toast({
         title: "Update Failed",
@@ -164,6 +192,14 @@ export const TeamspaceAssistant = ({
         variant: "destructive",
       });
     }
+
+    handleCloseModal();
+  };
+
+  const handleCloseModal = () => {
+    setIsAssistantModalOpen(false);
+    setTempCurrentAssistants(currentAssistants);
+    setTempGlobalAssistants(globalAssistants);
   };
 
   return (
@@ -176,67 +212,61 @@ export const TeamspaceAssistant = ({
           <div className="flex items-center justify-between">
             <h3>
               Assistant <span className="px-2 font-normal">|</span>{" "}
-              {teamspace.assistants.length}
+              {currentAssistants.length}
             </h3>
             <Button size="smallIcon">
               <Pencil size={16} />
             </Button>
           </div>
-          {teamspace.assistants.length > 0 ? (
-            <div className="pt-8 flex flex-wrap -space-x-3">
-              {teamspace.assistants.slice(0, 8).map((teamspaceAssistant) => (
-                <div
-                  key={teamspaceAssistant.id}
-                  className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
-                >
-                  {teamspaceAssistant.name!.charAt(0)}
-                </div>
-              ))}
-              {teamspace.assistants.length > 8 && (
-                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                  +{teamspace.assistants.length - 8}
-                </div>
-              )}
-            </div>
-          ) : (
-            <p>There are no assistants.</p>
-          )}
+          <div className="pt-8 flex flex-wrap -space-x-3 pointer-events-none">
+            {currentAssistants.slice(0, 8).map((assistant) => (
+              <div
+                key={assistant.id}
+                className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
+              >
+                {assistant.name!.charAt(0)}
+              </div>
+            ))}
+            {currentAssistants.length > 8 && (
+              <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                +{currentAssistants.length - 8}
+              </div>
+            )}
+          </div>
         </div>
       }
       title="Assistants"
       open={isAssistantModalOpen}
-      onClose={() => {
-        setIsAssistantModalOpen(false);
-        setSelectedAssistants([]);
-      }}
+      onClose={handleCloseModal}
     >
       <div className="space-y-12">
-        {teamspace.assistants.length > 0 ? (
-          <AssistantContent
-            searchTerm={searchTermCurrent}
-            setSearchTerm={setSearchTermCurrent}
-            filteredAssistants={filteredCurrentAssistants}
-          />
-        ) : (
-          <p>There are no current assistants.</p>
-        )}
+        <AssistantContent
+          searchTerm={searchTermCurrent}
+          setSearchTerm={setSearchTermCurrent}
+          filteredAssistants={tempCurrentAssistants.filter((assistant) =>
+            assistant.name
+              ?.toLowerCase()
+              .includes(searchTermCurrent.toLowerCase())
+          )}
+          onSelect={handleSelectAssistant}
+          hasAssistant={tempCurrentAssistants.length > 0}
+        />
+
         <AssistantContent
           searchTerm={searchTermGlobal}
           setSearchTerm={setSearchTermGlobal}
-          filteredAssistants={filteredGlobalAssistants}
+          filteredAssistants={tempGlobalAssistants.filter((assistant) =>
+            assistant.name
+              ?.toLowerCase()
+              .includes(searchTermGlobal.toLowerCase())
+          )}
           isGlobal
           onSelect={handleSelectAssistant}
-          selectedAssistants={selectedAssistants}
+          hasAssistant={tempGlobalAssistants.length > 0}
         />
       </div>
-
-      <div className="pt-10 ml-auto">
-        <Button
-          onClick={handleSaveChanges}
-          disabled={!teamspace.is_up_to_date || teamspace.is_up_for_deletion}
-        >
-          Save changes
-        </Button>
+      <div className="flex justify-end mt-10">
+        <Button onClick={handleSaveChanges}>Save changes</Button>
       </div>
     </CustomModal>
   );
