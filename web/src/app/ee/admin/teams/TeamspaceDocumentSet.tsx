@@ -61,7 +61,7 @@ const DocumentSetContent = ({
           >
             <Globe className="shrink-0" />
             <div className="w-full">
-              <div className="flex items-center justify-between w-full">
+              <div className="flex justify-between w-full">
                 <h3 className="line-clamp">{documentSet.name}</h3>
                 {!isGlobal && <DeleteModal type="Document Set" />}
               </div>

@@ -82,7 +82,7 @@ export const TeamspaceContent = ({
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Select>
-            <SelectTrigger className="w-full lg:w-64">
+            <SelectTrigger className="w-64">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>

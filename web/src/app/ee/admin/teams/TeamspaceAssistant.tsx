@@ -53,7 +53,7 @@ const AssistantContent = ({
         {filteredAssistants.map((assistant) => (
           <div
             key={assistant.id}
-            className={`border rounded-md flex items-start p-4 gap-4 ${
+            className={`border rounded-md flex items-start gap-4 ${
               selectedAssistants?.some(
                 (selected) => selected.id === assistant.id
               )

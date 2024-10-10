@@ -78,7 +78,7 @@ const DataSourceContent = ({
         {dataSources?.map((dataSource) => (
           <div
             key={getDataSourceId(dataSource)}
-            className={`border rounded-md flex items-start p-4 gap-4 ${
+            className={`border rounded-md flex items-center p-4 gap-4 ${
               selectedDataSources?.some(
                 (selected) =>
                   getDataSourceId(selected) === getDataSourceId(dataSource)
@@ -237,7 +237,7 @@ export const TeamspaceDataSource = ({
           )}
         </div>
       }
-      title="DataSources"
+      title="Data Source"
       open={isDataSourceModalOpen}
       onClose={() => {
         setIsDataSourceModalOpen(false);

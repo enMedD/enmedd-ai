@@ -68,24 +68,71 @@ export function HelperFab() {
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span>Open search page</span>
+              <span>Open admin panel</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
                   <Command size={14} className="shrink-0" />
                 </span>
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
-                  S
+                  Q
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span>Open profile page</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  P
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span>Start new chat</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  K
                 </span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span>Open search page</span>
+              <span>Create new folder</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
                   <Command size={14} className="shrink-0" />
                 </span>
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
-                  S
+                  I
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span>Toggle the sidebar</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  L
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span>Toggle retrieve sources</span>
+              <div className="flex items-center gap-2">
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  <Command size={14} className="shrink-0" />
+                </span>
+                <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
+                  M
                 </span>
               </div>
             </div>
