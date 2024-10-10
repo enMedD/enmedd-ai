@@ -21,6 +21,7 @@ interface DocumentSetContentProps {
   isGlobal?: boolean;
   onSelect?: (documentSet: DocumentSet) => void;
   selectedDocumentSets?: DocumentSet[];
+  hasDocumentSet?: boolean;
 }
 
 const DocumentSetContent = ({
@@ -29,7 +30,7 @@ const DocumentSetContent = ({
   filteredDocumentSets,
   isGlobal,
   onSelect,
-  selectedDocumentSets,
+  hasDocumentSet,
 }: DocumentSetContentProps) => {
   return (
     <div className={isGlobal ? "cursor-pointer" : ""}>
@@ -39,37 +40,35 @@ const DocumentSetContent = ({
         </h2>
         <div className="w-1/2">
           <SearchInput
-            placeholder="Search document sets..."
+            placeholder="Search documentSets..."
             value={searchTerm}
             onChange={setSearchTerm}
           />
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {filteredDocumentSets.map((documentSet) => (
-          <div
-            key={documentSet.id}
-            className={`border rounded-md flex items-start p-4 gap-4 ${
-              selectedDocumentSets?.some(
-                (selected) => selected.id === documentSet.id
-              )
-                ? "bg-primary-300 border-input-colored"
-                : ""
-            }`}
-            onClick={() => onSelect && onSelect(documentSet)}
-          >
-            <Globe className="shrink-0" />
-            <div className="w-full">
-              <div className="flex justify-between w-full">
-                <h3 className="line-clamp">{documentSet.name}</h3>
+      {hasDocumentSet ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {filteredDocumentSets.map((documentSet) => (
+            <div
+              key={documentSet.id}
+              className="border rounded-md flex items-start gap-4 p-4"
+              onClick={() => onSelect && onSelect(documentSet)}
+            >
+              <Globe className="shrink-0" />
+              <div className="w-full">
+                <div className="flex justify-between w-full">
+                  <h3 className="line-clamp">{documentSet.name}</h3>
+                </div>
+                <p className="text-sm pt-2 line-clamp">
+                  {documentSet.description}
+                </p>
               </div>
-              <p className="text-sm pt-2 line-clamp">
-                {documentSet.description}
-              </p>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p>There are no {isGlobal ? "Available" : "Current"} Document Sets.</p>
+      )}
     </div>
   );
 };
@@ -81,46 +80,60 @@ export const TeamspaceDocumentSet = ({
 }: TeamspaceDocumentSetProps) => {
   const { toast } = useToast();
   const [isDocumentSetModalOpen, setIsDocumentSetModalOpen] = useState(false);
-  const [selectedDocumentSets, setSelectedDocumentSets] = useState<
-    DocumentSet[]
-  >([]);
   const [searchTermCurrent, setSearchTermCurrent] = useState("");
   const [searchTermGlobal, setSearchTermGlobal] = useState("");
 
-  const filterDocumentSets = (
-    documentSets: DocumentSet[],
-    searchTerm: string
-  ) =>
-    documentSets.filter(
-      (documentSet) =>
-        documentSet.is_public &&
-        !teamspace.document_sets.some(
-          (currentDocumentSet) => currentDocumentSet.id === documentSet.id
-        ) &&
-        documentSet.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-  const filteredCurrentDocumentSets = teamspace.document_sets.filter(
-    (documentSet) =>
-      documentSet.name?.toLowerCase().includes(searchTermCurrent.toLowerCase())
-  );
-
-  const [filteredGlobalDocumentSets, setFilteredGlobalDocumentSets] = useState(
-    () => filterDocumentSets(documentSets, searchTermGlobal)
+  const [currentDocumentSets, setCurrentDocumentSets] = useState<DocumentSet[]>(
+    teamspace.document_sets
   );
 
   useEffect(() => {
-    setFilteredGlobalDocumentSets(
-      filterDocumentSets(documentSets, searchTermGlobal)
+    setCurrentDocumentSets(teamspace.document_sets);
+  }, [teamspace]);
+
+  const [globalDocumentSets, setGlobalDocumentSets] = useState<DocumentSet[]>(
+    () =>
+      documentSets.filter(
+        (documentSet) =>
+          documentSet.is_public &&
+          !teamspace.document_sets.some(
+            (currentDocumentSet) => currentDocumentSet.id === documentSet.id
+          )
+      )
+  );
+
+  const [tempCurrentDocumentSets, setTempCurrentDocumentSets] =
+    useState<DocumentSet[]>(currentDocumentSets);
+  const [tempGlobalDocumentSets, setTempGlobalDocumentSets] =
+    useState<DocumentSet[]>(globalDocumentSets);
+
+  useEffect(() => {
+    setTempCurrentDocumentSets(currentDocumentSets);
+
+    const updatedGlobalDocumentSets = documentSets.filter(
+      (documentSet) =>
+        documentSet.is_public &&
+        !currentDocumentSets.some(
+          (currentDocumentSet) => currentDocumentSet.id === documentSet.id
+        )
     );
-  }, [documentSets, teamspace.document_sets, searchTermGlobal]);
+
+    setGlobalDocumentSets(updatedGlobalDocumentSets);
+    setTempGlobalDocumentSets(updatedGlobalDocumentSets);
+  }, [currentDocumentSets, documentSets]);
 
   const handleSelectDocumentSet = (documentSet: DocumentSet) => {
-    setSelectedDocumentSets((prevSelected) =>
-      prevSelected.some((selected) => selected.id === documentSet.id)
-        ? prevSelected.filter((selected) => selected.id !== documentSet.id)
-        : [...prevSelected, documentSet]
-    );
+    if (tempCurrentDocumentSets.some((a) => a.id === documentSet.id)) {
+      setTempCurrentDocumentSets((prev) =>
+        prev.filter((a) => a.id !== documentSet.id)
+      );
+      setTempGlobalDocumentSets((prev) => [...prev, documentSet]);
+    } else {
+      setTempCurrentDocumentSets((prev) => [...prev, documentSet]);
+      setTempGlobalDocumentSets((prev) =>
+        prev.filter((a) => a.id !== documentSet.id)
+      );
+    }
   };
 
   const handleSaveChanges = async () => {
@@ -133,10 +146,8 @@ export const TeamspaceDocumentSet = ({
           body: JSON.stringify({
             user_ids: teamspace.users.map((user) => user.id),
             cc_pair_ids: teamspace.cc_pairs.map((ccPair) => ccPair.id),
-            assistant_ids: teamspace.assistants.map(
-              (assistant) => assistant.id
-            ),
-            document_set_ids: selectedDocumentSets.map(
+            assistant_ids: teamspace.assistants.map((docSet) => docSet.id),
+            document_set_ids: tempCurrentDocumentSets.map(
               (documentSet) => documentSet.id
             ),
           }),
@@ -152,18 +163,17 @@ export const TeamspaceDocumentSet = ({
           variant: "destructive",
         });
         return;
-      } else {
-        toast({
-          title: "Document Sets Updated",
-          description:
-            "Document Sets have been successfully updated in the teamspace.",
-          variant: "success",
-        });
-        refreshTeamspaces();
-        setFilteredGlobalDocumentSets(
-          filterDocumentSets(documentSets, searchTermGlobal)
-        );
       }
+
+      setCurrentDocumentSets(tempCurrentDocumentSets);
+      setGlobalDocumentSets(tempGlobalDocumentSets);
+      toast({
+        title: "Document Sets Updated",
+        description:
+          "Document Sets have been successfully updated in the teamspace.",
+        variant: "success",
+      });
+      refreshTeamspaces();
     } catch (error) {
       toast({
         title: "Update Failed",
@@ -171,6 +181,14 @@ export const TeamspaceDocumentSet = ({
         variant: "destructive",
       });
     }
+
+    handleCloseModal();
+  };
+
+  const handleCloseModal = () => {
+    setIsDocumentSetModalOpen(false);
+    setTempCurrentDocumentSets(currentDocumentSets);
+    setTempGlobalDocumentSets(globalDocumentSets);
   };
 
   return (
@@ -183,69 +201,61 @@ export const TeamspaceDocumentSet = ({
           <div className="flex items-center justify-between">
             <h3>
               Document Set <span className="px-2 font-normal">|</span>{" "}
-              {teamspace.document_sets.length}
+              {currentDocumentSets.length}
             </h3>
             <Button size="smallIcon">
               <Pencil size={16} />
             </Button>
           </div>
-          {teamspace.document_sets.length > 0 ? (
-            <div className="pt-8 flex flex-wrap -space-x-3">
-              {teamspace.document_sets
-                .slice(0, 8)
-                .map((teamspaceDocumentSet) => (
-                  <div
-                    key={teamspaceDocumentSet.id}
-                    className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
-                  >
-                    {teamspaceDocumentSet.name!.charAt(0)}
-                  </div>
-                ))}
-              {teamspace.document_sets.length > 8 && (
-                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                  +{teamspace.document_sets.length - 8}
-                </div>
-              )}
-            </div>
-          ) : (
-            <p>There are no document sets.</p>
-          )}
+          <div className="pt-8 flex flex-wrap -space-x-3 pointer-events-none">
+            {currentDocumentSets.slice(0, 8).map((documentSet) => (
+              <div
+                key={documentSet.id}
+                className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
+              >
+                {documentSet.name!.charAt(0)}
+              </div>
+            ))}
+            {currentDocumentSets.length > 8 && (
+              <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                +{currentDocumentSets.length - 8}
+              </div>
+            )}
+          </div>
         </div>
       }
-      title="DocumentSets"
+      title="Document Sets"
       open={isDocumentSetModalOpen}
-      onClose={() => {
-        setIsDocumentSetModalOpen(false);
-        setSelectedDocumentSets([]);
-      }}
+      onClose={handleCloseModal}
     >
       <div className="space-y-12">
-        {teamspace.document_sets.length > 0 ? (
-          <DocumentSetContent
-            searchTerm={searchTermCurrent}
-            setSearchTerm={setSearchTermCurrent}
-            filteredDocumentSets={filteredCurrentDocumentSets}
-          />
-        ) : (
-          <p>There are no current document sets.</p>
-        )}
+        <DocumentSetContent
+          searchTerm={searchTermCurrent}
+          setSearchTerm={setSearchTermCurrent}
+          filteredDocumentSets={tempCurrentDocumentSets.filter((documentSet) =>
+            documentSet.name
+              ?.toLowerCase()
+              .includes(searchTermCurrent.toLowerCase())
+          )}
+          onSelect={handleSelectDocumentSet}
+          hasDocumentSet={tempCurrentDocumentSets.length > 0}
+        />
+
         <DocumentSetContent
           searchTerm={searchTermGlobal}
           setSearchTerm={setSearchTermGlobal}
-          filteredDocumentSets={filteredGlobalDocumentSets}
+          filteredDocumentSets={tempGlobalDocumentSets.filter((documentSet) =>
+            documentSet.name
+              ?.toLowerCase()
+              .includes(searchTermGlobal.toLowerCase())
+          )}
           isGlobal
           onSelect={handleSelectDocumentSet}
-          selectedDocumentSets={selectedDocumentSets}
+          hasDocumentSet={tempGlobalDocumentSets.length > 0}
         />
       </div>
-
-      <div className="pt-10 ml-auto">
-        <Button
-          onClick={handleSaveChanges}
-          disabled={!teamspace.is_up_to_date || teamspace.is_up_for_deletion}
-        >
-          Save changes
-        </Button>
+      <div className="flex justify-end mt-10">
+        <Button onClick={handleSaveChanges}>Save changes</Button>
       </div>
     </CustomModal>
   );
