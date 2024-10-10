@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { DocumentSet, Teamspace } from "@/lib/types";
 import { Globe, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DeleteModal } from "./DeleteModal";
 import { useToast } from "@/hooks/use-toast";
 
 interface TeamspaceDocumentSetProps {
@@ -63,7 +62,6 @@ const DocumentSetContent = ({
             <div className="w-full">
               <div className="flex justify-between w-full">
                 <h3 className="line-clamp">{documentSet.name}</h3>
-                {!isGlobal && <DeleteModal type="Document Set" />}
               </div>
               <p className="text-sm pt-2 line-clamp">
                 {documentSet.description}

@@ -10,7 +10,6 @@ import {
 } from "@/lib/types";
 import { Globe, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DeleteModal } from "./DeleteModal";
 import { useToast } from "@/hooks/use-toast";
 
 interface TeamspaceDataSourceProps {
@@ -94,7 +93,6 @@ const DataSourceContent = ({
           >
             <Globe className="shrink-0 my-auto" />
             <h3 className="truncate">{dataSource.name}</h3>
-            {!isGlobal && <DeleteModal type="Data Source" />}
           </div>
         ))}
       </div>

@@ -8,7 +8,6 @@ import { Teamspace } from "@/lib/types";
 import { Pencil } from "lucide-react";
 import Logo from "../../../../../public/logo.png";
 import { SearchInput } from "@/components/SearchInput";
-import { DeleteModal } from "./DeleteModal";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,7 +67,6 @@ const AssistantContent = ({
             <div className="w-full p-4">
               <div className="flex items-center justify-between w-full">
                 <h3>{assistant.name}</h3>
-                {!isGlobal && <DeleteModal type="Assistant" />}
               </div>
               <p className="text-sm pt-2 line-clamp">{assistant.description}</p>
             </div>
