@@ -45,16 +45,16 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     error: documentSetsError,
   } = useDocumentSets();
 
+  if (isLoading || isDocumentSetsLoading || userIsLoading || isCCPairsLoading) {
+    return <ThreeDotsLoader />;
+  }
+
   if (error || !data) {
     return <div className="text-red-600">Error loading teams</div>;
   }
 
   if (usersError || !users || documentSetsError) {
     return <div className="text-red-600">Error loading teams</div>;
-  }
-
-  if (isLoading || isDocumentSetsLoading || userIsLoading || isCCPairsLoading) {
-    return <ThreeDotsLoader />;
   }
 
   if (ccPairsError || !ccPairs) {

@@ -208,10 +208,7 @@ export const TeamspacesCard = ({
             <div className="flex items-center gap-2">
               <Shield size={16} className="shrink-0" />
               <span className="whitespace-nowrap">
-                {" "}
-                {tokenRate
-                  ? `${tokenRate.token_budget} Token Rate`
-                  : "No Token Rate"}
+                {teamspace.cc_pairs.length} Data Source
               </span>
             </div>
           </div>

@@ -12,7 +12,7 @@ interface TeamspaceSidebarProps {
   onClose: () => void;
   isExpanded: boolean;
   assistants: Assistant[];
-  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
+  ccPairs: ConnectorIndexingStatus<any, any>[];
   documentSets: DocumentSet[];
   refreshTeamspaces: () => void;
 }

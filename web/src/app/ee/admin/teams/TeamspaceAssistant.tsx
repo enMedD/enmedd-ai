@@ -218,21 +218,26 @@ export const TeamspaceAssistant = ({
               <Pencil size={16} />
             </Button>
           </div>
-          <div className="pt-8 flex flex-wrap -space-x-3 pointer-events-none">
-            {currentAssistants.slice(0, 8).map((assistant) => (
-              <div
-                key={assistant.id}
-                className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
-              >
-                {assistant.name!.charAt(0)}
-              </div>
-            ))}
-            {currentAssistants.length > 8 && (
-              <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                +{currentAssistants.length - 8}
-              </div>
-            )}
-          </div>
+
+          {teamspace.assistants.length > 0 ? (
+            <div className="pt-8 flex flex-wrap -space-x-3 pointer-events-none">
+              {currentAssistants.slice(0, 8).map((assistant) => (
+                <div
+                  key={assistant.id}
+                  className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
+                >
+                  {assistant.name!.charAt(0)}
+                </div>
+              ))}
+              {currentAssistants.length > 8 && (
+                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                  +{currentAssistants.length - 8}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>There are no assistant.</p>
+          )}
         </div>
       }
       title="Assistants"

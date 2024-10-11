@@ -12,7 +12,7 @@ interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
   selectedTeamspaceId?: number;
   assistants: Assistant[];
-  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
+  ccPairs: ConnectorIndexingStatus<any, any>[];
   documentSets: DocumentSet[];
   refreshTeamspaces: () => void;
 }

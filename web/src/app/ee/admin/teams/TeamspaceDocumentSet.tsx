@@ -207,21 +207,26 @@ export const TeamspaceDocumentSet = ({
               <Pencil size={16} />
             </Button>
           </div>
-          <div className="pt-8 flex flex-wrap -space-x-3 pointer-events-none">
-            {currentDocumentSets.slice(0, 8).map((documentSet) => (
-              <div
-                key={documentSet.id}
-                className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
-              >
-                {documentSet.name!.charAt(0)}
-              </div>
-            ))}
-            {currentDocumentSets.length > 8 && (
-              <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                +{currentDocumentSets.length - 8}
-              </div>
-            )}
-          </div>
+
+          {teamspace.document_sets.length > 0 ? (
+            <div className="pt-8 flex flex-wrap -space-x-3 pointer-events-none">
+              {currentDocumentSets.slice(0, 8).map((documentSet) => (
+                <div
+                  key={documentSet.id}
+                  className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
+                >
+                  {documentSet.name!.charAt(0)}
+                </div>
+              ))}
+              {currentDocumentSets.length > 8 && (
+                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                  +{currentDocumentSets.length - 8}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>There are no document set.</p>
+          )}
         </div>
       }
       title="Document Sets"
