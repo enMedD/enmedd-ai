@@ -202,7 +202,7 @@ export const TeamspaceDataSource = ({
     <CustomModal
       trigger={
         <div
-          className="rounded-md bg-muted w-full p-4 min-h-32 flex flex-col justify-between"
+          className="rounded-md bg-muted w-full p-4 h-36 flex flex-col justify-between"
           onClick={() => setIsDataSourceModalOpen(true)}
         >
           <div className="flex items-center justify-between">
