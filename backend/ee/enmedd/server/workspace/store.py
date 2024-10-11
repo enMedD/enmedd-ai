@@ -143,3 +143,48 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
         file_type=file_type,
     )
     return True
+
+
+def upload_teamspace_logo(
+    db_session: Session,
+    teamspace_id: int,
+    file: UploadFile | str,
+) -> bool:
+    content: IO[Any]
+
+    if isinstance(file, str):
+        logger.info(f"Uploading teamspace logo from local path {file}")
+        if not os.path.isfile(file) or not is_valid_file_type(file):
+            logger.error(
+                "Invalid file type - only .png, .jpg, and .jpeg files are allowed"
+            )
+            return False
+
+        with open(file, "rb") as file_handle:
+            file_content = file_handle.read()
+        content = BytesIO(file_content)
+        display_name = file
+        file_type = guess_file_type(file)
+
+    else:
+        logger.info("Uploading teamspace logo from uploaded file")
+        if not file.filename or not is_valid_file_type(file.filename):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
+            )
+        content = file.file
+        display_name = file.filename
+        file_type = file.content_type or "image/jpeg"
+
+    file_name = f"{teamspace_id}/{_LOGO_FILENAME}"
+
+    file_store = get_default_file_store(db_session)
+    file_store.save_file(
+        file_name=file_name,
+        content=content,
+        display_name=display_name,
+        file_origin=FileOrigin.OTHER,
+        file_type=file_type,
+    )
+    return True

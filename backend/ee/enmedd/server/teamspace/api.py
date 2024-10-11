@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from fastapi import Response
+from fastapi import UploadFile
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -14,16 +16,24 @@ from ee.enmedd.server.teamspace.models import TeamspaceCreate
 from ee.enmedd.server.teamspace.models import TeamspaceUpdate
 from ee.enmedd.server.teamspace.models import TeamspaceUserRole
 from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
+from ee.enmedd.server.workspace.store import _LOGO_FILENAME
+from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
+from enmedd.file_store.file_store import get_default_file_store
+from enmedd.utils.logger import setup_logger
 
-router = APIRouter(prefix="/manage")
+logger = setup_logger()
+
+admin_router = APIRouter(prefix="/manage")
+basic_router = APIRouter(prefix="/teamspace")
 
 
-@router.get("/admin/teamspace/{teamspace_id}")
+@admin_router.get("/admin/teamspace/{teamspace_id}")
 def get_teamspace_by_id(
     teamspace_id: int,
     _: User = Depends(current_admin_user),
@@ -37,7 +47,7 @@ def get_teamspace_by_id(
     return Teamspace.from_model(db_teamspace)
 
 
-@router.get("/admin/teamspace")
+@admin_router.get("/admin/teamspace")
 def list_teamspaces(
     _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
@@ -46,7 +56,7 @@ def list_teamspaces(
     return [Teamspace.from_model(teamspace) for teamspace in teamspaces]
 
 
-@router.post("/admin/teamspace")
+@admin_router.post("/admin/teamspace")
 def create_teamspace(
     teamspace: TeamspaceCreate,
     current_user: User = Depends(current_admin_user),
@@ -65,7 +75,7 @@ def create_teamspace(
     return Teamspace.from_model(db_teamspace)
 
 
-@router.patch("/admin/teamspace/{teamspace_id}")
+@admin_router.patch("/admin/teamspace/{teamspace_id}")
 def patch_teamspace(
     teamspace_id: int,
     teamspace: TeamspaceUpdate,
@@ -80,7 +90,7 @@ def patch_teamspace(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.delete("/admin/teamspace/{teamspace_id}")
+@admin_router.delete("/admin/teamspace/{teamspace_id}")
 def delete_teamspace(
     teamspace_id: int,
     _: User = Depends(current_admin_user),
@@ -92,7 +102,7 @@ def delete_teamspace(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.patch("/admin/teamspace/user-role/{teamspace_id}")
+@admin_router.patch("/admin/teamspace/user-role/{teamspace_id}")
 def update_teamspace_user_role(
     teamspace_id: int,
     body: UpdateUserRoleRequest,
@@ -129,3 +139,50 @@ def update_teamspace_user_role(
     return {
         "message": f"User role updated to {body.new_role.value} for {body.user_email}"
     }
+
+
+@admin_router.put("/admin/teamspace/logo")
+def put_teamspace_logo(
+    teamspace_id: int,
+    file: UploadFile,
+    _: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    upload_teamspace_logo(teamspace_id=teamspace_id, file=file, db_session=db_session)
+
+
+@admin_router.delete("/admin/teamspace/logo")
+def remove_teamspace_logo(
+    teamspace_id: int,
+    _: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    try:
+        file_name = f"{teamspace_id}/{_LOGO_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+        file_store.delete_file(file_name)
+
+        return {"detail": "Teamspace logo removed successfully."}
+    except Exception as e:
+        logger.error(f"Error removing teamspace logo: {str(e)}")
+        raise HTTPException(status_code=404, detail="Teamspace logo not found.")
+
+
+@basic_router.get("/logo")
+def fetch_teamspace_logo(
+    teamspace_id: int,
+    _: User = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> Response:
+    try:
+        file_path = f"{teamspace_id}/{_LOGO_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+        file_io = file_store.read_file(file_path, mode="b")
+
+        return Response(content=file_io.read(), media_type="image/jpeg")
+    except Exception:
+        raise HTTPException(
+            status_code=404, detail="No logo file found for the teamspace"
+        )
