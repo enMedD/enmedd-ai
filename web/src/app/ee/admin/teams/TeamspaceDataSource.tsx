@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Globe, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ConnectorIndexingStatus, Teamspace } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
 
 interface SimplifiedDataSource {
   id: number;
@@ -199,7 +200,7 @@ export const TeamspaceDataSource = ({
     <CustomModal
       trigger={
         <div
-          className="rounded-md bg-muted w-full p-4 h-36 flex flex-col justify-between"
+          className="rounded-md bg-muted w-full p-4 min-h-36 flex flex-col justify-between"
           onClick={() => setIsDataSourceModalOpen(true)}
         >
           <div className="flex items-center justify-between">
@@ -212,14 +213,11 @@ export const TeamspaceDataSource = ({
             </Button>
           </div>
           {teamspace.cc_pairs.length > 0 ? (
-            <div className="pt-8 flex flex-wrap -space-x-3">
+            <div className="pt-8 flex flex-wrap gap-2">
               {teamspace.cc_pairs.slice(0, 8).map((teamspaceDataSource) => (
-                <div
-                  key={teamspaceDataSource.id}
-                  className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase"
-                >
-                  {teamspaceDataSource.name!.charAt(0)}
-                </div>
+                <Badge key={teamspaceDataSource.id}gui>
+                  <div className="truncate">{teamspaceDataSource.name}</div>
+                </Badge>
               ))}
               {teamspace.cc_pairs.length > 8 && (
                 <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
@@ -228,7 +226,7 @@ export const TeamspaceDataSource = ({
               )}
             </div>
           ) : (
-            <p>There are no data sourceg.</p>
+            <p>There are no data source.</p>
           )}
         </div>
       }

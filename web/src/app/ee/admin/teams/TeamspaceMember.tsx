@@ -118,7 +118,7 @@ export const TeamspaceMember = ({
     <CustomModal
       trigger={
         <div
-          className="rounded-md bg-muted w-full p-4 h-36 flex flex-col justify-between cursor-pointer"
+          className="rounded-md bg-muted w-full p-4 min-h-36 flex flex-col justify-between cursor-pointer"
           onClick={() => setIsMemberModalOpen(true)}
         >
           <div className="flex items-center justify-between">
