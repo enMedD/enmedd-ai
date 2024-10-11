@@ -215,7 +215,7 @@ export const TeamspaceDataSource = ({
           {teamspace.cc_pairs.length > 0 ? (
             <div className="pt-8 flex flex-wrap gap-2">
               {teamspace.cc_pairs.slice(0, 8).map((teamspaceDataSource) => (
-                <Badge key={teamspaceDataSource.id}gui>
+                <Badge key={teamspaceDataSource.id}>
                   <div className="truncate">{teamspaceDataSource.name}</div>
                 </Badge>
               ))}
