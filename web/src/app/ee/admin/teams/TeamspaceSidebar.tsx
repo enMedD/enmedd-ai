@@ -54,11 +54,11 @@ export const TeamspaceSidebar = ({
         }`}
       >
         {isExpanded && (
-          <div className="h-full flex items-center justify-center absolute right-full">
+          <div className="h-full flex items-center justify-center absolute right-full pointer-events-none">
             <CustomTooltip
               trigger={
                 <button
-                  className="border rounded-l py-2 border-r-0 bg-background hidden lg:flex"
+                  className="border rounded-l py-2 border-r-0 bg-background hidden lg:flex pointer-events-auto"
                   onClick={onClose}
                 >
                   <ChevronRight size={16} />
