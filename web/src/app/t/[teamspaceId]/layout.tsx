@@ -1,3 +1,4 @@
+import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { User } from "@/lib/types";
 import {
   AuthTypeMetadata,
@@ -5,17 +6,11 @@ import {
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { SideBar } from "../SideBar";
-import { BarLayout } from "../BarLayout";
-import { AdminBar } from "./AdminBar";
-import { HealthCheckBanner } from "../health/healthcheck";
 
-export async function Layout({
+export default async function Layout({
   children,
-  isTeamspace,
 }: {
   children: React.ReactNode;
-  isTeamspace?: boolean;
 }) {
   const tasks = [getAuthTypeMetadataSS(), getCurrentUserSS()];
 
@@ -49,12 +44,7 @@ export async function Layout({
   return (
     <div className="h-full">
       <HealthCheckBanner />
-      <div className="flex h-full">
-        <AdminBar user={user}>
-          <SideBar isTeamspace={isTeamspace} />
-        </AdminBar>
-        {children}
-      </div>
+      <div className="h-full">{children}</div>
     </div>
   );
 }

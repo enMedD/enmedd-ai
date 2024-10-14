@@ -26,9 +26,11 @@ import {
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
 
-interface SideBarProps {}
+interface SideBarProps {
+  isTeamspace?: boolean;
+}
 
-export const SideBar: React.FC<SideBarProps> = ({}) => {
+export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
   const dynamicSettings = useContext(SettingsContext);
 
   return (
@@ -148,7 +150,8 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                 ),
                 link: "/admin/users",
               },
-              ...(dynamicSettings?.featureFlags.multi_teamspace
+
+              ...(dynamicSettings?.featureFlags.multi_teamspace && !isTeamspace
                 ? [
                     {
                       name: (
@@ -161,24 +164,28 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     },
                   ]
                 : []),
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <KeyIcon size={20} />
-                    <div>API Keys</div>
-                  </div>
-                ),
-                link: "/admin/api-key",
-              },
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Shield size={20} />
-                    <div>Token Rate Limits</div>
-                  </div>
-                ),
-                link: "/admin/token-rate-limits",
-              },
+              ...(!isTeamspace
+                ? [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <KeyIcon size={20} />
+                          <div>API Keys</div>
+                        </div>
+                      ),
+                      link: "/admin/api-key",
+                    },
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <Shield size={20} />
+                          <div>Token Rate Limits</div>
+                        </div>
+                      ),
+                      link: "/admin/token-rate-limits",
+                    },
+                  ]
+                : []),
             ],
           },
           {
@@ -220,28 +227,42 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
           {
             name: "Settings",
             items: [
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Settings size={20} />
-                    <div>Workspace Settings</div>
-                  </div>
-                ),
-                link: "/admin/settings",
-              },
-              ...(dynamicSettings?.featureFlags.whitelabelling
+              ...(isTeamspace
                 ? [
                     {
                       name: (
                         <div className="flex items-center gap-2">
-                          <ImageIcon size={20} />
-                          <div>Whitelabeling</div>
+                          <Settings size={20} />
+                          <div>Teamspace Settings</div>
                         </div>
                       ),
-                      link: "/admin/whitelabeling",
+                      link: "/admin/settings",
                     },
                   ]
-                : []),
+                : [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <Settings size={20} />
+                          <div>Workspace Settings</div>
+                        </div>
+                      ),
+                      link: "/admin/settings",
+                    },
+                    ...(dynamicSettings?.featureFlags.whitelabelling
+                      ? [
+                          {
+                            name: (
+                              <div className="flex items-center gap-2">
+                                <ImageIcon size={20} />
+                                <div>Whitelabeling</div>
+                              </div>
+                            ),
+                            link: "/admin/whitelabeling",
+                          },
+                        ]
+                      : []),
+                  ]),
             ],
           },
         ]}
