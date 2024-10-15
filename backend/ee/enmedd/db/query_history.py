@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 
 from enmedd.db.models import ChatMessage
 from enmedd.db.models import ChatSession
+from enmedd.db.models import ChatSession__Teamspace
+from enmedd.db.models import TeamspaceSettings
 
 SortByOptions = Literal["time_sent"]
 
@@ -33,7 +35,16 @@ def fetch_chat_sessions_eagerly_by_time(
         filters.append(ChatSession.id < initial_id)
     subquery = (
         db_session.query(ChatSession.id, ChatSession.time_created)
+        .join(
+            ChatSession__Teamspace,
+            ChatSession.id == ChatSession__Teamspace.chat_session_id,
+        )
+        .join(
+            TeamspaceSettings,
+            TeamspaceSettings.teamspace_id == ChatSession__Teamspace.teamspace_id,
+        )
         .filter(*filters)
+        .filter(TeamspaceSettings.chat_history_enabled)
         .order_by(id_order, time_order)
         .distinct(ChatSession.id)
         .limit(limit)

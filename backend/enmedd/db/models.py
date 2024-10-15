@@ -1609,6 +1609,7 @@ class TeamspaceSettings(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     chat_page_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     search_page_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    chat_history_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     default_page: Mapped[PageType] = mapped_column(
         Enum(PageType, native_enum=False), default=PageType.CHAT
     )

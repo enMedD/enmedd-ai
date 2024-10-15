@@ -23,6 +23,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("chat_page_enabled", sa.Boolean(), nullable=False),
         sa.Column("search_page_enabled", sa.Boolean(), nullable=False),
+        sa.Column("chat_history_enabled", sa.Boolean(), nullable=False),
         sa.Column(
             "default_page",
             sa.Enum("CHAT", "SEARCH", name="pagetype", native_enum=False),
