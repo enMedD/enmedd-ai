@@ -1,23 +1,20 @@
 "use client";
 
 import { AdminPageTitle } from "@/components/admin/Title";
-import { BookmarkIcon } from "@/components/icons/icons";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
-import {
-  useConnectorCredentialIndexingStatus,
-  useTeamspaces,
-} from "@/lib/hooks";
+import { useTeamspaces } from "@/lib/hooks";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { BackButton } from "@/components/BackButton";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { useRouter } from "next/navigation";
-import { Teamspace } from "@/lib/types";
+import { useParams, useRouter } from "next/navigation";
 import { refreshDocumentSets } from "../hooks";
 import { Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useConnectorCredentialIndexingStatus } from "@/app/t/[teamspaceId]/lib/hooks";
 
 function Main() {
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   const {
     data: ccPairs,
@@ -49,8 +46,8 @@ function Main() {
             ccPairs={ccPairs}
             teamspaces={teamspaces}
             onClose={() => {
-              refreshDocumentSets();
-              router.push("/admin/documents/sets");
+              refreshDocumentSets(teamspaceId);
+              router.push(`/t/${teamspaceId}/admin/documents/sets`);
             }}
           />
         </CardContent>

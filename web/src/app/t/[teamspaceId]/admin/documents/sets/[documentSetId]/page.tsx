@@ -11,12 +11,13 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { BookmarkIcon } from "@/components/icons/icons";
 import { BackButton } from "@/components/BackButton";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 function Main({ documentSetId }: { documentSetId: number }) {
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   const {
     data: documentSets,
@@ -79,8 +80,8 @@ function Main({ documentSetId }: { documentSetId: number }) {
             ccPairs={ccPairs}
             teamspaces={teamspaces}
             onClose={() => {
-              refreshDocumentSets();
-              router.push("/admin/documents/sets");
+              refreshDocumentSets(teamspaceId);
+              router.push(`/t/${teamspaceId}/admin/documents/sets`);
             }}
             existingDocumentSet={documentSet}
           />

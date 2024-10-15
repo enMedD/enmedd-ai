@@ -13,7 +13,7 @@ import { deleteDocumentSet } from "./lib";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { DeleteButton } from "@/components/DeleteButton";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Bookmark,
@@ -39,33 +39,39 @@ const numToDisplay = 50;
 
 const EditRow = ({ documentSet }: { documentSet: DocumentSet }) => {
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   return (
     <div className="relative flex">
-      <CustomTooltip
-        trigger={
-          <Button
-            variant="ghost"
-            className={
-              documentSet.is_up_to_date ? "cursor-pointer" : " cursor-default"
-            }
-            onClick={() => {
-              if (documentSet.is_up_to_date) {
-                router.push(`/admin/documents/sets/${documentSet.id}`);
-              }
-            }}
-          >
-            <Pencil size={16} className="my-auto mr-1 " />
-            {documentSet.name}
-          </Button>
-        }
-        asChild
-      >
-        <div className="flex gap-1.5">
-          <InfoIcon className="mb-auto shrink-0 mt-[3px]" /> Cannot update while
-          syncing! Wait for the sync to finish, then try again.
-        </div>
-      </CustomTooltip>
+      {documentSet.is_up_to_date ? (
+        <Button
+          variant="ghost"
+          className="cursor-pointer"
+          onClick={() => {
+            router.push(
+              `/t/${teamspaceId}/admin/documents/sets/${documentSet.id}`
+            );
+          }}
+        >
+          <Pencil size={16} className="my-auto mr-1 " />
+          {documentSet.name}
+        </Button>
+      ) : (
+        <CustomTooltip
+          trigger={
+            <Button variant="ghost" className="cursor-not-allowed">
+              <Pencil size={16} className="my-auto mr-1 " />
+              {documentSet.name}
+            </Button>
+          }
+          asChild
+        >
+          <div className="flex gap-1.5">
+            <InfoIcon className="mb-auto shrink-0 mt-[3px]" /> Cannot update
+            while syncing! Wait for the sync to finish, then try again.
+          </div>
+        </CustomTooltip>
+      )}
     </div>
   );
 };
@@ -223,6 +229,7 @@ const Main = () => {
     error: documentSetsError,
     refreshDocumentSets,
   } = useDocumentSets();
+  const { teamspaceId } = useParams();
 
   const {
     data: ccPairs,
@@ -253,7 +260,7 @@ const Main = () => {
       </p>
 
       <div className="flex pb-6">
-        <Link href="/admin/documents/sets/new">
+        <Link href={`/t/${teamspaceId}/admin/documents/sets/new`}>
           <Button className="my-auto">New Document Set</Button>
         </Link>
       </div>
