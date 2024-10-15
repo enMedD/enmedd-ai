@@ -6,7 +6,6 @@ import {
   TextFormField,
   TextArrayFieldBuilder,
 } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import {
   JiraConfig,
@@ -19,7 +18,7 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
@@ -28,6 +27,7 @@ import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { Divider } from "@/components/Divider";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
 
 // Copied from the `extract_jira_project` function
 const extractJiraProject = (url: string): string | null => {
@@ -44,13 +44,14 @@ const extractJiraProject = (url: string): string | null => {
 const Main = () => {
   const { toast } = useToast();
 
+  const { teamspaceId } = useParams();
   const { mutate } = useSWRConfig();
   const {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {
@@ -266,7 +267,9 @@ const Main = () => {
                   onCredentialLink={async (connectorId) => {
                     if (jiraCredential) {
                       await linkCredential(connectorId, jiraCredential.id);
-                      mutate("/api/manage/admin/connector/indexing-status");
+                      mutate(
+                        `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                      );
                     }
                   }}
                   specialColumns={[
@@ -300,7 +303,9 @@ const Main = () => {
                     },
                   ]}
                   onUpdate={() =>
-                    mutate("/api/manage/admin/connector/indexing-status")
+                    mutate(
+                      `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                    )
                   }
                 />
               </div>

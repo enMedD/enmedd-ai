@@ -21,6 +21,7 @@ import {
   TableBody,
   TableCell,
 } from "@tremor/react";
+import { useParams } from "next/navigation";
 
 interface EditableColumnProps {
   connectorIndexingStatus: ConnectorIndexingStatus<
@@ -31,6 +32,7 @@ interface EditableColumnProps {
 
 const EditableColumn = ({ connectorIndexingStatus }: EditableColumnProps) => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   return (
@@ -40,7 +42,9 @@ const EditableColumn = ({ connectorIndexingStatus }: EditableColumnProps) => {
           existingConnector={connectorIndexingStatus.connector}
           onSubmit={() => {
             setIsEditing(false);
-            mutate("/api/manage/admin/connector/indexing-status");
+            mutate(
+              `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+            );
           }}
         />
       )}
@@ -71,6 +75,7 @@ export const GoogleDriveConnectorsTable = ({
   googleDriveConnectorIndexingStatuses,
 }: TableProps) => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
 
   // Sorting to maintain a consistent ordering
   const sortedGoogleDriveConnectorIndexingStatuses = [
@@ -161,7 +166,9 @@ export const GoogleDriveConnectorsTable = ({
                           .length === 0
                       }
                       onUpdate={() => {
-                        mutate("/api/manage/admin/connector/indexing-status");
+                        mutate(
+                          `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                        );
                       }}
                     />
                   </TableCell>
@@ -169,7 +176,9 @@ export const GoogleDriveConnectorsTable = ({
                     <DeleteColumn
                       connectorIndexingStatus={connectorIndexingStatus}
                       onUpdate={() =>
-                        mutate("/api/manage/admin/connector/indexing-status")
+                        mutate(
+                          `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                        )
                       }
                     />
                   </TableCell>

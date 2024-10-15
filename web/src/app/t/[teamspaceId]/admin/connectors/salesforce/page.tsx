@@ -5,7 +5,6 @@ import { TrashIcon, SalesforceIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher as fetcher } from "@/lib/fetcher";
 import useSWR, { useSWRConfig } from "swr";
 import { LoadingAnimation } from "@/components/Loading";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import {
   SalesforceConfig,
   SalesforceCredentialJson,
@@ -19,21 +18,23 @@ import {
   TextArrayFieldBuilder,
 } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Text, Title, Button } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
+import { useParams } from "next/navigation";
 
 const MainSection = () => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
   const {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
     error: isConnectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     fetcher
   );
 
@@ -183,12 +184,16 @@ const MainSection = () => {
                 credential.credential_json.sf_security_token
               }
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
               onCredentialLink={async (connectorId) => {
                 if (SalesforceCredential) {
                   await linkCredential(connectorId, SalesforceCredential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               specialColumns={[

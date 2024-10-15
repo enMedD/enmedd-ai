@@ -6,7 +6,6 @@ import useSWR, { useSWRConfig } from "swr";
 import { FetchError, errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import {
   ConnectorIndexingStatus,
   Credential,
@@ -14,7 +13,7 @@ import {
   GoogleDriveCredentialJson,
   GoogleDriveServiceAccountCredentialJson,
 } from "@/lib/types";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import {
   BooleanFormField,
   TextArrayFieldBuilder,
@@ -28,6 +27,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { Divider } from "@/components/Divider";
+import { useParams } from "next/navigation";
 
 interface GoogleDriveConnectorManagementProps {
   googleDrivePublicCredential?: Credential<GoogleDriveCredentialJson>;
@@ -51,6 +51,7 @@ const GoogleDriveConnectorManagement = ({
   credentialIsLinked,
 }: GoogleDriveConnectorManagementProps) => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
 
   const liveCredential =
     googleDrivePublicCredential || googleDriveServiceAccountCredential;
@@ -158,7 +159,10 @@ const GoogleDriveConnectorManagement = ({
           {googleDriveConnectorIndexingStatuses.length > 0 ? (
             <>
               Checkout the{" "}
-              <a href="/admin/indexing/status" className="text-blue-500">
+              <a
+                href={`/t/${teamspaceId}/admin/indexing/status`}
+                className="text-blue-500"
+              >
                 status page
               </a>{" "}
               for the latest indexing status. We fetch the latest documents from
@@ -260,6 +264,7 @@ const GoogleDriveConnectorManagement = ({
 };
 
 const Main = () => {
+  const { teamspaceId } = useParams();
   const {
     data: appCredentialData,
     isLoading: isAppCredentialLoading,
@@ -281,7 +286,7 @@ const Main = () => {
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[], FetchError>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {

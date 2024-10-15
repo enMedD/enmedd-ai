@@ -5,8 +5,6 @@ import * as Yup from "yup";
 
 import { FileIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { ConnectorIndexingStatus, FileConfig } from "@/lib/types";
 import { createCredential, linkCredential } from "@/lib/credential";
 import { useState } from "react";
@@ -29,11 +27,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { Divider } from "@/components/Divider";
+import { useParams } from "next/navigation";
 
 const Main = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filesAreUploading, setFilesAreUploading] = useState<boolean>(false);
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
@@ -43,7 +43,7 @@ const Main = () => {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
 
@@ -202,7 +202,9 @@ const Main = () => {
                       return;
                     }
 
-                    mutate("/api/manage/admin/connector/indexing-status");
+                    mutate(
+                      `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                    );
                     setSelectedFiles([]);
                     formikHelpers.resetForm();
                     toast({
@@ -282,7 +284,9 @@ const Main = () => {
               },
             ]}
             onUpdate={() =>
-              mutate("/api/manage/admin/connector/indexing-status")
+              mutate(
+                `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+              )
             }
           />
         </div>

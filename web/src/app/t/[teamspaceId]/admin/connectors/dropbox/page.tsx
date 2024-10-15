@@ -4,7 +4,7 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { DropboxIcon } from "@/components/icons/icons";
 import { LoadingAnimation } from "@/components/Loading";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
@@ -19,23 +19,25 @@ import {
   DropboxConfig,
   DropboxCredentialJson,
 } from "@/lib/types";
-import { Text, Title, Button } from "@tremor/react";
+import { Text, Button } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 const Main = () => {
   const { toast } = useToast();
 
+  const { teamspaceId } = useParams();
   const { mutate } = useSWRConfig();
   const {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {
@@ -149,7 +151,9 @@ const Main = () => {
                 onSubmit={(isSuccess) => {
                   if (isSuccess) {
                     refreshCredentials();
-                    mutate("/api/manage/admin/connector/indexing-status");
+                    mutate(
+                      `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                    );
                   }
                 }}
               />
@@ -173,11 +177,15 @@ const Main = () => {
               onCredentialLink={async (connectorId) => {
                 if (dropboxCredential) {
                   await linkCredential(connectorId, dropboxCredential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           </div>

@@ -1,10 +1,9 @@
 "use client";
 
 import { AdminPageTitle } from "@/components/admin/Title";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { OCIStorageIcon, TrashIcon } from "@/components/icons/icons";
 import { LoadingAnimation } from "@/components/Loading";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
@@ -19,16 +18,18 @@ import {
   OCIConfig,
   OCICredentialJson,
 } from "@/lib/types";
-import { Select, SelectItem, Text, Title, Button } from "@tremor/react";
+import { Text } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 const OCIMain = () => {
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const { mutate } = useSWRConfig();
   const {
@@ -36,7 +37,7 @@ const OCIMain = () => {
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {
@@ -99,7 +100,6 @@ const OCIMain = () => {
               {ociCredential.credential_json.namespace}
             </p>{" "}
             <Button
-              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (ociConnectorIndexingStatuses.length > 0) {
                   toast({
@@ -113,7 +113,7 @@ const OCIMain = () => {
                 await adminDeleteCredential(ociCredential.id);
                 refreshCredentials();
               }}
-              variant="light"
+              variant="destructive"
             >
               <TrashIcon />
             </Button>
@@ -193,11 +193,15 @@ const OCIMain = () => {
               onCredentialLink={async (connectorId) => {
                 if (ociCredential) {
                   await linkCredential(connectorId, ociCredential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           </div>

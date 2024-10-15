@@ -17,6 +17,7 @@ import {
   TableBody,
   TableCell,
 } from "@tremor/react";
+import { useParams } from "next/navigation";
 
 interface TableProps {
   gmailConnectorIndexingStatuses: ConnectorIndexingStatus<
@@ -29,6 +30,7 @@ export const GmailConnectorsTable = ({
   gmailConnectorIndexingStatuses: gmailConnectorIndexingStatuses,
 }: TableProps) => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
 
   // Sorting to maintain a consistent ordering
   const sortedGmailConnectorIndexingStatuses = [
@@ -60,7 +62,9 @@ export const GmailConnectorsTable = ({
                           .length === 0
                       }
                       onUpdate={() => {
-                        mutate("/api/manage/admin/connector/indexing-status");
+                        mutate(
+                          `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                        );
                       }}
                     />
                   </TableCell>
@@ -68,7 +72,9 @@ export const GmailConnectorsTable = ({
                     <DeleteColumn
                       connectorIndexingStatus={connectorIndexingStatus}
                       onUpdate={() =>
-                        mutate("/api/manage/admin/connector/indexing-status")
+                        mutate(
+                          `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                        )
                       }
                     />
                   </TableCell>

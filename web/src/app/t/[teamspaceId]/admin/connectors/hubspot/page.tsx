@@ -16,7 +16,7 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LoadingAnimation } from "@/components/Loading";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
@@ -24,9 +24,11 @@ import { Text, Title, Button } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 const Main = () => {
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const { mutate } = useSWRConfig();
   const {
@@ -34,7 +36,7 @@ const Main = () => {
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
 
@@ -198,11 +200,15 @@ const Main = () => {
               onCredentialLink={async (connectorId) => {
                 if (hubSpotCredential) {
                   await linkCredential(connectorId, hubSpotCredential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           </>

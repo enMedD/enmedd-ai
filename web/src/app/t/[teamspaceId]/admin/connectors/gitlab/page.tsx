@@ -13,7 +13,7 @@ import {
   Credential,
   ConnectorIndexingStatus,
 } from "@/lib/types";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { LoadingAnimation } from "@/components/Loading";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { adminDeleteCredential, linkCredential } from "@/lib/credential";
@@ -24,15 +24,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/Divider";
+import { useParams } from "next/navigation";
 
 const Main = () => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
   const {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
 
@@ -182,7 +184,9 @@ const Main = () => {
               onCredentialLink={async (connectorId) => {
                 if (gitlabCredential) {
                   await linkCredential(connectorId, gitlabCredential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               specialColumns={[
@@ -197,7 +201,9 @@ const Main = () => {
                 },
               ]}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           </div>

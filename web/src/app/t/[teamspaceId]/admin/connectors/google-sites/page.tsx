@@ -6,9 +6,7 @@ import * as Yup from "yup";
 import { LoadingAnimation } from "@/components/Loading";
 import { GoogleSitesIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ErrorCallout } from "@/components/ErrorCallout";
 import { TextFormField } from "@/components/admin/connectors/Field";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { ConnectorIndexingStatus, GoogleSitesConfig } from "@/lib/types";
 import { Form, Formik } from "formik";
 import { useState } from "react";
@@ -22,19 +20,21 @@ import { Button, Text, Title } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 export default function GoogleSites() {
   const { mutate } = useSWRConfig();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filesAreUploading, setFilesAreUploading] = useState<boolean>(false);
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
 
@@ -157,7 +157,9 @@ export default function GoogleSites() {
                           return;
                         }
 
-                        mutate("/api/manage/admin/connector/indexing-status");
+                        mutate(
+                          `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                        );
                         setSelectedFiles([]);
                         formikHelpers.resetForm();
                         toast({
@@ -245,7 +247,9 @@ export default function GoogleSites() {
                 },
               ]}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           ) : (

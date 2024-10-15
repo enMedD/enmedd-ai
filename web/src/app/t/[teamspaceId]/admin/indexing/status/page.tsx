@@ -19,9 +19,7 @@ function Main() {
     isLoading: indexAttemptIsLoading,
     error: indexAttemptError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    teamspaceId
-      ? `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
-      : null,
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher,
     { refreshInterval: 10000 }
   );

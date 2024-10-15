@@ -14,7 +14,7 @@ import {
   GmailServiceAccountCredentialJson,
   GmailConfig,
 } from "@/lib/types";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { GmailConnectorsTable } from "./GmailConnectorsTable";
 import { gmailConnectorNameBuilder } from "./utils";
 import { GmailOAuthSection, GmailJsonUploadSection } from "./Credential";
@@ -22,6 +22,7 @@ import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
+import { useParams } from "next/navigation";
 
 interface GmailConnectorManagementProps {
   gmailPublicCredential?: Credential<GmailCredentialJson>;
@@ -43,6 +44,7 @@ const GmailConnectorManagement = ({
   gmailConnectorIndexingStatuses: gmailConnectorIndexingStatuses,
 }: GmailConnectorManagementProps) => {
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
 
   const liveCredential = gmailPublicCredential || gmailServiceAccountCredential;
   if (!liveCredential) {
@@ -61,7 +63,10 @@ const GmailConnectorManagement = ({
           {gmailConnectorIndexingStatuses.length > 0 ? (
             <>
               Checkout the{" "}
-              <a href="/admin/indexing/status" className="text-blue-500">
+              <a
+                href={`/t/${teamspaceId}/admin/indexing/status`}
+                className="text-blue-500"
+              >
                 status page
               </a>{" "}
               for the latest indexing status. We fetch the latest mails from
@@ -106,6 +111,7 @@ const GmailConnectorManagement = ({
 };
 
 const Main = () => {
+  const { teamspaceId } = useParams();
   const {
     data: appCredentialData,
     isLoading: isAppCredentialLoading,
@@ -127,7 +133,7 @@ const Main = () => {
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {

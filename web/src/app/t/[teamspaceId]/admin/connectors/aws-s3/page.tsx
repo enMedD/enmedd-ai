@@ -4,7 +4,6 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { S3Icon, TrashIcon } from "@/components/icons/icons";
 import { LoadingAnimation } from "@/components/Loading";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
@@ -18,7 +17,7 @@ import {
   S3Config,
   S3CredentialJson,
 } from "@/lib/types";
-import { Text, Title } from "@tremor/react";
+import { Text } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 import { useState } from "react";
@@ -26,9 +25,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
+import { ConnectorForm } from "../ConnectorForm";
 
 const S3Main = () => {
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const { mutate } = useSWRConfig();
   const {
@@ -36,7 +38,7 @@ const S3Main = () => {
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {
@@ -185,11 +187,15 @@ const S3Main = () => {
               onCredentialLink={async (connectorId) => {
                 if (s3Credential) {
                   await linkCredential(connectorId, s3Credential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           </div>

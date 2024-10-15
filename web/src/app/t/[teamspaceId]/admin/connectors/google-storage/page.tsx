@@ -4,7 +4,7 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { GoogleStorageIcon, TrashIcon } from "@/components/icons/icons";
 import { LoadingAnimation } from "@/components/Loading";
-import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
+import { ConnectorForm } from "../ConnectorForm";
 import { CredentialForm } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
@@ -22,16 +22,18 @@ import * as Yup from "yup";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 const GCSMain = () => {
   const { toast } = useToast();
   const { mutate } = useSWRConfig();
+  const { teamspaceId } = useParams();
   const {
     data: connectorIndexingStatuses,
     isLoading: isConnectorIndexingStatusesLoading,
     error: connectorIndexingStatusesError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {
@@ -186,11 +188,15 @@ const GCSMain = () => {
               onCredentialLink={async (connectorId) => {
                 if (gcsCredential) {
                   await linkCredential(connectorId, gcsCredential.id);
-                  mutate("/api/manage/admin/connector/indexing-status");
+                  mutate(
+                    `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                  );
                 }
               }}
               onUpdate={() =>
-                mutate("/api/manage/admin/connector/indexing-status")
+                mutate(
+                  `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+                )
               }
             />
           </div>

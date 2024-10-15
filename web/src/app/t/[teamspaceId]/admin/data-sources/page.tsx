@@ -10,6 +10,7 @@ import { SourceCategory, SourceMetadata } from "@/lib/search/interfaces";
 import { listSourceMetadata } from "@/lib/sources";
 import { CloudUpload, Search } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function SourceTile({
@@ -21,9 +22,11 @@ function SourceTile({
   disabled?: boolean;
   category?: string;
 }) {
+  const { teamspaceId } = useParams();
+
   return (
     <Link
-      href={sourceMetadata.adminUrl}
+      href={`/t/${teamspaceId}${sourceMetadata.adminUrl}`}
       className={
         category?.toLocaleLowerCase() === "coming soon"
           ? "pointer-events-none"
