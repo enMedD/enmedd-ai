@@ -131,9 +131,9 @@ class TeamspaceCreate(BaseModel):
 
 class TeamspaceUpdate(BaseModel):
     user_ids: list[UUID]
-    cc_pair_ids: list[int]
-    document_set_ids: Optional[List[int]] = []
-    assistant_ids: Optional[List[int]] = []
+    cc_pair_ids: Optional[List[int]] = None
+    document_set_ids: Optional[List[int]] = None
+    assistant_ids: Optional[List[int]] = None
 
 
 class TeamspaceUserRole(str, Enum):

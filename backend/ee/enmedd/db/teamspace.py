@@ -311,29 +311,34 @@ def _sync_relationships(
     updated_user_ids: list[UUID],
     updated_cc_pair_ids: list[int],
     updated_document_set_ids: list[int],
-    updated_assistant_ids: list[int]
+    updated_assistant_ids: list[int],
 ) -> None:
     current_user_ids = set(
         db_session.scalars(
-            select(User__Teamspace.user_id).where(User__Teamspace.teamspace_id == teamspace_id)
+            select(User__Teamspace.user_id).where(
+                User__Teamspace.teamspace_id == teamspace_id
+            )
         ).all()
     )
     current_cc_pair_ids = set(
         db_session.scalars(
-            select(Teamspace__ConnectorCredentialPair.cc_pair_id)
-            .where(Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id)
+            select(Teamspace__ConnectorCredentialPair.cc_pair_id).where(
+                Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id
+            )
         ).all()
     )
     current_document_set_ids = set(
         db_session.scalars(
-            select(DocumentSet__Teamspace.document_set_id)
-            .where(DocumentSet__Teamspace.teamspace_id == teamspace_id)
+            select(DocumentSet__Teamspace.document_set_id).where(
+                DocumentSet__Teamspace.teamspace_id == teamspace_id
+            )
         ).all()
     )
     current_assistant_ids = set(
         db_session.scalars(
-            select(Assistant__Teamspace.assistant_id)
-            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+            select(Assistant__Teamspace.assistant_id).where(
+                Assistant__Teamspace.teamspace_id == teamspace_id
+            )
         ).all()
     )
 
@@ -360,7 +365,9 @@ def _sync_relationships(
         db_session.execute(
             delete(Teamspace__ConnectorCredentialPair)
             .where(Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id)
-            .where(Teamspace__ConnectorCredentialPair.cc_pair_id.in_(cc_pairs_to_delete))
+            .where(
+                Teamspace__ConnectorCredentialPair.cc_pair_id.in_(cc_pairs_to_delete)
+            )
         )
 
     if document_sets_to_delete:
@@ -427,7 +434,9 @@ def update_teamspace(
         updated_assistant_ids=teamspace.assistant_ids,
     )
 
-    if set([cc_pair.id for cc_pair in db_teamspace.cc_pairs]) != set(teamspace.cc_pair_ids):
+    if set([cc_pair.id for cc_pair in db_teamspace.cc_pairs]) != set(
+        teamspace.cc_pair_ids
+    ):
         db_teamspace.is_up_to_date = False
 
     db_session.commit()
