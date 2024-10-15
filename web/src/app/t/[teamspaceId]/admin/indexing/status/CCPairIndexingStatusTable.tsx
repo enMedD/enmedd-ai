@@ -113,8 +113,10 @@ function ClickableTableRow({
 
 export function CCPairIndexingStatusTable({
   ccPairsIndexingStatuses,
+  teamspaceId,
 }: {
   ccPairsIndexingStatuses: ConnectorIndexingStatus<any, any>[];
+  teamspaceId: string | string[];
 }) {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -129,6 +131,8 @@ export function CCPairIndexingStatusTable({
     NUM_IN_PAGE * (page - 1),
     NUM_IN_PAGE * page
   );
+
+  console.log(ccPairsIndexingStatusesForPage);
 
   return (
     <div>
@@ -156,7 +160,7 @@ export function CCPairIndexingStatusTable({
               {ccPairsIndexingStatusesForPage.map((ccPairsIndexingStatus) => (
                 <ClickableTableRow
                   key={ccPairsIndexingStatus.cc_pair_id}
-                  url={`/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`}
+                  url={`/t/${teamspaceId}/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`}
                 >
                   <TableCell>
                     <div className="flex items-center gap-2 my-auto">

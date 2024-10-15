@@ -5,10 +5,10 @@ import { Ellipsis } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomModal } from "../CustomModal";
 import { useState } from "react";
-import { Teamspace } from "@/lib/types";
+import { MinimalTeamspaceSnapshot } from "@/lib/types";
 
 interface TeamspaceModalProps {
-  teamspace?: Teamspace[] | undefined;
+  teamspace?: MinimalTeamspaceSnapshot[] | undefined;
 }
 
 export const TeamspaceModal = ({ teamspace }: TeamspaceModalProps) => {
@@ -47,7 +47,6 @@ export const TeamspaceModal = ({ teamspace }: TeamspaceModalProps) => {
       onClose={() => setIsModalVisible(false)}
       open={isModalVisible}
       title="Your Team Space"
-      description="All your teamspace"
     >
       <div className="grid grid-cols-3 gap-4">
         {teamspace.map((team) => (

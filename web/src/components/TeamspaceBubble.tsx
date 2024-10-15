@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { CustomTooltip } from "./CustomTooltip";
-import { Teamspace } from "@/lib/types";
+import { MinimalTeamspaceSnapshot } from "@/lib/types";
 
 interface TeamspaceBubbleProps {
-  teamspace?: Teamspace | undefined;
+  teamspace?: MinimalTeamspaceSnapshot | undefined;
   link: string;
 }
 

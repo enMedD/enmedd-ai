@@ -2,19 +2,11 @@
 
 import { useState, useRef, useContext } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { User as UserTypes } from "@/lib/types";
 import { checkUserIsNoAuthUser, logout } from "@/lib/user";
 import { LOGOUT_DISABLED } from "@/lib/constants";
-import {
-  Bell,
-  CircleUserRound,
-  LogOut,
-  MessageCircleMore,
-  Search,
-  User,
-  Wrench,
-} from "lucide-react";
+import { LogOut, MessageCircleMore, User, Wrench } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { SettingsContext } from "./settings/SettingsProvider";
 import { UserProfile } from "./UserProfile";
@@ -32,6 +24,7 @@ export function UserSettingsButton({
   const userInfoRef = useRef<HTMLDivElement>(null);
   const settings = useContext(SettingsContext);
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   const handleLogout = () => {
     logout().then((isSuccess) => {
@@ -95,7 +88,11 @@ export function UserSettingsButton({
             )}
             <Link
               // redirect to default page
-              href={`/${defaultPage}`}
+              href={
+                teamspaceId
+                  ? `/t/${teamspaceId}/${defaultPage}`
+                  : `/${defaultPage}`
+              }
               className="flex py-3 px-4 cursor-pointer rounded-regular hover:bg-primary hover:text-inverted"
             >
               <MessageCircleMore
@@ -108,7 +105,11 @@ export function UserSettingsButton({
             {showAdminPanel && (
               <>
                 <Link
-                  href="/admin/indexing/status"
+                  href={
+                    teamspaceId
+                      ? `/t/${teamspaceId}/admin/indexing/status`
+                      : "/admin/indexing/status"
+                  }
                   className="flex py-3 px-4 cursor-pointer rounded-regular hover:bg-primary hover:text-inverted"
                 >
                   <Wrench

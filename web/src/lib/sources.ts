@@ -156,7 +156,7 @@ function fillSourceMetadata(
   return {
     internalName: internalName,
     ...partialMetadata,
-    adminUrl: `/admin/connectors/${partialMetadata.displayName
+    adminUrl: `/admin/connectors/${partialMetadata?.displayName
       .toLowerCase()
       .replaceAll(" ", "-")}`,
   };

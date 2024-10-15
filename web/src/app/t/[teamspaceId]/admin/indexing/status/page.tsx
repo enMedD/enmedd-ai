@@ -2,29 +2,32 @@
 
 import useSWR from "swr";
 
-import { LoadingAnimation } from "@/components/Loading";
+import { LoadingAnimation, ThreeDotsLoader } from "@/components/Loading";
 import { NotebookIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ConnectorIndexingStatus } from "@/lib/types";
 import { CCPairIndexingStatusTable } from "./CCPairIndexingStatusTable";
 import { AdminPageTitle } from "@/components/admin/Title";
 import Link from "next/link";
-import { Text } from "@tremor/react";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
 
 function Main() {
+  const { teamspaceId } = useParams();
   const {
     data: indexAttemptData,
     isLoading: indexAttemptIsLoading,
     error: indexAttemptError,
   } = useSWR<ConnectorIndexingStatus<any, any>[]>(
-    "/api/manage/admin/connector/indexing-status",
+    teamspaceId
+      ? `/api/manage/admin/connector/indexing-status?teamspace_id=${teamspaceId}`
+      : null,
     errorHandlingFetcher,
-    { refreshInterval: 10000 } // 10 seconds
+    { refreshInterval: 10000 }
   );
 
   if (indexAttemptIsLoading) {
-    return <LoadingAnimation text="" />;
+    return <ThreeDotsLoader />;
   }
 
   if (indexAttemptError || !indexAttemptData) {
@@ -39,7 +42,10 @@ function Main() {
     return (
       <p>
         It looks like you don&apos;t have any connectors setup yet. Visit the{" "}
-        <Link className="text-link" href="/admin/data-sources">
+        <Link
+          className="text-link"
+          href={`/t/${teamspaceId}/admin/data-sources`}
+        >
           Add Data Sources
         </Link>{" "}
         page to get started!
@@ -59,11 +65,15 @@ function Main() {
   });
 
   return (
-    <CCPairIndexingStatusTable ccPairsIndexingStatuses={indexAttemptData} />
+    <CCPairIndexingStatusTable
+      ccPairsIndexingStatuses={indexAttemptData}
+      teamspaceId={teamspaceId}
+    />
   );
 }
 
 export default function Status() {
+  const { teamspaceId } = useParams();
   return (
     <div className="h-full w-full overflow-y-auto">
       <div className="container">
@@ -71,7 +81,7 @@ export default function Status() {
           icon={<NotebookIcon size={32} />}
           title="Existing Data Sources"
           farRightElement={
-            <Link href="/admin/data-sources">
+            <Link href={`/t/${teamspaceId}/admin/data-sources`}>
               <Button>Add Data Sources</Button>
             </Link>
           }
