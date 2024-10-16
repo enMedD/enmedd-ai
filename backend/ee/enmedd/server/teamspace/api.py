@@ -14,6 +14,7 @@ from ee.enmedd.db.teamspace import update_teamspace
 from ee.enmedd.server.teamspace.models import Teamspace
 from ee.enmedd.server.teamspace.models import TeamspaceCreate
 from ee.enmedd.server.teamspace.models import TeamspaceUpdate
+from ee.enmedd.server.teamspace.models import TeamspaceUpdateName
 from ee.enmedd.server.teamspace.models import TeamspaceUserRole
 from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
@@ -21,6 +22,7 @@ from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session
+from enmedd.db.models import Teamspace as TeamspaceModel
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
@@ -100,6 +102,39 @@ def delete_teamspace(
         prepare_teamspace_for_deletion(db_session, teamspace_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@admin_router.patch("/admin/teamspace")
+def update_teamspace_name(
+    teamspace_id: int,
+    teamspace_update: TeamspaceUpdateName,
+    _: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+) -> Teamspace:
+    db_teamspace = fetch_teamspace(db_session, teamspace_id)
+
+    if db_teamspace is None:
+        raise HTTPException(
+            status_code=404, detail=f"Teamspace with id '{teamspace_id}' not found"
+        )
+
+    if (
+        db_session.query(TeamspaceModel)
+        .filter(
+            TeamspaceModel.name == teamspace_update.name,
+            TeamspaceModel.id != teamspace_id,
+        )
+        .first()
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Teamspace with name '{teamspace_update.name}' already exists. Please choose a different name.",
+        )
+
+    db_teamspace.name = teamspace_update.name
+    db_session.commit()
+
+    return Teamspace.from_model(db_teamspace)
 
 
 @admin_router.patch("/admin/teamspace/user-role/{teamspace_id}")

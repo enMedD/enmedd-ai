@@ -1,5 +1,4 @@
 from typing import Optional
-from uuid import UUID
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -19,6 +18,7 @@ from enmedd.db.assistant import update_assistant_visibility
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.llm.answering.prompts.utils import build_dummy_prompt
+from enmedd.server.features.assistant.models import AssistantShareRequest
 from enmedd.server.features.assistant.models import AssistantSnapshot
 from enmedd.server.features.assistant.models import CreateAssistantRequest
 from enmedd.server.features.assistant.models import PromptTemplateResponse
@@ -125,10 +125,6 @@ def update_assistant(
     )
 
 
-class AssistantShareRequest(BaseModel):
-    user_ids: list[UUID]
-
-
 @basic_router.patch("/{assistant_id}/share")
 def share_assistant(
     assistant_id: int,
@@ -159,7 +155,7 @@ def delete_assistant(
 
 @basic_router.get("")
 def list_assistants(
-    user: User | None = Depends(current_user),
+    _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
 ) -> list[AssistantSnapshot]:

@@ -21,7 +21,6 @@ from enmedd.db.models import Prompt
 from enmedd.db.models import StarterMessage
 from enmedd.db.models import Tool
 from enmedd.db.models import User
-from enmedd.db.models import User__Teamspace
 from enmedd.search.enums import RecencyBiasSetting
 from enmedd.server.features.assistant.models import AssistantSnapshot
 from enmedd.server.features.assistant.models import CreateAssistantRequest
@@ -184,9 +183,12 @@ def get_assistants(
         )
         stmt = stmt.where(or_(teamspace_condition))
     else:
-        stmt = stmt.where(or_(Assistant.is_public == True, Assistant.id.in_(
-            select(Assistant__Teamspace.assistant_id)
-        )))
+        stmt = stmt.where(
+            or_(
+                Assistant.is_public,
+                Assistant.id.in_(select(Assistant__Teamspace.assistant_id)),
+            )
+        )
 
     if not include_default:
         stmt = stmt.where(Assistant.default_assistant.is_(False))
