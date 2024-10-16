@@ -85,128 +85,127 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
         not be displayed.
       </p>
 
-      <Card>
-        <CardContent className="p-0">
-          <DraggableTable
-            headers={["Name", "Description", "Type", "Is Visible", "Delete"]}
-            rows={finalAssistantValues.map((assistant) => {
-              return {
-                id: assistant.id.toString(),
-                cells: [
-                  <div
-                    key="name"
-                    className="flex gap-4 items-center"
-                    /* onClick={() =>
-                      router.push(
-                        `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
-                      )
-                    } */
-                  >
-                    {!assistant.default_assistant && <Pencil size={16} />}
-                    <p className="text font-medium whitespace-normal break-none">
-                      {assistant.name}
-                    </p>
-                  </div>,
-                  <p key="description" className="whitespace-normal max-w-2xl">
-                    {assistant.description}
-                  </p>,
-                  <AssistantTypeDisplay
-                    key={assistant.id}
-                    assistant={assistant}
-                  />,
-                  <Badge
-                    key="is_visible"
-                    onClick={async () => {
-                      const response = await fetch(
-                        `/api/admin/assistant/${assistant.id}/visible`,
-                        {
-                          method: "PATCH",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            is_visible: !assistant.is_visible,
-                          }),
-                        }
-                      );
-                      if (response.ok) {
-                        toast({
-                          title: "Visibility Updated",
-                          description: `The visibility of "${assistant.name}" has been successfully updated.`,
-                          variant: "success",
-                        });
-
-                        router.refresh();
-                      } else {
-                        toast({
-                          title: "Failed to Update Assistant Visibility",
-                          description: `Unable to update visibility for "${assistant.name}". Details: ${await response.text()}`,
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    variant="outline"
-                    className="py-1.5 px-3 w-[84px] cursor-pointer hover:bg-opacity-80 gap-1.5"
-                  >
-                    {!assistant.is_visible ? (
-                      <div className="text-error">Hidden</div>
-                    ) : (
-                      "Visible"
-                    )}
-
-                    <Checkbox checked={assistant.is_visible} />
-                  </Badge>,
-                  <div key="edit" className="flex">
-                    <div className="mx-auto my-auto">
-                      {!assistant.default_assistant ? (
-                        <CustomTooltip
-                          trigger={
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={async () => {
-                                const response = await deleteAssistant(
-                                  assistant.id
-                                );
-                                if (response.ok) {
-                                  toast({
-                                    title: "Assistant deleted",
-                                    description:
-                                      "The assistant has been successfully deleted.",
-                                    variant: "success",
-                                  });
-                                  router.refresh();
-                                } else {
-                                  toast({
-                                    title: "Failed to delete assistant",
-                                    description: `There was an issue deleting the assistant. Details: ${await response.text()}`,
-                                    variant: "destructive",
-                                  });
-                                }
-                              }}
-                            >
-                              <Trash size={16} />
-                            </Button>
+      {finalAssistantValues.length > 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <DraggableTable
+              headers={["Name", "Description", "Type", "Is Visible", "Delete"]}
+              rows={finalAssistantValues.map((assistant) => {
+                return {
+                  id: assistant.id.toString(),
+                  cells: [
+                    <div key="name" className="flex gap-4 items-center">
+                      {!assistant.default_assistant && <Pencil size={16} />}
+                      <p className="text font-medium whitespace-normal break-none">
+                        {assistant.name}
+                      </p>
+                    </div>,
+                    <p
+                      key="description"
+                      className="whitespace-normal max-w-2xl"
+                    >
+                      {assistant.description}
+                    </p>,
+                    <AssistantTypeDisplay
+                      key={assistant.id}
+                      assistant={assistant}
+                    />,
+                    <Badge
+                      key="is_visible"
+                      onClick={async () => {
+                        const response = await fetch(
+                          `/api/admin/assistant/${assistant.id}/visible`,
+                          {
+                            method: "PATCH",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              is_visible: !assistant.is_visible,
+                            }),
                           }
-                          asChild
-                        >
-                          Delete
-                        </CustomTooltip>
+                        );
+                        if (response.ok) {
+                          toast({
+                            title: "Visibility Updated",
+                            description: `The visibility of "${assistant.name}" has been successfully updated.`,
+                            variant: "success",
+                          });
+
+                          router.refresh();
+                        } else {
+                          toast({
+                            title: "Failed to Update Assistant Visibility",
+                            description: `Unable to update visibility for "${assistant.name}". Details: ${await response.text()}`,
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      variant="outline"
+                      className="py-1.5 px-3 w-[84px] cursor-pointer hover:bg-opacity-80 gap-1.5"
+                    >
+                      {!assistant.is_visible ? (
+                        <div className="text-error">Hidden</div>
                       ) : (
-                        "-"
+                        "Visible"
                       )}
-                    </div>
-                  </div>,
-                ],
-                staticModifiers: [
-                  [1, "lg:w-sidebar xl:w-[400px] 2xl:w-[550px]"],
-                ],
-              };
-            })}
-            setRows={updateAssistantOrder}
-          />
-        </CardContent>
-      </Card>
+
+                      <Checkbox checked={assistant.is_visible} />
+                    </Badge>,
+                    <div key="edit" className="flex">
+                      <div className="mx-auto my-auto">
+                        {!assistant.default_assistant ? (
+                          <CustomTooltip
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={async () => {
+                                  const response = await deleteAssistant(
+                                    assistant.id
+                                  );
+                                  if (response.ok) {
+                                    toast({
+                                      title: "Assistant deleted",
+                                      description:
+                                        "The assistant has been successfully deleted.",
+                                      variant: "success",
+                                    });
+                                    router.refresh();
+                                  } else {
+                                    toast({
+                                      title: "Failed to delete assistant",
+                                      description: `There was an issue deleting the assistant. Details: ${await response.text()}`,
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              >
+                                <Trash size={16} />
+                              </Button>
+                            }
+                            asChild
+                          >
+                            Delete
+                          </CustomTooltip>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                    </div>,
+                  ],
+                  staticModifiers: [
+                    [1, "lg:w-sidebar xl:w-[400px] 2xl:w-[550px]"],
+                  ],
+                };
+              })}
+              setRows={updateAssistantOrder}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <p>There are no assistant.</p>
+      )}
     </div>
   );
 }

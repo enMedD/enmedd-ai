@@ -169,7 +169,6 @@ def get_prompts(
 
 
 def get_assistants(
-    user_id: UUID | None,
     db_session: Session,
     teamspace_id: int | None = None,
     include_default: bool = True,
@@ -177,35 +176,17 @@ def get_assistants(
 ) -> Sequence[Assistant]:
     stmt = select(Assistant).distinct()
 
-    if user_id is not None:
-        teamspaces_subquery = (
-            select(User__Teamspace.teamspace_id)
-            .where(User__Teamspace.user_id == user_id)
-            .subquery()
-        )
-
-        access_conditions = or_(
-            Assistant.is_public == True,  # noqa: E712
-            Assistant.id.in_(
-                select(Assistant__User.assistant_id).where(
-                    Assistant__User.user_id == user_id
-                )
-            ),
-            Assistant.id.in_(
-                select(Assistant__Teamspace.assistant_id).where(
-                    Assistant__Teamspace.teamspace_id.in_(teamspaces_subquery)
-                )
-            ),
-        )
-        stmt = stmt.where(access_conditions)
-
     if teamspace_id is not None:
         teamspace_condition = Assistant.id.in_(
             select(Assistant__Teamspace.assistant_id).where(
                 Assistant__Teamspace.teamspace_id == teamspace_id
             )
         )
-        stmt = stmt.where(or_(teamspace_condition, Assistant.is_public == True))
+        stmt = stmt.where(or_(teamspace_condition))
+    else:
+        stmt = stmt.where(or_(Assistant.is_public == True, Assistant.id.in_(
+            select(Assistant__Teamspace.assistant_id)
+        )))
 
     if not include_default:
         stmt = stmt.where(Assistant.default_assistant.is_(False))

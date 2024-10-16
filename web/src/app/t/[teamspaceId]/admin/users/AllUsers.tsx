@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AddUserButton } from "./AddUserButton";
 import { User, UserStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -108,15 +109,15 @@ export const DeactivaterButton = ({
 };
 
 export const AllUsers = ({ q }: { q: string }) => {
+  const { teamspaceId } = useParams();
+  const { toast } = useToast();
   const [invitedPage, setInvitedPage] = useState(1);
   const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
-    `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}`,
+    `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}&teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
-
-  const { toast } = useToast();
 
   const { trigger: promoteTrigger } = useSWRMutation(
     "/api/manage/promote-user-to-admin",
@@ -169,6 +170,10 @@ export const AllUsers = ({ q }: { q: string }) => {
     error: domainsError,
   } = useSWR<string[]>("/api/manage/admin/valid-domains", errorHandlingFetcher);
 
+  if (isLoading) {
+    return <LoadingAnimation text="Loading" />;
+  }
+
   if (domainsError || !validDomains) {
     return (
       <ErrorCallout
@@ -176,10 +181,6 @@ export const AllUsers = ({ q }: { q: string }) => {
         errorMsg={domainsError?.info?.detail}
       />
     );
-  }
-
-  if (isLoading) {
-    return <LoadingAnimation text="Loading" />;
   }
 
   if (error || !data) {

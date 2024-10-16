@@ -23,6 +23,7 @@ import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
+import { useParams } from "next/navigation";
 
 const RemoveUserButton = ({
   user,
@@ -49,6 +50,7 @@ const RemoveUserButton = ({
 };
 
 export const PendingInvites = ({ q }: { q: string }) => {
+  const { teamspaceId } = useParams();
   const { toast } = useToast();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [invitedPage, setInvitedPage] = useState(1);
@@ -58,7 +60,7 @@ export const PendingInvites = ({ q }: { q: string }) => {
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
     `/api/manage/users?q=${encodeURI(q)}&accepted_page=${
       acceptedPage - 1
-    }&invited_page=${invitedPage - 1}`,
+    }&invited_page=${invitedPage - 1}&teamspace_id=${teamspaceId}`,
     errorHandlingFetcher
   );
   const {
