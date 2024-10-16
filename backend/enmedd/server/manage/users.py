@@ -205,6 +205,8 @@ def list_all_users(
     if not q:
         q = ""
 
+    users_with_roles = []
+
     if teamspace_id is not None:
         users = (
             db_session.query(User)
@@ -212,12 +214,45 @@ def list_all_users(
             .filter(User__Teamspace.teamspace_id == teamspace_id)
             .all()
         )
+        
+        roles = (
+            db_session.query(User__Teamspace.role)
+            .filter(User__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+        
+        users_with_roles = [
+            {**user.__dict__, 'role': role[0]} 
+            for user, role in zip(users, roles)
+        ]
+        
+        return AllUsersResponse(
+            accepted=[
+                FullUserSnapshot(
+                    id=user['id'],
+                    email=user['email'],
+                    role=user['role'],
+                    status=UserStatus.LIVE if user['is_active'] else UserStatus.DEACTIVATED,
+                    full_name=user['full_name'],
+                    billing_email_address=user['billing_email_address'],
+                    company_billing=user['company_billing'],
+                    company_email=user['company_email'],
+                    company_name=user['company_name'],
+                    vat=user['vat'],
+                )
+                for user in users_with_roles
+                if not is_api_key_email_address(user['email']) 
+            ],
+            invited=[InvitedUserSnapshot(email=email) for email in get_invited_users()],
+            accepted_pages=1,
+            invited_pages=1,
+        )
     else:
-        users = list_users(db_session, q=q)
+        users_with_roles = list_users(db_session, q=q)
 
-    users = [user for user in users if not is_api_key_email_address(user.email)]
+    users_with_roles = [user for user in users_with_roles if not is_api_key_email_address(user.email)]
 
-    accepted_emails = {user.email for user in users}
+    accepted_emails = {user.email for user in users_with_roles}
     invited_emails = get_invited_users()
 
     if q:
@@ -236,9 +271,7 @@ def list_all_users(
                     id=user.id,
                     email=user.email,
                     role=user.role,
-                    status=UserStatus.LIVE
-                    if user.is_active
-                    else UserStatus.DEACTIVATED,
+                    status=UserStatus.LIVE if user.is_active else UserStatus.DEACTIVATED,
                     full_name=user.full_name,
                     billing_email_address=user.billing_email_address,
                     company_billing=user.company_billing,
@@ -246,7 +279,7 @@ def list_all_users(
                     company_name=user.company_name,
                     vat=user.vat,
                 )
-                for user in users
+                for user in users_with_roles
             ],
             invited=[InvitedUserSnapshot(email=email) for email in invited_emails],
             accepted_pages=1,
@@ -268,7 +301,7 @@ def list_all_users(
                 company_name=user.company_name,
                 vat=user.vat,
             )
-            for user in users
+            for user in users_with_roles
         ][accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE],
         invited=[InvitedUserSnapshot(email=email) for email in invited_emails][
             invited_page * USERS_PAGE_SIZE : (invited_page + 1) * USERS_PAGE_SIZE

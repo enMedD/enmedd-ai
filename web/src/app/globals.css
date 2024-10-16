@@ -18,7 +18,7 @@
     --secondary-foreground: rgba(128, 128, 128, 0.33);
     /*  --secondary-foreground: #be8bfc; */
     --success: #69c57d;
-    --success-foreground: #a9deb4;
+    --success-foreground: rgba(27, 232, 72, 0.1);
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
