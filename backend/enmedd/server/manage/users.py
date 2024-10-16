@@ -4,6 +4,7 @@ import string
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Optional
 
 from email_validator import validate_email
 from fastapi import APIRouter
@@ -205,6 +206,8 @@ def list_all_users(
     if not q:
         q = ""
 
+    users_with_roles = []
+
     if teamspace_id is not None:
         users = (
             db_session.query(User)
@@ -212,12 +215,48 @@ def list_all_users(
             .filter(User__Teamspace.teamspace_id == teamspace_id)
             .all()
         )
+
+        roles = (
+            db_session.query(User__Teamspace.role)
+            .filter(User__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+
+        users_with_roles = [
+            {**user.__dict__, "role": role[0]} for user, role in zip(users, roles)
+        ]
+
+        return AllUsersResponse(
+            accepted=[
+                FullUserSnapshot(
+                    id=user["id"],
+                    email=user["email"],
+                    role=user["role"],
+                    status=UserStatus.LIVE
+                    if user["is_active"]
+                    else UserStatus.DEACTIVATED,
+                    full_name=user["full_name"],
+                    billing_email_address=user["billing_email_address"],
+                    company_billing=user["company_billing"],
+                    company_email=user["company_email"],
+                    company_name=user["company_name"],
+                    vat=user["vat"],
+                )
+                for user in users_with_roles
+                if not is_api_key_email_address(user["email"])
+            ],
+            invited=[InvitedUserSnapshot(email=email) for email in get_invited_users()],
+            accepted_pages=1,
+            invited_pages=1,
+        )
     else:
-        users = list_users(db_session, q=q)
+        users_with_roles = list_users(db_session, q=q)
 
-    users = [user for user in users if not is_api_key_email_address(user.email)]
+    users_with_roles = [
+        user for user in users_with_roles if not is_api_key_email_address(user.email)
+    ]
 
-    accepted_emails = {user.email for user in users}
+    accepted_emails = {user.email for user in users_with_roles}
     invited_emails = get_invited_users()
 
     if q:
@@ -246,7 +285,7 @@ def list_all_users(
                     company_name=user.company_name,
                     vat=user.vat,
                 )
-                for user in users
+                for user in users_with_roles
             ],
             invited=[InvitedUserSnapshot(email=email) for email in invited_emails],
             accepted_pages=1,
@@ -268,7 +307,7 @@ def list_all_users(
                 company_name=user.company_name,
                 vat=user.vat,
             )
-            for user in users
+            for user in users_with_roles
         ][accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE],
         invited=[InvitedUserSnapshot(email=email) for email in invited_emails][
             invited_page * USERS_PAGE_SIZE : (invited_page + 1) * USERS_PAGE_SIZE
@@ -433,6 +472,8 @@ def remove_profile(
 @router.get("/me")
 def verify_user_logged_in(
     user: User | None = Depends(optional_user),
+    teamspace_id: Optional[int] = None,
+    db: Session = Depends(get_session),
 ) -> UserInfo:
     # NOTE: this does not use `current_user` / `current_admin_user` because we don't want
     # to enforce user verification here - the frontend always wants to get the info about
@@ -443,12 +484,33 @@ def verify_user_logged_in(
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_dynamic_config_store()
             return fetch_no_auth_user(store)
-
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="User Not Authenticated"
         )
 
-    return UserInfo.from_model(user)
+    role = user.role
+    if teamspace_id:
+        user_teamspace = (
+            db.query(User__Teamspace)
+            .filter(
+                User__Teamspace.user_id == user.id,
+                User__Teamspace.teamspace_id == teamspace_id,
+            )
+            .first()
+        )
+
+        if user_teamspace is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teamspace or role not found",
+            )
+
+        role = user_teamspace.role
+
+    user_info = UserInfo.from_model(user)
+    user_info.role = role
+
+    return user_info
 
 
 """APIs to adjust user preferences"""

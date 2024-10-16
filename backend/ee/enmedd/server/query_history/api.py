@@ -4,6 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from typing import Literal
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -166,10 +167,15 @@ def fetch_and_process_chat_session_history_minimal(
     start: datetime,
     end: datetime,
     feedback_filter: QAFeedbackType | None = None,
+    teamspace_id: Optional[int] = None,
     limit: int | None = 500,
 ) -> list[ChatSessionMinimal]:
     chat_sessions = fetch_chat_sessions_eagerly_by_time(
-        start=start, end=end, db_session=db_session, limit=limit
+        start=start,
+        end=end,
+        db_session=db_session,
+        limit=limit,
+        teamspace_id=teamspace_id,
     )
 
     minimal_sessions = []
@@ -308,6 +314,7 @@ def get_chat_session_history(
     end: datetime | None = None,
     _: db_models.User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
+    teamspace_id: Optional[int] = None,
 ) -> list[ChatSessionMinimal]:
     return fetch_and_process_chat_session_history_minimal(
         db_session=db_session,
@@ -317,6 +324,7 @@ def get_chat_session_history(
         ),  # default is 30d lookback
         end=end or datetime.now(tz=timezone.utc),
         feedback_filter=feedback_type,
+        teamspace_id=teamspace_id,
     )
 
 
