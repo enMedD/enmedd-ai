@@ -7,9 +7,11 @@ import { TableCell, TableRow } from "../ui/table";
 export function DraggableRow({
   row,
   forceDragging,
+  onClick,
 }: {
   row: Row;
   forceDragging?: boolean;
+  onClick?: () => void;
 }) {
   const {
     attributes,
@@ -31,6 +33,7 @@ export function DraggableRow({
       ref={setNodeRef}
       style={style}
       className={`cursor-pointer ${isDragging ? "invisible" : "bg-background"}`}
+      onClick={onClick}
     >
       <TableCell>
         <DragHandle

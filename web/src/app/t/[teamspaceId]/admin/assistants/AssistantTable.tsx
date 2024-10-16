@@ -96,11 +96,11 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
                   <div
                     key="name"
                     className="flex gap-4 items-center"
-                    onClick={() =>
+                    /* onClick={() =>
                       router.push(
-                        `/admin/assistants/${assistant.id}?u=${Date.now()}`
+                        `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
                       )
-                    }
+                    } */
                   >
                     {!assistant.default_assistant && <Pencil size={16} />}
                     <p className="text font-medium whitespace-normal break-none">

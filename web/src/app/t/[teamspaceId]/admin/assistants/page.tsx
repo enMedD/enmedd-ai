@@ -8,8 +8,14 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { Button } from "@/components/ui/button";
 import { SquarePlus } from "lucide-react";
 
-export default async function Page() {
-  const assistantResponse = await fetchSS("/admin/assistant");
+export default async function Page({
+  params,
+}: {
+  params: { teamspaceId: string };
+}) {
+  const assistantResponse = await fetchSS(
+    `/admin/assistant?teamspace_id=${params.teamspaceId}`
+  );
 
   if (!assistantResponse.ok) {
     return (

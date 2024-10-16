@@ -200,16 +200,16 @@ def get_assistants(
         stmt = stmt.where(access_conditions)
 
     if teamspace_id is not None:
-        stmt = stmt.where(
-            Assistant.id.in_(
-                select(Assistant__Teamspace.assistant_id).where(
-                    Assistant__Teamspace.teamspace_id == teamspace_id
-                )
+        teamspace_condition = Assistant.id.in_(
+            select(Assistant__Teamspace.assistant_id).where(
+                Assistant__Teamspace.teamspace_id == teamspace_id
             )
         )
+        stmt = stmt.where(or_(teamspace_condition, Assistant.is_public == True))
 
     if not include_default:
         stmt = stmt.where(Assistant.default_assistant.is_(False))
+
     if not include_deleted:
         stmt = stmt.where(Assistant.deleted.is_(False))
 

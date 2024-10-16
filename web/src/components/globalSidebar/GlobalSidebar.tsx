@@ -29,7 +29,10 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
+  const displayedTeamspaces = user?.groups && user.groups.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
+
+  console.log(user?.groups?.length);
 
   return (
     <div className={`bg-background h-full p-4 border-r border-border z-10`}>
@@ -73,7 +76,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
           <Separator className="mt-4" />
           {user?.groups && (
             <div className="flex flex-col gap-3 pt-4">
-              {user.groups?.map((teamspace) => (
+              {displayedTeamspaces?.map((teamspace) => (
                 <TeamspaceBubble
                   key={teamspace.id}
                   teamspace={teamspace}

@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { useParams, useRouter } from "next/navigation";
 
 export function DraggableTable({
   headers,
@@ -38,6 +39,8 @@ export function DraggableTable({
   rows: Row[];
   setRows: (newRows: UniqueIdentifier[]) => void | Promise<void>;
 }) {
+  const router = useRouter();
+  const { teamspaceId } = useParams();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>();
   const items = useMemo(() => rows?.map(({ id }) => id), [rows]);
   const sensors = useSensors(
@@ -95,7 +98,17 @@ export function DraggableTable({
         <TableBody>
           <SortableContext items={items} strategy={verticalListSortingStrategy}>
             {rows.map((row) => {
-              return <DraggableRow key={row.id} row={row} />;
+              return (
+                <DraggableRow
+                  key={row.id}
+                  row={row}
+                  onClick={() =>
+                    router.push(
+                      `/t/${teamspaceId}/admin/assistants/${row.id}?u=${Date.now()}`
+                    )
+                  }
+                />
+              );
             })}
           </SortableContext>
 

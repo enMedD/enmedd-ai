@@ -61,18 +61,22 @@ def patch_assistant_display_priority(
     )
 
 
+# TODO this should be current teamspace admin user
 @admin_router.get("")
-def list_assistants_admin(
-    _: User | None = Depends(current_admin_user),
+def list_assistants(
+    teamspace_id: int | None = None,
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
 ) -> list[AssistantSnapshot]:
+    user_id = user.id if user is not None else None
     return [
         AssistantSnapshot.from_model(assistant)
         for assistant in get_assistants(
-            db_session=db_session,
-            user_id=None,  # user_id = None -> give back all assistants
+            user_id=user_id,
+            teamspace_id=teamspace_id,
             include_deleted=include_deleted,
+            db_session=db_session,
         )
     ]
 
@@ -156,7 +160,6 @@ def delete_assistant(
 
 @basic_router.get("")
 def list_assistants(
-    teamspace_id: int | None = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
@@ -166,7 +169,6 @@ def list_assistants(
         AssistantSnapshot.from_model(assistant)
         for assistant in get_assistants(
             user_id=user_id,
-            teamspace_id=teamspace_id,
             include_deleted=include_deleted,
             db_session=db_session,
         )

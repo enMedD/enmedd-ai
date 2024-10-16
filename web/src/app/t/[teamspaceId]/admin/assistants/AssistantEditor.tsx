@@ -12,7 +12,7 @@ import {
 
 import * as Yup from "yup";
 import { buildFinalPrompt, createAssistant, updateAssistant } from "./lib";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Assistant, StarterMessage } from "./interfaces";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -23,8 +23,6 @@ import {
 } from "@/components/admin/connectors/Field";
 import { HidableSection } from "./HidableSection";
 import { useTeamspaces } from "@/lib/hooks";
-import { Bubble } from "@/components/Bubble";
-import { GroupsIcon } from "@/components/icons/icons";
 import { SuccessfulAssistantUpdateRedirectType } from "./enums";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
 import { FullLLMProvider } from "../models/llm/interfaces";
@@ -84,6 +82,7 @@ export function AssistantEditor({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
@@ -379,8 +378,8 @@ export function AssistantEditor({
             }
             router.push(
               redirectType === SuccessfulAssistantUpdateRedirectType.ADMIN
-                ? `/admin/assistants?u=${Date.now()}`
-                : `/chat?assistantId=${assistantId}`
+                ? `/t/${teamspaceId}/admin/assistants?u=${Date.now()}`
+                : `/t/${teamspaceId}/chat?assistantId=${assistantId}`
             );
           }
         }}
@@ -495,7 +494,7 @@ export function AssistantEditor({
                                       Select which{" "}
                                       {!user || user.role === "admin" ? (
                                         <Link
-                                          href="/admin/documents/sets"
+                                          href={`/t/${teamspaceId}/admin/documents/sets`}
                                           className="text-blue-500"
                                           target="_blank"
                                         >
