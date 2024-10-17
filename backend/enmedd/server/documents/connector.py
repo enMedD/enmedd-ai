@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.background.celery.celery_utils import get_deletion_status
 from enmedd.configs.app_configs import ENABLED_CONNECTOR_TYPES
@@ -371,7 +372,7 @@ def upload_files(
 def get_connector_indexing_status(
     teamspace_id: Optional[int] = None,
     secondary_index: bool = False,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[ConnectorIndexingStatus]:
     indexing_statuses: list[ConnectorIndexingStatus] = []

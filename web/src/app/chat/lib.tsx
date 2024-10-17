@@ -47,26 +47,29 @@ export async function updateModelOverrideForChatSession(
 
 export async function createChatSession(
   assistantId: number,
-  description: string | null
+  description: string | null,
+  teamspaceId?: number | null
 ): Promise<number> {
-  const createChatSessionResponse = await fetch(
-    "/api/chat/create-chat-session",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        assistant_id: assistantId,
-        description,
-      }),
-    }
-  );
+  const url = teamspaceId
+    ? `/api/chat/create-chat-session?teamspace_id=${teamspaceId}`
+    : "/api/chat/create-chat-session";
+
+  const createChatSessionResponse = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      assistant_id: assistantId,
+      description,
+    }),
+  });
+
   if (!createChatSessionResponse.ok) {
     console.log(
       `Failed to create chat session - ${createChatSessionResponse.status}`
     );
-    throw Error("Failed to create chat session");
+    throw new Error("Failed to create chat session");
   }
   const chatSessionResponseJson = await createChatSessionResponse.json();
   return chatSessionResponseJson.chat_session_id;

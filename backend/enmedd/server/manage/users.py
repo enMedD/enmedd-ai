@@ -34,6 +34,7 @@ from enmedd.auth.schemas import ChangePassword
 from enmedd.auth.schemas import UserRole
 from enmedd.auth.schemas import UserStatus
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import optional_user
 from enmedd.auth.utils import generate_2fa_email
@@ -200,7 +201,7 @@ def list_all_users(
     accepted_page: int | None = None,
     invited_page: int | None = None,
     teamspace_id: int | None = None,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> AllUsersResponse:
     if not q:

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.assistant import create_update_assistant
 from enmedd.db.assistant import get_assistant_by_id
@@ -65,7 +66,7 @@ def patch_assistant_display_priority(
 @admin_router.get("")
 def list_assistants_admin(
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
 ) -> list[AssistantSnapshot]:
