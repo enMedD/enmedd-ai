@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Settings } from "@/app/admin/settings/interfaces";
+import { Switch } from "@/components/ui/switch";
 
 function CheckboxComponent({
   label,
@@ -278,21 +279,23 @@ export function Configuration() {
           }
         />
 
-        <Selector
-          label="Default Page"
-          subtext="The page that users will be redirected to after logging in. Can only be set to a page that is enabled."
-          options={[
-            { value: "search", name: "Search" },
-            { value: "chat", name: "Chat" },
-          ]}
-          selected={settings.default_page}
-          onSelect={(value) => {
-            value &&
-              updateSettingField([
-                { fieldName: "default_page", newValue: value },
-              ]);
-          }}
-        />
+        <div className="pt-4">
+          <Selector
+            label="Default Page"
+            subtext="The page that users will be redirected to after logging in. Can only be set to a page that is enabled."
+            options={[
+              { value: "search", name: "Search" },
+              { value: "chat", name: "Chat" },
+            ]}
+            selected={settings.default_page}
+            onSelect={(value) => {
+              value &&
+                updateSettingField([
+                  { fieldName: "default_page", newValue: value },
+                ]);
+            }}
+          />
+        </div>
 
         {isEnterpriseEnabled && (
           <>
@@ -318,6 +321,25 @@ export function Configuration() {
             </Button>
           </>
         )}
+
+        <div className="mt-8">
+          <h3>Query History</h3>
+          <p className="text-sm">
+            Allows users to track and review their past searches and respons
+            within the platform.
+          </p>
+
+          <div className="flex gap-6 items-center pt-4">
+            <Switch />
+            <p className="text-sm">
+              Private Mode for Query History allows users to conduct searches
+              and activities without them being recorded in the query history.
+              When enabled, these activities remain hidden from both the
+              workspace and admin logs, ensuring privacy and discretion for the
+              user.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
