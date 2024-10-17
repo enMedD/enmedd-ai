@@ -131,7 +131,7 @@ export default function ProfileTab({
 
   return (
     <>
-      <div className="flex py-8 border-b">
+      <div className="flex py-8 border-b gap-5">
         <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
           <span className="font-semibold text-inverted-inverted">
             Your Photo
@@ -177,7 +177,7 @@ export default function ProfileTab({
       </div>
 
       <div className="py-8 border-b flex flex-col gap-8">
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Name</span>
           </div>
@@ -195,7 +195,7 @@ export default function ProfileTab({
             )}
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">
               Company
@@ -215,7 +215,7 @@ export default function ProfileTab({
             )}
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Email</span>
           </div>

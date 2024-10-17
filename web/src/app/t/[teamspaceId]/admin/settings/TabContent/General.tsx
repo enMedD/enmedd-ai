@@ -48,14 +48,14 @@ export default function General({
       </div>
 
       <div className="w-full">
-        <div className="flex items-center py-8 border-b">
-          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
+        <div className="flex items-center py-8 border-b gap-5">
+          <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
             <h3>Teamspace Name</h3>
             <p className="pt-1 text-sm">
               This will be displayed on your profile.
             </p>
           </div>
-          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
+          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
             {isEditing ? (
               <Input
                 placeholder="Enter Teamspace Name"
@@ -76,15 +76,15 @@ export default function General({
           </div>
         </div>
 
-        <div className="flex items-center py-8 border-b">
-          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
+        <div className="flex items-center py-8 border-b gap-5">
+          <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
             <h3>Teamspace Logo</h3>
-            <p className="pt-1 text-sm max-w-[80%]">
+            <p className="pt-1 text-sm w-44 sm:w-80">
               Update your company logo and select where you want it to be
               displayed.
             </p>
           </div>
-          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
+          <div className="shrink-0">
             <Image src={Logo} alt="Logo" />
           </div>
         </div>
