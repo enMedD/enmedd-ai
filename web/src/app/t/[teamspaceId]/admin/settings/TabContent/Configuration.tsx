@@ -1,7 +1,7 @@
 "use client";
 
 import { SubLabel } from "@/components/admin/connectors/Field";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Option } from "@/components/Dropdown";
 import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
@@ -133,6 +133,7 @@ function IntegerInput({
 }
 
 export function Configuration() {
+  const { teamspaceId } = useParams();
   const router = useRouter();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [chatRetention, setChatRetention] = useState("");
@@ -167,16 +168,21 @@ export function Configuration() {
           }, {} as Partial<Settings>),
         }
       : null;
+
+    console.log(newSettings);
     setSettings(newSettings);
 
     try {
-      const response = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newSettings),
-      });
+      const response = await fetch(
+        `/api/admin/settings?teamspace_id=${teamspaceId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newSettings),
+        }
+      );
 
       if (!response.ok) {
         const errorMsg = (await response.json()).detail;
@@ -329,7 +335,7 @@ export function Configuration() {
             within the platform.
           </p>
 
-          <div className="flex gap-6 items-center pt-4">
+          {/* <div className="flex gap-4 items-center pt-4">
             <Switch />
             <p className="text-sm">
               Private Mode for Query History allows users to conduct searches
@@ -338,7 +344,16 @@ export function Configuration() {
               workspace and admin logs, ensuring privacy and discretion for the
               user.
             </p>
-          </div>
+          </div> */}
+
+          <CheckboxComponent
+            label="chat_history_enabled?"
+            sublabel="If set, then the 'Chat' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
+            checked={settings.chat_history_enabled}
+            onChange={(checked) =>
+              handleToggleSettingsField("chat_history_enabled", checked)
+            }
+          />
         </div>
       </div>
     </div>
