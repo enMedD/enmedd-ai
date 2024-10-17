@@ -1,242 +1,208 @@
-/* import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import Logo from "../../../../../../../public/logo.png";
-import { Skeleton } from "@/components/ui/skeleton";
-
-export default function General({
-  onChange,
-  teamspaceId,
-  teamspaceName,
-  isEditing,
-  isLoading,
-}: {
-  onChange: (name: string) => void;
-  teamspaceId: string | string[];
-  teamspaceName: string;
-  isEditing: boolean;
-  isLoading: boolean;
-}) {
-  const [localTeamspaceName, setLocalTeamspaceName] = useState("");
-
-  useEffect(() => {
-    async function fetchTeamspace() {
-      try {
-        const response = await fetch(
-          `/api/manage/admin/teamspace/${teamspaceId}?teamspace_id=${teamspaceId}`
-        );
-        const data = await response.json();
-        setLocalTeamspaceName(data.name);
-      } catch (error) {
-        console.error("Error fetching teamspace data:", error);
-      }
-    }
-
-    fetchTeamspace();
-  }, [teamspaceId]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalTeamspaceName(e.target.value);
-    onChange(e.target.value);
-  };
-
-  return (
-    <div className="mt-8 w-full">
-      <div>
-        <h2 className="font-bold text-lg md:text-xl">General Information</h2>
-        <p className="text-sm">Update your teamspace name and logo.</p>
-      </div>
-
-      <div className="w-full">
-        <div className="flex items-center py-8 border-b gap-5">
-          <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
-            <h3>Teamspace Name</h3>
-            <p className="pt-1 text-sm">
-              This will be displayed on your profile.
-            </p>
-          </div>
-          <div
-            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
-          >
-            {isEditing ? (
-              <Input
-                placeholder="Enter Teamspace Name"
-                value={localTeamspaceName}
-                onChange={handleInputChange}
-              />
-            ) : (
-              <>
-                {isLoading ? (
-                  <Skeleton className="w-full h-8 rounded-md" />
-                ) : (
-                  <span className="font-semibold text-inverted-inverted w-full truncate">
-                    {teamspaceName || localTeamspaceName}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center py-8 border-b gap-5">
-          <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
-            <h3>Teamspace Logo</h3>
-            <p className="pt-1 text-sm w-44 sm:w-80">
-              Update your company logo and select where you want it to be
-              displayed.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <Image src={Logo} alt="Logo" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}*/
-
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import Logo from "../../../../../../../public/logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+
+interface GeneralProps {
+  teamspaceId: string | string[];
+  isEditing: boolean;
+  setIsEditing: Dispatch<SetStateAction<boolean>>;
+}
 
 export default function General({
   teamspaceId,
   isEditing,
   setIsEditing,
-}: {
-  teamspaceId: string | string[];
-  isEditing: boolean;
-  setIsEditing: Dispatch<SetStateAction<boolean>>;
-}) {
-  const [localTeamspaceName, setLocalTeamspaceName] = useState("");
+}: GeneralProps) {
   const { toast } = useToast();
   const [teamspaceName, setTeamspaceName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTeamspaceData = async () => {
+      try {
+        const [teamspaceResponse, logoResponse] = await Promise.all([
+          fetch(`/api/manage/admin/teamspace/${teamspaceId}`),
+          fetch(`/api/teamspace/logo?teamspace_id=${teamspaceId}`),
+        ]);
+
+        if (teamspaceResponse.ok) {
+          const { name } = await teamspaceResponse.json();
+          setTeamspaceName(name);
+        } else {
+          console.error("Failed to fetch teamspace data");
+        }
+
+        if (logoResponse.ok) {
+          const blob = await logoResponse.blob();
+          const logoUrl = URL.createObjectURL(blob);
+          setProfileImageUrl(logoUrl);
+        } else {
+          console.error("Failed to fetch teamspace logo");
+        }
+      } catch (error) {
+        console.error("Error fetching teamspace information:", error);
+      }
+    };
+
+    fetchTeamspaceData();
+  }, [teamspaceId]);
 
   const handleUpdate = async () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
+      // Update teamspace name
+      const updateResponse = await fetch(
         `/api/manage/admin/teamspace?teamspace_id=${teamspaceId}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: teamspaceName }),
         }
       );
 
-      if (response.ok) {
-        setIsEditing(false);
-        toast({
-          title: "Teamspace Updated",
-          description: "Teamspace name updated successfully!",
-          variant: "success",
-        });
-      } else {
-        const data = await response.json();
-        toast({
-          title: "Update Failed",
-          description: data.detail || "Failed to update teamspace name.",
-          variant: "destructive",
-        });
+      if (!updateResponse.ok) {
+        const error = await updateResponse.json();
+        showToast(
+          "Update Failed",
+          error.detail || "Failed to update teamspace.",
+          "destructive"
+        );
+        return;
       }
-    } catch (err) {
-      toast({
-        title: "An Error Occurred",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
+
+      // Upload logo if selected
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const uploadResponse = await fetch(
+          `/api/manage/admin/teamspace/logo?teamspace_id=${teamspaceId}`,
+          { method: "PUT", body: formData }
+        );
+
+        if (!uploadResponse.ok) {
+          const error = await uploadResponse.json();
+          showToast("Logo Upload Failed", error.detail, "destructive");
+          return;
+        }
+      }
+
+      showToast("Success", "Teamspace updated successfully.", "success");
+      setIsEditing(false);
+    } catch (error) {
+      showToast("Error", "An error occurred. Please try again.", "destructive");
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    async function fetchTeamspace() {
-      try {
-        const response = await fetch(
-          `/api/manage/admin/teamspace/${teamspaceId}?teamspace_id=${teamspaceId}`
-        );
-        const data = await response.json();
-        setLocalTeamspaceName(data.name);
-      } catch (error) {
-        console.error("Error fetching teamspace data:", error);
-      }
-    }
-
-    fetchTeamspace();
-  }, [teamspaceId]);
+  const showToast = (
+    title: string,
+    description: string,
+    variant: "success" | "destructive"
+  ) => {
+    toast({ title, description, variant });
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalTeamspaceName(e.target.value);
     setTeamspaceName(e.target.value);
+  };
+
+  const handleLogoUpload = () => {
+    setIsEditing(true);
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) setSelectedFile(file);
+    };
+    fileInput.click();
+  };
+
+  const handleRemoveLogo = async () => {
+    try {
+      const response = await fetch("/api/me/profile", { method: "DELETE" });
+      if (response.ok) {
+        setProfileImageUrl(null);
+        showToast("Success", "Logo removed successfully.", "success");
+      } else {
+        const error = await response.json();
+        showToast("Removal Failed", error.detail, "destructive");
+      }
+    } catch (error) {
+      showToast("Error", "An error occurred. Please try again.", "destructive");
+    }
   };
 
   return (
     <div className="mt-8 w-full">
-      <div>
-        <h2 className="font-bold text-lg md:text-xl">General Information</h2>
-        <p className="text-sm">Update your teamspace name and logo.</p>
-      </div>
+      <Header
+        title="General Information"
+        subtitle="Update your teamspace name and logo."
+      />
 
-      <div className="w-full">
-        <div className="flex items-center py-8 border-b gap-5">
-          <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
-            <h3>Teamspace Name</h3>
-            <p className="pt-1 text-sm">
-              This will be displayed on your profile.
-            </p>
-          </div>
+      <Section title="Teamspace Name" isEditing>
+        {isEditing ? (
+          <Input
+            placeholder="Enter Teamspace Name"
+            value={teamspaceName}
+            onChange={handleInputChange}
+          />
+        ) : teamspaceName ? (
+          <h3 className="truncate">{teamspaceName}</h3>
+        ) : (
+          <Skeleton className="w-full h-8 rounded-md" />
+        )}
+      </Section>
+
+      <Section
+        title="Teamspace Logo"
+        description="Update your company logo and choose where to display it."
+      >
+        <div className="flex items-center gap-3 cursor-pointer">
           <div
-            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+            onClick={handleLogoUpload}
+            className="h-16 w-16 rounded-full overflow-hidden"
           >
-            {isEditing ? (
-              <Input
-                placeholder="Enter Teamspace Name"
-                value={localTeamspaceName}
-                onChange={handleInputChange}
+            {selectedFile ? (
+              <img
+                src={URL.createObjectURL(selectedFile)}
+                alt="Selected Logo"
+              />
+            ) : profileImageUrl ? (
+              <img
+                src={profileImageUrl}
+                alt="Current Logo"
+                className="object-cover w-full h-full"
               />
             ) : (
-              <>
-                {isLoading ? (
-                  <Skeleton className="w-full h-8 rounded-md" />
-                ) : (
-                  <span className="font-semibold text-inverted-inverted w-full truncate">
-                    {teamspaceName || localTeamspaceName}
-                  </span>
-                )}
-              </>
+              <Skeleton className="w-16 h-16 rounded-full" />
             )}
           </div>
-        </div>
 
-        <div className="flex items-center py-8 border-b gap-5">
-          <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
-            <h3>Teamspace Logo</h3>
-            <p className="pt-1 text-sm w-44 sm:w-80">
-              Update your company logo and select where you want it to be
-              displayed.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <Image src={Logo} alt="Logo" />
-          </div>
+          {isEditing && selectedFile && (
+            <Button
+              variant="link"
+              className="text-destructive"
+              onClick={handleRemoveLogo}
+            >
+              Remove
+            </Button>
+          )}
         </div>
-      </div>
+      </Section>
 
-      <div className="flex gap-2 py-8 justify-end">
+      <div className="flex justify-end gap-2 py-8">
         {isEditing ? (
           <>
             <Button
               variant="outline"
-              className="border-destructive-foreground hover:bg-destructive-foreground"
               onClick={() => setIsEditing(false)}
               disabled={isLoading}
             >
@@ -255,3 +221,32 @@ export default function General({
     </div>
   );
 }
+
+const Header = ({ title, subtitle }: { title: string; subtitle?: string }) => (
+  <div>
+    <h2 className="font-bold text-lg md:text-xl">{title}</h2>
+    {subtitle && <p className="text-sm">{subtitle}</p>}
+  </div>
+);
+
+const Section = ({
+  title,
+  description,
+  children,
+  isEditing,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  isEditing?: boolean;
+}) => (
+  <div className="flex py-8 border-b gap-5">
+    <div className="w-44 sm:w-80 xl:w-[500px] shrink-0">
+      <h3>{title}</h3>
+      {description && <p className="pt-1 text-sm">{description}</p>}
+    </div>
+    <div className={`flex-grow min-h-10 ${isEditing ? "" : "truncate"}`}>
+      {children}
+    </div>
+  </div>
+);

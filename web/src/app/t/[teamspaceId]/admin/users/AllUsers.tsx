@@ -365,10 +365,12 @@ export const DeactivaterButton = ({
   user,
   deactivate,
   mutate,
+  role,
 }: {
   user: User;
   deactivate: boolean;
   mutate: () => void;
+  role: string;
 }) => {
   const { toast } = useToast();
   const { trigger, isMutating } = useSWRMutation(
@@ -395,7 +397,7 @@ export const DeactivaterButton = ({
   );
   return (
     <Button
-      /*  onClick={() => trigger({ user_email: user.email })} */
+      onClick={() => trigger({ user_email: user.email, new_role: role })}
       disabled={isMutating}
       variant={deactivate ? "destructive" : "default"}
     >
@@ -510,7 +512,7 @@ export const AllUsers = ({ q }: { q: string }) => {
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  console.log(filteredUsers);
+  console.log(data);
 
   return (
     <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
@@ -553,6 +555,9 @@ export const AllUsers = ({ q }: { q: string }) => {
                               <span className="text-sm text-subtle truncate max-w-44">
                                 {user.email}
                               </span>
+                              <span className="text-sm text-subtle truncate max-w-44">
+                                {user.id}
+                              </span>
                             </div>
                           </div>
                         </TableCell>
@@ -580,6 +585,7 @@ export const AllUsers = ({ q }: { q: string }) => {
                               user={user}
                               deactivate={user.status === UserStatus.live}
                               mutate={mutate}
+                              role={user.role}
                             />
                           </div>
                         </TableCell>
