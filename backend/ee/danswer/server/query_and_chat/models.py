@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 from pydantic import Field
 
-from danswer.configs.constants import DocumentSource
-from danswer.one_shot_answer.models import ThreadMessage
-from danswer.search.enums import LLMEvaluationType
-from danswer.search.enums import SearchType
-from danswer.search.models import ChunkContext
-from danswer.search.models import RerankingDetails
-from danswer.search.models import RetrievalDetails
-from danswer.search.models import SavedSearchDoc
-from ee.danswer.server.manage.models import StandardAnswer
+from enmedd.configs.constants import DocumentSource
+from enmedd.one_shot_answer.models import ThreadMessage
+from enmedd.search.enums import LLMEvaluationType
+from enmedd.search.enums import SearchType
+from enmedd.search.models import ChunkContext
+from enmedd.search.models import RerankingDetails
+from enmedd.search.models import RetrievalDetails
+from enmedd.search.models import SavedSearchDoc
+from ee.enmedd.server.manage.models import StandardAnswer
 
 
 class StandardAnswerRequest(BaseModel):
@@ -52,7 +52,7 @@ class BasicCreateChatMessageWithHistoryRequest(ChunkContext):
     # Last element is the new query. All previous elements are historical context
     messages: list[ThreadMessage]
     prompt_id: int | None
-    persona_id: int
+    assistant_id: int
     retrieval_options: RetrievalDetails | None = None
     query_override: str | None = None
     skip_rerank: bool | None = None

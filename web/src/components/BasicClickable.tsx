@@ -2,38 +2,19 @@ export function BasicClickable({
   children,
   onClick,
   fullWidth = false,
-  inset,
-  className,
 }: {
   children: string | JSX.Element;
   onClick?: () => void;
-  inset?: boolean;
   fullWidth?: boolean;
-  className?: string;
+  isExpanded?: boolean;
 }) {
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`
-        border 
-        border-border
-        rounded
-        font-medium 
-        text-emphasis 
-        text-sm
-        relative
-        px-1 py-1.5
-        h-full
-        bg-background
-        select-none
-        overflow-hidden
-        hover:bg-hover-light
-        ${fullWidth ? "w-full" : ""}
-        ${className ? className : ""}
-        `}
+      className={`transition-all ease-in-out duration-300 h-full w-full shadow-sm rounded-regular bg-background p-3`}
     >
       {children}
-    </button>
+    </div>
   );
 }
 
@@ -41,36 +22,25 @@ export function EmphasizedClickable({
   children,
   onClick,
   fullWidth = false,
-  size = "md",
 }: {
   children: string | JSX.Element;
   onClick?: () => void;
   fullWidth?: boolean;
-  size?: "sm" | "md" | "lg";
 }) {
   return (
     <button
-      className={`
-        inline-flex 
-        items-center 
-        justify-center 
-        flex-shrink-0 
-        font-medium 
-        ${
-          size === "sm"
-            ? `p-1`
-            : size === "md"
-              ? `min-h-[38px]  py-1 px-3`
-              : `min-h-[42px] py-2 px-4`
-        }
-        w-fit 
-        bg-hover
-        border-1 border-border-medium border bg-background-100 
-        text-sm
-        rounded-lg
-        hover:bg-background-125
-    `}
       onClick={onClick}
+      className={`
+          border 
+          border-gray-400
+          shadow-md
+          rounded-regular
+          p-1
+          select-none
+          bg-hover-light
+          hover:bg-hover
+          text-sm
+          ${fullWidth ? "w-full" : ""}`}
     >
       {children}
     </button>
@@ -82,26 +52,26 @@ export function BasicSelectable({
   selected,
   hasBorder,
   fullWidth = false,
-  padding = "normal",
+  padding = true,
 }: {
   children: string | JSX.Element;
   selected: boolean;
   hasBorder?: boolean;
   fullWidth?: boolean;
-  padding?: "none" | "normal" | "extra";
+  padding?: boolean;
 }) {
   return (
     <div
       className={`
-        rounded
-        font-medium 
-        text-sm
-        ${padding == "normal" && "p-1"}
-        ${padding == "extra" && "p-1.5"}
-        select-none
-        ${hasBorder ? "border border-border" : ""}
-        ${selected ? "bg-hover" : "hover:bg-hover"}
-        ${fullWidth ? "w-full" : ""}`}
+          rounded-regular
+          text-sm
+          ${padding && "px-4 py-2"}
+          select-none
+          flex items-center
+          h-10
+          ${hasBorder ? "border border-border" : ""}
+          ${selected ? "bg-hover" : "hover:bg-hover-light"} 
+          ${fullWidth ? "w-full" : ""}`}
     >
       {children}
     </div>

@@ -40,7 +40,6 @@ if [ -d "$data_path" ]; then
   fi
 fi
 
-
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
   mkdir -p "$data_path/conf"
@@ -52,16 +51,15 @@ fi
 echo "### Creating dummy certificate for $domains ..."
 path="/etc/letsencrypt/live/$domains"
 mkdir -p "$data_path/conf/live/$domains"
-$COMPOSE_CMD -f docker-compose.prod.yml run  --name danswer-stack --rm --entrypoint "\
+$COMPOSE_CMD -f docker-compose.prod.yml run --name enmedd-stack --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
     -subj '/CN=localhost'" certbot
 echo
 
-
-echo "### Starting nginx ..."
-$COMPOSE_CMD -f docker-compose.prod.yml -p danswer-stack up --force-recreate -d nginx
+echo "### Building and starting nginx ..."
+$COMPOSE_CMD -f docker-compose.prod.yml -p enmedd-stack up --build --force-recreate -d nginx
 echo
 
 echo "Waiting for nginx to be ready, this may take a minute..."
@@ -79,12 +77,11 @@ while true; do
 done
 
 echo "### Deleting dummy certificate for $domains ..."
-$COMPOSE_CMD -f docker-compose.prod.yml run  --name danswer-stack --rm --entrypoint "\
+$COMPOSE_CMD -f docker-compose.prod.yml run --name enmedd-stack --rm --entrypoint "\
   rm -Rf /etc/letsencrypt/live/$domains && \
   rm -Rf /etc/letsencrypt/archive/$domains && \
   rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
 echo
-
 
 echo "### Requesting Let's Encrypt certificate for $domains ..."
 #Join $domains to -d args
@@ -102,7 +99,7 @@ esac
 # Enable staging mode if needed
 if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
-$COMPOSE_CMD -f docker-compose.prod.yml run --name danswer-stack --rm --entrypoint "\
+$COMPOSE_CMD -f docker-compose.prod.yml run --name enmedd-stack --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
     $staging_arg \
     $email_arg \
@@ -113,7 +110,7 @@ $COMPOSE_CMD -f docker-compose.prod.yml run --name danswer-stack --rm --entrypoi
 echo
 
 echo "### Renaming certificate directory if needed ..."
-$COMPOSE_CMD -f docker-compose.prod.yml run --name danswer-stack --rm --entrypoint "\
+$COMPOSE_CMD -f docker-compose.prod.yml run --name enmedd-stack --rm --entrypoint "\
   sh -c 'for domain in $domains; do \
     numbered_dir=\$(find /etc/letsencrypt/live -maxdepth 1 -type d -name \"\$domain-00*\" | sort -r | head -n1); \
     if [ -n \"\$numbered_dir\" ]; then \
@@ -122,4 +119,4 @@ $COMPOSE_CMD -f docker-compose.prod.yml run --name danswer-stack --rm --entrypoi
   done'" certbot
 
 echo "### Reloading nginx ..."
-$COMPOSE_CMD -f docker-compose.prod.yml -p danswer-stack up --force-recreate -d
+$COMPOSE_CMD -f docker-compose.prod.yml -p enmedd-stack up --build --force-recreate -d

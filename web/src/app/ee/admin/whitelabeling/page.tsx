@@ -1,16 +1,18 @@
 import { WhitelabelingForm } from "./WhitelabelingForm";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { PaintingIcon } from "@/components/icons/icons";
+import { Image as ImageIcon } from "lucide-react";
 
 export default async function Whitelabeling() {
   return (
-    <div className="mx-auto container">
-      <AdminPageTitle
-        title="Whitelabeling"
-        icon={<PaintingIcon size={32} className="my-auto" />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="Whitelabeling"
+          icon={<ImageIcon size={32} className="my-auto" />}
+        />
 
-      <WhitelabelingForm />
+        <WhitelabelingForm />
+      </div>
     </div>
   );
 }

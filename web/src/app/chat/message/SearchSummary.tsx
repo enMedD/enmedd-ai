@@ -6,31 +6,50 @@ import { HoverPopup } from "@/components/HoverPopup";
 import { Hoverable } from "@/components/Hoverable";
 import { Tooltip } from "@/components/tooltip/Tooltip";
 import { useEffect, useRef, useState } from "react";
-import { FiCheck, FiEdit2, FiSearch, FiX } from "react-icons/fi";
+import { Input } from "@/components/ui/input";
+import { X, Check, Pencil, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { FiEdit2 } from "react-icons/fi";
 
 export function ShowHideDocsButton({
   messageId,
   isCurrentlyShowingRetrieved,
   handleShowRetrieved,
+  handleToggleSideBar,
 }: {
   messageId: number | null;
   isCurrentlyShowingRetrieved: boolean;
   handleShowRetrieved: (messageId: number | null) => void;
+  handleToggleSideBar?: () => void;
 }) {
   return (
     <div
       className="ml-auto my-auto"
       onClick={() => handleShowRetrieved(messageId)}
     >
-      {isCurrentlyShowingRetrieved ? (
-        <EmphasizedClickable>
-          <div className="w-24 text-xs">Hide Docs</div>
-        </EmphasizedClickable>
-      ) : (
-        <BasicClickable>
-          <div className="w-24 text-xs">Show Docs</div>
-        </BasicClickable>
-      )}
+      {(() => {
+        const isMobile = window.innerWidth <= 1420;
+
+        const buttonLabel = isMobile
+          ? isCurrentlyShowingRetrieved
+            ? "Show Docs"
+            : "Hide Docs"
+          : isCurrentlyShowingRetrieved
+            ? "Hide Docs"
+            : "Show Docs";
+
+        return (
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={handleToggleSideBar}
+            className="w-24"
+          >
+            {buttonLabel}
+          </Button>
+        );
+      })()}
     </div>
   );
 }
@@ -40,15 +59,19 @@ export function SearchSummary({
   hasDocs,
   finished,
   messageId,
+  isCurrentlyShowingRetrieved,
   handleShowRetrieved,
   handleSearchQueryEdit,
+  handleToggleSideBar,
 }: {
   finished: boolean;
   query: string;
   hasDocs: boolean;
   messageId: number | null;
+  isCurrentlyShowingRetrieved: boolean;
   handleShowRetrieved: (messageId: number | null) => void;
   handleSearchQueryEdit?: (query: string) => void;
+  handleToggleSideBar?: () => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [finalQuery, setFinalQuery] = useState(query);
@@ -87,7 +110,7 @@ export function SearchSummary({
 
   const searchingForDisplay = (
     <div className={`flex p-1 rounded ${isOverflowed && "cursor-default"}`}>
-      <FiSearch className="flex-none mr-2 my-auto" size={14} />
+      <Search className="flex-none mr-2 my-auto" size={14} />
       <div
         className={`${!finished && "loading-text"} 
         !text-sm !line-clamp-1 !break-all px-0.5`}
@@ -101,7 +124,7 @@ export function SearchSummary({
   const editInput = handleSearchQueryEdit ? (
     <div className="flex w-full mr-3">
       <div className="my-2 w-full">
-        <input
+        <Input
           ref={editQueryRef}
           value={finalQuery}
           onChange={(e) => setFinalQuery(e.target.value)}
@@ -120,12 +143,10 @@ export function SearchSummary({
               event.preventDefault();
             }
           }}
-          className="px-1 py-0.5 h-[28px] text-sm mr-2 w-full rounded-sm border border-border-strong"
         />
       </div>
       <div className="ml-2 my-auto flex">
-        <Hoverable
-          icon={FiCheck}
+        <Button
           onClick={() => {
             if (!finalQuery) {
               setFinalQuery(query);
@@ -134,36 +155,39 @@ export function SearchSummary({
             }
             setIsEditing(false);
           }}
-        />
-        <Hoverable
-          icon={FiX}
+          variant="ghost"
+          size="smallIcon"
+        >
+          <Check size={16} />
+        </Button>
+        <Button
           onClick={() => {
             setFinalQuery(query);
             setIsEditing(false);
           }}
-        />
+          variant="ghost"
+          size="smallIcon"
+        >
+          <X size={16} />
+        </Button>
       </div>
     </div>
   ) : null;
 
   return (
-    <div className="flex">
+    <div className="flex pt-4">
       {isEditing ? (
         editInput
       ) : (
         <>
           <div className="text-sm">
             {isOverflowed ? (
-              <HoverPopup
-                mainContent={searchingForDisplay}
-                popupContent={
-                  <div>
-                    <b>Full query:</b>{" "}
-                    <div className="mt-1 italic">{query}</div>
-                  </div>
-                }
-                direction="top"
-              />
+              <CustomTooltip trigger={searchingForDisplay} align="start">
+                <div className="w-full max-w-96 lg:max-w-screen-md max-h-40 overflow-auto">
+                  <b>Full query:</b>{" "}
+                  <div className="mt-1 italic w-full">{query}</div>
+                </div>
+              </CustomTooltip>
             ) : (
               searchingForDisplay
             )}
@@ -181,6 +205,14 @@ export function SearchSummary({
             </Tooltip>
           )}
         </>
+      )}
+      {hasDocs && (
+        <ShowHideDocsButton
+          messageId={messageId}
+          isCurrentlyShowingRetrieved={isCurrentlyShowingRetrieved}
+          handleShowRetrieved={handleShowRetrieved}
+          handleToggleSideBar={handleToggleSideBar}
+        />
       )}
     </div>
   );

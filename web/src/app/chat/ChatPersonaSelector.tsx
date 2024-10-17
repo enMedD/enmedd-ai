@@ -1,11 +1,11 @@
-import { Persona } from "@/app/admin/assistants/interfaces";
-import { FiCheck, FiChevronDown, FiPlusSquare, FiEdit2 } from "react-icons/fi";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { CustomDropdown, DefaultDropdownElement } from "@/components/Dropdown";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { checkUserIdOwnsAssistant } from "@/lib/assistants/checkOwnership";
+import { Check, ChevronDown, Edit2, PlusSquare } from "lucide-react";
 
-function PersonaItem({
+function AssistantItem({
   id,
   name,
   onSelect,
@@ -14,7 +14,7 @@ function PersonaItem({
 }: {
   id: number;
   name: string;
-  onSelect: (personaId: number) => void;
+  onSelect: (assistantId: number) => void;
   isSelected: boolean;
   isOwner: boolean;
 }) {
@@ -33,7 +33,7 @@ function PersonaItem({
           mx-1
           select-none 
           cursor-pointer 
-          text-emphasis
+          
           bg-background
           hover:bg-hover-light
           ${isSelected ? "bg-hover text-selected-emphasis" : ""}
@@ -44,35 +44,35 @@ function PersonaItem({
       >
         {name}
         {isSelected && (
-          <div className="ml-auto mr-1 my-auto">
-            <FiCheck />
+          <div className="my-auto ml-auto mr-1">
+            <Check size={16} />
           </div>
         )}
       </div>
       {isOwner && (
         <Link href={`/assistants/edit/${id}`} className="mx-2 my-auto">
-          <FiEdit2 className="hover:bg-hover p-0.5 my-auto" size={20} />
+          <Edit2 className="hover:bg-hover p-0.5 my-auto" size={20} />
         </Link>
       )}
     </div>
   );
 }
 
-export function ChatPersonaSelector({
-  personas,
-  selectedPersonaId,
-  onPersonaChange,
+export function ChatAssistantSelector({
+  assistants,
+  selectedAssistantId,
+  onAssistantChange,
   userId,
 }: {
-  personas: Persona[];
-  selectedPersonaId: number | null;
-  onPersonaChange: (persona: Persona | null) => void;
+  assistants: Assistant[];
+  selectedAssistantId: number | null;
+  onAssistantChange: (assistant: Assistant | null) => void;
   userId: string | undefined;
 }) {
   const router = useRouter();
 
-  const currentlySelectedPersona = personas.find(
-    (persona) => persona.id === selectedPersonaId
+  const currentlySelectedAssistant = assistants.find(
+    (assistant) => assistant.id === selectedAssistantId
   );
 
   return (
@@ -83,7 +83,7 @@ export function ChatPersonaSelector({
             border 
             border-border 
             bg-background
-            rounded-lg 
+            rounded-regular 
             shadow-lg 
             flex 
             flex-col 
@@ -93,20 +93,20 @@ export function ChatPersonaSelector({
             p-1
             overscroll-contain`}
         >
-          {personas.map((persona) => {
-            const isSelected = persona.id === selectedPersonaId;
-            const isOwner = checkUserIdOwnsAssistant(userId, persona);
+          {assistants.map((assistant) => {
+            const isSelected = assistant.id === selectedAssistantId;
+            const isOwner = checkUserIdOwnsAssistant(userId, assistant);
             return (
-              <PersonaItem
-                key={persona.id}
-                id={persona.id}
-                name={persona.name}
-                onSelect={(clickedPersonaId) => {
-                  const clickedPersona = personas.find(
-                    (persona) => persona.id === clickedPersonaId
+              <AssistantItem
+                key={assistant.id}
+                id={assistant.id}
+                name={assistant.name}
+                onSelect={(clickedAssistantId) => {
+                  const clickedAssistant = assistants.find(
+                    (assistant) => assistant.id === clickedAssistantId
                   );
-                  if (clickedPersona) {
-                    onPersonaChange(clickedPersona);
+                  if (clickedAssistant) {
+                    onAssistantChange(clickedAssistant);
                   }
                 }}
                 isSelected={isSelected}
@@ -115,11 +115,11 @@ export function ChatPersonaSelector({
             );
           })}
 
-          <div className="border-t border-border pt-2">
+          <div className="pt-2 border-t border-border">
             <DefaultDropdownElement
               name={
                 <div className="flex items-center">
-                  <FiPlusSquare className="mr-2" />
+                  <PlusSquare className="mr-2" size={16} />
                   New Assistant
                 </div>
               }
@@ -130,11 +130,11 @@ export function ChatPersonaSelector({
         </div>
       }
     >
-      <div className="select-none text-xl text-strong font-bold flex px-2 rounded cursor-pointer hover:bg-hover-light">
+      <div className="inline-flex px-2 text-xl font-bold rounded cursor-pointer select-none text-strong hover:bg-hover-light">
         <div className="mt-auto">
-          {currentlySelectedPersona?.name || "Default"}
+          {currentlySelectedAssistant?.name || "Default"}
         </div>
-        <FiChevronDown className="my-auto ml-1" />
+        <ChevronDown className="my-auto ml-1" size={16} />
       </div>
     </CustomDropdown>
   );

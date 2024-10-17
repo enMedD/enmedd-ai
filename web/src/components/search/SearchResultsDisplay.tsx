@@ -2,7 +2,7 @@
 
 import {
   DocumentRelevance,
-  SearchDanswerDocument,
+  SearchEnmeddDocument,
   SearchDefaultOverrides,
   SearchResponse,
 } from "@/lib/search/interfaces";
@@ -15,9 +15,11 @@ import { Tooltip } from "../tooltip/Tooltip";
 import KeyboardSymbol from "@/lib/browserUtilities";
 import { SettingsContext } from "../settings/SettingsProvider";
 import { DISABLE_LLM_DOC_RELEVANCE } from "@/lib/constants";
+import { ThreeDots } from "react-loader-spinner";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 
 const getSelectedDocumentIds = (
-  documents: SearchDanswerDocument[],
+  documents: SearchEnmeddDocument[],
   selectedIndices: number[]
 ) => {
   const selectedDocumentIds = new Set<string>();
@@ -145,8 +147,8 @@ export const SearchResultsDisplay = ({
     : [];
 
   const getUniqueDocuments = (
-    documents: SearchDanswerDocument[]
-  ): SearchDanswerDocument[] => {
+    documents: SearchEnmeddDocument[]
+  ): SearchEnmeddDocument[] => {
     const seenIds = new Set<string>();
     return documents.filter((doc) => {
       if (!seenIds.has(doc.document_id)) {
@@ -158,6 +160,8 @@ export const SearchResultsDisplay = ({
   };
 
   const uniqueDocuments = getUniqueDocuments(documents || []);
+
+  console.log(selectedDocumentIds);
 
   return (
     <>

@@ -3,13 +3,8 @@ import InvitedUserTable from "@/components/admin/users/InvitedUserTable";
 import SignedUpUserTable from "@/components/admin/users/SignedUpUserTable";
 import { SearchBar } from "@/components/search/SearchBar";
 import { useState } from "react";
-import { FiPlusSquare } from "react-icons/fi";
-import { Modal } from "@/components/Modal";
-
-import { Button, Text } from "@tremor/react";
 import { LoadingAnimation } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { usePopup, PopupSpec } from "@/components/admin/connectors/Popup";
 import { UsersIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR, { mutate } from "swr";
@@ -18,13 +13,17 @@ import { HidableSection } from "@/app/admin/assistants/HidableSection";
 import BulkAdd from "@/components/admin/users/BulkAdd";
 import { UsersResponse } from "@/lib/users/interfaces";
 
+import { AllUsers } from "./AllUsers";
+import { PendingInvites } from "./PedingInvites";
+import { Separator } from "@/components/ui/separator";
+
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
     return (
       <div className="text-sm">
         No invited users. Anyone can sign up with a valid email address. To
         restrict access you can:
-        <div className="flex flex-wrap ml-2 mt-1">
+        <div className="flex flex-wrap mt-1 ml-2">
           (1) Invite users above. Once a user has been invited, only emails that
           have explicitly been invited will be able to sign-up.
         </div>
@@ -51,13 +50,7 @@ const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   );
 };
 
-const UsersTables = ({
-  q,
-  setPopup,
-}: {
-  q: string;
-  setPopup: (spec: PopupSpec) => void;
-}) => {
+const UsersTables = ({ q }: { q: string }) => {
   const [invitedPage, setInvitedPage] = useState(1);
   const [acceptedPage, setAcceptedPage] = useState(1);
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
@@ -103,12 +96,11 @@ const UsersTables = ({
 
   return (
     <>
-      <HidableSection sectionTitle="Invited Users">
+      <HidableSection sectionTitle="Invited Users" defaultOpen>
         {invited.length > 0 ? (
           finalInvited.length > 0 ? (
             <InvitedUserTable
               users={finalInvited}
-              setPopup={setPopup}
               currentPage={invitedPage}
               onPageChange={setInvitedPage}
               totalPages={invited_pages}
@@ -126,7 +118,6 @@ const UsersTables = ({
       </HidableSection>
       <SignedUpUserTable
         users={accepted}
-        setPopup={setPopup}
         currentPage={acceptedPage}
         onPageChange={setAcceptedPage}
         totalPages={accepted_pages}
@@ -137,17 +128,14 @@ const UsersTables = ({
 };
 
 const SearchableTables = () => {
-  const { popup, setPopup } = usePopup();
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
 
   return (
-    <div>
-      {popup}
-
-      <div className="flex flex-col gap-y-4">
-        <div className="flex gap-x-4">
-          <AddUserButton setPopup={setPopup} />
+    <div className="pb-20 w-full">
+      {/* <div className="flex flex-col gap-y-4">
+        <div className="flex flex-col gap-4 md:flex-row">
+          <AddUserButton />
           <div className="flex-grow">
             <SearchBar
               query={query}
@@ -156,65 +144,23 @@ const SearchableTables = () => {
             />
           </div>
         </div>
-        <UsersTables q={q} setPopup={setPopup} />
-      </div>
+        <UsersTables q={q} />
+      </div> */}
+
+      <AllUsers q={q} />
+      <Separator className="my-10" />
+      <PendingInvites q={q} />
     </div>
-  );
-};
-
-const AddUserButton = ({
-  setPopup,
-}: {
-  setPopup: (spec: PopupSpec) => void;
-}) => {
-  const [modal, setModal] = useState(false);
-  const onSuccess = () => {
-    mutate(
-      (key) => typeof key === "string" && key.startsWith("/api/manage/users")
-    );
-    setModal(false);
-    setPopup({
-      message: "Users invited!",
-      type: "success",
-    });
-  };
-  const onFailure = async (res: Response) => {
-    const error = (await res.json()).detail;
-    setPopup({
-      message: `Failed to invite users - ${error}`,
-      type: "error",
-    });
-  };
-  return (
-    <>
-      <Button className="w-fit" onClick={() => setModal(true)}>
-        <div className="flex">
-          <FiPlusSquare className="my-auto mr-2" />
-          Invite Users
-        </div>
-      </Button>
-
-      {modal && (
-        <Modal title="Bulk Add Users" onOutsideClick={() => setModal(false)}>
-          <div className="flex flex-col gap-y-4">
-            <Text className="font-medium text-base">
-              Add the email addresses to import, separated by whitespaces.
-              Invited users will be able to login to this domain with their
-              email address.
-            </Text>
-            <BulkAdd onSuccess={onSuccess} onFailure={onFailure} />
-          </div>
-        </Modal>
-      )}
-    </>
   );
 };
 
 const Page = () => {
   return (
-    <div className="mx-auto container">
-      <AdminPageTitle title="Manage Users" icon={<UsersIcon size={32} />} />
-      <SearchableTables />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle title="Manage Users" icon={<UsersIcon size={32} />} />
+        <SearchableTables />
+      </div>
     </div>
   );
 };

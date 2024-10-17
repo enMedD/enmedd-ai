@@ -43,9 +43,9 @@ function Main() {
   if (indexAttemptData.length === 0) {
     return (
       <Text>
-        It looks like you don&apos;t have any connectors setup yet. Visit the{" "}
+        It looks like you don&apos;t have any data source setup yet. Visit the{" "}
         <Link className="text-link" href="/admin/add-connector">
-          Add Connector
+          Add Data Source
         </Link>{" "}
         page to get started!
       </Text>
@@ -92,7 +92,7 @@ export default function Status() {
         farRightElement={
           <Link href="/admin/add-connector">
             <Button color="green" size="xs">
-              Add Connector
+              Add Data Source
             </Button>
           </Link>
         }

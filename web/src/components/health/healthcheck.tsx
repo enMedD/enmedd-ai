@@ -2,16 +2,19 @@
 
 import { errorHandlingFetcher, RedirectError } from "@/lib/fetcher";
 import useSWR from "swr";
-import { Modal } from "../Modal";
+import { CustomModal } from "../CustomModal";
+import { Button } from "../ui/button";
 import { useCallback, useEffect, useState } from "react";
 import { getSecondsUntilExpiration } from "@/lib/time";
 import { User } from "@/lib/types";
 import { mockedRefreshToken, refreshToken } from "./refreshUtils";
 import { CUSTOM_REFRESH_URL } from "@/lib/constants";
+import { CircleAlert } from "lucide-react";
 
 export const HealthCheckBanner = () => {
   const { error } = useSWR("/api/health", errorHandlingFetcher);
   const [expired, setExpired] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [secondsUntilExpiration, setSecondsUntilExpiration] = useState<
     number | null
   >(null);
@@ -47,16 +50,13 @@ export const HealthCheckBanner = () => {
 
           const refreshTokenData = await refreshToken(refreshUrl);
 
-          const response = await fetch(
-            "/api/enterprise-settings/refresh-token",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(refreshTokenData),
-            }
-          );
+          const response = await fetch("/api/workspace/refresh-token", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(refreshTokenData),
+          });
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -101,31 +101,31 @@ export const HealthCheckBanner = () => {
 
   if (error instanceof RedirectError || expired) {
     return (
-      <Modal
-        width="w-1/4"
-        className="overflow-y-hidden flex flex-col"
-        title="You've been logged out"
+      <CustomModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        trigger={null}
+        title="You have been logged out!"
       >
         <div className="flex flex-col gap-y-4">
-          <p className="text-sm">
-            Your session has expired. Please log in again to continue.
+          <p className="text-lg pb-4">
+            You can click &quot;Log in&quot; to log back in! Apologies for the
+            inconvenience.
           </p>
-          <a
-            href="/auth/login"
-            className="w-full mt-4 mx-auto rounded-md text-text-200 py-2 bg-background-900 text-center hover:bg-emphasis animtate duration-300 transition-bg"
-          >
-            Log in
-          </a>
+          <Button className="mx-auto">
+            <a href="/auth/login">Log in</a>
+          </Button>
         </div>
-      </Modal>
+      </CustomModal>
     );
   } else {
     return (
-      <div className="fixed top-0 left-0 z-[101] w-full text-xs mx-auto bg-gradient-to-r from-red-900 to-red-700 p-2 rounded-sm border-hidden text-text-200">
-        <p className="font-bold pb-1">The backend is currently unavailable.</p>
+      <div className="text-sm bg-destructive p-3 rounded-xs border-hidden flex gap-2 m-1.5 mb-0 z-loading relative">
+        <CircleAlert size={20} className="shrink-0" />
+        <p className="font-bold">The backend is currently unavailable.</p>
 
-        <p className="px-1">
-          If this is your initial setup or you just updated your Danswer
+        <p className="ml-2">
+          If this is your initial setup or you just updated your enMedD AI
           deployment, this is likely because the backend is still starting up.
           Give it a minute or two, and then refresh the page. If that does not
           work, make sure the backend is setup and/or contact an administrator.

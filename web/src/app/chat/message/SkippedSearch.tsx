@@ -1,5 +1,5 @@
-import { EmphasizedClickable } from "@/components/BasicClickable";
-import { FiBook } from "react-icons/fi";
+import { Button } from "@/components/ui/button";
+import { Book } from "lucide-react";
 
 function ForceSearchButton({
   messageId,
@@ -14,9 +14,9 @@ function ForceSearchButton({
       className="ml-auto my-auto"
       onClick={() => handleShowRetrieved(messageId)}
     >
-      <EmphasizedClickable>
+      <Button size="xs" variant="outline">
         <div className="w-24 text-xs">Force Search</div>
-      </EmphasizedClickable>
+      </Button>
     </div>
   );
 }
@@ -27,21 +27,16 @@ export function SkippedSearch({
   handleForceSearch: () => void;
 }) {
   return (
-    <div className="flex text-sm !pt-0 p-1">
-      <div className="flex mb-auto">
-        <FiBook className="my-auto flex-none mr-2" size={14} />
-        <div className="my-auto cursor-default">
-          <span className="mobile:hidden">
-            The AI decided this query didn&apos;t need a search
-          </span>
-          <span className="desktop:hidden">No search</span>
-        </div>
+    <div className="flex text-sm items-center">
+      <Book className="my-auto mr-2 shrink-0" size={14} />
+      <div className="cursor-default">
+        The AI decided this query didn&apos;t need a search
       </div>
 
       <div className="ml-auto my-auto" onClick={handleForceSearch}>
-        <EmphasizedClickable size="sm">
+        <Button size="xs" variant="outline">
           <div className="w-24 text-xs">Force Search</div>
-        </EmphasizedClickable>
+        </Button>
       </div>
     </div>
   );

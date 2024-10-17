@@ -3,25 +3,25 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.danswerbot.slack.config import validate_channel_names
-from danswer.danswerbot.slack.tokens import fetch_tokens
-from danswer.danswerbot.slack.tokens import save_tokens
-from danswer.db.constants import SLACK_BOT_PERSONA_PREFIX
-from danswer.db.engine import get_session
-from danswer.db.models import ChannelConfig
-from danswer.db.models import User
-from danswer.db.persona import get_persona_by_id
-from danswer.db.slack_bot_config import create_slack_bot_persona
-from danswer.db.slack_bot_config import fetch_slack_bot_config
-from danswer.db.slack_bot_config import fetch_slack_bot_configs
-from danswer.db.slack_bot_config import insert_slack_bot_config
-from danswer.db.slack_bot_config import remove_slack_bot_config
-from danswer.db.slack_bot_config import update_slack_bot_config
-from danswer.key_value_store.interface import KvKeyNotFoundError
-from danswer.server.manage.models import SlackBotConfig
-from danswer.server.manage.models import SlackBotConfigCreationRequest
-from danswer.server.manage.models import SlackBotTokens
+from enmedd.auth.users import current_admin_user
+from enmedd.enmedddbot.slack.config import validate_channel_names
+from enmedd.enmedddbot.slack.tokens import fetch_tokens
+from enmedd.enmedddbot.slack.tokens import save_tokens
+from enmedd.db.constants import SLACK_BOT_PERSONA_PREFIX
+from enmedd.db.engine import get_session
+from enmedd.db.models import ChannelConfig
+from enmedd.db.models import User
+from enmedd.db.assistant import get_assistant_by_id
+from enmedd.db.slack_bot_config import create_slack_bot_assistant
+from enmedd.db.slack_bot_config import fetch_slack_bot_config
+from enmedd.db.slack_bot_config import fetch_slack_bot_configs
+from enmedd.db.slack_bot_config import insert_slack_bot_config
+from enmedd.db.slack_bot_config import remove_slack_bot_config
+from enmedd.db.slack_bot_config import update_slack_bot_config
+from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.server.manage.models import SlackBotConfig
+from enmedd.server.manage.models import SlackBotConfigCreationRequest
+from enmedd.server.manage.models import SlackBotTokens
 
 
 router = APIRouter(prefix="/manage")
@@ -93,19 +93,19 @@ def create_slack_bot_config(
         slack_bot_config_creation_request, None, db_session
     )
 
-    persona_id = None
-    if slack_bot_config_creation_request.persona_id is not None:
-        persona_id = slack_bot_config_creation_request.persona_id
+    assistant_id = None
+    if slack_bot_config_creation_request.assistant_id is not None:
+        assistant_id = slack_bot_config_creation_request.assistant_id
     elif slack_bot_config_creation_request.document_sets:
-        persona_id = create_slack_bot_persona(
+        assistant_id = create_slack_bot_assistant(
             db_session=db_session,
             channel_names=channel_config["channel_names"],
             document_set_ids=slack_bot_config_creation_request.document_sets,
-            existing_persona_id=None,
+            existing_assistant_id=None,
         ).id
 
     slack_bot_config_model = insert_slack_bot_config(
-        persona_id=persona_id,
+        assistant_id=assistant_id,
         channel_config=channel_config,
         response_type=slack_bot_config_creation_request.response_type,
         # XXX this is going away soon
@@ -127,9 +127,9 @@ def patch_slack_bot_config(
         slack_bot_config_creation_request, slack_bot_config_id, db_session
     )
 
-    persona_id = None
-    if slack_bot_config_creation_request.persona_id is not None:
-        persona_id = slack_bot_config_creation_request.persona_id
+    assistant_id = None
+    if slack_bot_config_creation_request.assistant_id is not None:
+        assistant_id = slack_bot_config_creation_request.assistant_id
     elif slack_bot_config_creation_request.document_sets:
         existing_slack_bot_config = fetch_slack_bot_config(
             db_session=db_session, slack_bot_config_id=slack_bot_config_id
@@ -140,34 +140,34 @@ def patch_slack_bot_config(
                 detail="Slack bot config not found",
             )
 
-        existing_persona_id = existing_slack_bot_config.persona_id
-        if existing_persona_id is not None:
-            persona = get_persona_by_id(
-                persona_id=existing_persona_id,
+        existing_assistant_id = existing_slack_bot_config.assistant_id
+        if existing_assistant_id is not None:
+            assistant = get_assistant_by_id(
+                assistant_id=existing_assistant_id,
                 user=None,
                 db_session=db_session,
                 is_for_edit=False,
             )
 
-            if not persona.name.startswith(SLACK_BOT_PERSONA_PREFIX):
-                # Don't update actual non-slackbot specific personas
-                # Since this one specified document sets, we have to create a new persona
+            if not assistant.name.startswith(SLACK_BOT_PERSONA_PREFIX):
+                # Don't update actual non-slackbot specific assistants
+                # Since this one specified document sets, we have to create a new assistant
                 # for this DanswerBot config
-                existing_persona_id = None
+                existing_assistant_id = None
             else:
-                existing_persona_id = existing_slack_bot_config.persona_id
+                existing_assistant_id = existing_slack_bot_config.assistant_id
 
-        persona_id = create_slack_bot_persona(
+        assistant_id = create_slack_bot_assistant(
             db_session=db_session,
             channel_names=channel_config["channel_names"],
             document_set_ids=slack_bot_config_creation_request.document_sets,
-            existing_persona_id=existing_persona_id,
+            existing_assistant_id=existing_assistant_id,
             enable_auto_filters=slack_bot_config_creation_request.enable_auto_filters,
         ).id
 
     slack_bot_config_model = update_slack_bot_config(
         slack_bot_config_id=slack_bot_config_id,
-        persona_id=persona_id,
+        assistant_id=assistant_id,
         channel_config=channel_config,
         response_type=slack_bot_config_creation_request.response_type,
         standard_answer_category_ids=slack_bot_config_creation_request.standard_answer_categories,

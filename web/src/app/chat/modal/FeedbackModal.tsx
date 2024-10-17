@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FeedbackType } from "../types";
 import { ModalWrapper } from "@/components/modals/ModalWrapper";
 import { FilledLikeIcon } from "@/components/icons/icons";
+import { Textarea } from "@/components/ui/textarea";
 
 const predefinedPositiveFeedbackOptions =
   process.env.NEXT_PUBLIC_POSITIVE_PREDEFINED_FEEDBACK_OPTIONS?.split(",") ||
@@ -17,8 +18,8 @@ const predefinedNegativeFeedbackOptions =
 
 interface FeedbackModalProps {
   feedbackType: FeedbackType;
-  onClose: () => void;
-  onSubmit: (feedbackDetails: {
+  onClose?: () => void;
+  onSubmit?: (feedbackDetails: {
     message: string;
     predefinedFeedback?: string;
   }) => void;
@@ -38,15 +39,21 @@ export const FeedbackModal = ({
     setPredefinedFeedback(feedback);
   };
 
-  const handleSubmit = () => {
-    onSubmit({ message, predefinedFeedback });
-    onClose();
-  };
-
   const predefinedFeedbackOptions =
     feedbackType === "like"
       ? predefinedPositiveFeedbackOptions
       : predefinedNegativeFeedbackOptions;
+
+  const handleSubmit = () => {
+    if (onSubmit) {
+      onSubmit({ message, predefinedFeedback });
+      setMessage("");
+      setPredefinedFeedback(undefined);
+      if (onClose) {
+        onClose();
+      }
+    }
+  };
 
   return (
     <ModalWrapper onClose={onClose} modalClassName="max-w-3xl">
@@ -81,7 +88,7 @@ export const FeedbackModal = ({
           ))}
         </div>
 
-        <textarea
+        <Textarea
           autoFocus
           className={`
             w-full flex-grow 

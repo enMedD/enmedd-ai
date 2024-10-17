@@ -1,18 +1,18 @@
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import DocumentSource
-from danswer.db.connector_credential_pair import get_connector_credential_pair
-from danswer.db.enums import AccessType
-from danswer.db.models import Connector
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import UserGroup__ConnectorCredentialPair
-from danswer.utils.logger import setup_logger
+from enmedd.configs.constants import DocumentSource
+from enmedd.db.connector_credential_pair import get_connector_credential_pair
+from enmedd.db.enums import AccessType
+from enmedd.db.models import Connector
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import Teamspace__ConnectorCredentialPair
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
 
-def _delete_connector_credential_pair_user_groups_relationship__no_commit(
+def _delete_connector_credential_pair_teamspaces_relationship__no_commit(
     db_session: Session, connector_id: int, credential_id: int
 ) -> None:
     cc_pair = get_connector_credential_pair(
@@ -26,8 +26,8 @@ def _delete_connector_credential_pair_user_groups_relationship__no_commit(
             f"and credential_id: {credential_id} not found"
         )
 
-    stmt = delete(UserGroup__ConnectorCredentialPair).where(
-        UserGroup__ConnectorCredentialPair.cc_pair_id == cc_pair.id,
+    stmt = delete(Teamspace__ConnectorCredentialPair).where(
+        Teamspace__ConnectorCredentialPair.cc_pair_id == cc_pair.id,
     )
     db_session.execute(stmt)
 

@@ -1,22 +1,7 @@
 import { useQueryHistory } from "../lib";
-
-import {
-  Card,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-  Text,
-  Divider,
-  Select,
-  SelectItem,
-} from "@tremor/react";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { ChatSessionMinimal } from "../usage/types";
 import { timestampToReadableDate } from "@/lib/dateUtils";
-import { FiFrown, FiMinus, FiSmile } from "react-icons/fi";
 import { useState } from "react";
 import { Feedback } from "@/lib/types";
 import { DateRangeSelector } from "../DateRangeSelector";
@@ -24,6 +9,24 @@ import { PageSelector } from "@/components/PageSelector";
 import Link from "next/link";
 import { FeedbackBadge } from "./FeedbackBadge";
 import { DownloadAsCSV } from "./DownloadAsCSV";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Frown, Minus, Smile } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 const NUM_IN_PAGE = 20;
 
@@ -32,36 +35,36 @@ function QueryHistoryTableRow({
 }: {
   chatSessionMinimal: ChatSessionMinimal;
 }) {
+  const handleRowClick = () => {
+    window.location.href = `/admin/performance/query-history/${chatSessionMinimal.id}`;
+  };
+
   return (
     <TableRow
       key={chatSessionMinimal.id}
       className="hover:bg-hover-light cursor-pointer relative"
+      onClick={handleRowClick}
     >
       <TableCell>
-        <Text className="whitespace-normal line-clamp-5">
+        <p className="whitespace-normal line-clamp-5">
           {chatSessionMinimal.first_user_message || "-"}
-        </Text>
+        </p>
       </TableCell>
       <TableCell>
-        <Text className="whitespace-normal line-clamp-5">
+        <p className="whitespace-normal line-clamp-5">
           {chatSessionMinimal.first_ai_message || "-"}
-        </Text>
+        </p>
       </TableCell>
       <TableCell>
         <FeedbackBadge feedback={chatSessionMinimal.feedback_type} />
       </TableCell>
       <TableCell>{chatSessionMinimal.user_email || "-"}</TableCell>
-      <TableCell>{chatSessionMinimal.persona_name || "Unknown"}</TableCell>
+      <TableCell className="whitespace-nowrap">
+        {chatSessionMinimal.assistant_name || "Unknown"}
+      </TableCell>
       <TableCell>
         {timestampToReadableDate(chatSessionMinimal.time_created)}
       </TableCell>
-      {/* Wrapping in <td> to avoid console warnings */}
-      <td className="w-0 p-0">
-        <Link
-          href={`/admin/performance/query-history/${chatSessionMinimal.id}`}
-          className="absolute w-full h-full left-0"
-        ></Link>
-      </td>
     </TableRow>
   );
 }
@@ -75,22 +78,26 @@ function SelectFeedbackType({
 }) {
   return (
     <div>
-      <Text className="my-auto mr-2 font-medium mb-1">Feedback Type</Text>
+      <Label className="font-semibold">Feedback Type</Label>
       <div className="max-w-sm space-y-6">
         <Select
           value={value}
           onValueChange={onValueChange as (value: string) => void}
-          enableClear={false}
         >
-          <SelectItem value="all" icon={FiMinus}>
-            Any
-          </SelectItem>
-          <SelectItem value="like" icon={FiSmile}>
-            Like
-          </SelectItem>
-          <SelectItem value="dislike" icon={FiFrown}>
-            Dislike
-          </SelectItem>
+          <SelectTrigger>
+            <SelectValue placeholder="Select an option" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              <Minus size={16} className="inline mr-2" /> Any
+            </SelectItem>
+            <SelectItem value="like">
+              <Smile size={16} className="inline mr-2" /> Like
+            </SelectItem>
+            <SelectItem value="dislike">
+              <Frown size={16} className="inline mr-2" /> Dislike
+            </SelectItem>
+          </SelectContent>
         </Select>
       </div>
     </div>
@@ -109,10 +116,10 @@ export function QueryHistoryTable() {
   const [page, setPage] = useState(1);
 
   return (
-    <Card className="mt-8">
+    <>
       {chatSessionData ? (
-        <>
-          <div className="flex">
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row gap-4">
             <div className="gap-y-3 flex flex-col">
               <SelectFeedbackType
                 value={selectedFeedbackType || "all"}
@@ -127,31 +134,34 @@ export function QueryHistoryTable() {
 
             <DownloadAsCSV />
           </div>
-          <Divider />
-          <Table className="mt-5">
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>First User Message</TableHeaderCell>
-                <TableHeaderCell>First AI Response</TableHeaderCell>
-                <TableHeaderCell>Feedback</TableHeaderCell>
-                <TableHeaderCell>User</TableHeaderCell>
-                <TableHeaderCell>Persona</TableHeaderCell>
-                <TableHeaderCell>Date</TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {chatSessionData
-                .slice(NUM_IN_PAGE * (page - 1), NUM_IN_PAGE * page)
-                .map((chatSessionMinimal) => (
-                  <QueryHistoryTableRow
-                    key={chatSessionMinimal.id}
-                    chatSessionMinimal={chatSessionMinimal}
-                  />
-                ))}
-            </TableBody>
-          </Table>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>First User Message</TableHead>
+                    <TableHead>First AI Response</TableHead>
+                    <TableHead>Feedback</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Assistant</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {chatSessionData
+                    .slice(NUM_IN_PAGE * (page - 1), NUM_IN_PAGE * page)
+                    .map((chatSessionMinimal) => (
+                      <QueryHistoryTableRow
+                        key={chatSessionMinimal.id}
+                        chatSessionMinimal={chatSessionMinimal}
+                      />
+                    ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
-          <div className="mt-3 flex">
+          <div className="flex">
             <div className="mx-auto">
               <PageSelector
                 totalPages={Math.ceil(chatSessionData.length / NUM_IN_PAGE)}
@@ -167,12 +177,12 @@ export function QueryHistoryTable() {
               />
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <div className="h-80 flex flex-col">
           <ThreeDotsLoader />
         </div>
       )}
-    </Card>
+    </>
   );
 }

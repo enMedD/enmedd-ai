@@ -4,35 +4,35 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_user
-from danswer.configs.danswerbot_configs import DANSWER_BOT_TARGET_CHUNK_PERCENTAGE
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.db.persona import get_persona_by_id
-from danswer.llm.answering.prompts.citations_prompt import (
-    compute_max_document_tokens_for_persona,
+from enmedd.auth.users import current_user
+from enmedd.configs.enmedddbot_configs import DANSWER_BOT_TARGET_CHUNK_PERCENTAGE
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from enmedd.db.assistant import get_assistant_by_id
+from enmedd.llm.answering.prompts.citations_prompt import (
+    compute_max_document_tokens_for_assistant,
 )
-from danswer.llm.factory import get_default_llms
-from danswer.llm.factory import get_llms_for_persona
-from danswer.llm.factory import get_main_llm_from_tuple
-from danswer.llm.utils import get_max_input_tokens
-from danswer.one_shot_answer.answer_question import get_search_answer
-from danswer.one_shot_answer.models import DirectQARequest
-from danswer.one_shot_answer.models import OneShotQAResponse
-from danswer.search.models import SavedSearchDocWithContent
-from danswer.search.models import SearchRequest
-from danswer.search.pipeline import SearchPipeline
-from danswer.search.utils import dedupe_documents
-from danswer.search.utils import drop_llm_indices
-from danswer.search.utils import relevant_sections_to_indices
-from danswer.utils.logger import setup_logger
-from ee.danswer.danswerbot.slack.handlers.handle_standard_answers import (
+from enmedd.llm.factory import get_default_llms
+from enmedd.llm.factory import get_llms_for_assistant
+from enmedd.llm.factory import get_main_llm_from_tuple
+from enmedd.llm.utils import get_max_input_tokens
+from enmedd.one_shot_answer.answer_question import get_search_answer
+from enmedd.one_shot_answer.models import DirectQARequest
+from enmedd.one_shot_answer.models import OneShotQAResponse
+from enmedd.search.models import SavedSearchDocWithContent
+from enmedd.search.models import SearchRequest
+from enmedd.search.pipeline import SearchPipeline
+from enmedd.search.utils import dedupe_documents
+from enmedd.search.utils import drop_llm_indices
+from enmedd.search.utils import relevant_sections_to_indices
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.enmedddbot.slack.handlers.handle_standard_answers import (
     oneoff_standard_answers,
 )
-from ee.danswer.server.query_and_chat.models import DocumentSearchRequest
-from ee.danswer.server.query_and_chat.models import StandardAnswerRequest
-from ee.danswer.server.query_and_chat.models import StandardAnswerResponse
-from ee.danswer.server.query_and_chat.utils import create_temporary_persona
+from ee.enmedd.server.query_and_chat.models import DocumentSearchRequest
+from ee.enmedd.server.query_and_chat.models import StandardAnswerRequest
+from ee.enmedd.server.query_and_chat.models import StandardAnswerResponse
+from ee.enmedd.server.query_and_chat.utils import create_temporary_assistant
 
 
 logger = setup_logger()
@@ -62,7 +62,7 @@ def handle_search_request(
             search_type=search_request.search_type,
             human_selected_filters=search_request.retrieval_options.filters,
             enable_auto_detect_filters=search_request.retrieval_options.enable_auto_detect_filters,
-            persona=None,  # For simplicity, default settings should be good for this search
+            assistant=None,  # For simplicity, default settings should be good for this search
             offset=search_request.retrieval_options.offset,
             limit=search_request.retrieval_options.limit,
             rerank_settings=search_request.rerank_settings,
@@ -134,26 +134,26 @@ def get_answer_with_quote(
     query = query_request.messages[0].message
     logger.notice(f"Received query for one shot answer API with quotes: {query}")
 
-    if query_request.persona_config is not None:
-        new_persona = create_temporary_persona(
+    if query_request.assistant_config is not None:
+        new_assistant = create_temporary_assistant(
             db_session=db_session,
-            persona_config=query_request.persona_config,
+            assistant_config=query_request.assistant_config,
             user=user,
         )
-        persona = new_persona
+        assistant = new_assistant
 
-    elif query_request.persona_id is not None:
-        persona = get_persona_by_id(
-            persona_id=query_request.persona_id,
+    elif query_request.assistant_id is not None:
+        assistant = get_assistant_by_id(
+            assistant_id=query_request.assistant_id,
             user=user,
             db_session=db_session,
             is_for_edit=False,
         )
     else:
-        raise KeyError("Must provide persona ID or Persona Config")
+        raise KeyError("Must provide assistant ID or Assistant Config")
 
     llm = get_main_llm_from_tuple(
-        get_default_llms() if not persona else get_llms_for_persona(persona)
+        get_default_llms() if not assistant else get_llms_for_assistant(assistant)
     )
     input_tokens = get_max_input_tokens(
         model_name=llm.config.model_name, model_provider=llm.config.model_provider
@@ -162,8 +162,8 @@ def get_answer_with_quote(
 
     remaining_tokens = input_tokens - max_history_tokens
 
-    max_document_tokens = compute_max_document_tokens_for_persona(
-        persona=persona,
+    max_document_tokens = compute_max_document_tokens_for_assistant(
+        assistant=assistant,
         actual_user_input=query,
         max_llm_token_override=remaining_tokens,
     )

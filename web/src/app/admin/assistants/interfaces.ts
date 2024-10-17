@@ -18,7 +18,7 @@ export interface Prompt {
   default_prompt: boolean;
 }
 
-export interface Persona {
+export interface Assistant {
   id: number;
   name: string;
   search_start_date: Date | null;
@@ -36,11 +36,12 @@ export interface Persona {
   llm_model_provider_override?: string;
   llm_model_version_override?: string;
   starter_messages: StarterMessage[] | null;
-  builtin_persona: boolean;
-  is_default_persona: boolean;
+  builtin_assistant: boolean;
+  is_default_assistant: boolean;
   users: MinimalUserSnapshot[];
   groups: number[];
   icon_shape?: number;
   icon_color?: string;
   uploaded_image_id?: string;
+  teamspace: number[];
 }

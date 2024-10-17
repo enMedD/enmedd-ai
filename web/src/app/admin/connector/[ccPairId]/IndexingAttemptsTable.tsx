@@ -1,32 +1,30 @@
-"use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
-  Text,
-  Callout,
-} from "@tremor/react";
-import { CCPairFullInfo, PaginatedIndexAttempts } from "./types";
 import { IndexAttemptStatus } from "@/components/Status";
+import { CCPairFullInfo, PaginatedIndexAttempts } from "./types";
 import { PageSelector } from "@/components/PageSelector";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { buildCCPairInfoUrl } from "./lib";
 import { localizeAndPrettify } from "@/lib/time";
 import { getDocsProcessedPerMinute } from "@/lib/indexAttempt";
+import { CheckmarkIcon, CopyIcon, SearchIcon } from "@/components/icons/icons";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { CustomModal } from "@/components/CustomModal";
+import { Card, CardContent } from "@/components/ui/card";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { InfoIcon, SearchIcon } from "@/components/icons/icons";
-import Link from "next/link";
-import ExceptionTraceModal from "@/components/modals/ExceptionTraceModal";
-import { useRouter } from "next/navigation";
-import { Tooltip } from "@/components/tooltip/Tooltip";
+import { Callout } from "@tremor/react";
 import { FiInfo } from "react-icons/fi";
+import { Modal } from "@/components/Modal";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-// This is the number of index attempts to display per page
 const NUM_IN_PAGE = 8;
 // This is the number of pages to fetch at a time
 const BATCH_SIZE = 8;
@@ -35,6 +33,8 @@ export function IndexingAttemptsTable({ ccPair }: { ccPair: CCPairFullInfo }) {
   const [indexAttemptTracePopupId, setIndexAttemptTracePopupId] = useState<
     number | null
   >(null);
+  const [isCopyClicked, setIsCopyClicked] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const totalPages = Math.ceil(ccPair.number_of_index_attempts / NUM_IN_PAGE);
 
@@ -211,36 +211,61 @@ export function IndexingAttemptsTable({ ccPair }: { ccPair: CCPairFullInfo }) {
     (indexAttempt) => indexAttempt.id === indexAttemptTracePopupId
   );
 
+  const handleClose = () => {
+    setIndexAttemptTracePopupId(null);
+    setIsModalVisible(false);
+  };
+
   return (
     <>
       {indexAttemptToDisplayTraceFor &&
         indexAttemptToDisplayTraceFor.full_exception_trace && (
-          <ExceptionTraceModal
+          <Modal
+            width="w-4/6"
+            className="h-5/6 overflow-y-hidden flex flex-col"
+            title="Full Exception Trace"
             onOutsideClick={() => setIndexAttemptTracePopupId(null)}
-            exceptionTrace={indexAttemptToDisplayTraceFor.full_exception_trace!}
-          />
+          >
+            <div className="overflow-y-auto mb-6">
+              <div className="mb-6">
+                {!isCopyClicked ? (
+                  <div
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        indexAttemptToDisplayTraceFor.full_exception_trace!
+                      );
+                      setIsCopyClicked(true);
+                      setTimeout(() => setIsCopyClicked(false), 2000);
+                    }}
+                    className="flex w-fit cursor-pointer hover:bg-hover-light p-2 border-border border rounded"
+                  >
+                    Copy full trace
+                    <CopyIcon className="ml-2 my-auto" />
+                  </div>
+                ) : (
+                  <div className="flex w-fit hover:bg-hover-light p-2 border-border border rounded cursor-default">
+                    Copied to clipboard
+                    <CheckmarkIcon
+                      className="my-auto ml-2 flex flex-shrink-0 text-success"
+                      size={16}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="whitespace-pre-wrap">
+                {indexAttemptToDisplayTraceFor.full_exception_trace}
+              </div>
+            </div>
+          </Modal>
         )}
-
       <Table>
         <TableHead>
           <TableRow>
-            <TableHeaderCell>Time Started</TableHeaderCell>
-            <TableHeaderCell>Status</TableHeaderCell>
-            <TableHeaderCell>New Doc Cnt</TableHeaderCell>
-            <TableHeaderCell>
-              <div className="w-fit">
-                <Tooltip
-                  width="max-w-sm"
-                  content="Total number of documents replaced in the index during this indexing attempt"
-                >
-                  <span className="cursor-help flex items-center">
-                    Total Doc Cnt
-                    <InfoIcon className="ml-1 w-4 h-4" />
-                  </span>
-                </Tooltip>
-              </div>
-            </TableHeaderCell>
-            <TableHeaderCell>Error Message</TableHeaderCell>
+            <TableHead>Time Started</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>New Doc Cnt</TableHead>
+            <TableHead>Total Doc Cnt</TableHead>
+            <TableHead>Error Msg</TableHead>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -292,24 +317,24 @@ export function IndexingAttemptsTable({ ccPair }: { ccPair: CCPairFullInfo }) {
                         className="cursor-pointer my-auto"
                         href={`/admin/indexing/${indexAttempt.id}`}
                       >
-                        <Text className="flex flex-wrap text-link whitespace-normal">
+                        <div className="flex flex-wrap text-link whitespace-normal">
                           <SearchIcon />
                           &nbsp;View Errors
-                        </Text>
+                        </div>
                       </Link>
                     )}
 
                     {indexAttempt.status === "success" && (
-                      <Text className="flex flex-wrap whitespace-normal">
+                      <div className="flex flex-wrap whitespace-normal">
                         {"-"}
-                      </Text>
+                      </div>
                     )}
 
                     {indexAttempt.status === "failed" &&
                       indexAttempt.error_msg && (
-                        <Text className="flex flex-wrap whitespace-normal">
+                        <div className="flex flex-wrap whitespace-normal">
                           {indexAttempt.error_msg}
-                        </Text>
+                        </div>
                       )}
 
                     {indexAttempt.full_exception_trace && (
@@ -330,7 +355,7 @@ export function IndexingAttemptsTable({ ccPair }: { ccPair: CCPairFullInfo }) {
         </TableBody>
       </Table>
       {totalPages > 1 && (
-        <div className="mt-3 flex">
+        <div className="pt-6 flex">
           <div className="mx-auto">
             <PageSelector
               totalPages={totalPages}

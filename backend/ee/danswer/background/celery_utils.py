@@ -3,19 +3,19 @@ from datetime import timezone
 
 from sqlalchemy.orm import Session
 
-from danswer.db.enums import AccessType
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.tasks import check_task_is_live_and_not_timed_out
-from danswer.db.tasks import get_latest_task
-from danswer.utils.logger import setup_logger
-from ee.danswer.background.task_name_builders import name_chat_ttl_task
-from ee.danswer.background.task_name_builders import (
+from enmedd.db.enums import AccessType
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.tasks import check_task_is_live_and_not_timed_out
+from enmedd.db.tasks import get_latest_task
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.background.task_name_builders import name_chat_ttl_task
+from ee.enmedd.background.task_name_builders import (
     name_sync_external_doc_permissions_task,
 )
-from ee.danswer.background.task_name_builders import (
+from ee.enmedd.background.task_name_builders import (
     name_sync_external_group_permissions_task,
 )
-from ee.danswer.external_permissions.sync_params import PERMISSION_SYNC_PERIODS
+from ee.enmedd.external_permissions.sync_params import PERMISSION_SYNC_PERIODS
 
 logger = setup_logger()
 

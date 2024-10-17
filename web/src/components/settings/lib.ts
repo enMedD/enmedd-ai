@@ -1,6 +1,7 @@
 import {
   CombinedSettings,
-  EnterpriseSettings,
+  Workspaces,
+  FeatureFlags,
   GatingType,
   Settings,
 } from "@/app/admin/settings/interfaces";
@@ -19,18 +20,22 @@ export async function fetchStandardSettingsSS() {
   return fetchSS("/settings");
 }
 
-export async function fetchEnterpriseSettingsSS() {
-  return fetchSS("/enterprise-settings");
+export async function fetchFeatureFlagsSS() {
+  return fetchSS("/ff");
+}
+
+export async function fetchWorkspaceSettingsSS() {
+  return fetchSS("/workspace");
 }
 
 export async function fetchCustomAnalyticsScriptSS() {
-  return fetchSS("/enterprise-settings/custom-analytics-script");
+  return fetchSS("/workspace/custom-analytics-script");
 }
 
 export async function fetchSettingsSS(): Promise<CombinedSettings | null> {
-  const tasks = [fetchStandardSettingsSS()];
+  const tasks = [fetchStandardSettingsSS(), fetchFeatureFlagsSS()];
   if (SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED) {
-    tasks.push(fetchEnterpriseSettingsSS());
+    tasks.push(fetchWorkspaceSettingsSS());
     if (CUSTOM_ANALYTICS_ENABLED) {
       tasks.push(fetchCustomAnalyticsScriptSS());
     }
@@ -60,26 +65,26 @@ export async function fetchSettingsSS(): Promise<CombinedSettings | null> {
     } else {
       settings = await results[0].json();
     }
-
-    let enterpriseSettings: EnterpriseSettings | null = null;
-    if (tasks.length > 1) {
-      if (!results[1].ok) {
-        if (results[1].status !== 403 && results[1].status !== 401) {
+    const featureFlags = (await results[1].json()) as FeatureFlags;
+    let workspaces: Workspaces | null = null;
+    if (tasks.length > 2) {
+      if (!results[2].ok) {
+        if (results[2].status !== 403 && results[2].status !== 401) {
           throw new Error(
-            `fetchEnterpriseSettingsSS failed: status=${results[1].status} body=${await results[1].text()}`
+            `fetchEnterpriseSettingsSS failed: status=${results[2].status} body=${await results[1].text()}`
           );
         }
       } else {
-        enterpriseSettings = await results[1].json();
+        workspaces = await results[1].json();
       }
     }
 
     let customAnalyticsScript: string | null = null;
-    if (tasks.length > 2) {
-      if (!results[2].ok) {
-        if (results[2].status !== 403) {
+    if (tasks.length > 3) {
+      if (!results[3].ok) {
+        if (results[3].status !== 403) {
           throw new Error(
-            `fetchCustomAnalyticsScriptSS failed: status=${results[2].status} body=${await results[2].text()}`
+            `fetchCustomAnalyticsScriptSS failed: status=${results[3].status} body=${await results[2].text()}`
           );
         }
       } else {
@@ -91,7 +96,8 @@ export async function fetchSettingsSS(): Promise<CombinedSettings | null> {
 
     const combinedSettings: CombinedSettings = {
       settings,
-      enterpriseSettings,
+      featureFlags,
+      workspaces,
       customAnalyticsScript,
       webVersion,
     };

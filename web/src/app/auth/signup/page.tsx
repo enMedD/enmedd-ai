@@ -6,10 +6,17 @@ import {
   AuthTypeMetadata,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { EmailPasswordForm } from "../login/EmailPasswordForm";
-import { Card, Title, Text } from "@tremor/react";
+import { SignupForms } from "./SignupForms";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+
+import Logo from "../../../../public/logo-brand.png";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import SignupImage from "../../../../public/SignupImage.png";
+import GmailIcon from "../../../../public/Gmail.png";
+import MicrosoftIcon from "../../../../public/microsoft.svg";
+import { Separator } from "@/components/ui/separator";
+import { WelcomeTopBar } from "@/components/TopBar";
 import { CLOUD_ENABLED } from "@/lib/constants";
 
 const Page = async () => {
@@ -49,34 +56,79 @@ const Page = async () => {
   }
 
   return (
-    <main>
-      <div className="absolute top-10x w-full">
-        <HealthCheckBanner />
-      </div>
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div>
-          <Logo height={64} width={64} className="mx-auto w-fit" />
+    <main className="relative h-full">
+      <HealthCheckBanner />
 
-          <Card className="mt-4 w-96">
-            <div className="flex">
-              <Title className="mb-2 mx-auto font-bold">
-                Sign Up for Danswer
-              </Title>
+      <WelcomeTopBar />
+
+      <div className="w-screen flex h-full overflow-y-auto">
+        <div className="w-full h-full xl:w-1/2 flex items-start justify-center px-6 lg:px-14 3xl:px-0 pt-28">
+          <div className="w-full md:w-3/4 lg:w-1/2 xl:w-full 3xl:w-1/2 my-auto pb-14 md:pb-20">
+            <div>
+              <h1 className="text-xl md:text-3xl font-bold text-center text-dark-900">
+                Create Your Account
+              </h1>
+              <p className="text-center text-sm text-subtle md:pt-2">
+                Welcome back! Please enter your details
+              </p>
             </div>
-            <EmailPasswordForm
-              isSignup
-              shouldVerify={authTypeMetadata?.requiresVerification}
-            />
 
-            <div className="flex">
-              <Text className="mt-4 mx-auto">
+            <div className="pt-8">
+              <div className="flex items-center gap-3 md:gap-6 w-full flex-col md:flex-row">
+                <Button className="flex-1 w-full" variant="outline">
+                  <Image
+                    src={GmailIcon}
+                    alt="gmail-icon"
+                    width={16}
+                    height={16}
+                  />{" "}
+                  Continue with Gmail
+                </Button>
+                <Button
+                  className="flex-1 w-full"
+                  variant="outline"
+                  type="button"
+                >
+                  <Image
+                    src={MicrosoftIcon}
+                    alt="microsoft-icon"
+                    width={16}
+                    height={16}
+                  />
+                  Continue with Microsoft
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-4 pt-8">
+                <Separator className="flex-1" />
+                <p className="whitespace-nowrap text-sm">OR</p>
+                <Separator className="flex-1" />
+              </div>
+
+              <div className="pt-8">
+                <SignupForms
+                  shouldVerify={authTypeMetadata?.requiresVerification}
+                />
+              </div>
+
+              <p className="pt-8 text-center text-sm">
                 Already have an account?{" "}
-                <Link href="/auth/login" className="text-link font-medium">
-                  Log In
+                <Link
+                  href="/auth/login"
+                  className="text-sm font-medium text-link hover:underline"
+                >
+                  Sign in
                 </Link>
-              </Text>
+              </p>
             </div>
-          </Card>
+          </div>
+        </div>
+        <div className="w-1/2 h-full relative rounded-l-[50px] overflow-hidden hidden xl:flex">
+          <Image
+            src={SignupImage}
+            alt="signup-image"
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
     </main>

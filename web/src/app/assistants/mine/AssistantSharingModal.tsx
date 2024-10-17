@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { MinimalUserSnapshot, User } from "@/lib/types";
-import { Button } from "@tremor/react";
-import { FiPlus, FiX } from "react-icons/fi";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Button, Text } from "@tremor/react";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { SearchMultiSelectDropdown } from "@/components/Dropdown";
 import { UsersIcon } from "@/components/icons/icons";
 import { AssistantSharedStatusDisplay } from "../AssistantSharedStatus";
@@ -11,14 +10,15 @@ import {
   addUsersToAssistantSharedList,
   removeUsersFromAssistantSharedList,
 } from "@/lib/assistants/shareAssistant";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { Bubble } from "@/components/Bubble";
 import { useRouter } from "next/navigation";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { Spinner } from "@/components/Spinner";
+import { useToast } from "@/hooks/use-toast";
+import { Plus, X } from "lucide-react";
 
 interface AssistantSharingModalProps {
-  assistant: Persona;
+  assistant: Assistant;
   user: User | null;
   allUsers: MinimalUserSnapshot[];
   show: boolean;
@@ -33,7 +33,7 @@ export function AssistantSharingModal({
   onClose,
 }: AssistantSharingModalProps) {
   const router = useRouter();
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<MinimalUserSnapshot[]>([]);
 
@@ -62,9 +62,16 @@ export function AssistantSharingModal({
     setTimeout(() => {
       setIsUpdating(false);
       if (error) {
-        setPopup({
-          message: `Failed to share assistant - ${error}`,
-          type: "error",
+        toast({
+          title: "Sharing Failed",
+          description: `We encountered an issue while trying to share "${assistant.name}". Please try again later.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Assistant Shared",
+          description: `"${assistant.name}" has been successfully shared with the selected users!`,
+          variant: "success",
         });
       }
     }, remainingTime);
@@ -104,16 +111,23 @@ export function AssistantSharingModal({
                 setTimeout(() => {
                   setIsUpdating(false);
                   if (error) {
-                    setPopup({
-                      message: `Failed to remove assistant - ${error}`,
-                      type: "error",
+                    toast({
+                      title: "Removal Failed",
+                      description: `Unable to remove "${u.email}" from the assistant's shared list. Please try again later.`,
+                      variant: "destructive",
+                    });
+                  } else {
+                    toast({
+                      title: "User Removed",
+                      description: `"${u.email}" has been successfully removed from the assistant's shared list.`,
+                      variant: "success",
                     });
                   }
                 }, remainingTime);
               }}
             >
               <div className="flex">
-                {u.email} <FiX className="ml-1 my-auto" />
+                {u.email} <X className="ml-1 my-auto" />
               </div>
             </Bubble>
           ))}
@@ -123,108 +137,104 @@ export function AssistantSharingModal({
   }
 
   return (
-    <>
-      {popup}
-      <Modal
-        width="max-w-3xl w-full"
-        title={
-          <div className="flex items-end space-x-3">
-            <AssistantIcon size="large" assistant={assistant} />
-            <h2 className="text-3xl text-text-800 font-semibold">
-              {assistantName}
-            </h2>
-          </div>
-        }
-        onOutsideClick={onClose}
-      >
+    <Modal
+      title={
+        <div className="flex">
+          <AssistantIcon assistant={assistant} />{" "}
+          <div className="ml-2 my-auto">{assistantName}</div>
+        </div>
+      }
+      onOutsideClick={onClose}
+    >
+      <div className="px-4">
+        {isUpdating && <Spinner />}
+        <Text className="mb-5">
+          Control which other users should have access to this assistant.
+        </Text>
+
         <div>
-          {isUpdating && <Spinner />}
-          <p className="text-text-600 text-lg mb-6">
-            Manage access to this assistant by sharing it with other users.
-          </p>
+          <p className="font-bold mb-2">Current status:</p>
+          {sharedStatus}
+        </div>
 
-          <div className="mb-8 flex flex-col gap-y-4">
-            <h3 className="text-lg font-semibold">Current Status</h3>
-            <div className="bg-gray-50 rounded-lg">{sharedStatus}</div>
-          </div>
-
-          <div className="mb-8 flex flex-col gap-y-4">
-            <h3 className="text-lg font-semibold">Share Assistant</h3>
-            <SearchMultiSelectDropdown
-              options={allUsers
-                .filter(
-                  (u1) =>
-                    !selectedUsers.map((u2) => u2.id).includes(u1.id) &&
-                    !sharedUsersWithoutOwner
-                      .map((u2) => u2.id)
-                      .includes(u1.id) &&
-                    u1.id !== user?.id
-                )
-                .map((user) => ({
+        <h3 className="mb-4 mt-3">Share Assistant:</h3>
+        <div className="mt-4">
+          <SearchMultiSelectDropdown
+            options={allUsers
+              .filter(
+                (u1) =>
+                  !selectedUsers.map((u2) => u2.id).includes(u1.id) &&
+                  !sharedUsersWithoutOwner.map((u2) => u2.id).includes(u1.id) &&
+                  u1.id !== user?.id
+              )
+              .map((user) => {
+                return {
                   name: user.email,
                   value: user.id,
-                }))}
-              onSelect={(option) => {
-                setSelectedUsers([
-                  ...Array.from(
-                    new Set([
-                      ...selectedUsers,
-                      { id: option.value as string, email: option.name },
-                    ])
-                  ),
-                ]);
-              }}
-              itemComponent={({ option }) => (
-                <div className="flex items-center px-4 py-2.5 cursor-pointer hover:bg-gray-100">
-                  <UsersIcon className="mr-3 text-gray-500" />
-                  <span className="flex-grow">{option.name}</span>
-                  <FiPlus className="text-blue-500" />
+                };
+              })}
+            onSelect={(option) => {
+              setSelectedUsers([
+                ...Array.from(
+                  new Set([
+                    ...selectedUsers,
+                    { id: option.value as string, email: option.name },
+                  ])
+                ),
+              ]);
+            }}
+            itemComponent={({ option }) => (
+              <div className="flex px-4 py-2.5 cursor-pointer hover:bg-hover">
+                <UsersIcon className="mr-2 my-auto" />
+                {option.name}
+                <div className="ml-auto my-auto">
+                  <Plus />
                 </div>
-              )}
-            />
-          </div>
-
-          {selectedUsers.length > 0 && (
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                Selected Users:
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {selectedUsers.map((selectedUser) => (
-                  <div
-                    key={selectedUser.id}
-                    onClick={() => {
-                      setSelectedUsers(
-                        selectedUsers.filter(
-                          (user) => user.id !== selectedUser.id
-                        )
-                      );
-                    }}
-                    className="flex items-center bg-blue-50 text-blue-700 rounded-full px-3 py-1 text-sm hover:bg-blue-100 transition-colors duration-200 cursor-pointer"
-                  >
-                    {selectedUser.email}
-                    <FiX className="ml-2 text-blue-500" />
-                  </div>
-                ))}
               </div>
-            </div>
-          )}
+            )}
+          />
+          <div className="mt-2 flex flex-wrap gap-x-2">
+            {selectedUsers.length > 0 &&
+              selectedUsers.map((selectedUser) => (
+                <div
+                  key={selectedUser.id}
+                  onClick={() => {
+                    setSelectedUsers(
+                      selectedUsers.filter(
+                        (user) => user.id !== selectedUser.id
+                      )
+                    );
+                  }}
+                  className={`
+                      flex 
+                      rounded-regular 
+                      px-2 
+                      py-1 
+                      border 
+                      border-border 
+                      hover:bg-hover-light 
+                      cursor-pointer`}
+                >
+                  {selectedUser.email} <X className="ml-1 my-auto" />
+                </div>
+              ))}
+          </div>
 
           {selectedUsers.length > 0 && (
             <Button
+              className="mt-4"
               onClick={() => {
                 handleShare();
                 setSelectedUsers([]);
               }}
-              size="sm"
+              size="xs"
               color="blue"
-              className="w-full"
             >
-              Share with Selected Users
+              Add
             </Button>
           )}
         </div>
-      </Modal>
-    </>
+      </div>
+    </Modal>
   );
 }

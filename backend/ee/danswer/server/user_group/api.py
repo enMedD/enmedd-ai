@@ -4,22 +4,22 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.auth.users import current_curator_or_admin_user
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.db.models import UserRole
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.user_group import fetch_user_groups
-from ee.danswer.db.user_group import fetch_user_groups_for_user
-from ee.danswer.db.user_group import insert_user_group
-from ee.danswer.db.user_group import prepare_user_group_for_deletion
-from ee.danswer.db.user_group import update_user_curator_relationship
-from ee.danswer.db.user_group import update_user_group
-from ee.danswer.server.user_group.models import SetCuratorRequest
-from ee.danswer.server.user_group.models import UserGroup
-from ee.danswer.server.user_group.models import UserGroupCreate
-from ee.danswer.server.user_group.models import UserGroupUpdate
+from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_curator_or_admin_user
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from enmedd.db.models import UserRole
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.teamspace import fetch_teamspaces
+from ee.enmedd.db.teamspace import fetch_teamspaces_for_user
+from ee.enmedd.db.teamspace import insert_teamspace
+from ee.enmedd.db.teamspace import prepare_teamspace_for_deletion
+from ee.enmedd.db.teamspace import update_user_curator_relationship
+from ee.enmedd.db.teamspace import update_teamspace
+from ee.enmedd.server.teamspace.models import SetCuratorRequest
+from ee.enmedd.server.teamspace.models import Teamspace
+from ee.enmedd.server.teamspace.models import TeamspaceCreate
+from ee.enmedd.server.teamspace.models import TeamspaceUpdate
 
 logger = setup_logger()
 
@@ -27,61 +27,61 @@ router = APIRouter(prefix="/manage")
 
 
 @router.get("/admin/user-group")
-def list_user_groups(
+def list_teamspaces(
     user: User | None = Depends(current_curator_or_admin_user),
     db_session: Session = Depends(get_session),
-) -> list[UserGroup]:
+) -> list[Teamspace]:
     if user is None or user.role == UserRole.ADMIN:
-        user_groups = fetch_user_groups(db_session, only_up_to_date=False)
+        teamspaces = fetch_teamspaces(db_session, only_up_to_date=False)
     else:
-        user_groups = fetch_user_groups_for_user(
+        teamspaces = fetch_teamspaces_for_user(
             db_session=db_session,
             user_id=user.id,
             only_curator_groups=user.role == UserRole.CURATOR,
         )
-    return [UserGroup.from_model(user_group) for user_group in user_groups]
+    return [Teamspace.from_model(teamspace) for teamspace in teamspaces]
 
 
 @router.post("/admin/user-group")
-def create_user_group(
-    user_group: UserGroupCreate,
+def create_teamspace(
+    teamspace: TeamspaceCreate,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
-) -> UserGroup:
+) -> Teamspace:
     try:
-        db_user_group = insert_user_group(db_session, user_group)
+        db_teamspace = insert_teamspace(db_session, teamspace)
     except IntegrityError:
         raise HTTPException(
             400,
-            f"User group with name '{user_group.name}' already exists. Please "
+            f"User group with name '{teamspace.name}' already exists. Please "
             + "choose a different name.",
         )
-    return UserGroup.from_model(db_user_group)
+    return Teamspace.from_model(db_teamspace)
 
 
-@router.patch("/admin/user-group/{user_group_id}")
-def patch_user_group(
-    user_group_id: int,
-    user_group_update: UserGroupUpdate,
+@router.patch("/admin/user-group/{teamspace_id}")
+def patch_teamspace(
+    teamspace_id: int,
+    teamspace_update: TeamspaceUpdate,
     user: User | None = Depends(current_curator_or_admin_user),
     db_session: Session = Depends(get_session),
-) -> UserGroup:
+) -> Teamspace:
     try:
-        return UserGroup.from_model(
-            update_user_group(
+        return Teamspace.from_model(
+            update_teamspace(
                 db_session=db_session,
                 user=user,
-                user_group_id=user_group_id,
-                user_group_update=user_group_update,
+                teamspace_id=teamspace_id,
+                teamspace_update=teamspace_update,
             )
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/admin/user-group/{user_group_id}/set-curator")
+@router.post("/admin/user-group/{teamspace_id}/set-curator")
 def set_user_curator(
-    user_group_id: int,
+    teamspace_id: int,
     set_curator_request: SetCuratorRequest,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
@@ -89,7 +89,7 @@ def set_user_curator(
     try:
         update_user_curator_relationship(
             db_session=db_session,
-            user_group_id=user_group_id,
+            teamspace_id=teamspace_id,
             set_curator_request=set_curator_request,
         )
     except ValueError as e:
@@ -97,13 +97,13 @@ def set_user_curator(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.delete("/admin/user-group/{user_group_id}")
-def delete_user_group(
-    user_group_id: int,
+@router.delete("/admin/user-group/{teamspace_id}")
+def delete_teamspace(
+    teamspace_id: int,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     try:
-        prepare_user_group_for_deletion(db_session, user_group_id)
+        prepare_teamspace_for_deletion(db_session, teamspace_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

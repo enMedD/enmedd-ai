@@ -1,8 +1,7 @@
 import { LoadingAnimation } from "@/components/Loading";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
-import { Button, Divider, Text } from "@tremor/react";
+import { Text } from "@tremor/react";
 import { Form, Formik } from "formik";
-import { FiTrash } from "react-icons/fi";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
 import {
   SelectorFormField,
@@ -13,10 +12,14 @@ import { useState } from "react";
 import { useSWRConfig } from "swr";
 import { defaultModelsByProvider, getDisplayNameForModel } from "@/lib/hooks";
 import { FullLLMProvider, WellKnownLLMProviderDescriptor } from "./interfaces";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import * as Yup from "yup";
 import isEqual from "lodash/isEqual";
 import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Divider } from "@/components/Divider";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
 
 export function LLMProviderUpdateForm({
   llmProviderDescriptor,
@@ -34,6 +37,7 @@ export function LLMProviderUpdateForm({
   setPopup?: (popup: PopupSpec) => void;
 }) {
   const { mutate } = useSWRConfig();
+  const { toast } = useToast();
 
   const [isTesting, setIsTesting] = useState(false);
   const [testError, setTestError] = useState<string>("");
@@ -63,7 +67,7 @@ export function LLMProviderUpdateForm({
         {} as { [key: string]: string }
       ),
     is_public: existingLlmProvider?.is_public ?? true,
-    groups: existingLlmProvider?.groups ?? [],
+    teamspaces: existingLlmProvider?.teamspaces ?? [],
     display_model_names:
       existingLlmProvider?.display_model_names ||
       defaultModelsByProvider[llmProviderDescriptor.name] ||
@@ -107,7 +111,7 @@ export function LLMProviderUpdateForm({
     fast_default_model_name: Yup.string().nullable(),
     // EE Only
     is_public: Yup.boolean().required(),
-    groups: Yup.array().of(Yup.number()),
+    teamspaces: Yup.array().of(Yup.number()),
     display_model_names: Yup.array().of(Yup.string()),
   });
 
@@ -159,17 +163,14 @@ export function LLMProviderUpdateForm({
 
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
-          const fullErrorMsg = existingLlmProvider
-            ? `Failed to update provider: ${errorMsg}`
-            : `Failed to enable provider: ${errorMsg}`;
-          if (setPopup) {
-            setPopup({
-              type: "error",
-              message: fullErrorMsg,
-            });
-          } else {
-            alert(fullErrorMsg);
-          }
+          const action = existingLlmProvider ? "update" : "enable";
+          const fullErrorMsg = `Unable to ${action} the provider: ${errorMsg}`;
+
+          toast({
+            title: "Provider Action Failed",
+            description: fullErrorMsg,
+            variant: "destructive",
+          });
           return;
         }
 
@@ -183,15 +184,13 @@ export function LLMProviderUpdateForm({
           );
           if (!setDefaultResponse.ok) {
             const errorMsg = (await setDefaultResponse.json()).detail;
-            const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
-            if (setPopup) {
-              setPopup({
-                type: "error",
-                message: fullErrorMsg,
-              });
-            } else {
-              alert(fullErrorMsg);
-            }
+            const fullErrorMsg = `Could not set "${newLlmProvider.name}" as the default provider: ${errorMsg}`;
+
+            toast({
+              title: "Default Provider Update Failed",
+              description: fullErrorMsg,
+              variant: "destructive",
+            });
             return;
           }
         }
@@ -202,14 +201,11 @@ export function LLMProviderUpdateForm({
         const successMsg = existingLlmProvider
           ? "Provider updated successfully!"
           : "Provider enabled successfully!";
-        if (setPopup) {
-          setPopup({
-            type: "success",
-            message: successMsg,
-          });
-        } else {
-          alert(successMsg);
-        }
+        toast({
+          title: "Operation Successful",
+          description: successMsg,
+          variant: "success",
+        });
 
         setSubmitting(false);
       }}
@@ -378,10 +374,12 @@ export function LLMProviderUpdateForm({
           )}
           <div>
             {/* NOTE: this is above the test button to make sure it's visible */}
-            {testError && <Text className="text-error mt-2">{testError}</Text>}
+            {testError && (
+              <p className="text-error mt-2 text-sm">{testError}</p>
+            )}
 
             <div className="flex w-full mt-4">
-              <Button type="submit" size="xs">
+              <Button type="submit">
                 {isTesting ? (
                   <LoadingAnimation text="Testing" />
                 ) : existingLlmProvider ? (
@@ -393,10 +391,8 @@ export function LLMProviderUpdateForm({
               {existingLlmProvider && (
                 <Button
                   type="button"
-                  color="red"
                   className="ml-3"
-                  size="xs"
-                  icon={FiTrash}
+                  variant="destructive"
                   onClick={async () => {
                     const response = await fetch(
                       `${LLM_PROVIDERS_ADMIN_URL}/${existingLlmProvider.id}`,
@@ -435,7 +431,7 @@ export function LLMProviderUpdateForm({
                     onClose();
                   }}
                 >
-                  Delete
+                  <Trash size={16} /> Delete
                 </Button>
               )}
             </div>

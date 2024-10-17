@@ -1,6 +1,6 @@
 import {
   AnswerPiecePacket,
-  DanswerDocument,
+  EnmeddDocument,
   Filters,
   StreamStopInfo,
 } from "@/lib/search/interfaces";
@@ -19,7 +19,7 @@ import {
   StreamingError,
   ToolCallMetadata,
 } from "./interfaces";
-import { Persona } from "../admin/assistants/interfaces";
+import { Assistant } from "../admin/assistants/interfaces";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { SEARCH_PARAM_NAMES } from "./searchParams";
 import { Settings } from "../admin/settings/interfaces";
@@ -72,7 +72,7 @@ export async function updateModelOverrideForChatSession(
 }
 
 export async function createChatSession(
-  personaId: number,
+  assistantId: number,
   description: string | null
 ): Promise<number> {
   const createChatSessionResponse = await fetch(
@@ -83,7 +83,7 @@ export async function createChatSession(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        persona_id: personaId,
+        assistant_id: assistantId,
         description,
       }),
     }
@@ -335,7 +335,7 @@ export function getCitedDocumentsFromMessage(message: Message) {
     return [];
   }
 
-  const documentsWithCitationKey: [string, DanswerDocument][] = [];
+  const documentsWithCitationKey: [string, EnmeddDocument][] = [];
   Object.entries(message.citations).forEach(([citationKey, documentDbId]) => {
     const matchingDocument = message.documents!.find(
       (document) => document.db_doc_id === documentDbId
@@ -351,7 +351,7 @@ export function groupSessionsByDateRange(chatSessions: ChatSession[]) {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
 
-  const groups: Record<string, ChatSession[]> = {
+  const teamspace: Record<string, ChatSession[]> = {
     Today: [],
     "Previous 7 Days": [],
     "Previous 30 Days": [],
@@ -365,17 +365,17 @@ export function groupSessionsByDateRange(chatSessions: ChatSession[]) {
     const diffDays = diffTime / (1000 * 3600 * 24); // Convert time difference to days
 
     if (diffDays < 1) {
-      groups["Today"].push(chatSession);
+      teamspace["Today"].push(chatSession);
     } else if (diffDays <= 7) {
-      groups["Previous 7 Days"].push(chatSession);
+      teamspace["Previous 7 Days"].push(chatSession);
     } else if (diffDays <= 30) {
-      groups["Previous 30 Days"].push(chatSession);
+      teamspace["Previous 30 Days"].push(chatSession);
     } else {
-      groups["Over 30 days ago"].push(chatSession);
+      teamspace["Over 30 days ago"].push(chatSession);
     }
   });
 
-  return groups;
+  return teamspace;
 }
 
 export function getLastSuccessfulMessageId(messageHistory: Message[]) {
@@ -536,8 +536,8 @@ export function removeMessage(
 
 export function checkAnyAssistantHasSearch(
   messageHistory: Message[],
-  availableAssistants: Persona[],
-  livePersona: Persona
+  availableAssistants: Assistant[],
+  liveAssistant: Assistant
 ): boolean {
   const response =
     messageHistory.some((message) => {
@@ -551,23 +551,23 @@ export function checkAnyAssistantHasSearch(
         (assistant) => assistant.id === message.alternateAssistantID
       );
       return alternateAssistant
-        ? personaIncludesRetrieval(alternateAssistant)
+        ? assistantIncludesRetrieval(alternateAssistant)
         : false;
-    }) || personaIncludesRetrieval(livePersona);
+    }) || assistantIncludesRetrieval(liveAssistant);
 
   return response;
 }
 
-export function personaIncludesRetrieval(selectedPersona: Persona) {
-  return selectedPersona.tools.some(
+export function assistantIncludesRetrieval(selectedAssistant: Assistant) {
+  return selectedAssistant.tools.some(
     (tool) =>
       tool.in_code_tool_id &&
       ["SearchTool", "InternetSearchTool"].includes(tool.in_code_tool_id)
   );
 }
 
-export function personaIncludesImage(selectedPersona: Persona) {
-  return selectedPersona.tools.some(
+export function assistantIncludesImage(selectedAssistant: Assistant) {
+  return selectedAssistant.tools.some(
     (tool) =>
       tool.in_code_tool_id && tool.in_code_tool_id == "ImageGenerationTool"
   );
@@ -579,13 +579,13 @@ const PARAMS_TO_SKIP = [
   SEARCH_PARAM_NAMES.TITLE,
   // only use these if explicitly passed in
   SEARCH_PARAM_NAMES.CHAT_ID,
-  SEARCH_PARAM_NAMES.PERSONA_ID,
+  SEARCH_PARAM_NAMES.ASSISTANT_ID,
 ];
 
 export function buildChatUrl(
   existingSearchParams: ReadonlyURLSearchParams,
   chatSessionId: number | null,
-  personaId: number | null,
+  assistantId: number | null,
   search?: boolean
 ) {
   const finalSearchParams: string[] = [];
@@ -596,8 +596,8 @@ export function buildChatUrl(
       }=${chatSessionId}`
     );
   }
-  if (personaId !== null) {
-    finalSearchParams.push(`${SEARCH_PARAM_NAMES.PERSONA_ID}=${personaId}`);
+  if (assistantId !== null) {
+    finalSearchParams.push(`${SEARCH_PARAM_NAMES.ASSISTANT_ID}=${assistantId}`);
   }
 
   existingSearchParams.forEach((value, key) => {
@@ -641,16 +641,13 @@ export async function useScrollonStream({
   endDivRef,
   distance,
   debounceNumber,
-  waitForScrollRef,
 }: {
   chatState: ChatState;
   scrollableDivRef: RefObject<HTMLDivElement>;
-  waitForScrollRef: RefObject<boolean>;
   scrollDist: MutableRefObject<number>;
   endDivRef: RefObject<HTMLDivElement>;
   distance: number;
   debounceNumber: number;
-  mobile?: boolean;
 }) {
   const preventScrollInterference = useRef<boolean>(false);
   const preventScroll = useRef<boolean>(false);

@@ -8,13 +8,16 @@ import {
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
 import { SignInButton } from "./SignInButton";
-import { EmailPasswordForm } from "./EmailPasswordForm";
+import { LogInForms } from "./LoginForms";
 import { Card, Title, Text } from "@tremor/react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import Logo from "../../../../public/logo-brand.png";
 import { LoginText } from "./LoginText";
+import Image from "next/image";
+import LoginImage from "../../../../public/LoginImage.png";
+import DefaultUserChart from "../../../../public/default-user-chart.png";
+import { WelcomeTopBar } from "@/components/TopBar";
 import { getSecondsUntilExpiration } from "@/lib/time";
-import AuthFlowContainer from "@/components/auth/AuthFlowContainer";
 
 const Page = async ({
   searchParams,
@@ -70,42 +73,54 @@ const Page = async ({
   }
 
   return (
-    <AuthFlowContainer>
-      <div className="absolute top-10x w-full">
-        <HealthCheckBanner />
-      </div>
+    <main className="relative h-full">
+      <HealthCheckBanner />
 
-      <div>
-        {authUrl && authTypeMetadata && (
-          <>
-            <h2 className="text-center text-xl text-strong font-bold">
-              <LoginText />
-            </h2>
+      <WelcomeTopBar />
 
-            <SignInButton
-              authorizeUrl={authUrl}
-              authType={authTypeMetadata?.authType}
-            />
-          </>
-        )}
-        {authTypeMetadata?.authType === "basic" && (
-          <Card className="mt-4 w-96">
-            <div className="flex">
-              <Title className="mb-2 mx-auto font-bold">
+      <div className="w-screen flex h-full overflow-y-auto">
+        <div className="w-full h-full xl:w-1/2 flex items-start justify-center px-6 lg:px-14 3xl:px-0 pt-28">
+          <div className="w-full md:w-3/4 lg:w-1/2 xl:w-full 3xl:w-1/2 my-auto pb-14 md:pb-20">
+            {authUrl && authTypeMetadata && (
+              <>
                 <LoginText />
-              </Title>
-            </div>
-            <EmailPasswordForm />
-            <div className="flex">
-              <Text className="mt-4 mx-auto">
-                Don&apos;t have an account?{" "}
-                <Link href="/auth/signup" className="text-link font-medium">
-                  Create an account
-                </Link>
-              </Text>
-            </div>
-          </Card>
-        )}
+                <SignInButton
+                  authorizeUrl={authUrl}
+                  authType={authTypeMetadata?.authType}
+                />
+              </>
+            )}
+            {authTypeMetadata?.authType === "basic" && (
+              <>
+                <LoginText />
+                <div className="pt-8 w-full">
+                  <LogInForms />
+                </div>
+                <p className="pt-8 text-center text-sm">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/auth/signup"
+                    className="text-sm font-medium text-link hover:underline"
+                  >
+                    Create an account
+                  </Link>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="w-1/2 h-full relative rounded-l-[50px] overflow-hidden hidden xl:flex">
+          <Image
+            src={LoginImage}
+            alt="login-image"
+            className="w-full h-full object-cover"
+          />
+          <Image
+            src={DefaultUserChart}
+            alt="user-chart-image"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4"
+          />
+        </div>
       </div>
     </AuthFlowContainer>
   );

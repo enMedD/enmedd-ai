@@ -1,4 +1,4 @@
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { Credential } from "./connectors/credentials";
 import { Connector } from "./connectors/connectors";
 import { ConnectorCredentialPairStatus } from "@/app/admin/connector/[ccPairId]/types";
@@ -37,6 +37,13 @@ export interface User {
   is_superuser: string;
   is_verified: string;
   role: UserRole;
+  workspace?: Workspace;
+  full_name?: string;
+  company_name?: string;
+  company_email?: string;
+  company_billing?: string;
+  billing_email_address?: string;
+  vat?: string;
   preferences: UserPreferences;
   status: UserStatus;
   current_token_created_at?: Date;
@@ -59,7 +66,7 @@ export type ValidStatuses =
 export type TaskStatus = "PENDING" | "STARTED" | "SUCCESS" | "FAILURE";
 export type Feedback = "like" | "dislike";
 export type AccessType = "public" | "private" | "sync";
-export type SessionType = "Chat" | "Search" | "Slack";
+export type SessionType = "Chat" | "Search";
 
 export interface DocumentBoostStatus {
   document_id: string;
@@ -153,7 +160,7 @@ export interface DocumentSet {
   is_up_to_date: boolean;
   is_public: boolean;
   users: string[];
-  groups: number[];
+  teamspace: number[];
 }
 
 export interface Tag {
@@ -192,31 +199,22 @@ export interface ChannelConfig {
   follow_up_tags?: string[];
 }
 
-export type SlackBotResponseType = "quotes" | "citations";
-
-export interface SlackBotConfig {
+export interface Workspace {
   id: number;
-  persona: Persona | null;
-  channel_config: ChannelConfig;
-  response_type: SlackBotResponseType;
-  standard_answer_categories: StandardAnswerCategory[];
-  enable_auto_filters: boolean;
-}
-
-export interface SlackBotTokens {
-  bot_token: string;
-  app_token: string;
+  workspace_name: string;
+  custom_logo: string;
+  custom_header_logo: string;
 }
 
 /* EE Only Types */
-export interface UserGroup {
+export interface Teamspace {
   id: number;
   name: string;
   users: User[];
   curator_ids: string[];
   cc_pairs: CCPairDescriptor<any, any>[];
   document_sets: DocumentSet[];
-  personas: Persona[];
+  assistants: Assistant[];
   is_up_to_date: boolean;
   is_up_for_deletion: boolean;
 }
@@ -225,7 +223,6 @@ const validSources = [
   "web",
   "github",
   "gitlab",
-  "slack",
   "google_drive",
   "gmail",
   "bookstack",
@@ -243,6 +240,7 @@ const validSources = [
   "requesttracker",
   "file",
   "google_sites",
+  "google_sheets",
   "loopio",
   "dropbox",
   "salesforce",
@@ -272,9 +270,5 @@ export type ConfigurableSources = Exclude<
 >;
 
 // The sources that have auto-sync support on the backend
-export const validAutoSyncSources = [
-  "confluence",
-  "google_drive",
-  "slack",
-] as const;
+export const validAutoSyncSources = ["confluence", "google_drive"] as const;
 export type ValidAutoSyncSources = (typeof validAutoSyncSources)[number];

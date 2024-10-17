@@ -3,17 +3,17 @@ import React, { useState, useEffect } from "react";
 import { FormikProps, FieldArray, ArrayHelpers, ErrorMessage } from "formik";
 import { Text, Divider } from "@tremor/react";
 import { FiUsers } from "react-icons/fi";
-import { UserGroup, UserRole } from "@/lib/types";
-import { useUserGroups } from "@/lib/hooks";
+import { Teamspace, UserRole } from "@/lib/types";
+import { useTeamspaces } from "@/lib/hooks";
 import { BooleanFormField } from "@/components/admin/connectors/Field";
 import { useUser } from "./user/UserProvider";
 
 export type IsPublicGroupSelectorFormType = {
   is_public: boolean;
-  groups: number[];
+  teamspaces: number[];
 };
 
-// This should be included for all forms that require groups / public access
+// This should be included for all forms that require teamspaces / public access
 // to be set, and access to this / permissioning should be handled within this component itself.
 export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
   formikProps,
@@ -28,30 +28,30 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
   removeIndent?: boolean;
   enforceGroupSelection?: boolean;
 }) => {
-  const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
+  const { data: Teamspaces, isLoading: TeamspacesIsLoading } = useTeamspaces();
   const { isAdmin, user, isLoadingUser, isCurator } = useUser();
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
   const [shouldHideContent, setShouldHideContent] = useState(false);
 
   useEffect(() => {
-    if (user && userGroups && isPaidEnterpriseFeaturesEnabled) {
+    if (user && Teamspaces && isPaidEnterpriseFeaturesEnabled) {
       const isUserAdmin = user.role === UserRole.ADMIN;
       if (!isUserAdmin) {
         formikProps.setFieldValue("is_public", false);
       }
-      if (userGroups.length === 1 && !isUserAdmin) {
-        formikProps.setFieldValue("groups", [userGroups[0].id]);
+      if (Teamspaces.length === 1 && !isUserAdmin) {
+        formikProps.setFieldValue("teamspaces", [Teamspaces[0].id]);
         setShouldHideContent(true);
       } else if (formikProps.values.is_public) {
-        formikProps.setFieldValue("groups", []);
+        formikProps.setFieldValue("teamspaces", []);
         setShouldHideContent(false);
       } else {
         setShouldHideContent(false);
       }
     }
-  }, [user, userGroups, isPaidEnterpriseFeaturesEnabled]);
+  }, [user, Teamspaces, isPaidEnterpriseFeaturesEnabled]);
 
-  if (isLoadingUser || userGroupsIsLoading) {
+  if (isLoadingUser || TeamspacesIsLoading) {
     return <div>Loading...</div>;
   }
   if (!isPaidEnterpriseFeaturesEnabled) {
@@ -61,10 +61,10 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
   if (shouldHideContent && enforceGroupSelection) {
     return (
       <>
-        {userGroups && (
+        {Teamspaces && (
           <div className="mb-1 font-medium text-base">
-            This {objectName} will be assigned to group{" "}
-            <b>{userGroups[0].name}</b>.
+            This {objectName} will be assigned to teamspace{" "}
+            <b>{Teamspaces[0].name}</b>.
           </div>
         )}
       </>
@@ -90,7 +90,7 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
                 If set, then this {objectName} will be usable by{" "}
                 <b>All {publicToWhom}</b>. Otherwise, only <b>Admins</b> and{" "}
                 <b>{publicToWhom}</b> who have explicitly been given access to
-                this {objectName} (e.g. via a User Group) will have access.
+                this {objectName} (e.g. via a Teamspacep) will have access.
               </span>
             }
           />
@@ -98,47 +98,47 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
       )}
 
       {(!formikProps.values.is_public || isCurator) &&
-        userGroups &&
-        userGroups?.length > 0 && (
+        Teamspaces &&
+        Teamspaces?.length > 0 && (
           <>
             <div className="flex mt-4 gap-x-2 items-center">
               <div className="block font-medium text-base">
-                Assign group access for this {objectName}
+                Assign teamspace access for this {objectName}
               </div>
             </div>
-            {userGroupsIsLoading ? (
+            {TeamspacesIsLoading ? (
               <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
             ) : (
               <Text className="mb-3">
                 {isAdmin || !enforceGroupSelection ? (
                   <>
-                    This {objectName} will be visible/accessible by the groups
-                    selected below
+                    This {objectName} will be visible/accessible by the
+                    teamspaces selected below
                   </>
                 ) : (
                   <>
-                    Curators must select one or more groups to give access to
-                    this {objectName}
+                    Curators must select one or more teamspaces to give access
+                    to this {objectName}
                   </>
                 )}
               </Text>
             )}
             <FieldArray
-              name="groups"
+              name="teamspaces"
               render={(arrayHelpers: ArrayHelpers) => (
                 <div className="flex gap-2 flex-wrap mb-4">
-                  {userGroupsIsLoading ? (
+                  {TeamspacesIsLoading ? (
                     <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
                   ) : (
-                    userGroups &&
-                    userGroups.map((userGroup: UserGroup) => {
-                      const ind = formikProps.values.groups.indexOf(
-                        userGroup.id
+                    Teamspaces &&
+                    Teamspaces.map((Teamspace: Teamspace) => {
+                      const ind = formikProps.values.teamspaces.indexOf(
+                        Teamspace.id
                       );
                       let isSelected = ind !== -1;
                       return (
                         <div
-                          key={userGroup.id}
+                          key={Teamspace.id}
                           className={`
                         px-3 
                         py-1
@@ -154,13 +154,13 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
                             if (isSelected) {
                               arrayHelpers.remove(ind);
                             } else {
-                              arrayHelpers.push(userGroup.id);
+                              arrayHelpers.push(Teamspace.id);
                             }
                           }}
                         >
                           <div className="my-auto flex">
                             <FiUsers className="my-auto mr-2" />{" "}
-                            {userGroup.name}
+                            {Teamspace.name}
                           </div>
                         </div>
                       );
@@ -170,7 +170,7 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
               )}
             />
             <ErrorMessage
-              name="groups"
+              name="teamspaces"
               component="div"
               className="text-error text-sm mt-1"
             />

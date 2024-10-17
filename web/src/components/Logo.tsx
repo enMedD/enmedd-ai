@@ -15,31 +15,33 @@ export function Logo({
 }) {
   const settings = useContext(SettingsContext);
 
-  height = height || 32;
-  width = width || 30;
+  height = height || 40;
+  width = width || 40;
 
   if (
     !settings ||
-    !settings.enterpriseSettings ||
-    !settings.enterpriseSettings.use_custom_logo
+    !settings.workspaces ||
+    !settings.workspaces.use_custom_logo
   ) {
     return (
       <div style={{ height, width }} className={className}>
-        <Image src="/logo.png" alt="Logo" width={width} height={height} />
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={width}
+          height={height}
+          className="object-contain rounded-regular"
+        />
       </div>
     );
   }
 
   return (
-    <div
-      style={{ height, width }}
-      className={`flex-none relative ${className}`}
-    >
-      {/* TODO: figure out how to use Next Image here */}
+    <div style={{ height, width }} className={`relative ${className}`}>
       <img
-        src="/api/enterprise-settings/logo"
+        src={"/api/workspace/logo"}
         alt="Logo"
-        style={{ objectFit: "contain", height, width }}
+        style={{ objectFit: "contain", height, width, borderRadius: "8px" }}
       />
     </div>
   );

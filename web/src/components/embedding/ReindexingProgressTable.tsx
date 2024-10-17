@@ -22,6 +22,7 @@ export function ReindexingProgressTable({
   const numToDisplay = 10;
   const [page, setPage] = useState(1);
 
+  // TODO: revamp into using schadcn
   return (
     <div>
       <Table>

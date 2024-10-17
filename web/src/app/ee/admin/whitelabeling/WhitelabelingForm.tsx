@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { EnterpriseSettings } from "@/app/admin/settings/interfaces";
+import { Workspaces } from "@/app/admin/settings/interfaces";
 import { useContext, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Form, Formik } from "formik";
@@ -12,10 +12,12 @@ import {
   SubLabel,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { Button, Divider, Text } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { ImageUpload } from "./ImageUpload";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
 import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export function WhitelabelingForm() {
   const router = useRouter();
@@ -28,16 +30,16 @@ export function WhitelabelingForm() {
   if (!settings) {
     return null;
   }
-  const enterpriseSettings = settings.enterpriseSettings;
+  const workspaces = settings.workspaces;
 
-  async function updateEnterpriseSettings(newValues: EnterpriseSettings) {
-    const response = await fetch("/api/admin/enterprise-settings", {
+  async function updateWorkspaces(newValues: Workspaces) {
+    const response = await fetch("/api/admin/workspace", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ...(enterpriseSettings || {}),
+        ...(workspaces || {}),
         ...newValues,
       }),
     });
@@ -53,23 +55,26 @@ export function WhitelabelingForm() {
     <div>
       <Formik
         initialValues={{
-          application_name: enterpriseSettings?.application_name || null,
-          use_custom_logo: enterpriseSettings?.use_custom_logo || false,
-          use_custom_logotype: enterpriseSettings?.use_custom_logotype || false,
-          two_lines_for_chat_header:
-            enterpriseSettings?.two_lines_for_chat_header || false,
-          custom_header_content:
-            enterpriseSettings?.custom_header_content || "",
-          custom_popup_header: enterpriseSettings?.custom_popup_header || "",
-          custom_popup_content: enterpriseSettings?.custom_popup_content || "",
+          workspace_name: workspaces?.workspace_name || null,
+          workspace_description: workspaces?.workspace_description || null,
+          use_custom_logo: workspaces?.use_custom_logo || false,
+          use_custom_logotype: workspaces?.use_custom_logotype || false,
+
+          custom_nav_items: workspaces?.custom_nav_items || [],
+
           custom_lower_disclaimer_content:
-            enterpriseSettings?.custom_lower_disclaimer_content || "",
-          custom_nav_items: enterpriseSettings?.custom_nav_items || [],
-          enable_consent_screen:
-            enterpriseSettings?.enable_consent_screen || false,
+            workspaces?.custom_lower_disclaimer_content || "",
+          two_lines_for_chat_header:
+            workspaces?.two_lines_for_chat_header || false,
+          custom_popup_header: workspaces?.custom_popup_header || "",
+          custom_popup_content: workspaces?.custom_popup_content || "",
+          enable_consent_screen: workspaces?.enable_consent_screen || false,
+          custom_header_logo: workspaces?.custom_header_logo || "",
+          custom_header_content: workspaces?.custom_header_content || "",
         }}
         validationSchema={Yup.object().shape({
-          application_name: Yup.string().nullable(),
+          workspace_name: Yup.string().nullable(),
+          workspace_description: Yup.string().nullable(),
           use_custom_logo: Yup.boolean().required(),
           use_custom_logotype: Yup.boolean().required(),
           custom_header_content: Yup.string().nullable(),
@@ -78,6 +83,7 @@ export function WhitelabelingForm() {
           custom_popup_content: Yup.string().nullable(),
           custom_lower_disclaimer_content: Yup.string().nullable(),
           enable_consent_screen: Yup.boolean().nullable(),
+          custom_header_logo: Yup.string().nullable(),
         })}
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
@@ -88,13 +94,10 @@ export function WhitelabelingForm() {
             const formData = new FormData();
             formData.append("file", selectedLogo);
             setSelectedLogo(null);
-            const response = await fetch(
-              "/api/admin/enterprise-settings/logo",
-              {
-                method: "PUT",
-                body: formData,
-              }
-            );
+            const response = await fetch("/api/admin/workspace/logo", {
+              method: "PUT",
+              body: formData,
+            });
             if (!response.ok) {
               const errorMsg = (await response.json()).detail;
               alert(`Failed to upload logo. ${errorMsg}`);
@@ -110,7 +113,7 @@ export function WhitelabelingForm() {
             formData.append("file", selectedLogotype);
             setSelectedLogotype(null);
             const response = await fetch(
-              "/api/admin/enterprise-settings/logo?is_logotype=true",
+              "/api/admin/workspace/logo?is_logotype=true",
               {
                 method: "PUT",
                 body: formData,
@@ -125,57 +128,73 @@ export function WhitelabelingForm() {
           }
 
           formikHelpers.setValues(values);
-          await updateEnterpriseSettings(values);
+          await updateWorkspaces(values);
         }}
       >
         {({ isSubmitting, values, setValues }) => (
           <Form>
             <TextFormField
-              label="Application Name"
-              name="application_name"
-              subtext={`The custom name you are giving Danswer for your organization. This will replace 'Danswer' everywhere in the UI.`}
-              placeholder="Custom name which will replace 'Danswer'"
+              label="Workspace Name"
+              name="workspace_name"
+              subtext={`The custom name you are giving for your workspace. This will replace 'enMedD AI' everywhere in the UI.`}
+              placeholder="Custom name which will replace 'enMedD AI'"
               disabled={isSubmitting}
             />
 
-            <Label className="mt-4">Custom Logo</Label>
+            <div className="pt-2" />
+
+            <TextFormField
+              label="Description"
+              name="workspace_description"
+              subtext={`The custom description metadata you are giving ${
+                values.workspace_name || "enMedD AI"
+              } for your workspace.\
+                This will be seen when sharing the link or searching through the browser.`}
+              placeholder="Custom description for your Workspace"
+              disabled={isSubmitting}
+            />
+
+            <div className="pt-2" />
 
             {values.use_custom_logo ? (
-              <div className="mt-3">
-                <SubLabel>Current Custom Logo: </SubLabel>
-                <img
-                  src={"/api/enterprise-settings/logo?u=" + Date.now()}
-                  alt="logo"
+              <div className="pt-3 flex flex-col items-start gap-3">
+                <div>
+                  <h3>Custom Logo</h3>
+                  <SubLabel>Current Custom Logo: </SubLabel>
+                </div>
+                <Image
+                  src={"/api/workspace/logo?u=" + Date.now()}
+                  alt="Logo"
                   style={{ objectFit: "contain" }}
-                  className="w-32 h-32 mb-10 mt-4"
+                  className="w-32 h-32"
+                  width={128}
+                  height={128}
                 />
 
                 <Button
-                  color="red"
-                  size="xs"
+                  variant="destructive"
                   type="button"
-                  className="mb-8"
                   onClick={async () => {
                     const valuesWithoutLogo = {
                       ...values,
                       use_custom_logo: false,
                     };
-                    await updateEnterpriseSettings(valuesWithoutLogo);
+                    await updateWorkspaces(valuesWithoutLogo);
                     setValues(valuesWithoutLogo);
                   }}
                 >
                   Delete
                 </Button>
 
-                <SubLabel>
+                <p className="text-sm text-subtle pt-4 pb-2">
                   Override the current custom logo by uploading a new image
                   below and clicking the Update button.
-                </SubLabel>
+                </p>
               </div>
             ) : (
-              <SubLabel>
-                Specify your own logo to replace the standard Danswer logo.
-              </SubLabel>
+              <p className="pb-3 text-sm text-subtle">
+                Specify your own logo to replace the standard enMedD AI logo.
+              </p>
             )}
 
             <ImageUpload
@@ -183,7 +202,7 @@ export function WhitelabelingForm() {
               setSelectedFile={setSelectedLogo}
             />
 
-            <Divider />
+            <div className="pt-2" />
 
             <AdvancedOptionsToggle
               showAdvancedOptions={showAdvancedOptions}
@@ -229,7 +248,7 @@ export function WhitelabelingForm() {
                   subtext={
                     values.enable_consent_screen
                       ? `The title for the consent screen that will be displayed for each user on their initial visit to the application. If left blank, title will default to "Terms of Use".`
-                      : `The title for the popup that will be displayed for each user on their initial visit to the application. If left blank AND Custom Popup Content is specified, will use "Welcome to ${values.application_name || "Danswer"}!".`
+                      : `The title for the popup that will be displayed for each user on their initial visit to the application. If left blank AND Custom Popup Content is specified, will use "Welcome to ${values.workspace_name || "enMedD AI"}!".`
                   }
                   placeholder={
                     values.enable_consent_screen
@@ -283,9 +302,7 @@ export function WhitelabelingForm() {
                     <div className="mt-3">
                       <SubLabel>Current Custom Logotype: </SubLabel>
                       <img
-                        src={
-                          "/api/enterprise-settings/logotype?u=" + Date.now()
-                        }
+                        src={"/api/workspace/logotype?u=" + Date.now()}
                         alt="logotype"
                         style={{ objectFit: "contain" }}
                         className="w-32 h-32 mb-10 mt-4"
@@ -301,7 +318,7 @@ export function WhitelabelingForm() {
                             ...values,
                             use_custom_logotype: false,
                           };
-                          await updateEnterpriseSettings(valuesWithoutLogotype);
+                          await updateWorkspaces(valuesWithoutLogotype);
                           setValues(valuesWithoutLogotype);
                         }}
                       >
@@ -331,9 +348,9 @@ export function WhitelabelingForm() {
               </div>
             )}
 
-            <Button type="submit" className="mt-4">
-              Update
-            </Button>
+            <div className="pt-2" />
+
+            <Button type="submit">Update</Button>
           </Form>
         )}
       </Formik>

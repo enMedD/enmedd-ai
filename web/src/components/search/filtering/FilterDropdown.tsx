@@ -1,5 +1,6 @@
-import { FiCheck, FiChevronDown, FiX, FiXCircle } from "react-icons/fi";
+import { FiChevronDown, FiXCircle } from "react-icons/fi";
 import { CustomDropdown } from "../../Dropdown";
+import { Check } from "lucide-react";
 
 interface Option {
   key: string;
@@ -78,7 +79,7 @@ export function FilterDropdown({
                   {option.display}
                   {isSelected && (
                     <div className="ml-auto my-auto mr-1">
-                      <FiCheck />
+                      <Check />
                     </div>
                   )}
                 </div>

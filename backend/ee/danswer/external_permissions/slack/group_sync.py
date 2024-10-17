@@ -7,13 +7,13 @@ THERE IS NO USERGROUP <-> DOCUMENT PERMISSION MAPPING
 from slack_sdk import WebClient
 from sqlalchemy.orm import Session
 
-from danswer.connectors.slack.connector import make_paginated_slack_api_call_w_retries
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.users import batch_add_non_web_user_if_not_exists__no_commit
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.external_perm import ExternalUserGroup
-from ee.danswer.db.external_perm import replace_user__ext_group_for_cc_pair__no_commit
-from ee.danswer.external_permissions.slack.utils import fetch_user_id_to_email_map
+from enmedd.connectors.slack.connector import make_paginated_slack_api_call_w_retries
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.users import batch_add_non_web_user_if_not_exists__no_commit
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.external_perm import ExternalTeamspace
+from ee.enmedd.db.external_perm import replace_user__ext_group_for_cc_pair__no_commit
+from ee.enmedd.external_permissions.slack.utils import fetch_user_id_to_email_map
 
 logger = setup_logger()
 
@@ -22,8 +22,8 @@ def _get_slack_group_ids(
     slack_client: WebClient,
 ) -> list[str]:
     group_ids = []
-    for result in make_paginated_slack_api_call_w_retries(slack_client.usergroups_list):
-        for group in result.get("usergroups", []):
+    for result in make_paginated_slack_api_call_w_retries(slack_client.teamspaces_list):
+        for group in result.get("teamspaces", []):
             group_ids.append(group.get("id"))
     return group_ids
 
@@ -36,7 +36,7 @@ def _get_slack_group_members_email(
 ) -> list[str]:
     group_member_emails = []
     for result in make_paginated_slack_api_call_w_retries(
-        slack_client.usergroups_users_list, usergroup=group_name
+        slack_client.teamspaces_users_list, teamspace=group_name
     ):
         for member_id in result.get("users", []):
             member_email = user_id_to_email_map.get(member_id)
@@ -66,7 +66,7 @@ def slack_group_sync(
     )
     user_id_to_email_map = fetch_user_id_to_email_map(slack_client)
 
-    danswer_groups: list[ExternalUserGroup] = []
+    enmeddd_groups: list[ExternalTeamspace] = []
     for group_name in _get_slack_group_ids(slack_client):
         group_member_emails = _get_slack_group_members_email(
             db_session=db_session,
@@ -78,8 +78,8 @@ def slack_group_sync(
             db_session=db_session, emails=group_member_emails
         )
         if group_members:
-            danswer_groups.append(
-                ExternalUserGroup(
+            enmeddd_groups.append(
+                ExternalTeamspace(
                     id=group_name, user_ids=[user.id for user in group_members]
                 )
             )
@@ -87,6 +87,6 @@ def slack_group_sync(
     replace_user__ext_group_for_cc_pair__no_commit(
         db_session=db_session,
         cc_pair_id=cc_pair.id,
-        group_defs=danswer_groups,
+        group_defs=enmeddd_groups,
         source=cc_pair.connector.source,
     )

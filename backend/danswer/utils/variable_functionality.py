@@ -3,8 +3,8 @@ import importlib
 from typing import Any
 from typing import TypeVar
 
-from danswer.configs.app_configs import ENTERPRISE_EDITION_ENABLED
-from danswer.utils.logger import setup_logger
+from enmedd.configs.app_configs import ENTERPRISE_EDITION_ENABLED
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
@@ -68,8 +68,8 @@ def fetch_versioned_implementation(module: str, attribute: str) -> Any:
         )
 
         if is_ee:
-            if "ee.danswer" not in str(e):
-                # If it's a non Danswer related import failure, this is likely because
+            if "ee.enmedd" not in str(e):
+                # If it's a non enMedD AI related import failure, this is likely because
                 # a dependent library has not been installed. Should raise this failure
                 # instead of letting the server start up
                 raise e

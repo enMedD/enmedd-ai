@@ -1,12 +1,12 @@
 services:
   api_server:
-    image: danswer/danswer-backend:${IMAGE_TAG:-latest}
+    image: 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-api-server:latest
     build:
       context: ../../backend
       dockerfile: Dockerfile
     command: >
       /bin/sh -c "alembic upgrade head &&
-      echo \"Starting Danswer Api Server\" &&
+      echo \"Starting enMedD AI Api Server\" &&
       uvicorn danswer.main:app --host 0.0.0.0 --port 8080"
     depends_on:
       - relational_db
@@ -39,7 +39,7 @@ services:
 
 
   background:
-    image: danswer/danswer-backend:${IMAGE_TAG:-latest}
+    image: 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-api-server:latest
     build:
       context: ../../backend
       dockerfile: Dockerfile
@@ -71,7 +71,7 @@ services:
 
 
   web_server:
-    image: danswer/danswer-web-server:${IMAGE_TAG:-latest}
+    image: 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-web:latest
     build:
       context: ../../web
       dockerfile: Dockerfile
@@ -85,7 +85,7 @@ services:
 
         # Enterprise Edition only
         - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-}
-        # DO NOT TURN ON unless you have EXPLICIT PERMISSION from Danswer.
+        # DO NOT TURN ON unless you have EXPLICIT PERMISSION from enMedD AI.
         - NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED=${NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED:-false}
     depends_on:
       - api_server
@@ -100,7 +100,7 @@ services:
 
 
   inference_model_server:
-    image: danswer/danswer-model-server:${IMAGE_TAG:-latest}
+    image: 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-model-server:latest
     build:
       context: ../../backend
       dockerfile: Dockerfile.model_server
@@ -124,7 +124,7 @@ services:
 
 
   indexing_model_server:
-    image: danswer/danswer-model-server:${IMAGE_TAG:-latest}
+    image: 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-model-server:latest
     build:
       context: ../../backend
       dockerfile: Dockerfile.model_server

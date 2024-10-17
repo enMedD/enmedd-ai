@@ -13,26 +13,26 @@ from pydantic import BaseModel
 from pydantic import Field
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.auth.users import current_user_with_expired_token
-from danswer.auth.users import get_user_manager
-from danswer.auth.users import UserManager
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.file_store.file_store import get_default_file_store
-from danswer.utils.logger import setup_logger
-from ee.danswer.server.enterprise_settings.models import AnalyticsScriptUpload
-from ee.danswer.server.enterprise_settings.models import EnterpriseSettings
-from ee.danswer.server.enterprise_settings.store import _LOGO_FILENAME
-from ee.danswer.server.enterprise_settings.store import _LOGOTYPE_FILENAME
-from ee.danswer.server.enterprise_settings.store import load_analytics_script
-from ee.danswer.server.enterprise_settings.store import load_settings
-from ee.danswer.server.enterprise_settings.store import store_analytics_script
-from ee.danswer.server.enterprise_settings.store import store_settings
-from ee.danswer.server.enterprise_settings.store import upload_logo
+from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_user_with_expired_token
+from enmedd.auth.users import get_user_manager
+from enmedd.auth.users import UserManager
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from enmedd.file_store.file_store import get_default_file_store
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.server.enterprise_settings.models import AnalyticsScriptUpload
+from ee.enmedd.server.enterprise_settings.models import EnterpriseSettings
+from ee.enmedd.server.enterprise_settings.store import _LOGO_FILENAME
+from ee.enmedd.server.enterprise_settings.store import _LOGOTYPE_FILENAME
+from ee.enmedd.server.enterprise_settings.store import load_analytics_script
+from ee.enmedd.server.enterprise_settings.store import load_settings
+from ee.enmedd.server.enterprise_settings.store import store_analytics_script
+from ee.enmedd.server.enterprise_settings.store import store_settings
+from ee.enmedd.server.enterprise_settings.store import upload_logo
 
-admin_router = APIRouter(prefix="/admin/enterprise-settings")
-basic_router = APIRouter(prefix="/enterprise-settings")
+admin_router = APIRouter(prefix="/admin/workspace")
+basic_router = APIRouter(prefix="/workspace")
 
 logger = setup_logger()
 

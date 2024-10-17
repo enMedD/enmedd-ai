@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from danswer.connectors.confluence.connector import ConfluenceConnector
+from enmedd.connectors.confluence.connector import ConfluenceConnector
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def confluence_connector() -> ConfluenceConnector:
 
 
 @patch(
-    "danswer.file_processing.extract_file_text.get_unstructured_api_key",
+    "enmedd.file_processing.extract_file_text.get_unstructured_api_key",
     return_value=None,
 )
 def test_confluence_connector_basic(
@@ -45,12 +45,12 @@ def test_confluence_connector_basic(
     assert doc.semantic_identifier == "DailyConnectorTestSpace Home"
     assert doc.metadata["labels"] == ["testlabel"]
     assert doc.primary_owners
-    assert doc.primary_owners[0].email == "chris@danswer.ai"
+    assert doc.primary_owners[0].email == "chris@enmedd.ai"
     assert len(doc.sections) == 1
 
     section = doc.sections[0]
     assert section.text == "test123\nsmall"
     assert (
         section.link
-        == "https://danswerai.atlassian.net/wiki/spaces/DailyConne/overview"
+        == "https://enmedddai.atlassian.net/wiki/spaces/DailyConne/overview"
     )

@@ -78,7 +78,7 @@ export const HistorySidebar = forwardRef<HTMLDivElement, HistorySidebarProps>(
       const newChatUrl =
         `/${page}` +
         (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA && currentChatSession
-          ? `?assistantId=${currentChatSession.persona_id}`
+          ? `?assistantId=${currentChatSession.assistant_id}`
           : "");
       router.push(newChatUrl);
     };
@@ -115,8 +115,8 @@ export const HistorySidebar = forwardRef<HTMLDivElement, HistorySidebarProps>(
                 href={
                   `/${page}` +
                   (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA &&
-                  currentChatSession?.persona_id
-                    ? `?assistantId=${currentChatSession?.persona_id}`
+                  currentChatSession?.assistant_id
+                    ? `?assistantId=${currentChatSession?.assistant_id}`
                     : "")
                 }
                 onClick={(e) => {

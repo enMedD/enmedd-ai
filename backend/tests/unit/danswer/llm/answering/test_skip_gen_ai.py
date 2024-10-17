@@ -5,9 +5,9 @@ from unittest.mock import Mock
 import pytest
 from pytest_mock import MockerFixture
 
-from danswer.llm.answering.answer import Answer
-from danswer.one_shot_answer.answer_question import AnswerObjectIterator
-from danswer.tools.force import ForceUseTool
+from enmedd.llm.answering.answer import Answer
+from enmedd.one_shot_answer.answer_question import AnswerObjectIterator
+from enmedd.tools.force import ForceUseTool
 from tests.regression.answer_quality.run_qa import _process_and_write_query_results
 
 

@@ -2,41 +2,36 @@
 
 import { ArrayHelpers, FieldArray, Form, Formik } from "formik";
 import * as Yup from "yup";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import {
-  createDocumentSet,
-  updateDocumentSet,
-  DocumentSetCreationRequest,
-} from "./lib";
+import { createDocumentSet, updateDocumentSet } from "./lib";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import {
   ConnectorIndexingStatus,
   DocumentSet,
-  UserGroup,
+  Teamspace,
   UserRole,
 } from "@/lib/types";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { Button, Divider } from "@tremor/react";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
-import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
-import React, { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
 import { useUser } from "@/components/user/UserProvider";
+import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
-  userGroups: UserGroup[] | undefined;
+  teamspaces: Teamspace[] | undefined;
   onClose: () => void;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   existingDocumentSet?: DocumentSet;
 }
 
 export const DocumentSetCreationForm = ({
   ccPairs,
-  userGroups,
+  teamspaces,
   onClose,
-  setPopup,
   existingDocumentSet,
 }: SetCreationPopupProps) => {
+  const { toast } = useToast();
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
   const isUpdate = existingDocumentSet !== undefined;
   const [localCcPairs, setLocalCcPairs] = useState(ccPairs);
@@ -48,9 +43,15 @@ export const DocumentSetCreationForm = ({
     }
   }, [existingDocumentSet?.is_public]);
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredCcPairs = ccPairs.filter((ccPair) =>
+    ccPair.name!.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
-      <Formik<DocumentSetCreationRequest>
+      <Formik
         initialValues={{
           name: existingDocumentSet?.name ?? "",
           description: existingDocumentSet?.description ?? "",
@@ -60,7 +61,7 @@ export const DocumentSetCreationForm = ({
             ) ?? [],
           is_public: existingDocumentSet?.is_public ?? true,
           users: existingDocumentSet?.users ?? [],
-          groups: existingDocumentSet?.groups ?? [],
+          teamspace: existingDocumentSet?.teamspace ?? [],
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required("Please enter a name for the set"),
@@ -73,10 +74,10 @@ export const DocumentSetCreationForm = ({
         })}
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
-          // If the document set is public, then we don't want to send any groups
+          // If the document set is public, then we don't want to send any teamspace
           const processedValues = {
             ...values,
-            groups: values.is_public ? [] : values.groups,
+            teamspace: values.is_public ? [] : values.teamspace,
           };
 
           let response;
@@ -91,20 +92,24 @@ export const DocumentSetCreationForm = ({
           }
           formikHelpers.setSubmitting(false);
           if (response.ok) {
-            setPopup({
-              message: isUpdate
-                ? "Successfully updated document set!"
-                : "Successfully created document set!",
-              type: "success",
+            toast({
+              title: isUpdate
+                ? "Document Set Updated"
+                : "New Document Set Created",
+              description: isUpdate
+                ? "Your document set has been updated successfully."
+                : "Your new document set has been created successfully.",
+              variant: "success",
             });
             onClose();
           } else {
             const errorMsg = await response.text();
-            setPopup({
-              message: isUpdate
-                ? `Error updating document set - ${errorMsg}`
-                : `Error creating document set - ${errorMsg}`,
-              type: "error",
+            toast({
+              title: "Action Failed",
+              description: isUpdate
+                ? `Failed to update document set: ${errorMsg}`
+                : `Failed to create document set: ${errorMsg}`,
+              variant: "destructive",
             });
           }
         }}
@@ -125,228 +130,142 @@ export const DocumentSetCreationForm = ({
                 placeholder="Describe what the document set represents"
                 autoCompleteDisabled={true}
               />
-              {isPaidEnterpriseFeaturesEnabled && (
-                <IsPublicGroupSelector
-                  formikProps={props}
-                  objectName="document set"
-                />
-              )}
+              <IsPublicGroupSelector
+                formikProps={props}
+                objectName="document set"
+              />
 
               <Divider />
 
-              {user?.role === UserRole.CURATOR ? (
-                <>
-                  <div className="flex flex-col gap-y-1">
-                    <h2 className="mb-1 font-medium text-base">
-                      These are the connectors available to{" "}
-                      {userGroups && userGroups.length > 1
-                        ? "the selected group"
-                        : "the group you curate"}
-                      :
-                    </h2>
+            <div>
+              <h3 className="mb-1 text-sm">Pick your connectors:</h3>
+              <p className="mb-3 text-xs text-subtle">
+                All documents indexed by the selected connectors will be a part
+                of this document set.
+              </p>
+              <Input
+                type="text"
+                placeholder="Search connectors..."
+                className="mb-3"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
 
-                    <p className="mb-text-sm">
-                      All documents indexed by these selected connectors will be
-                      a part of this document set.
+              <FieldArray
+                name="cc_pair_ids"
+                render={(arrayHelpers: ArrayHelpers) => (
+                  <div className="mb-3 flex gap-2 flex-wrap">
+                    {filteredCcPairs.map((ccPair) => {
+                      const ind = values.cc_pair_ids.indexOf(ccPair.cc_pair_id);
+                      const isSelected = ind !== -1;
+
+                      return (
+                        <Badge
+                          key={`${ccPair.connector.id}-${ccPair.credential.id}`}
+                          variant={isSelected ? "default" : "outline"}
+                          className="cursor-pointer hover:bg-opacity-75"
+                          onClick={() => {
+                            if (isSelected) {
+                              arrayHelpers.remove(ind);
+                            } else {
+                              arrayHelpers.push(ccPair.cc_pair_id);
+                            }
+                          }}
+                        >
+                          <div className="my-auto truncate">
+                            <ConnectorTitle
+                              connector={ccPair.connector}
+                              ccPairId={ccPair.cc_pair_id}
+                              ccPairName={ccPair.name}
+                              isLink={false}
+                              showMetadata={false}
+                            />
+                          </div>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                )}
+              />
+            </div>
+
+            {teamspaces && teamspaces.length > 0 && (
+              <div>
+                <Divider />
+
+                <BooleanFormField
+                  name="is_public"
+                  label="Is Public?"
+                  subtext={
+                    <>
+                      If the document set is public, then it will be visible to{" "}
+                      <b>all users</b>. If it is not public, then only users in
+                      the specified teamspace will be able to see it.
+                    </>
+                  }
+                />
+
+                <Divider />
+                <h2 className="mb-1 font-medium text-sm">
+                  Teamspace with Access
+                </h2>
+                {!values.is_public ? (
+                  <>
+                    <p className="mb-3 text-subtle text-xs ">
+                      If any teamspace are specified, then this Document Set
+                      will only be visible to the specified teamspace. If no
+                      teamspace are specified, then the Document Set will be
+                      visible to all users.
                     </p>
                     <FieldArray
-                      name="cc_pair_ids"
-                      render={(arrayHelpers: ArrayHelpers) => {
-                        // Filter visible cc pairs
-                        const visibleCcPairs = localCcPairs.filter(
-                          (ccPair) =>
-                            ccPair.access_type === "public" ||
-                            (ccPair.groups.length > 0 &&
-                              props.values.groups.every((group) =>
-                                ccPair.groups.includes(group)
-                              ))
-                        );
-
-                        // Deselect filtered out cc pairs
-                        const visibleCcPairIds = visibleCcPairs.map(
-                          (ccPair) => ccPair.cc_pair_id
-                        );
-                        props.values.cc_pair_ids =
-                          props.values.cc_pair_ids.filter((id) =>
-                            visibleCcPairIds.includes(id)
-                          );
-
-                        return (
-                          <div className="mb-3 flex gap-2 flex-wrap">
-                            {visibleCcPairs.map((ccPair) => {
-                              const ind = props.values.cc_pair_ids.indexOf(
-                                ccPair.cc_pair_id
-                              );
-                              const isSelected = ind !== -1;
-                              return (
-                                <div
-                                  key={`${ccPair.connector.id}-${ccPair.credential.id}`}
-                                  className={
-                                    `
-                                  px-3 
-                                  py-1
-                                  rounded-lg 
-                                  border
-                                  border-border 
-                                  w-fit 
-                                  flex 
-                                  cursor-pointer ` +
-                                    (isSelected
-                                      ? " bg-background-strong"
-                                      : " hover:bg-hover")
+                      name="teamspace"
+                      render={(arrayHelpers: ArrayHelpers) => (
+                        <div className="flex gap-2 flex-wrap">
+                          {teamspaces.map((teamspace) => {
+                            const ind = values.teamspace.indexOf(teamspace.id);
+                            let isSelected = ind !== -1;
+                            return (
+                              <Badge
+                                key={teamspace.id}
+                                variant={isSelected ? "default" : "outline"}
+                                className="cursor-pointer hover:bg-opacity-80"
+                                onClick={() => {
+                                  if (isSelected) {
+                                    arrayHelpers.remove(ind);
+                                  } else {
+                                    arrayHelpers.push(teamspace.id);
                                   }
-                                  onClick={() => {
-                                    if (isSelected) {
-                                      arrayHelpers.remove(ind);
-                                    } else {
-                                      arrayHelpers.push(ccPair.cc_pair_id);
-                                    }
-                                  }}
-                                >
-                                  <div className="my-auto">
-                                    <ConnectorTitle
-                                      connector={ccPair.connector}
-                                      ccPairId={ccPair.cc_pair_id}
-                                      ccPairName={ccPair.name}
-                                      isLink={false}
-                                      showMetadata={false}
-                                    />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      }}
+                                }}
+                              >
+                                <Users className="my-auto mr-2" size={14} />
+                                {teamspace.name}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      )}
                     />
-                  </div>
-
-                  <div>
-                    <FieldArray
-                      name="cc_pair_ids"
-                      render={() => {
-                        // Filter non-visible cc pairs
-                        const nonVisibleCcPairs = localCcPairs.filter(
-                          (ccPair) =>
-                            !(ccPair.access_type === "public") &&
-                            (ccPair.groups.length === 0 ||
-                              !props.values.groups.every((group) =>
-                                ccPair.groups.includes(group)
-                              ))
-                        );
-
-                        return nonVisibleCcPairs.length > 0 ? (
-                          <>
-                            <Divider />
-                            <h2 className="mb-1 font-medium text-base">
-                              These connectors are not available to the{" "}
-                              {userGroups && userGroups.length > 1
-                                ? `group${props.values.groups.length > 1 ? "s" : ""} you have selected`
-                                : "group you curate"}
-                              :
-                            </h2>
-                            <p className="mb-3 text-sm">
-                              Only connectors that are directly assigned to the
-                              group you are trying to add the document set to
-                              will be available.
-                            </p>
-                            <div className="mb-3 flex gap-2 flex-wrap">
-                              {nonVisibleCcPairs.map((ccPair) => (
-                                <div
-                                  key={`${ccPair.connector.id}-${ccPair.credential.id}`}
-                                  className="px-3 py-1 rounded-lg border border-non-selectable-border w-fit flex cursor-not-allowed"
-                                >
-                                  <div className="my-auto">
-                                    <ConnectorTitle
-                                      connector={ccPair.connector}
-                                      ccPairId={ccPair.cc_pair_id}
-                                      ccPairName={ccPair.name}
-                                      isLink={false}
-                                      showMetadata={false}
-                                    />
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        ) : null;
-                      }}
-                    />
-                  </div>
-                </>
-              ) : (
-                <div>
-                  <h2 className="mb-1 font-medium text-base">
-                    Pick your connectors:
-                  </h2>
-                  <p className="mb-3 text-xs">
-                    All documents indexed by the selected connectors will be a
-                    part of this document set.
+                  </>
+                ) : (
+                  <p className="text-sm text-subtle">
+                    This Document Set is public, so this does not apply. If you
+                    want to control which teamspace see this Document Set, mark
+                    it as non-public!
                   </p>
-                  <FieldArray
-                    name="cc_pair_ids"
-                    render={(arrayHelpers: ArrayHelpers) => (
-                      <div className="mb-3 flex gap-2 flex-wrap">
-                        {ccPairs.map((ccPair) => {
-                          const ind = props.values.cc_pair_ids.indexOf(
-                            ccPair.cc_pair_id
-                          );
-                          const isSelected = ind !== -1;
-                          return (
-                            <div
-                              key={`${ccPair.connector.id}-${ccPair.credential.id}`}
-                              className={
-                                `
-                              px-3 
-                              py-1
-                              rounded-lg 
-                              border
-                              border-border 
-                              w-fit 
-                              flex 
-                              cursor-pointer ` +
-                                (isSelected
-                                  ? " bg-background-strong"
-                                  : " hover:bg-hover")
-                              }
-                              onClick={() => {
-                                if (isSelected) {
-                                  arrayHelpers.remove(ind);
-                                } else {
-                                  arrayHelpers.push(ccPair.cc_pair_id);
-                                }
-                              }}
-                            >
-                              <div className="my-auto">
-                                <ConnectorTitle
-                                  connector={ccPair.connector}
-                                  ccPairId={ccPair.cc_pair_id}
-                                  ccPairName={ccPair.name}
-                                  isLink={false}
-                                  showMetadata={false}
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  />
-                </div>
-              )}
-
-              <div className="flex mt-6">
-                <Button
-                  type="submit"
-                  disabled={props.isSubmitting}
-                  className="w-64 mx-auto"
-                >
-                  {isUpdate ? "Update!" : "Create!"}
-                </Button>
+                )}
               </div>
-            </Form>
-          );
-        }}
+            )}
+            <div className="flex mt-6">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-64 mx-auto"
+              >
+                {isUpdate ? "Update" : "Create"}
+              </Button>
+            </div>
+          </Form>
+        )}
       </Formik>
     </div>
   );

@@ -1,20 +1,31 @@
 import { SourceIcon } from "@/components/SourceIcon";
 import React from "react";
-import { FiBookmark, FiTag, FiX } from "react-icons/fi";
 import { FilterManager } from "@/lib/hooks";
 import { DateRangePickerValue } from "@tremor/react";
+import { X, Tag, Bookmark } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { Badge } from "@/components/ui/badge";
 
-const displayTimeRange = (timeRange: DateRangePickerValue) => {
-  if (timeRange.selectValue) {
-    return timeRange.selectValue;
+const displayTimeRange = (timeRange: DateRange | null) => {
+  if (!timeRange) {
+    return "No date range selected";
+  }
+
+  const today = new Date();
+  const isToday =
+    timeRange.from?.toLocaleDateString() === today.toLocaleDateString() &&
+    timeRange.to?.toLocaleDateString() === today.toLocaleDateString();
+
+  if (isToday) {
+    return `Today: ${timeRange.from!.toLocaleDateString()}`;
   }
 
   if (timeRange.from && timeRange.to) {
     return `${timeRange.from.toLocaleDateString()} to ${timeRange.to.toLocaleDateString()}`;
   } else if (timeRange.from) {
-    return `From ${timeRange.from.toLocaleDateString()}`;
+    return `${timeRange.from.toLocaleDateString()}`;
   } else if (timeRange.to) {
-    return `Until ${timeRange.to.toLocaleDateString()}`;
+    return `${timeRange.to.toLocaleDateString()}`;
   } else {
     return "No date range selected";
   }
@@ -27,28 +38,10 @@ const SelectedFilter = ({
   onClick: () => void;
   children: JSX.Element | string;
 }) => (
-  <div
-    className="
-      flex 
-      text-xs 
-      cursor-pointer 
-      items-center 
-      border 
-      border-border 
-      py-1 
-      rounded-lg 
-      px-2 
-      w-fit 
-      select-none 
-      hover:bg-hover 
-      bg-background 
-      shadow-md 
-    "
-    onClick={onClick}
-  >
+  <Badge onClick={onClick} className="cursor-pointer hover:bg-opacity-75">
     {children}
-    <FiX className="ml-2" size={14} />
-  </div>
+    <X className="ml-2" size={14} />
+  </Badge>
 );
 
 export function SelectedFilterDisplay({
@@ -80,12 +73,11 @@ export function SelectedFilterDisplay({
   return (
     <div className="flex mb-2">
       <div className="flex flex-wrap gap-x-2">
-        {timeRange &&
-          (timeRange.selectValue || timeRange.from || timeRange.to) && (
-            <SelectedFilter onClick={() => setTimeRange(null)}>
-              <div className="flex">{displayTimeRange(timeRange)}</div>
-            </SelectedFilter>
-          )}
+        {timeRange && (
+          <SelectedFilter onClick={() => setTimeRange(null)}>
+            <div className="flex">{displayTimeRange(timeRange)}</div>
+          </SelectedFilter>
+        )}
         {selectedSources.map((source) => (
           <SelectedFilter
             key={source.internalName}
@@ -115,7 +107,7 @@ export function SelectedFilterDisplay({
             >
               <>
                 <div>
-                  <FiBookmark />
+                  <Bookmark size={14} />
                 </div>
                 <span className="ml-2">{documentSetName}</span>
               </>
@@ -136,7 +128,7 @@ export function SelectedFilterDisplay({
             >
               <>
                 <div>
-                  <FiTag />
+                  <Tag size={14} />
                 </div>
                 <span className="ml-1 max-w-[100px] text-ellipsis line-clamp-1 break-all">
                   {tag.tag_key}

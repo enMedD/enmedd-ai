@@ -4,6 +4,7 @@ import { FileDescriptor } from "../interfaces";
 import { FiX, FiLoader, FiFileText } from "react-icons/fi";
 import { InputBarPreviewImage } from "./images/InputBarPreviewImage";
 import { Tooltip } from "@/components/tooltip/Tooltip";
+import { Loader, X } from "lucide-react";
 
 function DeleteButton({ onDelete }: { onDelete: () => void }) {
   return (
@@ -21,7 +22,7 @@ function DeleteButton({ onDelete }: { onDelete: () => void }) {
         z-10
       "
     >
-      <FiX />
+      <X />
     </button>
   );
 }
@@ -101,12 +102,13 @@ export function InputBarPreview({
             flex
             items-center
             justify-center
+            bg-background-inverted
             bg-opacity-50
-            rounded-lg
+            rounded-regular
             z-0
           "
         >
-          <FiLoader className="animate-spin text-white" />
+          <Loader className="animate-spin text-inverted" />
         </div>
       )}
       <div

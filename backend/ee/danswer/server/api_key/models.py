@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from danswer.auth.schemas import UserRole
+from enmedd.auth.schemas import UserRole
 
 
 class APIKeyArgs(BaseModel):

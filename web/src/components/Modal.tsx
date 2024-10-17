@@ -1,12 +1,6 @@
-"use client";
-import { Divider } from "@tremor/react";
-import { FiX } from "react-icons/fi";
-import { IconProps, XIcon } from "./icons/icons";
-import { useRef } from "react";
-import { isEventWithinRef } from "@/lib/contains";
+import { X } from "lucide-react";
 
 interface ModalProps {
-  icon?: ({ size, className }: IconProps) => JSX.Element;
   children: JSX.Element | string;
   title?: JSX.Element | string;
   onOutsideClick?: () => void;
@@ -26,68 +20,44 @@ export function Modal({
   titleSize,
   hideDividerForTitle,
   noPadding,
-  icon,
 }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      onOutsideClick &&
-      modalRef.current &&
-      !modalRef.current.contains(e.target as Node) &&
-      !isEventWithinRef(e.nativeEvent, modalRef)
-    ) {
-      onOutsideClick();
-    }
-  };
-
   return (
-    <div
-      onMouseDown={handleMouseDown}
-      className={`fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm h-full
-        flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out`}
-    >
+    <div>
       <div
-        ref={modalRef}
-        onClick={(e) => {
-          if (onOutsideClick) {
-            e.stopPropagation();
-          }
-        }}
-        className={`bg-background text-emphasis rounded shadow-2xl 
-          transform transition-all duration-300 ease-in-out
-          ${width ?? "w-11/12 max-w-5xl"}
-          ${noPadding ? "" : "p-10"}
-          ${className || ""}`}
+        className={`
+        fixed inset-0 bg-background-inverted bg-opacity-30 backdrop-blur-sm
+        flex items-center justify-center z-modal
+      `}
+        onClick={onOutsideClick}
       >
-        {onOutsideClick && (
-          <div className="absolute top-2 right-2">
-            <button
+        <div
+          className={`
+          bg-background rounded shadow-lg
+          relative mx-6 md:mx-0 ${width ?? "md:w-1/2"} text-sm 
+          ${noPadding ? "" : "p-8"}
+          ${className}
+        `}
+          onClick={(event) => event.stopPropagation()}
+        >
+          {onOutsideClick && (
+            <div
               onClick={onOutsideClick}
-              className="cursor-pointer text-text-500 hover:text-text-700 transition-colors duration-200 p-2"
-              aria-label="Close modal"
+              className="absolute top-6 right-6 cursor-pointer"
             >
-              <XIcon className="w-5 h-5" />
-            </button>
-          </div>
-        )}
-
-        <div className="w-full flex flex-col h-full justify-stretch">
-          {title && (
-            <>
-              <div className="flex mb-4">
+              <X size={20} />
+            </div>
+          )}
+          <>
+            {title && (
+              <div className="pb-4">
                 <h2
-                  className={`my-auto flex content-start gap-x-4 font-bold ${
-                    titleSize || "text-2xl"
-                  }`}
+                  className={"my-auto font-bold " + (titleSize || "text-2xl")}
                 >
                   {title}
-                  {icon && icon({ size: 30 })}
                 </h2>
               </div>
-              {!hideDividerForTitle && <Divider />}
-            </>
-          )}
+            )}
+          </>
           {children}
         </div>
       </div>

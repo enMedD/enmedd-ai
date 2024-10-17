@@ -1,6 +1,6 @@
 "use client";
 
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { User } from "@/lib/types";
 import { Button } from "@tremor/react";
@@ -21,7 +21,7 @@ export function AssistantGalleryCard({
   setPopup,
   selectedAssistant,
 }: {
-  assistant: Persona;
+  assistant: Assistant;
   user: User | null;
   setPopup: (popup: PopupSpec) => void;
   selectedAssistant: boolean;
@@ -128,7 +128,7 @@ export function AssistantGalleryCard({
 
       <p className="text-sm mt-2">{assistant.description}</p>
       <p className="text-subtle text-sm my-2">
-        Author: {assistant.owner?.email || "Danswer"}
+        Author: {assistant.owner?.email || "enMedD AI"}
       </p>
       {assistant.tools.length > 0 && (
         <AssistantTools list assistant={assistant} />
@@ -140,7 +140,7 @@ export function AssistantsGallery({
   assistants,
   user,
 }: {
-  assistants: Persona[];
+  assistants: Assistant[];
 
   user: User | null;
 }) {
@@ -155,7 +155,7 @@ export function AssistantsGallery({
   );
 
   const defaultAssistants = assistants
-    .filter((assistant) => assistant.is_default_persona)
+    .filter((assistant) => assistant.is_default_assistant)
     .filter(
       (assistant) =>
         assistant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -163,7 +163,7 @@ export function AssistantsGallery({
     );
 
   const nonDefaultAssistants = assistants
-    .filter((assistant) => !assistant.is_default_persona)
+    .filter((assistant) => !assistant.is_default_assistant)
     .filter(
       (assistant) =>
         assistant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

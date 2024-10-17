@@ -1,9 +1,10 @@
 import { PopupSpec } from "../admin/connectors/Popup";
 import { useState } from "react";
-import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@tremor/react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { WellKnownLLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
 import { LLMProviderUpdateForm } from "@/app/admin/configuration/llm/LLMProviderUpdateForm";
 import { CustomLLMProviderUpdateForm } from "@/app/admin/configuration/llm/CustomLLMProviderUpdateForm";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@tremor/react";
 
 export const ApiKeyForm = ({
   onSuccess,
@@ -28,6 +29,7 @@ export const ApiKeyForm = ({
 
   const [providerName, setProviderName] = useState<string>(defaultProvider);
 
+  // TODO: revamp this into using schadcn again instead of tremor
   return (
     <div>
       <TabGroup

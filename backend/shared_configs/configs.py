@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 from shared_configs.model_server_models import SupportedEmbeddingModel
 
 # Used for logging
-SLACK_CHANNEL_ID = "channel_id"
 
 MODEL_SERVER_HOST = os.environ.get("MODEL_SERVER_HOST") or "localhost"
 MODEL_SERVER_ALLOWED_HOST = os.environ.get("MODEL_SERVER_HOST") or "0.0.0.0"
@@ -23,7 +22,7 @@ INDEXING_MODEL_SERVER_PORT = int(
 # Danswer custom Deep Learning Models
 CONNECTOR_CLASSIFIER_MODEL_REPO = "Danswer/filter-extraction-model"
 CONNECTOR_CLASSIFIER_MODEL_TAG = "1.0.0"
-INTENT_MODEL_VERSION = "danswer/hybrid-intent-token-classifier"
+INTENT_MODEL_VERSION = "enmeddd/hybrid-intent-token-classifier"
 INTENT_MODEL_TAG = "v1.0.3"
 
 
@@ -31,7 +30,7 @@ INTENT_MODEL_TAG = "v1.0.3"
 DOC_EMBEDDING_CONTEXT_SIZE = 512
 
 # Used to distinguish alternative indices
-ALT_INDEX_SUFFIX = "__danswer_alt_index"
+ALT_INDEX_SUFFIX = "__enmeddd_alt_index"
 
 # Used for loading defaults for automatic deployments and dev flows
 # For local, use: mixedbread-ai/mxbai-rerank-xsmall-v1
@@ -56,7 +55,7 @@ INDEXING_ONLY = os.environ.get("INDEXING_ONLY", "").lower() == "true"
 
 # The process needs to have this for the log file to write to
 # otherwise, it will not create additional log files
-LOG_FILE_NAME = os.environ.get("LOG_FILE_NAME") or "danswer"
+LOG_FILE_NAME = os.environ.get("LOG_FILE_NAME") or "enmedd"
 
 # Enable generating persistent log files for local dev environments
 DEV_LOGGING_ENABLED = os.environ.get("DEV_LOGGING_ENABLED", "").lower() == "true"
@@ -83,6 +82,7 @@ PRESERVED_SEARCH_FIELDS = [
 ]
 
 
+# CORS
 def validate_cors_origin(origin: str) -> None:
     parsed = urlparse(origin)
     if parsed.scheme not in ["http", "https"] or not parsed.netloc:
@@ -121,67 +121,67 @@ SUPPORTED_EMBEDDING_MODELS = [
     SupportedEmbeddingModel(
         name="cohere/embed-english-v3.0",
         dim=1024,
-        index_name="danswer_chunk_cohere_embed_english_v3_0",
+        index_name="enmedd_chunk_cohere_embed_english_v3_0",
     ),
     SupportedEmbeddingModel(
         name="cohere/embed-english-light-v3.0",
         dim=384,
-        index_name="danswer_chunk_cohere_embed_english_light_v3_0",
+        index_name="enmedd_chunk_cohere_embed_english_light_v3_0",
     ),
     SupportedEmbeddingModel(
         name="openai/text-embedding-3-large",
         dim=3072,
-        index_name="danswer_chunk_openai_text_embedding_3_large",
+        index_name="enmedd_chunk_openai_text_embedding_3_large",
     ),
     SupportedEmbeddingModel(
         name="openai/text-embedding-3-small",
         dim=1536,
-        index_name="danswer_chunk_openai_text_embedding_3_small",
+        index_name="enmedd_chunk_openai_text_embedding_3_small",
     ),
     SupportedEmbeddingModel(
         name="google/text-embedding-004",
         dim=768,
-        index_name="danswer_chunk_google_text_embedding_004",
+        index_name="enmedd_chunk_google_text_embedding_004",
     ),
     SupportedEmbeddingModel(
         name="google/textembedding-gecko@003",
         dim=768,
-        index_name="danswer_chunk_google_textembedding_gecko_003",
+        index_name="enmedd_chunk_google_textembedding_gecko_003",
     ),
     SupportedEmbeddingModel(
         name="voyage/voyage-large-2-instruct",
         dim=1024,
-        index_name="danswer_chunk_voyage_large_2_instruct",
+        index_name="enmedd_chunk_voyage_large_2_instruct",
     ),
     SupportedEmbeddingModel(
         name="voyage/voyage-light-2-instruct",
         dim=384,
-        index_name="danswer_chunk_voyage_light_2_instruct",
+        index_name="enmedd_chunk_voyage_light_2_instruct",
     ),
     # Self-hosted models
     SupportedEmbeddingModel(
         name="nomic-ai/nomic-embed-text-v1",
         dim=768,
-        index_name="danswer_chunk_nomic_ai_nomic_embed_text_v1",
+        index_name="enmedd_chunk_nomic_ai_nomic_embed_text_v1",
     ),
     SupportedEmbeddingModel(
         name="intfloat/e5-base-v2",
         dim=768,
-        index_name="danswer_chunk_intfloat_e5_base_v2",
+        index_name="enmedd_chunk_intfloat_e5_base_v2",
     ),
     SupportedEmbeddingModel(
         name="intfloat/e5-small-v2",
         dim=384,
-        index_name="danswer_chunk_intfloat_e5_small_v2",
+        index_name="enmedd_chunk_intfloat_e5_small_v2",
     ),
     SupportedEmbeddingModel(
         name="intfloat/multilingual-e5-base",
         dim=768,
-        index_name="danswer_chunk_intfloat_multilingual_e5_base",
+        index_name="enmedd_chunk_intfloat_multilingual_e5_base",
     ),
     SupportedEmbeddingModel(
         name="intfloat/multilingual-e5-small",
         dim=384,
-        index_name="danswer_chunk_intfloat_multilingual_e5_small",
+        index_name="enmedd_chunk_intfloat_multilingual_e5_small",
     ),
 ]

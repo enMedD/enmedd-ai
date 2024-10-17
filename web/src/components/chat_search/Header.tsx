@@ -39,7 +39,7 @@ export default function FunctionalHeader({
               `/${page}` +
                 (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA &&
                 currentChatSession
-                  ? `?assistantId=${currentChatSession.persona_id}`
+                  ? `?assistantId=${currentChatSession.assistant_id}`
                   : ""),
               "_self"
             );
@@ -59,7 +59,7 @@ export default function FunctionalHeader({
     const newChatUrl =
       `/${page}` +
       (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA && currentChatSession
-        ? `?assistantId=${currentChatSession.persona_id}`
+        ? `?assistantId=${currentChatSession.assistant_id}`
         : "");
     router.push(newChatUrl);
   };
@@ -67,7 +67,7 @@ export default function FunctionalHeader({
     <div className="left-0 bg-transparent sticky top-0 z-20 w-full relative flex">
       <div className="mt-2 mx-2.5 cursor-pointer text-text-700 relative flex w-full">
         <LogoType
-          assistantId={currentChatSession?.persona_id}
+          assistantId={currentChatSession?.assistant_id}
           page={page}
           toggleSidebar={toggleSidebar}
           handleNewChat={handleNewChat}
@@ -117,7 +117,7 @@ export default function FunctionalHeader({
               `/${page}` +
               (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA &&
               currentChatSession
-                ? `?assistantId=${currentChatSession.persona_id}`
+                ? `?assistantId=${currentChatSession.assistant_id}`
                 : "")
             }
           >

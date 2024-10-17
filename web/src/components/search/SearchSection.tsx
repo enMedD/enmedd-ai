@@ -13,13 +13,13 @@ import {
   SearchRequestOverrides,
   ValidQuestionResponse,
   Relevance,
-  SearchDanswerDocument,
+  SearchEnmeddDocument,
   SourceMetadata,
 } from "@/lib/search/interfaces";
 import { searchRequestStreamed } from "@/lib/search/streamingQa";
 import { CancellationToken, cancellable } from "@/lib/search/cancellable";
 import { useFilters, useObjectState } from "@/lib/hooks";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { computeAvailableFilters } from "@/lib/filters";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SettingsContext } from "../settings/SettingsProvider";
@@ -41,9 +41,13 @@ import { ApiKeyModal } from "../llm/ApiKeyModal";
 import { useSearchContext } from "../context/SearchContext";
 import { useUser } from "../user/UserProvider";
 import UnconfiguredProviderText from "../chat_search/UnconfiguredProviderText";
-import { DateRangePickerValue } from "@tremor/react";
 import { Tag } from "@/lib/types";
 import { isEqual } from "lodash";
+import { SortSearch } from "./SortSearch";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Filter } from "lucide-react";
+import { Button } from "../ui/button";
+import { DateRangePickerValue } from "@tremor/react";
 
 export type searchState =
   | "input"
@@ -148,7 +152,7 @@ export const SearchSection = ({
   const selectedSearchType = defaultSearchType;
 
   // If knowledge assistant exists, use it. Otherwise, use first available assistant for search.
-  const selectedPersona = assistants.find((assistant) => assistant.id === 0)
+  const selectedAssistant = assistants.find((assistant) => assistant.id === 0)
     ? 0
     : assistants[0]?.id;
 
@@ -160,8 +164,8 @@ export const SearchSection = ({
   const availableSources = ccPairs.map((ccPair) => ccPair.source);
   const [finalAvailableSources, finalAvailableDocumentSets] =
     computeAvailableFilters({
-      selectedPersona: assistants.find(
-        (assistant) => assistant.id === selectedPersona
+      selectedAssistant: assistants.find(
+        (assistant) => assistant.id === selectedAssistant
       ),
       availableSources: availableSources,
       availableDocumentSets: documentSets,
@@ -273,7 +277,7 @@ export const SearchSection = ({
     setSearchState((searchState) => "citing");
   };
 
-  const updateDocs = (documents: SearchDanswerDocument[]) => {
+  const updateDocs = (documents: SearchEnmeddDocument[]) => {
     if (agentic) {
       setTimeout(() => {
         setSearchState((searchState) => newSearchState(searchState, "reading"));
@@ -382,7 +386,7 @@ export const SearchSection = ({
     documentSets: string[];
     timeRange: DateRangePickerValue | null;
     tags: Tag[];
-    persona: Persona;
+    assistant: Assistant;
   }
 
   const [previousSearch, setPreviousSearch] = useState<null | SearchDetails>(
@@ -397,9 +401,9 @@ export const SearchSection = ({
       documentSets: filterManager.selectedDocumentSets,
       timeRange: filterManager.timeRange,
       tags: filterManager.selectedTags,
-      persona: assistants.find(
-        (assistant) => assistant.id === selectedPersona
-      ) as Persona,
+      assistant: assistants.find(
+        (assistant: Assistant) => assistant.id === selectedAssistant
+      ) as Assistant,
     };
   };
   const isSearchChanged = () => {
@@ -437,9 +441,9 @@ export const SearchSection = ({
       documentSets: filterManager.selectedDocumentSets,
       timeRange: filterManager.timeRange,
       tags: filterManager.selectedTags,
-      persona: assistants.find(
-        (assistant) => assistant.id === selectedPersona
-      ) as Persona,
+      assistant: assistants.find(
+        (assistant: Assistant) => assistant.id === selectedAssistant
+      ) as Assistant,
       updateCurrentAnswer: cancellable({
         cancellationToken: lastSearchCancellationToken.current,
         fn: updateCurrentAnswer,
@@ -612,7 +616,7 @@ export const SearchSection = ({
     }
   };
 
-  const chatBannerPresent = settings?.enterpriseSettings?.custom_header_content;
+  const chatBannerPresent = settings?.workspaces?.custom_header_content;
 
   const { popup, setPopup } = usePopup();
 

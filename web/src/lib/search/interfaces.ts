@@ -1,6 +1,6 @@
 import { DateRangePickerValue } from "@tremor/react";
 import { Tag, ValidSources } from "../types";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 export const FlowType = {
   SEARCH: "search",
@@ -45,7 +45,8 @@ export interface QuotesInfoPacket {
   quotes: Quote[];
 }
 
-export interface DanswerDocument {
+// TODO: replace the interface name
+export interface EnmeddDocument {
   document_id: string;
   link: string;
   source_type: ValidSources;
@@ -63,16 +64,16 @@ export interface DanswerDocument {
   validationState?: null | "good" | "bad";
 }
 
-export interface SearchDanswerDocument extends DanswerDocument {
+export interface SearchEnmeddDocument extends EnmeddDocument {
   is_relevant: boolean;
   relevance_explanation: string;
 }
 
-export interface FilteredDanswerDocument extends DanswerDocument {
+export interface FilteredEnmeddDocument extends EnmeddDocument {
   included: boolean;
 }
 export interface DocumentInfoPacket {
-  top_documents: DanswerDocument[];
+  top_documents: EnmeddDocument[];
   predicted_flow: FlowType | null;
   predicted_search: SearchType | null;
   time_cutoff: string | null;
@@ -97,7 +98,7 @@ export interface SearchResponse {
   suggestedFlowType: FlowType | null;
   answer: string | null;
   quotes: Quote[] | null;
-  documents: SearchDanswerDocument[] | null;
+  documents: SearchEnmeddDocument[] | null;
   selectedDocIndices: number[] | null;
   error: string | null;
   messageId: number | null;
@@ -105,12 +106,10 @@ export interface SearchResponse {
 }
 
 export enum SourceCategory {
-  Storage = "Storage",
-  Wiki = "Wiki",
-  CustomerSupport = "Customer Support",
-  Messaging = "Messaging",
-  ProjectManagement = "Project Management",
-  CodeRepository = "Code Repository",
+  AppConnection = "Connect to Apps",
+  ImportedKnowledge = "Import Knowledge",
+  ComingSoon = "Coming Soon",
+  Disabled = "Disabled",
   Other = "Other",
 }
 
@@ -141,11 +140,11 @@ export interface SearchRequestArgs {
   documentSets: string[];
   timeRange: DateRangePickerValue | null;
   tags: Tag[];
-  persona: Persona;
+  assistant: Assistant;
   updateDocumentRelevance: (relevance: any) => void;
   updateCurrentAnswer: (val: string) => void;
   updateQuotes: (quotes: Quote[]) => void;
-  updateDocs: (documents: DanswerDocument[]) => void;
+  updateDocs: (documents: EnmeddDocument[]) => void;
   updateSelectedDocIndices: (docIndices: number[]) => void;
   updateSuggestedSearchType: (searchType: SearchType) => void;
   updateSuggestedFlowType: (flowType: FlowType) => void;

@@ -3,22 +3,26 @@
 import { ToolEditor } from "@/app/admin/tools/ToolEditor";
 import { BackButton } from "@/components/BackButton";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { ToolIcon } from "@/components/icons/icons";
-import { Card } from "@tremor/react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Wrench } from "lucide-react";
 
 export default function NewToolPage() {
   return (
-    <div className="mx-auto container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        title="Create Tool"
-        icon={<ToolIcon size={32} className="my-auto" />}
-      />
+        <AdminPageTitle
+          title="Create Tool"
+          icon={<Wrench size={32} className="my-auto" />}
+        />
 
-      <Card>
-        <ToolEditor />
-      </Card>
+        <Card>
+          <CardContent>
+            <ToolEditor />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,6 @@
-import { FiTrash } from "react-icons/fi";
+import { CustomTooltip } from "./CustomTooltip";
+import { Button } from "./ui/button";
+import { Trash } from "lucide-react";
 
 export function DeleteButton({
   onClick,
@@ -8,21 +10,20 @@ export function DeleteButton({
   disabled?: boolean;
 }) {
   return (
-    <div
-      className={`
-        my-auto 
-        flex 
-        mb-1 
-        ${disabled ? "cursor-default" : "hover:bg-hover cursor-pointer"} 
-        w-fit 
-        p-2 
-        rounded-lg
-        border-border
-        text-sm`}
-      onClick={onClick}
+    <CustomTooltip
+      trigger={
+        <Button
+          onClick={onClick}
+          variant="ghost"
+          size="icon"
+          disabled={disabled}
+        >
+          <Trash className="shrink-0" size={16} />
+        </Button>
+      }
+      asChild
     >
-      <FiTrash className="mr-1 my-auto" />
       Delete
-    </div>
+    </CustomTooltip>
   );
 }

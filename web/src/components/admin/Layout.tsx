@@ -5,12 +5,10 @@ import {
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { ClientLayout } from "./ClientLayout";
-import {
-  SERVER_SIDE_ONLY__CLOUD_ENABLED,
-  SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED,
-} from "@/lib/constants";
-import { AnnouncementBanner } from "../header/AnnouncementBanner";
+import { SideBar } from "../SideBar";
+import { BarLayout } from "../BarLayout";
+import { AdminBar } from "./AdminBar";
+import { HealthCheckBanner } from "../health/healthcheck";
 
 export async function Layout({ children }: { children: React.ReactNode }) {
   const tasks = [getAuthTypeMetadataSS(), getCurrentUserSS()];
@@ -44,13 +42,23 @@ export async function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ClientLayout
-      enableEnterprise={SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED}
-      enableCloud={SERVER_SIDE_ONLY__CLOUD_ENABLED}
-      user={user}
-    >
-      <AnnouncementBanner />
-      {children}
-    </ClientLayout>
+    // TODO: properly merge these changes
+    // <ClientLayout
+    //   enableEnterprise={SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED}
+    //   enableCloud={SERVER_SIDE_ONLY__CLOUD_ENABLED}
+    //   user={user}
+    // >
+    //   <AnnouncementBanner />
+    //   {children}
+    // </ClientLayout>
+    <div className="h-full">
+      <HealthCheckBanner />
+      <div className="flex h-full">
+        <AdminBar user={user}>
+          <SideBar />
+        </AdminBar>
+        {children}
+      </div>
+    </div>
   );
 }

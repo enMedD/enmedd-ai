@@ -1,10 +1,14 @@
 "use client";
 
 import { ApiKeyForm } from "./ApiKeyForm";
-import { Modal } from "../Modal";
-import { useRouter } from "next/navigation";
 import { useProviderStatus } from "../chat_search/ProviderContext";
 import { PopupSpec } from "../admin/connectors/Popup";
+import { WellKnownLLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
+import { checkLlmProvider } from "../initialSetup/welcome/lib";
+import { User } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { CustomModal } from "../CustomModal";
+import { useState } from "react";
 
 export const ApiKeyModal = ({
   hide,
@@ -14,6 +18,8 @@ export const ApiKeyModal = ({
   setPopup: (popup: PopupSpec) => void;
 }) => {
   const router = useRouter();
+
+  const [forceHidden, setForceHidden] = useState<boolean>(false);
 
   const {
     shouldShowConfigurationNeeded,
@@ -26,36 +32,37 @@ export const ApiKeyModal = ({
   }
 
   return (
-    <Modal
-      title="Set an API Key!"
-      width="max-w-3xl w-full"
-      onOutsideClick={() => hide()}
+    <CustomModal
+      open={!forceHidden}
+      onClose={() => setForceHidden(true)}
+      trigger={null}
+      title="Set an API Key"
     >
-      <div className="max-h-[75vh] overflow-y-auto flex flex-col">
-        <div>
-          <div className="mb-5 text-sm">
-            Please provide an API Key below in order to start using
-            Danswer – you can always change this later.
-            <br />
-            If you&apos;d rather look around first, you can
-            <strong onClick={() => hide()} className="text-link cursor-pointer">
-              {" "}
-              skip this step
-            </strong>
-            .
-          </div>
-
-          <ApiKeyForm
-            setPopup={setPopup}
-            onSuccess={() => {
-              router.refresh();
-              refreshProviderInfo();
-              hide();
-            }}
-            providerOptions={providerOptions}
-          />
+      <div>
+        <div className="mb-5 text-sm">
+          Please provide an API Key below in order to start using enMedD AI. You
+          can always change this later.
+          <br />
+          Or if you&apos;d rather look around first,{" "}
+          <strong
+            onClick={() => setForceHidden(true)}
+            className="text-link cursor-pointer"
+          >
+            skip this step
+          </strong>
+          .
         </div>
+
+        <ApiKeyForm
+          setPopup={setPopup}
+          onSuccess={() => {
+            router.refresh();
+            refreshProviderInfo();
+            hide();
+          }}
+          providerOptions={providerOptions}
+        />
       </div>
-    </Modal>
+    </CustomModal>
   );
 };

@@ -1,6 +1,6 @@
 from slack_sdk import WebClient
 
-from danswer.connectors.slack.connector import make_paginated_slack_api_call_w_retries
+from enmedd.connectors.slack.connector import make_paginated_slack_api_call_w_retries
 
 
 def fetch_user_id_to_email_map(

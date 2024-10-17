@@ -7,16 +7,16 @@ from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError  # type: ignore
 from sqlalchemy.orm import Session
 
-from danswer.connectors.cross_connector_utils.retry_wrapper import retry_builder
-from danswer.connectors.google_drive.connector_auth import (
+from enmedd.connectors.cross_connector_utils.retry_wrapper import retry_builder
+from enmedd.connectors.google_drive.connector_auth import (
     get_google_drive_creds,
 )
-from danswer.connectors.google_drive.constants import FETCH_GROUPS_SCOPES
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.users import batch_add_non_web_user_if_not_exists__no_commit
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.external_perm import ExternalUserGroup
-from ee.danswer.db.external_perm import replace_user__ext_group_for_cc_pair__no_commit
+from enmedd.connectors.google_drive.constants import FETCH_GROUPS_SCOPES
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.users import batch_add_non_web_user_if_not_exists__no_commit
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.external_perm import ExternalTeamspace
+from ee.enmedd.db.external_perm import replace_user__ext_group_for_cc_pair__no_commit
 
 logger = setup_logger()
 
@@ -115,7 +115,7 @@ def gdrive_group_sync(
         scopes=FETCH_GROUPS_SCOPES,
     )
 
-    danswer_groups: list[ExternalUserGroup] = []
+    enmeddd_groups: list[ExternalTeamspace] = []
     for group in _fetch_groups_paginated(
         google_drive_creds,
         identity_source=sync_details.get("identity_source"),
@@ -135,8 +135,8 @@ def gdrive_group_sync(
             db_session=db_session, emails=group_member_emails
         )
         if group_members:
-            danswer_groups.append(
-                ExternalUserGroup(
+            enmeddd_groups.append(
+                ExternalTeamspace(
                     id=group_email, user_ids=[user.id for user in group_members]
                 )
             )
@@ -144,6 +144,6 @@ def gdrive_group_sync(
     replace_user__ext_group_for_cc_pair__no_commit(
         db_session=db_session,
         cc_pair_id=cc_pair.id,
-        group_defs=danswer_groups,
+        group_defs=enmeddd_groups,
         source=cc_pair.connector.source,
     )

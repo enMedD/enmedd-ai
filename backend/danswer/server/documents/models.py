@@ -6,20 +6,20 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import model_validator
 
-from danswer.configs.app_configs import MASK_CREDENTIAL_PREFIX
-from danswer.configs.constants import DocumentSource
-from danswer.connectors.models import DocumentErrorSummary
-from danswer.connectors.models import InputType
-from danswer.db.enums import AccessType
-from danswer.db.enums import ConnectorCredentialPairStatus
-from danswer.db.models import Connector
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import Credential
-from danswer.db.models import IndexAttempt
-from danswer.db.models import IndexAttemptError as DbIndexAttemptError
-from danswer.db.models import IndexingStatus
-from danswer.db.models import TaskStatus
-from danswer.server.utils import mask_credential_dict
+from enmedd.configs.app_configs import MASK_CREDENTIAL_PREFIX
+from enmedd.configs.constants import DocumentSource
+from enmedd.connectors.models import DocumentErrorSummary
+from enmedd.connectors.models import InputType
+from enmedd.db.enums import AccessType
+from enmedd.db.enums import ConnectorCredentialPairStatus
+from enmedd.db.models import Connector
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import Credential
+from enmedd.db.models import IndexAttempt
+from enmedd.db.models import IndexAttemptError as DbIndexAttemptError
+from enmedd.db.models import IndexingStatus
+from enmedd.db.models import TaskStatus
+from enmedd.server.utils import mask_credential_dict
 
 
 class DocumentInfo(BaseModel):
@@ -370,8 +370,8 @@ class GoogleServiceAccountKey(BaseModel):
 
 
 class GoogleServiceAccountCredentialRequest(BaseModel):
-    google_drive_delegated_user: str | None = None  # email of user to impersonate
-    gmail_delegated_user: str | None = None  # email of user to impersonate
+    google_drive_delegated_user: str | None = None  # email of user to imassistantte
+    gmail_delegated_user: str | None = None  # email of user to imassistantte
 
     @model_validator(mode="after")
     def check_user_delegation(self) -> "GoogleServiceAccountCredentialRequest":

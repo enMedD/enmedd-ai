@@ -1,8 +1,8 @@
 "use client";
 
 import { Label, SubLabel } from "@/components/admin/connectors/Field";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { useToast } from "@/hooks/use-toast";
 import { Button, Callout, Text } from "@tremor/react";
 import { useContext, useState } from "react";
 
@@ -14,7 +14,7 @@ export function CustomAnalyticsUpdateForm() {
     useState<string>(customAnalyticsScript || "");
   const [secretKey, setSecretKey] = useState<string>("");
 
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
 
   if (!settings) {
     return <Callout color="red" title="Failed to fetch settings"></Callout>;
@@ -22,13 +22,12 @@ export function CustomAnalyticsUpdateForm() {
 
   return (
     <div>
-      {popup}
       <form
         onSubmit={async (e) => {
           e.preventDefault();
 
           const response = await fetch(
-            "/api/admin/enterprise-settings/custom-analytics-script",
+            "/api/admin/workspace/custom-analytics-script",
             {
               method: "PUT",
               headers: {
@@ -41,21 +40,24 @@ export function CustomAnalyticsUpdateForm() {
             }
           );
           if (response.ok) {
-            setPopup({
-              type: "success",
-              message: "Custom analytics script updated successfully!",
+            toast({
+              title: "Update Successful",
+              description:
+                "Custom analytics script has been updated successfully!",
+              variant: "success",
             });
           } else {
             const errorMsg = (await response.json()).detail;
-            setPopup({
-              type: "error",
-              message: `Failed to update custom analytics script: "${errorMsg}"`,
+            toast({
+              title: "Update Failed",
+              description: `Unable to update the custom analytics script: "${errorMsg}". Please try again.`,
+              variant: "destructive",
             });
           }
           setSecretKey("");
         }}
       >
-        <div className="mb-4">
+        <div className="pb-4">
           <Label>Script</Label>
           <Text className="mb-3">
             Specify the Javascript that should run on page load in order to
@@ -89,7 +91,7 @@ export function CustomAnalyticsUpdateForm() {
             For security reasons, you must provide a secret key to update this
             script. This should be the value of the{" "}
             <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable set when
-            initially setting up Danswer.
+            initially setting up enMedD AI.
           </>
         </SubLabel>
         <input

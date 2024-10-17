@@ -1,11 +1,11 @@
 import json
 from datetime import datetime
 
-from danswer.chat.models import DanswerAnswerPiece
-from danswer.chat.models import DanswerQuotes
-from danswer.chat.models import LlmDoc
-from danswer.configs.constants import DocumentSource
-from danswer.llm.answering.stream_processing.quotes_processing import (
+from enmedd.chat.models import DanswerAnswerPiece
+from enmedd.chat.models import DanswerQuotes
+from enmedd.chat.models import LlmDoc
+from enmedd.configs.constants import DocumentSource
+from enmedd.llm.answering.stream_processing.quotes_processing import (
     process_model_tokens,
 )
 
@@ -29,7 +29,7 @@ tokens_with_quotes = [
     "{",
     "\n  ",
     '"answer": "Yes',
-    ", Danswer allows",
+    ", enMedD AI allows",
     " customized prompts. This",
     " feature",
     " is currently being",
@@ -61,7 +61,7 @@ tokens_with_quotes = [
     " the LLM.",
     " This enhancement",
     " aims to make",
-    " Danswer more",
+    " enMedD AI more",
     " adaptable to",
     " different",
     " business",
@@ -77,7 +77,7 @@ tokens_with_quotes = [
     " company.",
     " Additionally",
     ",",
-    " Danswer already",
+    " enMedD AI already",
     " supports creating",
     " custom AI",
     " Assistants with",
@@ -118,7 +118,7 @@ tokens_with_quotes = [
     '.",\n    "A',
     " new",
     " feature that",
-    " allows users to add personalize",
+    " allows users to add assistantlize",
     "d prompts.",
     " This would involve",
     " creating",

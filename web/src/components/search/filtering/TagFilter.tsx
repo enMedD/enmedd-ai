@@ -1,7 +1,9 @@
+import { Input } from "@/components/ui/input";
 import { containsObject, objectsAreEquivalent } from "@/lib/contains";
 import { Tag } from "@/lib/types";
+import { Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { FiTag, FiX } from "react-icons/fi";
+import { FiTag } from "react-icons/fi";
 import debounce from "lodash/debounce";
 import { getValidTags } from "@/lib/tags/tagUtils";
 
@@ -73,14 +75,20 @@ export function TagFilter({
 
   return (
     <div className="relative">
-      <input
-        ref={inputRef}
-        className="w-full border border-border py-0.5 px-2 rounded text-sm h-8"
-        placeholder="Find a tag"
-        value={filterValue}
-        onChange={handleFilterChange}
-        onFocus={() => setTagOptionsAreVisible(true)}
-      />
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          placeholder="Search tags"
+          value={filterValue}
+          onChange={(event) => setFilterValue(event.target.value)}
+          onFocus={() => setTagOptionsAreVisible(true)}
+          className="pl-8"
+        />
+        <Search
+          size={16}
+          className="absolute left-2.5 top-1/2 -translate-y-1/2"
+        />
+      </div>
       {selectedTags.length > 0 && (
         <div className="mt-2">
           <div className="mt-1 flex flex-wrap gap-x-1 gap-y-1">
@@ -93,7 +101,7 @@ export function TagFilter({
                 {tag.tag_key}
                 <b>=</b>
                 {tag.tag_value}
-                <FiX className="my-auto ml-1" />
+                <X className="my-auto ml-1" />
               </div>
             ))}
           </div>

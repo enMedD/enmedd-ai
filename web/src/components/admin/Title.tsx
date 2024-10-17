@@ -1,30 +1,24 @@
 "use client";
-import { HealthCheckBanner } from "../health/healthcheck";
-import { Divider } from "@tremor/react";
+import { Separator } from "../ui/separator";
 
 export function AdminPageTitle({
   icon,
   title,
   farRightElement,
-  includeDivider = true,
 }: {
   icon: JSX.Element;
   title: string | JSX.Element;
   farRightElement?: JSX.Element;
-  includeDivider?: boolean;
 }) {
   return (
-    <div className="w-full">
-      <div className="mb-4">
-        <HealthCheckBanner />
-      </div>
-      <div className="w-full flex">
-        <h1 className="text-3xl text-text-800 font-bold flex gap-x-2">
+    <div className="pb-10">
+      <div className="flex flex-col gap-4 md:flex-row md:gap-0 pb-10">
+        <h1 className="flex items-center font-bold text-xl md:text-[28px] text-strong gap-x-2">
           {icon} {title}
         </h1>
-        {farRightElement && <div className="ml-auto">{farRightElement}</div>}
+        {farRightElement && <div className="md:ml-auto">{farRightElement}</div>}
       </div>
-      {includeDivider ? <Divider /> : <div className="mb-6" />}
+      <Separator />
     </div>
   );
 }

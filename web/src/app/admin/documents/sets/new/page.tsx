@@ -5,18 +5,17 @@ import { BookmarkIcon } from "@/components/icons/icons";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import {
   useConnectorCredentialIndexingStatus,
-  useUserGroups,
+  useTeamspaces,
 } from "@/lib/hooks";
 import { ThreeDotsLoader } from "@/components/Loading";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { Card } from "@tremor/react";
 import { BackButton } from "@/components/BackButton";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { useRouter } from "next/navigation";
 import { refreshDocumentSets } from "../hooks";
+import { Bookmark } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Main() {
-  const { popup, setPopup } = usePopup();
   const router = useRouter();
 
   const {
@@ -26,9 +25,9 @@ function Main() {
   } = useConnectorCredentialIndexingStatus();
 
   // EE only
-  const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
+  const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
-  if (isCCPairsLoading || userGroupsIsLoading) {
+  if (isCCPairsLoading || teamspacesIsLoading) {
     return <ThreeDotsLoader />;
   }
 
@@ -43,18 +42,17 @@ function Main() {
 
   return (
     <>
-      {popup}
-
       <Card>
-        <DocumentSetCreationForm
-          ccPairs={ccPairs}
-          userGroups={userGroups}
-          onClose={() => {
-            refreshDocumentSets();
-            router.push("/admin/documents/sets");
-          }}
-          setPopup={setPopup}
-        />
+        <CardContent>
+          <DocumentSetCreationForm
+            ccPairs={ccPairs}
+            teamspaces={teamspaces}
+            onClose={() => {
+              refreshDocumentSets();
+              router.push("/admin/documents/sets");
+            }}
+          />
+        </CardContent>
       </Card>
     </>
   );
@@ -62,15 +60,17 @@ function Main() {
 
 const Page = () => {
   return (
-    <div className="container mx-auto">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        icon={<BookmarkIcon size={32} />}
-        title="New Document Set"
-      />
+        <AdminPageTitle
+          icon={<Bookmark size={32} />}
+          title="New Document Set"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 };

@@ -1,10 +1,3 @@
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-} from "@tremor/react";
 import React, { useMemo, useState } from "react";
 import {
   closestCenter,
@@ -28,17 +21,22 @@ import {
 import { DraggableRow } from "./DraggableRow";
 import { Row } from "./interfaces";
 import { StaticRow } from "./StaticRow";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 export function DraggableTable({
   headers,
   rows,
   setRows,
-  isAdmin,
 }: {
   headers: (string | JSX.Element | null)[];
   rows: Row[];
   setRows: (newRows: UniqueIdentifier[]) => void | Promise<void>;
-  isAdmin: boolean;
 }) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>();
   const items = useMemo(() => rows?.map(({ id }) => id), [rows]);
@@ -49,20 +47,17 @@ export function DraggableTable({
   );
 
   function handleDragStart(event: DragStartEvent) {
-    if (isAdmin) {
-      setActiveId(event.active.id);
-    }
+    setActiveId(event.active.id);
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    if (isAdmin) {
-      const { active, over } = event;
-      if (over !== null && active.id !== over.id) {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-        setRows(arrayMove(rows, oldIndex, newIndex).map((row) => row.id));
-      }
+    const { active, over } = event;
+    if (over !== null && active.id !== over.id) {
+      const oldIndex = items.indexOf(active.id);
+      const newIndex = items.indexOf(over.id);
+      setRows(arrayMove(rows, oldIndex, newIndex).map((row) => row.id));
     }
+
     setActiveId(null);
   }
 
@@ -87,34 +82,32 @@ export function DraggableTable({
       collisionDetection={closestCenter}
       modifiers={[restrictToVerticalAxis]}
     >
-      <Table className="overflow-y-visible">
-        <TableHead>
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableHeaderCell></TableHeaderCell>
+            <TableHead></TableHead>
             {headers.map((header, ind) => (
-              <TableHeaderCell key={ind}>{header}</TableHeaderCell>
+              <TableHead key={ind}>{header}</TableHead>
             ))}
           </TableRow>
-        </TableHead>
+        </TableHeader>
 
         <TableBody>
           <SortableContext items={items} strategy={verticalListSortingStrategy}>
             {rows.map((row) => {
-              return <DraggableRow key={row.id} row={row} isAdmin={isAdmin} />;
+              return <DraggableRow key={row.id} row={row} />;
             })}
           </SortableContext>
 
-          {isAdmin && (
-            <DragOverlay>
-              {selectedRow && (
-                <Table className="overflow-y-visible">
-                  <TableBody>
-                    <StaticRow key={selectedRow.id} row={selectedRow} />
-                  </TableBody>
-                </Table>
-              )}
-            </DragOverlay>
-          )}
+          <DragOverlay>
+            {selectedRow && (
+              <Table>
+                <TableBody>
+                  <StaticRow key={selectedRow.id} row={selectedRow} />
+                </TableBody>
+              </Table>
+            )}
+          </DragOverlay>
         </TableBody>
       </Table>
     </DndContext>

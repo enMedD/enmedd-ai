@@ -1,6 +1,6 @@
-import { FiFileText } from "react-icons/fi";
 import { useState, useRef, useEffect } from "react";
 import { Tooltip } from "@/components/tooltip/Tooltip";
+import { FileText } from "lucide-react";
 
 export function DocumentPreview({
   fileName,
@@ -32,7 +32,7 @@ export function DocumentPreview({
         bg-hover
         border
         border-border
-        rounded-md
+        rounded-xs
         box-border
         h-16
       `}
@@ -46,10 +46,10 @@ export function DocumentPreview({
             flex
             items-center
             justify-center
-            rounded-md
+            rounded-xs
           "
         >
-          <FiFileText className="w-6 h-6 text-white" />
+          <FileText className="text-inverted" />
         </div>
       </div>
       <div className="ml-4 relative">

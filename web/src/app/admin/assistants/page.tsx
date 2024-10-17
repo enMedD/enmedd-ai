@@ -1,72 +1,64 @@
-import { PersonasTable } from "./PersonaTable";
-import { FiPlusSquare } from "react-icons/fi";
+import { AssistantsTable } from "./AssistantTable";
 import Link from "next/link";
-import { Divider, Text, Title } from "@tremor/react";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Persona } from "./interfaces";
-import { AssistantsIcon } from "@/components/icons/icons";
+import { Assistant } from "./interfaces";
+import { RobotIcon } from "@/components/icons/icons";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { Button } from "@/components/ui/button";
+import { SquarePlus } from "lucide-react";
 
 export default async function Page() {
-  const allPersonaResponse = await fetchSS("/admin/persona");
-  const editablePersonaResponse = await fetchSS(
-    "/admin/persona?get_editable=true"
+  const allAssistantResponse = await fetchSS("/admin/assistant");
+  const editableAssistantResponse = await fetchSS(
+    "/admin/assistant?get_editable=true"
   );
 
-  if (!allPersonaResponse.ok || !editablePersonaResponse.ok) {
+  if (!allAssistantResponse.ok || !editableAssistantResponse.ok) {
     return (
       <ErrorCallout
         errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch personas - ${
-          (await allPersonaResponse.text()) ||
-          (await editablePersonaResponse.text())
+        errorMsg={`Failed to fetch assistants - ${
+          (await allAssistantResponse.text()) ||
+          (await editableAssistantResponse.text())
         }`}
       />
     );
   }
 
-  const allPersonas = (await allPersonaResponse.json()) as Persona[];
-  const editablePersonas = (await editablePersonaResponse.json()) as Persona[];
+  const allAssistants = (await allAssistantResponse.json()) as Assistant[];
+  const editableAssistants =
+    (await editableAssistantResponse.json()) as Assistant[];
 
   return (
-    <div className="mx-auto container">
-      <AdminPageTitle icon={<AssistantsIcon size={32} />} title="Assistants" />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle icon={<RobotIcon size={32} />} title="Assistants" />
 
-      <Text className="mb-2">
-        Assistants are a way to build custom search/question-answering
-        experiences for different use cases.
-      </Text>
-      <Text className="mt-2">They allow you to customize:</Text>
-      <div className="text-sm">
-        <ul className="list-disc mt-2 ml-4">
+        <p className="mb-2">
+          Assistants are a way to build custom search/question-answering
+          experiences for different use cases.
+        </p>
+        <p className="mt-2">They allow you to customize:</p>
+        <ul className="list-disc mt-2 ml-4 text-sm">
           <li>
             The prompt used by your LLM of choice to respond to the user query
           </li>
           <li>The documents that are used as context</li>
         </ul>
-      </div>
 
-      <div>
-        <Divider />
-
-        <Title>Create an Assistant</Title>
-        <Link
-          href="/admin/assistants/new"
-          className="flex py-2 px-4 mt-2 border border-border h-fit cursor-pointer hover:bg-hover text-sm w-40"
-        >
-          <div className="mx-auto flex">
-            <FiPlusSquare className="my-auto mr-2" />
+        <h3 className="pt-4">Create an Assistant</h3>
+        <Link href="/admin/assistants/new" className="flex items-center">
+          <Button className="mt-2">
+            <SquarePlus size={16} />
             New Assistant
-          </div>
+          </Button>
         </Link>
 
-        <Divider />
-
-        <Title>Existing Assistants</Title>
-        <PersonasTable
-          allPersonas={allPersonas}
-          editablePersonas={editablePersonas}
+        <h3 className="pt-6">Existing Assistants</h3>
+        <AssistantsTable
+          allAssistants={allAssistants}
+          editableAssistants={editableAssistants}
         />
       </div>
     </div>

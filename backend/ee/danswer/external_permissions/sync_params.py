@@ -2,13 +2,13 @@ from collections.abc import Callable
 
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import DocumentSource
-from danswer.db.models import ConnectorCredentialPair
-from ee.danswer.external_permissions.confluence.doc_sync import confluence_doc_sync
-from ee.danswer.external_permissions.confluence.group_sync import confluence_group_sync
-from ee.danswer.external_permissions.google_drive.doc_sync import gdrive_doc_sync
-from ee.danswer.external_permissions.google_drive.group_sync import gdrive_group_sync
-from ee.danswer.external_permissions.slack.doc_sync import slack_doc_sync
+from enmedd.configs.constants import DocumentSource
+from enmedd.db.models import ConnectorCredentialPair
+from ee.enmedd.external_permissions.confluence.doc_sync import confluence_doc_sync
+from ee.enmedd.external_permissions.confluence.group_sync import confluence_group_sync
+from ee.enmedd.external_permissions.google_drive.doc_sync import gdrive_doc_sync
+from ee.enmedd.external_permissions.google_drive.group_sync import gdrive_group_sync
+from ee.enmedd.external_permissions.slack.doc_sync import slack_doc_sync
 
 # Defining the input/output types for the sync functions
 SyncFuncType = Callable[
@@ -21,7 +21,7 @@ SyncFuncType = Callable[
 
 # These functions update:
 # - the user_email <-> document mapping
-# - the external_user_group_id <-> document mapping
+# - the external_teamspace_id <-> document mapping
 # in postgres without committing
 # THIS ONE IS NECESSARY FOR AUTO SYNC TO WORK
 DOC_PERMISSIONS_FUNC_MAP: dict[DocumentSource, SyncFuncType] = {
@@ -31,7 +31,7 @@ DOC_PERMISSIONS_FUNC_MAP: dict[DocumentSource, SyncFuncType] = {
 }
 
 # These functions update:
-# - the user_email <-> external_user_group_id mapping
+# - the user_email <-> external_teamspace_id mapping
 # in postgres without committing
 # THIS ONE IS OPTIONAL ON AN APP BY APP BASIS
 GROUP_PERMISSIONS_FUNC_MAP: dict[DocumentSource, SyncFuncType] = {

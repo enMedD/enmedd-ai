@@ -1,39 +1,37 @@
 import React, { useState } from "react";
 import { DocumentSet, Tag, ValidSources } from "@/lib/types";
 import { SourceMetadata } from "@/lib/search/interfaces";
-import {
-  GearIcon,
-  InfoIcon,
-  MinusIcon,
-  PlusCircleIcon,
-  PlusIcon,
-  defaultTailwindCSS,
-} from "../../icons/icons";
-import { HoverPopup } from "../../HoverPopup";
-import {
-  FiBook,
-  FiBookmark,
-  FiFilter,
-  FiMap,
-  FiTag,
-  FiX,
-} from "react-icons/fi";
-import { DateRangeSelector } from "../DateRangeSelector";
-import { DateRangePickerValue } from "@tremor/react";
-import { FilterDropdown } from "./FilterDropdown";
 import { listSourceMetadata } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
 import { TagFilter } from "./TagFilter";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Book, Bookmark, Brain, Map, X } from "lucide-react";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { DateRangeSearchSelector } from "../DateRangeSearchSelector";
+import { Button } from "@/components/ui/button";
 
 const SectionTitle = ({ children }: { children: string }) => (
-  <div className="font-bold text-xs mt-2 flex">{children}</div>
+  <div className="flex px-2 py-3 text-sm font-bold">{children}</div>
 );
 
+import { DateRange as BaseDateRange } from "react-day-picker";
+import { FiBook, FiFilter, FiMap, FiTag } from "react-icons/fi";
+import { FilterDropdown } from "./FilterDropdown";
+
+interface CustomDateRange extends BaseDateRange {
+  selectValue?: string;
+}
+
 export interface SourceSelectorProps {
-  timeRange: DateRangePickerValue | null;
-  setTimeRange: React.Dispatch<
-    React.SetStateAction<DateRangePickerValue | null>
-  >;
+  timeRange: CustomDateRange | null;
+  setTimeRange: React.Dispatch<React.SetStateAction<CustomDateRange | null>>;
   showDocSidebar?: boolean;
   selectedSources: SourceMetadata[];
   setSelectedSources: React.Dispatch<React.SetStateAction<SourceMetadata[]>>;
@@ -108,7 +106,10 @@ export function SourceSelector({
 
       <SectionTitle>Time Range</SectionTitle>
       <div className="mt-2">
-        <DateRangeSelector value={timeRange} onValueChange={setTimeRange} />
+        <DateRangeSearchSelector
+          value={timeRange}
+          onValueChange={setTimeRange}
+        />
       </div>
 
       {availableTags.length > 0 && (
@@ -140,24 +141,25 @@ export function SourceSelector({
           <div className="px-1">
             {listSourceMetadata()
               .filter((source) => existingSources.includes(source.internalName))
-              .map((source) => (
+              .map((source, index, array) => (
                 <div
                   key={source.internalName}
-                  className={
-                    "flex cursor-pointer w-full items-center " +
-                    "py-1.5 my-1.5 rounded-lg px-2 select-none " +
-                    (selectedSources
-                      .map((source) => source.internalName)
-                      .includes(source.internalName)
-                      ? "bg-hover"
-                      : "hover:bg-hover-light")
-                  }
+                  className={`w-full flex items-center justify-between cursor-pointer gap-2 ${
+                    index === 0 ? "lg:border-t" : ""
+                  } ${index !== array.length - 1 ? "lg:border-b" : ""}`}
                   onClick={() => handleSelect(source)}
                 >
-                  <SourceIcon sourceType={source.internalName} iconSize={16} />
-                  <span className="ml-2 text-sm text-default">
-                    {source.displayName}
-                  </span>
+                  <label
+                    htmlFor={source.internalName}
+                    className="flex items-center w-full px-2 py-3"
+                  >
+                    <SourceIcon
+                      sourceType={source.internalName}
+                      iconSize={18}
+                    />
+                    <span className="ml-3 text-sm">{source.displayName}</span>
+                  </label>
+                  <Checkbox id={source.internalName} />
                 </div>
               ))}
           </div>
@@ -165,44 +167,40 @@ export function SourceSelector({
       )}
 
       {availableDocumentSets.length > 0 && (
-        <>
-          <div className="mt-4">
-            <SectionTitle>Knowledge Sets</SectionTitle>
-          </div>
-          <div className="px-1">
-            {availableDocumentSets.map((documentSet) => (
-              <div key={documentSet.name} className="my-1.5 flex">
+        <div className="lg:border rounded-[8px] w-full px-2.5">
+          <SectionTitle>Knowledge Sets</SectionTitle>
+          <div>
+            {availableDocumentSets
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((documentSet) => (
                 <div
                   key={documentSet.name}
-                  className={
-                    "flex cursor-pointer w-full items-center " +
-                    "py-1.5 rounded-lg px-2 " +
-                    (selectedDocumentSets.includes(documentSet.name)
-                      ? "bg-hover"
-                      : "hover:bg-hover-light")
-                  }
-                  onClick={() => handleDocumentSetSelect(documentSet.name)}
+                  className="w-full flex items-center justify-between cursor-pointer gap-2 border-t"
                 >
-                  <HoverPopup
-                    mainContent={
-                      <div className="flex my-auto mr-2">
-                        <InfoIcon className={defaultTailwindCSS} />
-                      </div>
-                    }
-                    popupContent={
-                      <div className="text-sm w-64">
+                  <label
+                    htmlFor={documentSet.name}
+                    className="flex items-center w-full px-2 py-3"
+                    onClick={() => handleDocumentSetSelect(documentSet.name)}
+                  >
+                    <CustomTooltip
+                      trigger={
+                        <div className="flex my-auto mr-3">
+                          <Brain size={18} />
+                        </div>
+                      }
+                    >
+                      <div className="text-sm">
                         <div className="flex font-medium">Description</div>
                         <div className="mt-1">{documentSet.description}</div>
                       </div>
-                    }
-                    classNameModifications="-ml-2"
-                  />
-                  <span className="text-sm">{documentSet.name}</span>
+                    </CustomTooltip>
+                    <span className="text-sm">{documentSet.name}</span>
+                  </label>
+                  <Checkbox id={documentSet.name} />
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -219,12 +217,12 @@ export function SelectedBubble({
     <div
       className={
         "flex cursor-pointer items-center border border-border " +
-        "py-1 my-1.5 rounded-lg px-2 w-fit hover:bg-hover"
+        "py-1 my-1.5 rounded-regular px-2 w-fit hover:bg-hover"
       }
       onClick={onClick}
     >
       {children}
-      <FiX className="ml-2" size={14} />
+      <X className="ml-2" size={14} />
     </div>
   );
 }
@@ -267,67 +265,66 @@ export function HorizontalFilters({
 
   return (
     <div>
-      <div className="flex gap-x-3">
-        <div className="w-64">
-          <DateRangeSelector value={timeRange} onValueChange={setTimeRange} />
-        </div>
+      <div className="flex flex-col gap-3 md:flex-row">
+        <DateRangeSearchSelector
+          value={timeRange}
+          onValueChange={setTimeRange}
+          fullWidth
+        />
 
-        <FilterDropdown
-          options={availableSources.map((source) => {
-            return {
-              key: source.displayName,
-              display: (
-                <>
+        <Select
+          onValueChange={(value) => {
+            const selectedSource = allSources.find(
+              (source) => source.displayName === value
+            );
+            if (selectedSource) handleSourceSelect(selectedSource);
+          }}
+        >
+          <SelectTrigger className="w-full lg:w-64">
+            <div className="flex items-center gap-3">
+              <Map size={16} />
+              <SelectValue placeholder="All Sources" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            {availableSources.map((source) => (
+              <SelectItem key={source.displayName} value={source.displayName}>
+                <div className="flex items-center">
                   <SourceIcon sourceType={source.internalName} iconSize={16} />
                   <span className="ml-2 text-sm">{source.displayName}</span>
-                </>
-              ),
-            };
-          })}
-          selected={selectedSources.map((source) => source.displayName)}
-          handleSelect={(option) =>
-            handleSourceSelect(
-              allSources.find((source) => source.displayName === option.key)!
-            )
-          }
-          icon={
-            <div className="my-auto mr-2 w-[16px] h-[16px]">
-              <FiMap size={16} />
-            </div>
-          }
-          defaultDisplay="All Sources"
-        />
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <FilterDropdown
-          options={availableDocumentSets.map((documentSet) => {
-            return {
-              key: documentSet.name,
-              display: (
-                <>
-                  <div className="my-auto">
-                    <FiBookmark />
-                  </div>
-                  <span className="ml-2 text-sm">{documentSet.name}</span>
-                </>
-              ),
-            };
-          })}
-          selected={selectedDocumentSets}
-          handleSelect={(option) => handleDocumentSetSelect(option.key)}
-          icon={
-            <div className="my-auto mr-2 w-[16px] h-[16px]">
-              <FiBook size={16} />
+        <Select
+          onValueChange={(value) => handleDocumentSetSelect(value)}
+          defaultValue=""
+        >
+          <SelectTrigger className="w-full lg:w-64">
+            <div className="flex items-center gap-3">
+              <Book size={16} />
+              <SelectValue placeholder="All Document Sets" />
             </div>
-          }
-          defaultDisplay="All Document Sets"
-        />
+          </SelectTrigger>
+          <SelectContent>
+            {availableDocumentSets.map((documentSet) => (
+              <SelectItem key={documentSet.name} value={documentSet.name}>
+                <div className="flex items-center gap-2">
+                  <Bookmark /> {documentSet.name}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="flex pb-4 mt-2 h-12">
+      <div className="flex h-12 pb-4 mt-2">
         <div className="flex flex-wrap gap-x-2">
           {timeRange && timeRange.selectValue && (
             <SelectedBubble onClick={() => setTimeRange(null)}>
-              <div className="text-sm flex">{timeRange.selectValue}</div>
+              <div className="flex text-sm">{timeRange.selectValue}</div>
             </SelectedBubble>
           )}
           {existingSources.length > 0 &&
@@ -350,7 +347,7 @@ export function HorizontalFilters({
               >
                 <>
                   <div>
-                    <FiBookmark />
+                    <Bookmark />
                   </div>
                   <span className="ml-2 text-sm">{documentSetName}</span>
                 </>
@@ -425,8 +422,7 @@ export function HorizontalSourceSelector({
   return (
     <div className="flex flex-nowrap  space-x-2">
       <div className="max-w-24">
-        <DateRangeSelector
-          isHorizontal
+        <DateRangeSearchSelector
           value={timeRange}
           onValueChange={setTimeRange}
         />

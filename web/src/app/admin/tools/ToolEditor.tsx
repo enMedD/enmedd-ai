@@ -5,24 +5,33 @@ import { useRouter } from "next/navigation";
 import {
   Formik,
   Form,
-  Field,
   ErrorMessage,
   FieldArray,
   ArrayHelpers,
+  Field,
 } from "formik";
 import * as Yup from "yup";
 import { MethodSpec, ToolSnapshot } from "@/lib/tools/interfaces";
 import { TextFormField } from "@/components/admin/connectors/Field";
-import { Button, Divider } from "@tremor/react";
+import { Divider } from "@tremor/react";
 import {
   createCustomTool,
   updateCustomTool,
   validateToolDefinition,
 } from "@/lib/tools/edit";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import debounce from "lodash/debounce";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
-import Link from "next/link";
 
 function parseJsonWithTrailingCommas(jsonString: string) {
   // Regular expression to remove trailing commas before } or ]
@@ -111,21 +120,9 @@ function ToolForm({
           isCode
           hideError
         />
-        <button
+        <Button
           type="button"
-          className="
-            absolute 
-            bottom-4 
-            right-4
-            border-border
-            border
-            bg-background
-            rounded
-            py-1 
-            px-3 
-            text-sm
-            hover:bg-hover-light
-          "
+          className="absolute bottom-8 right-4"
           onClick={() => {
             const definition = values.definition;
             if (definition) {
@@ -139,17 +136,18 @@ function ToolForm({
               }
             }
           }}
+          variant="outline"
         >
           Format
-        </button>
+        </Button>
       </div>
       {definitionError && (
-        <div className="text-error text-sm">{definitionError}</div>
+        <div className="text-sm text-error">{definitionError}</div>
       )}
       <ErrorMessage
         name="definition"
         component="div"
-        className="mb-4 text-error text-sm"
+        className="text-sm text-error"
       />
       <div className="mt-4 text-sm bg-blue-50 p-4 rounded-md border border-blue-200">
         <Link
@@ -175,32 +173,32 @@ function ToolForm({
       </div>
 
       {methodSpecs && methodSpecs.length > 0 && (
-        <div className="my-4">
-          <h3 className="text-base font-semibold mb-2">Available methods</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 border-b">Name</th>
-                  <th className="px-4 py-2 border-b">Summary</th>
-                  <th className="px-4 py-2 border-b">Method</th>
-                  <th className="px-4 py-2 border-b">Path</th>
-                </tr>
-              </thead>
-              <tbody>
-                {methodSpecs?.map((method: MethodSpec, index: number) => (
-                  <tr key={index} className="text-sm">
-                    <td className="px-4 py-2 border-b">{method.name}</td>
-                    <td className="px-4 py-2 border-b">{method.summary}</td>
-                    <td className="px-4 py-2 border-b">
-                      {method.method.toUpperCase()}
-                    </td>
-                    <td className="px-4 py-2 border-b">{method.path}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="pt-4">
+          <h3 className="pb-2">Available methods</h3>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Summary</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Path</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {methodSpecs?.map((method: MethodSpec, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{method.name}</TableCell>
+                      <TableCell>{method.summary}</TableCell>
+                      <TableCell>{method.method.toUpperCase()}</TableCell>
+                      <TableCell>{method.path}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -260,7 +258,6 @@ function ToolForm({
                   type="button"
                   onClick={() => arrayHelpers.push({ key: "", value: "" })}
                   color="blue"
-                  size="md"
                   className="transition-colors duration-200"
                 >
                   Add New Header
@@ -271,13 +268,9 @@ function ToolForm({
         </div>
       )}
 
-      <Divider />
-
-      <div className="flex">
+      <div className="flex pt-4">
         <Button
           className="mx-auto"
-          color="green"
-          size="md"
           type="submit"
           disabled={isSubmitting || !!definitionError}
         >
@@ -307,7 +300,7 @@ const ToolSchema = Yup.object().shape({
 
 export function ToolEditor({ tool }: { tool?: ToolSnapshot }) {
   const router = useRouter();
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
   const [definitionError, setDefinitionError] = useState<string | null>(null);
   const [methodSpecs, setMethodSpecs] = useState<MethodSpec[] | null>(null);
 
@@ -316,64 +309,62 @@ export function ToolEditor({ tool }: { tool?: ToolSnapshot }) {
     : "";
 
   return (
-    <div>
-      {popup}
-      <Formik
-        initialValues={{
-          definition: prettifiedDefinition,
-          customHeaders:
-            tool?.custom_headers?.map((header) => ({
-              key: header.key,
-              value: header.value,
-            })) ?? [],
-        }}
-        validationSchema={ToolSchema}
-        onSubmit={async (values: ToolFormValues) => {
-          let definition: any;
-          try {
-            definition = parseJsonWithTrailingCommas(values.definition);
-          } catch (error) {
-            setDefinitionError("Invalid JSON in tool definition");
-            return;
-          }
+    <Formik
+      initialValues={{
+        definition: prettifiedDefinition,
+        customHeaders:
+          tool?.custom_headers?.map((header) => ({
+            key: header.key,
+            value: header.value,
+          })) ?? [],
+      }}
+      validationSchema={ToolSchema}
+      onSubmit={async (values: ToolFormValues) => {
+        let definition: any;
+        try {
+          definition = parseJsonWithTrailingCommas(values.definition);
+        } catch (error) {
+          setDefinitionError("Invalid JSON in tool definition");
+          return;
+        }
 
-          const name = definition?.info?.title;
-          const description = definition?.info?.description;
-          const toolData = {
-            name: name,
-            description: description || "",
-            definition: definition,
-            custom_headers: values.customHeaders,
-          };
-          let response;
-          if (tool) {
-            response = await updateCustomTool(tool.id, toolData);
-          } else {
-            response = await createCustomTool(toolData);
-          }
-          if (response.error) {
-            setPopup({
-              message: "Failed to create tool - " + response.error,
-              type: "error",
-            });
-            return;
-          }
-          router.push(`/admin/tools?u=${Date.now()}`);
-        }}
-      >
-        {({ isSubmitting, values, setFieldValue }) => {
-          return (
-            <ToolForm
-              existingTool={tool}
-              values={values}
-              setFieldValue={setFieldValue}
-              isSubmitting={isSubmitting}
-              definitionErrorState={[definitionError, setDefinitionError]}
-              methodSpecsState={[methodSpecs, setMethodSpecs]}
-            />
-          );
-        }}
-      </Formik>
-    </div>
+        const name = definition?.info?.title;
+        const description = definition?.info?.description;
+        const toolData = {
+          name: name,
+          description: description || "",
+          definition: definition,
+          custom_headers: values.customHeaders,
+        };
+        let response;
+        if (tool) {
+          response = await updateCustomTool(tool.id, toolData);
+        } else {
+          response = await createCustomTool(toolData);
+        }
+        if (response.error) {
+          toast({
+            title: "Tool Creation Failed",
+            description: `Unable to create the tool: ${response.error}`,
+            variant: "destructive",
+          });
+          return;
+        }
+        router.push(`/admin/tools?u=${Date.now()}`);
+      }}
+    >
+      {({ isSubmitting, values, setFieldValue }) => {
+        return (
+          <ToolForm
+            existingTool={tool}
+            values={values}
+            setFieldValue={setFieldValue}
+            isSubmitting={isSubmitting}
+            definitionErrorState={[definitionError, setDefinitionError]}
+            methodSpecsState={[methodSpecs, setMethodSpecs]}
+          />
+        );
+      }}
+    </Formik>
   );
 }

@@ -1,7 +1,7 @@
 import { FullLLMProvider } from "../configuration/llm/interfaces";
-import { Persona, Prompt, StarterMessage } from "./interfaces";
+import { Assistant, Prompt, StarterMessage } from "./interfaces";
 
-interface PersonaCreationRequest {
+interface AssistantCreationRequest {
   name: string;
   description: string;
   system_prompt: string;
@@ -15,17 +15,17 @@ interface PersonaCreationRequest {
   llm_model_version_override: string | null;
   starter_messages: StarterMessage[] | null;
   users?: string[];
-  groups: number[];
+  teamspace: number[];
   tool_ids: number[];
   icon_color: string | null;
   icon_shape: number | null;
   remove_image?: boolean;
   uploaded_image: File | null;
   search_start_date: Date | null;
-  is_default_persona: boolean;
+  is_default_assistant: boolean;
 }
 
-interface PersonaUpdateRequest {
+interface AssistantUpdateRequest {
   id: number;
   existingPromptId: number | undefined;
   name: string;
@@ -41,7 +41,7 @@ interface PersonaUpdateRequest {
   llm_model_version_override: string | null;
   starter_messages: StarterMessage[] | null;
   users?: string[];
-  groups: number[];
+  teamspace: number[];
   tool_ids: number[];
   icon_color: string | null;
   icon_shape: number | null;
@@ -50,17 +50,17 @@ interface PersonaUpdateRequest {
   search_start_date: Date | null;
 }
 
-function promptNameFromPersonaName(personaName: string) {
-  return `default-prompt__${personaName}`;
+function promptNameFromAssistantName(assistantName: string) {
+  return `default-prompt__${assistantName}`;
 }
 
 function createPrompt({
-  personaName,
+  assistantName,
   systemPrompt,
   taskPrompt,
   includeCitations,
 }: {
-  personaName: string;
+  assistantName: string;
   systemPrompt: string;
   taskPrompt: string;
   includeCitations: boolean;
@@ -71,8 +71,8 @@ function createPrompt({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: promptNameFromPersonaName(personaName),
-      description: `Default prompt for persona ${personaName}`,
+      name: promptNameFromAssistantName(assistantName),
+      description: `Default prompt for assistant ${assistantName}`,
       system_prompt: systemPrompt,
       task_prompt: taskPrompt,
       include_citations: includeCitations,
@@ -82,13 +82,13 @@ function createPrompt({
 
 function updatePrompt({
   promptId,
-  personaName,
+  assistantName,
   systemPrompt,
   taskPrompt,
   includeCitations,
 }: {
   promptId: number;
-  personaName: string;
+  assistantName: string;
   systemPrompt: string;
   taskPrompt: string;
   includeCitations: boolean;
@@ -99,8 +99,8 @@ function updatePrompt({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: promptNameFromPersonaName(personaName),
-      description: `Default prompt for persona ${personaName}`,
+      name: promptNameFromAssistantName(assistantName),
+      description: `Default prompt for assistant ${assistantName}`,
       system_prompt: systemPrompt,
       task_prompt: taskPrompt,
       include_citations: includeCitations,
@@ -108,8 +108,8 @@ function updatePrompt({
   });
 }
 
-function buildPersonaAPIBody(
-  creationRequest: PersonaCreationRequest | PersonaUpdateRequest,
+function buildAssistantAPIBody(
+  creationRequest: AssistantCreationRequest | AssistantUpdateRequest,
   promptId: number,
   uploaded_image_id: string | null
 ) {
@@ -120,7 +120,7 @@ function buildPersonaAPIBody(
     num_chunks,
     llm_relevance_filter,
     is_public,
-    groups,
+    teamspace,
     users,
     tool_ids,
     icon_color,
@@ -129,9 +129,9 @@ function buildPersonaAPIBody(
     search_start_date,
   } = creationRequest;
 
-  const is_default_persona =
-    "is_default_persona" in creationRequest
-      ? creationRequest.is_default_persona
+  const is_default_assistant =
+    "is_default_assistant" in creationRequest
+      ? creationRequest.is_default_assistant
       : false;
 
   return {
@@ -148,21 +148,21 @@ function buildPersonaAPIBody(
     llm_model_version_override: creationRequest.llm_model_version_override,
     starter_messages: creationRequest.starter_messages,
     users,
-    groups,
+    teamspace,
     tool_ids,
     icon_color,
     icon_shape,
     uploaded_image_id,
     remove_image,
     search_start_date,
-    is_default_persona,
+    is_default_assistant,
   };
 }
 
 export async function uploadFile(file: File): Promise<string | null> {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await fetch("/api/admin/persona/upload-image", {
+  const response = await fetch("/api/admin/assistant/upload-image", {
     method: "POST",
     body: formData,
   });
@@ -176,48 +176,48 @@ export async function uploadFile(file: File): Promise<string | null> {
   return responseJson.file_id;
 }
 
-export async function createPersona(
-  personaCreationRequest: PersonaCreationRequest
+export async function createAssistant(
+  assistantCreationRequest: AssistantCreationRequest
 ): Promise<[Response, Response | null]> {
   // first create prompt
   const createPromptResponse = await createPrompt({
-    personaName: personaCreationRequest.name,
-    systemPrompt: personaCreationRequest.system_prompt,
-    taskPrompt: personaCreationRequest.task_prompt,
-    includeCitations: personaCreationRequest.include_citations,
+    assistantName: assistantCreationRequest.name,
+    systemPrompt: assistantCreationRequest.system_prompt,
+    taskPrompt: assistantCreationRequest.task_prompt,
+    includeCitations: assistantCreationRequest.include_citations,
   });
   const promptId = createPromptResponse.ok
     ? (await createPromptResponse.json()).id
     : null;
 
   let fileId = null;
-  if (personaCreationRequest.uploaded_image) {
-    fileId = await uploadFile(personaCreationRequest.uploaded_image);
+  if (assistantCreationRequest.uploaded_image) {
+    fileId = await uploadFile(assistantCreationRequest.uploaded_image);
     if (!fileId) {
       return [createPromptResponse, null];
     }
   }
 
-  const createPersonaResponse =
+  const createAssistantResponse =
     promptId !== null
-      ? await fetch("/api/persona", {
+      ? await fetch("/api/assistant", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(
-            buildPersonaAPIBody(personaCreationRequest, promptId, fileId)
+            buildAssistantAPIBody(assistantCreationRequest, promptId, fileId)
           ),
         })
       : null;
 
-  return [createPromptResponse, createPersonaResponse];
+  return [createPromptResponse, createAssistantResponse];
 }
 
-export async function updatePersona(
-  personaUpdateRequest: PersonaUpdateRequest
+export async function updateAssistant(
+  assistantUpdateRequest: AssistantUpdateRequest
 ): Promise<[Response, Response | null]> {
-  const { id, existingPromptId } = personaUpdateRequest;
+  const { id, existingPromptId } = assistantUpdateRequest;
 
   // first update prompt
   let promptResponse;
@@ -225,48 +225,48 @@ export async function updatePersona(
   if (existingPromptId !== undefined) {
     promptResponse = await updatePrompt({
       promptId: existingPromptId,
-      personaName: personaUpdateRequest.name,
-      systemPrompt: personaUpdateRequest.system_prompt,
-      taskPrompt: personaUpdateRequest.task_prompt,
-      includeCitations: personaUpdateRequest.include_citations,
+      assistantName: assistantUpdateRequest.name,
+      systemPrompt: assistantUpdateRequest.system_prompt,
+      taskPrompt: assistantUpdateRequest.task_prompt,
+      includeCitations: assistantUpdateRequest.include_citations,
     });
     promptId = existingPromptId;
   } else {
     promptResponse = await createPrompt({
-      personaName: personaUpdateRequest.name,
-      systemPrompt: personaUpdateRequest.system_prompt,
-      taskPrompt: personaUpdateRequest.task_prompt,
-      includeCitations: personaUpdateRequest.include_citations,
+      assistantName: assistantUpdateRequest.name,
+      systemPrompt: assistantUpdateRequest.system_prompt,
+      taskPrompt: assistantUpdateRequest.task_prompt,
+      includeCitations: assistantUpdateRequest.include_citations,
     });
     promptId = promptResponse.ok ? (await promptResponse.json()).id : null;
   }
 
   let fileId = null;
-  if (personaUpdateRequest.uploaded_image) {
-    fileId = await uploadFile(personaUpdateRequest.uploaded_image);
+  if (assistantUpdateRequest.uploaded_image) {
+    fileId = await uploadFile(assistantUpdateRequest.uploaded_image);
     if (!fileId) {
       return [promptResponse, null];
     }
   }
 
-  const updatePersonaResponse =
+  const updateAssistantResponse =
     promptResponse.ok && promptId
-      ? await fetch(`/api/persona/${id}`, {
+      ? await fetch(`/api/assistant/${id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(
-            buildPersonaAPIBody(personaUpdateRequest, promptId, fileId)
+            buildAssistantAPIBody(assistantUpdateRequest, promptId, fileId)
           ),
         })
       : null;
 
-  return [promptResponse, updatePersonaResponse];
+  return [promptResponse, updateAssistantResponse];
 }
 
-export function deletePersona(personaId: number) {
-  return fetch(`/api/persona/${personaId}`, {
+export function deleteAssistant(assistantId: number) {
+  return fetch(`/api/assistant/${assistantId}`, {
     method: "DELETE",
   });
 }
@@ -287,7 +287,7 @@ export function buildFinalPrompt(
     )
     .join("&");
 
-  return fetch(`/api/persona/utils/prompt-explorer?${queryString}`);
+  return fetch(`/api/assistant/utils/prompt-explorer?${queryString}`);
 }
 
 function smallerNumberFirstComparator(a: number, b: number) {
@@ -312,7 +312,7 @@ function closerToZeroNegativesFirstComparator(a: number, b: number) {
   return absA > absB ? 1 : -1;
 }
 
-export function personaComparator(a: Persona, b: Persona) {
+export function assistantComparator(a: Assistant, b: Assistant) {
   if (a.display_priority === null && b.display_priority === null) {
     return closerToZeroNegativesFirstComparator(a.id, b.id);
   }
@@ -331,11 +331,11 @@ export function personaComparator(a: Persona, b: Persona) {
   return closerToZeroNegativesFirstComparator(a.id, b.id);
 }
 
-export const togglePersonaVisibility = async (
-  personaId: number,
+export const toggleAssistantVisibility = async (
+  assistantId: number,
   isVisible: boolean
 ) => {
-  const response = await fetch(`/api/admin/persona/${personaId}/visible`, {
+  const response = await fetch(`/api/admin/assistant/${assistantId}/visible`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -347,11 +347,11 @@ export const togglePersonaVisibility = async (
   return response;
 };
 
-export const togglePersonaPublicStatus = async (
-  personaId: number,
+export const toggleAssistantPublicStatus = async (
+  assistantId: number,
   isPublic: boolean
 ) => {
-  const response = await fetch(`/api/persona/${personaId}/public`, {
+  const response = await fetch(`/api/assistant/${assistantId}/public`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -363,8 +363,8 @@ export const togglePersonaPublicStatus = async (
   return response;
 };
 
-export function checkPersonaRequiresImageGeneration(persona: Persona) {
-  for (const tool of persona.tools) {
+export function checkAssistantRequiresImageGeneration(assistant: Assistant) {
+  for (const tool of assistant.tools) {
     if (tool.name === "ImageGenerationTool") {
       return true;
     }

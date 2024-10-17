@@ -1,14 +1,14 @@
-import { useChatContext } from "@/components/context/ChatContext";
 import { LlmOverrideManager } from "@/lib/hooks";
 import React, { forwardRef, useCallback, useState } from "react";
 import { debounce } from "lodash";
 import { Text } from "@tremor/react";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { destructureValue } from "@/lib/llm/utils";
 import { updateModelOverrideForChatSession } from "../../lib";
 import { GearIcon } from "@/components/icons/icons";
 import { LlmList } from "@/components/llm/LLMList";
-import { checkPersonaRequiresImageGeneration } from "@/app/admin/assistants/lib";
+import { checkAssistantRequiresImageGeneration } from "@/app/admin/assistants/lib";
+import { useChatContext } from "@/context/ChatContext";
 
 interface LlmTabProps {
   llmOverrideManager: LlmOverrideManager;
@@ -16,7 +16,7 @@ interface LlmTabProps {
   openModelSettings: () => void;
   chatSessionId?: number;
   close: () => void;
-  currentAssistant: Persona;
+  currentAssistant: Assistant;
 }
 
 export const LlmTab = forwardRef<HTMLDivElement, LlmTabProps>(
@@ -32,7 +32,7 @@ export const LlmTab = forwardRef<HTMLDivElement, LlmTabProps>(
     ref
   ) => {
     const requiresImageGeneration =
-      checkPersonaRequiresImageGeneration(currentAssistant);
+      checkAssistantRequiresImageGeneration(currentAssistant);
 
     const { llmProviders } = useChatContext();
     const { setLlmOverride, temperature, setTemperature } = llmOverrideManager;

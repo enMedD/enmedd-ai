@@ -48,11 +48,12 @@ export const ResponseSection = ({
   // `isOpen` state
   const finalIsOpen = isOpen !== null ? isOpen : desiredOpenStatus;
   return (
-    <div>
+    <div className="max-w-full">
       <div
         className={`
         flex 
         my-1 
+        max-w-full
         p-1 
         rounded  
         select-none 

@@ -1,11 +1,12 @@
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Card, Text, Title } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import { ToolEditor } from "@/app/admin/tools/ToolEditor";
 import { fetchToolByIdSS } from "@/lib/tools/fetchTools";
 import { DeleteToolButton } from "./DeleteToolButton";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { BackButton } from "@/components/BackButton";
-import { ToolIcon } from "@/components/icons/icons";
+import { Card, CardContent } from "@/components/ui/card";
+import { Wrench } from "lucide-react";
 
 export default async function Page({ params }: { params: { toolId: string } }) {
   const tool = await fetchToolByIdSS(params.toolId);
@@ -22,15 +23,19 @@ export default async function Page({ params }: { params: { toolId: string } }) {
     );
   } else {
     body = (
-      <div className="w-full my-8">
+      <div className="w-full">
         <div>
           <div>
             <Card>
-              <ToolEditor tool={tool} />
+              <CardContent>
+                <ToolEditor tool={tool} />
+              </CardContent>
             </Card>
 
-            <Title className="mt-12">Delete Tool</Title>
-            <Text>Click the button below to permanently delete this tool.</Text>
+            <h3 className="mt-10">Delete Tool</h3>
+            <p className="text-sm text-subtle">
+              Click the button below to permanently delete this tool.
+            </p>
             <div className="flex mt-6">
               <DeleteToolButton toolId={tool.id} />
             </div>
@@ -41,15 +46,17 @@ export default async function Page({ params }: { params: { toolId: string } }) {
   }
 
   return (
-    <div className="mx-auto container">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        title="Edit Tool"
-        icon={<ToolIcon size={32} className="my-auto" />}
-      />
+        <AdminPageTitle
+          title="Edit Tool"
+          icon={<Wrench size={32} className="my-auto" />}
+        />
 
-      {body}
+        {body}
+      </div>
     </div>
   );
 }

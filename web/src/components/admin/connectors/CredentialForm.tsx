@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { Formik, Form, FormikHelpers } from "formik";
+import React from "react";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Popup } from "./Popup";
 import { ValidSources } from "@/lib/types";
-
 import { createCredential } from "@/lib/credential";
-import { Button } from "@tremor/react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { CredentialBase, Credential } from "@/lib/connectors/credentials";
 
 export async function submitCredential<T>(
@@ -48,56 +47,49 @@ export function CredentialForm<T extends Yup.AnyObject>({
   source,
   onSubmit,
 }: Props<T>): JSX.Element {
-  const [popup, setPopup] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const { toast } = useToast();
 
   return (
-    <>
-      {popup && <Popup message={popup.message} type={popup.type} />}
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={(values, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
-          submitCredential<T>({
-            credential_json: values,
-            admin_public: true,
-            curator_public: false,
-            groups: [],
-            source: source,
-          }).then(({ message, isSuccess }) => {
-            setPopup({ message, type: isSuccess ? "success" : "error" });
-            formikHelpers.setSubmitting(false);
-            setTimeout(() => {
-              setPopup(null);
-            }, 4000);
-            onSubmit(isSuccess);
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={(values, formikHelpers) => {
+        formikHelpers.setSubmitting(true);
+        submitCredential<T>({
+          credential_json: values,
+          admin_public: true,
+          curator_public: false,
+          groups: [],
+          source: source,
+        }).then(({ message, isSuccess }) => {
+          toast({
+            title: isSuccess
+              ? "Credential Updated Successfully!"
+              : "Update Failed",
+            description: isSuccess
+              ? "Your credential has been updated."
+              : `An error occurred: ${message}. Please check your input and try again.`,
+            variant: isSuccess ? "success" : "destructive",
           });
-        }}
-      >
-        {({ isSubmitting }) => (
-          <Form>
-            {formBody}
-            <div className="flex">
-              <button
-                type="submit"
-                color="green"
-                disabled={isSubmitting}
-                className="mx-auto w-64 inline-flex items-center 
-                justify-center whitespace-nowrap rounded-md text-sm 
-                font-medium transition-colors  bg-background-200 text-primary-foreground
-                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring 
-                disabled:pointer-events-none disabled:opacity-50 
-                shadow hover:bg-primary/90 h-9 px-4 py-2"
-              >
-                Update
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
-    </>
+          formikHelpers.setSubmitting(false);
+          onSubmit(isSuccess);
+        });
+      }}
+    >
+      {({ isSubmitting }) => (
+        <Form>
+          {formBody}
+          <div className="flex">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-64 mx-auto"
+            >
+              Update
+            </Button>
+          </div>
+        </Form>
+      )}
+    </Formik>
   );
 }

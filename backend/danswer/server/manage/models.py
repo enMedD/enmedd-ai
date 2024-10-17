@@ -7,20 +7,20 @@ from pydantic import Field
 from pydantic import field_validator
 from pydantic import model_validator
 
-from danswer.auth.schemas import UserRole
-from danswer.configs.app_configs import TRACK_EXTERNAL_IDP_EXPIRY
-from danswer.configs.constants import AuthType
-from danswer.danswerbot.slack.config import VALID_SLACK_FILTERS
-from danswer.db.models import AllowedAnswerFilters
-from danswer.db.models import ChannelConfig
-from danswer.db.models import SlackBotConfig as SlackBotConfigModel
-from danswer.db.models import SlackBotResponseType
-from danswer.db.models import User
-from danswer.search.models import SavedSearchSettings
-from danswer.server.features.persona.models import PersonaSnapshot
-from danswer.server.models import FullUserSnapshot
-from danswer.server.models import InvitedUserSnapshot
-from ee.danswer.server.manage.models import StandardAnswerCategory
+from enmedd.auth.schemas import UserRole
+from enmedd.configs.app_configs import TRACK_EXTERNAL_IDP_EXPIRY
+from enmedd.configs.constants import AuthType
+from enmedd.enmedddbot.slack.config import VALID_SLACK_FILTERS
+from enmedd.db.models import AllowedAnswerFilters
+from enmedd.db.models import ChannelConfig
+from enmedd.db.models import SlackBotConfig as SlackBotConfigModel
+from enmedd.db.models import SlackBotResponseType
+from enmedd.db.models import User
+from enmedd.search.models import SavedSearchSettings
+from enmedd.server.features.assistant.models import AssistantSnapshot
+from enmedd.server.models import FullUserSnapshot
+from enmedd.server.models import InvitedUserSnapshot
+from ee.enmedd.server.manage.models import StandardAnswerCategory
 
 
 if TYPE_CHECKING:
@@ -128,14 +128,14 @@ class SlackBotTokens(BaseModel):
 
 
 class SlackBotConfigCreationRequest(BaseModel):
-    # currently, a persona is created for each slack bot config
+    # currently, a assistant is created for each slack bot config
     # in the future, `document_sets` will probably be replaced
-    # by an optional `PersonaSnapshot` object. Keeping it like this
+    # by an optional `AssistantSnapshot` object. Keeping it like this
     # for now for simplicity / speed of development
     document_sets: list[int] | None = None
-    persona_id: (
+    assistant_id: (
         int | None
-    ) = None  # NOTE: only one of `document_sets` / `persona_id` should be set
+    ) = None  # NOTE: only one of `document_sets` / `assistant_id` should be set
     channel_names: list[str]
     respond_tag_only: bool = False
     respond_to_bots: bool = False
@@ -159,16 +159,16 @@ class SlackBotConfigCreationRequest(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def validate_document_sets_and_persona_id(self) -> "SlackBotConfigCreationRequest":
-        if self.document_sets and self.persona_id:
-            raise ValueError("Only one of `document_sets` / `persona_id` should be set")
+    def validate_document_sets_and_assistant_id(self) -> "SlackBotConfigCreationRequest":
+        if self.document_sets and self.assistant_id:
+            raise ValueError("Only one of `document_sets` / `assistant_id` should be set")
 
         return self
 
 
 class SlackBotConfig(BaseModel):
     id: int
-    persona: PersonaSnapshot | None
+    assistant: AssistantSnapshot | None
     channel_config: ChannelConfig
     response_type: SlackBotResponseType
     # XXX this is going away soon
@@ -181,11 +181,11 @@ class SlackBotConfig(BaseModel):
     ) -> "SlackBotConfig":
         return cls(
             id=slack_bot_config_model.id,
-            persona=(
-                PersonaSnapshot.from_model(
-                    slack_bot_config_model.persona, allow_deleted=True
+            assistant=(
+                AssistantSnapshot.from_model(
+                    slack_bot_config_model.assistant, allow_deleted=True
                 )
-                if slack_bot_config_model.persona
+                if slack_bot_config_model.assistant
                 else None
             ),
             channel_config=slack_bot_config_model.channel_config,

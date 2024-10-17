@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { FieldArray, ArrayHelpers, ErrorMessage, useField } from "formik";
 import { Text, Divider } from "@tremor/react";
 import { FiUsers } from "react-icons/fi";
-import { UserGroup, User, UserRole } from "@/lib/types";
-import { useUserGroups } from "@/lib/hooks";
+import { Teamspace, User, UserRole } from "@/lib/types";
+import { useTeamspaces } from "@/lib/hooks";
 import { AccessType } from "@/lib/types";
 import { useUser } from "@/components/user/UserProvider";
 
@@ -17,7 +17,7 @@ export type AccessTypeGroupSelectorFormType = {
 };
 
 export function AccessTypeGroupSelector({}: {}) {
-  const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
+  const { data: userGroups, isLoading: userGroupsIsLoading } = useTeamspaces();
   const { isAdmin, user, isLoadingUser, isCurator } = useUser();
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
   const [shouldHideContent, setShouldHideContent] = useState(false);
@@ -112,12 +112,12 @@ export function AccessTypeGroupSelector({}: {}) {
                     <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
                   ) : (
                     userGroups &&
-                    userGroups.map((userGroup: UserGroup) => {
-                      const ind = groups.value.indexOf(userGroup.id);
+                    userGroups.map((teamspace: Teamspace) => {
+                      const ind = groups.value.indexOf(teamspace.id);
                       let isSelected = ind !== -1;
                       return (
                         <div
-                          key={userGroup.id}
+                          key={teamspace.id}
                           className={`
                             px-3 
                             py-1
@@ -133,13 +133,13 @@ export function AccessTypeGroupSelector({}: {}) {
                             if (isSelected) {
                               arrayHelpers.remove(ind);
                             } else {
-                              arrayHelpers.push(userGroup.id);
+                              arrayHelpers.push(teamspace.id);
                             }
                           }}
                         >
                           <div className="my-auto flex">
                             <FiUsers className="my-auto mr-2" />{" "}
-                            {userGroup.name}
+                            {teamspace.name}
                           </div>
                         </div>
                       );

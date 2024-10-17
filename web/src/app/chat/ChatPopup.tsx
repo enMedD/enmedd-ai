@@ -2,10 +2,10 @@
 
 import { Modal } from "@/components/Modal";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { Button } from "@tremor/react";
 import { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Button } from "@/components/ui/button";
 
 const ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED =
   "allUsersInitialPopupFlowCompleted";
@@ -20,23 +20,23 @@ export function ChatPopup() {
   }, []);
 
   const settings = useContext(SettingsContext);
-  const enterpriseSettings = settings?.enterpriseSettings;
-  const isConsentScreen = enterpriseSettings?.enable_consent_screen;
+  const workspaceSettings = settings?.workspaces;
+  const isConsentScreen = workspaceSettings?.enable_consent_screen;
   if (
-    (!enterpriseSettings?.custom_popup_content && !isConsentScreen) ||
+    (!workspaceSettings?.custom_popup_content && !isConsentScreen) ||
     completedFlow
   ) {
     return null;
   }
 
-  const popupTitle =
-    enterpriseSettings?.custom_popup_header ||
-    (isConsentScreen
-      ? "Terms of Use"
-      : `Welcome to ${enterpriseSettings?.application_name || "Danswer"}!`);
-
+  let popupTitle = workspaceSettings?.custom_header_logo;
+  if (!popupTitle) {
+    popupTitle = `Welcome to ${
+      workspaceSettings?.workspace_name || "enMedD AI"
+    }!`;
+  }
   const popupContent =
-    enterpriseSettings?.custom_popup_content ||
+    workspaceSettings?.custom_popup_content ||
     (isConsentScreen
       ? "By clicking 'I Agree', you acknowledge that you agree to the terms of use of this application and consent to proceed."
       : "");
@@ -79,7 +79,7 @@ export function ChatPopup() {
             </Button>
           )}
           <Button
-            size="xs"
+            className="mx-auto mt-6"
             onClick={() => {
               localStorage.setItem(
                 ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED,

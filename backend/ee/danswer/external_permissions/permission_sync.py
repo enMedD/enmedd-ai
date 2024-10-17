@@ -3,14 +3,14 @@ from datetime import timezone
 
 from sqlalchemy.orm import Session
 
-from danswer.access.access import get_access_for_documents
-from danswer.db.connector_credential_pair import get_connector_credential_pair_from_id
-from danswer.db.document import get_document_ids_for_connector_credential_pair
-from danswer.document_index.factory import get_current_primary_default_document_index
-from danswer.document_index.interfaces import UpdateRequest
-from danswer.utils.logger import setup_logger
-from ee.danswer.external_permissions.sync_params import DOC_PERMISSIONS_FUNC_MAP
-from ee.danswer.external_permissions.sync_params import GROUP_PERMISSIONS_FUNC_MAP
+from enmedd.access.access import get_access_for_documents
+from enmedd.db.connector_credential_pair import get_connector_credential_pair_from_id
+from enmedd.db.document import get_document_ids_for_connector_credential_pair
+from enmedd.document_index.factory import get_current_primary_default_document_index
+from enmedd.document_index.interfaces import UpdateRequest
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.external_permissions.sync_params import DOC_PERMISSIONS_FUNC_MAP
+from ee.enmedd.external_permissions.sync_params import GROUP_PERMISSIONS_FUNC_MAP
 
 logger = setup_logger()
 
@@ -32,7 +32,7 @@ def run_external_group_permission_sync(
 
     try:
         # This function updates:
-        # - the user_email <-> external_user_group_id mapping
+        # - the user_email <-> external_teamspace_id mapping
         # in postgres without committing
         logger.debug(f"Syncing groups for {source_type}")
         if group_sync_func is not None:
@@ -68,7 +68,7 @@ def run_external_doc_permission_sync(
     try:
         # This function updates:
         # - the user_email <-> document mapping
-        # - the external_user_group_id <-> document mapping
+        # - the external_teamspace_id <-> document mapping
         # in postgres without committing
         logger.debug(f"Syncing docs for {source_type}")
         doc_sync_func(

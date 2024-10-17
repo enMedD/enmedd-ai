@@ -3,18 +3,18 @@ from typing import Any
 from atlassian import Confluence  # type:ignore
 from sqlalchemy.orm import Session
 
-from danswer.access.models import ExternalAccess
-from danswer.connectors.confluence.confluence_utils import (
+from enmedd.access.models import ExternalAccess
+from enmedd.connectors.confluence.confluence_utils import (
     build_confluence_document_id,
 )
-from danswer.connectors.confluence.rate_limit_handler import (
+from enmedd.connectors.confluence.rate_limit_handler import (
     make_confluence_call_handle_rate_limit,
 )
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.users import batch_add_non_web_user_if_not_exists__no_commit
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.document import upsert_document_external_perms__no_commit
-from ee.danswer.external_permissions.confluence.confluence_sync_utils import (
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.users import batch_add_non_web_user_if_not_exists__no_commit
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.document import upsert_document_external_perms__no_commit
+from ee.enmedd.external_permissions.confluence.confluence_sync_utils import (
     build_confluence_client,
 )
 
@@ -112,7 +112,7 @@ def _get_space_permissions(
     )
     return ExternalAccess(
         external_user_emails=user_emails,
-        external_user_group_ids=group_names,
+        external_teamspace_ids=group_names,
         is_public=is_externally_public,
     )
 
@@ -136,7 +136,7 @@ def _get_page_specific_restrictions(
     )
     return ExternalAccess(
         external_user_emails=set(user_emails),
-        external_user_group_ids=set(group_names),
+        external_teamspace_ids=set(group_names),
         # there is no way for a page to be individually public if the space isn't public
         is_public=False,
     )

@@ -11,16 +11,16 @@ Then run test_query_times.py to test query times.
 import random
 from datetime import datetime
 
-from danswer.access.models import DocumentAccess
-from danswer.configs.constants import DocumentSource
-from danswer.connectors.models import Document
-from danswer.db.engine import get_session_context_manager
-from danswer.db.search_settings import get_current_search_settings
-from danswer.document_index.vespa.index import VespaIndex
-from danswer.indexing.models import ChunkEmbedding
-from danswer.indexing.models import DocMetadataAwareIndexChunk
-from danswer.indexing.models import IndexChunk
-from danswer.utils.timing import log_function_time
+from enmedd.access.models import DocumentAccess
+from enmedd.configs.constants import DocumentSource
+from enmedd.connectors.models import Document
+from enmedd.db.engine import get_session_context_manager
+from enmedd.db.search_settings import get_current_search_settings
+from enmedd.document_index.vespa.index import VespaIndex
+from enmedd.indexing.models import ChunkEmbedding
+from enmedd.indexing.models import DocMetadataAwareIndexChunk
+from enmedd.indexing.models import IndexChunk
+from enmedd.utils.timing import log_function_time
 from shared_configs.model_server_models import Embedding
 
 
@@ -74,22 +74,22 @@ def generate_dummy_chunk(
         document_set_names.append(f"Document Set {i}")
 
     user_emails: set[str | None] = set()
-    user_groups: set[str] = set()
+    teamspace: set[str] = set()
     external_user_emails: set[str] = set()
-    external_user_group_ids: set[str] = set()
+    external_teamspace_ids: set[str] = set()
     for i in range(number_of_acl_entries):
         user_emails.add(f"user_{i}@example.com")
-        user_groups.add(f"group_{i}")
+        teamspace.add(f"teamspace_{i}")
         external_user_emails.add(f"external_user_{i}@example.com")
-        external_user_group_ids.add(f"external_group_{i}")
+        external_teamspace_ids.add(f"external_teamspace_{i}")
 
     return DocMetadataAwareIndexChunk.from_index_chunk(
         index_chunk=chunk,
         access=DocumentAccess(
             user_emails=user_emails,
-            user_groups=user_groups,
+            teamspace=teamspace,
             external_user_emails=external_user_emails,
-            external_user_group_ids=external_user_group_ids,
+            external_teamspace_ids=external_teamspace_ids,
             is_public=random.choice([True, False]),
         ),
         document_sets={document_set for document_set in document_set_names},

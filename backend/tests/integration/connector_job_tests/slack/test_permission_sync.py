@@ -6,13 +6,13 @@ from typing import Any
 import pytest
 import requests
 
-from danswer.connectors.models import InputType
-from danswer.db.enums import AccessType
-from danswer.search.enums import LLMEvaluationType
-from danswer.search.enums import SearchType
-from danswer.search.models import RetrievalDetails
-from danswer.server.documents.models import DocumentSource
-from ee.danswer.server.query_and_chat.models import DocumentSearchRequest
+from enmedd.connectors.models import InputType
+from enmedd.db.enums import AccessType
+from enmedd.search.enums import LLMEvaluationType
+from enmedd.search.enums import SearchType
+from enmedd.search.models import RetrievalDetails
+from enmedd.server.documents.models import DocumentSource
+from ee.enmedd.server.query_and_chat.models import DocumentSearchRequest
 from tests.integration.common_utils.constants import API_SERVER_URL
 from tests.integration.common_utils.managers.cc_pair import CCPairManager
 from tests.integration.common_utils.managers.connector import ConnectorManager
@@ -147,11 +147,11 @@ def test_slack_permission_sync(
     )
     result.raise_for_status()
     found_docs = result.json()["top_documents"]
-    danswer_doc_message_strings = [doc["content"] for doc in found_docs]
+    enmeddd_doc_message_strings = [doc["content"] for doc in found_docs]
 
     # Ensure admin user can see messages from both channels
-    assert public_message in danswer_doc_message_strings
-    assert private_message in danswer_doc_message_strings
+    assert public_message in enmeddd_doc_message_strings
+    assert private_message in enmeddd_doc_message_strings
 
     # Search as test_user_2 with access to only the public channel
     search_request = DocumentSearchRequest(
@@ -168,15 +168,15 @@ def test_slack_permission_sync(
     )
     result.raise_for_status()
     found_docs = result.json()["top_documents"]
-    danswer_doc_message_strings = [doc["content"] for doc in found_docs]
+    enmeddd_doc_message_strings = [doc["content"] for doc in found_docs]
     print(
         "\ntop_documents content before removing from private channel for test_user_2: ",
-        danswer_doc_message_strings,
+        enmeddd_doc_message_strings,
     )
 
     # Ensure test_user_2 can only see messages from the public channel
-    assert public_message in danswer_doc_message_strings
-    assert private_message not in danswer_doc_message_strings
+    assert public_message in enmeddd_doc_message_strings
+    assert private_message not in enmeddd_doc_message_strings
 
     # Search as test_user_1 with access to both channels
     search_request = DocumentSearchRequest(
@@ -193,15 +193,15 @@ def test_slack_permission_sync(
     )
     result.raise_for_status()
     found_docs = result.json()["top_documents"]
-    danswer_doc_message_strings = [doc["content"] for doc in found_docs]
+    enmeddd_doc_message_strings = [doc["content"] for doc in found_docs]
     print(
         "\ntop_documents content before removing from private channel for test_user_1: ",
-        danswer_doc_message_strings,
+        enmeddd_doc_message_strings,
     )
 
     # Ensure test_user_1 can see messages from both channels
-    assert public_message in danswer_doc_message_strings
-    assert private_message in danswer_doc_message_strings
+    assert public_message in enmeddd_doc_message_strings
+    assert private_message in enmeddd_doc_message_strings
 
     # ----------------------MAKE THE CHANGES--------------------------
     print("\nRemoving test_user_1 from the private channel")
@@ -242,12 +242,12 @@ def test_slack_permission_sync(
     )
     result.raise_for_status()
     found_docs = result.json()["top_documents"]
-    danswer_doc_message_strings = [doc["content"] for doc in found_docs]
+    enmeddd_doc_message_strings = [doc["content"] for doc in found_docs]
     print(
         "\ntop_documents content after removing from private channel for test_user_1: ",
-        danswer_doc_message_strings,
+        enmeddd_doc_message_strings,
     )
 
     # Ensure test_user_1 can only see messages from the public channel
-    assert public_message in danswer_doc_message_strings
-    assert private_message not in danswer_doc_message_strings
+    assert public_message in enmeddd_doc_message_strings
+    assert private_message not in enmeddd_doc_message_strings

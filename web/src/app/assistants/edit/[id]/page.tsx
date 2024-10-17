@@ -1,14 +1,44 @@
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Card, Text, Title } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import { HeaderWrapper } from "@/components/header/HeaderWrapper";
 import { AssistantEditor } from "@/app/admin/assistants/AssistantEditor";
-import { SuccessfulPersonaUpdateRedirectType } from "@/app/admin/assistants/enums";
-import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchPersonaEditorInfoSS";
-import { DeletePersonaButton } from "@/app/admin/assistants/[id]/DeletePersonaButton";
+import { SuccessfulAssistantUpdateRedirectType } from "@/app/admin/assistants/enums";
+import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchAssistantEditorInfoSS";
+import { DeleteAssistantButton } from "@/app/admin/assistants/[id]/DeleteAssistantButton";
 import { LargeBackButton } from "../../LargeBackButton";
+import { Card, CardContent } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
+import { unstable_noStore as noStore } from "next/cache";
+import { fetchChatData } from "@/lib/chat/fetchChatData";
+import { redirect } from "next/navigation";
+import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
+import { ChatProvider } from "@/context/ChatContext";
+import { AssistantsBars } from "../../mine/AssistantsBars";
+import { ChatSidebar } from "@/app/chat/sessionSidebar/ChatSidebar";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const [values, error] = await fetchAssistantEditorInfoSS(params.id);
+
+  noStore();
+
+  const data = await fetchChatData(params);
+
+  if ("redirect" in data) {
+    redirect(data.redirect);
+  }
+
+  const {
+    user,
+    chatSessions,
+    availableSources,
+    documentSets,
+    assistants,
+    tags,
+    llmProviders,
+    folders,
+    openedFolders,
+    shouldShowWelcomeModal,
+  } = data;
 
   let body;
   if (!values) {
@@ -19,25 +49,29 @@ export default async function Page({ params }: { params: { id: string } }) {
     );
   } else {
     body = (
-      <div className="w-full my-16">
+      <div className="w-full">
         <div className="px-32">
-          <div className="mx-auto container">
+          <BackButton />
+          <div className="py-24 md:py-32 lg:py-16 lg:pt-10">
             <Card>
-              <AssistantEditor
-                {...values}
-                admin
-                defaultPublic={false}
-                redirectType={SuccessfulPersonaUpdateRedirectType.CHAT}
-              />
+              <CardContent>
+                <AssistantEditor
+                  {...values}
+                  admin
+                  defaultPublic={false}
+                  redirectType={SuccessfulAssistantUpdateRedirectType.CHAT}
+                />
+              </CardContent>
             </Card>
-            <Title className="mt-12">Delete Assistant</Title>
-            <Text>
+
+            <h3 className="mt-12">Delete Assistant</h3>
+            <p className="text-sm text-subtle">
               Click the button below to permanently delete this assistant.
-            </Text>
+            </p>
             <div className="flex mt-6">
-              <DeletePersonaButton
-                personaId={values.existingPersona!.id}
-                redirectType={SuccessfulPersonaUpdateRedirectType.CHAT}
+              <DeleteAssistantButton
+                assistantId={values.existingAssistant!.id}
+                redirectType={SuccessfulAssistantUpdateRedirectType.CHAT}
               />
             </div>
           </div>
@@ -47,18 +81,40 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div>
-      <HeaderWrapper>
-        <div className="h-full flex flex-col">
-          <div className="flex my-auto">
-            <LargeBackButton />
-            <h1 className="flex text-xl text-strong font-bold my-auto">
-              Edit Assistant
-            </h1>
+    <>
+      <InstantSSRAutoRefresh />
+
+      <ChatProvider
+        value={{
+          user,
+          chatSessions,
+          availableSources,
+          availableDocumentSets: documentSets,
+          availableAssistants: assistants,
+          availableTags: tags,
+          llmProviders,
+          folders,
+          openedFolders,
+        }}
+      >
+        <div className="relative flex h-full overflow-x-hidden bg-background">
+          <AssistantsBars user={user}>
+            <ChatSidebar
+              existingChats={chatSessions}
+              currentChatSession={null}
+              folders={folders}
+              openedFolders={openedFolders}
+              isAssistant
+            />
+          </AssistantsBars>
+
+          <div
+            className={`w-full h-full flex flex-col overflow-y-auto overflow-x-hidden relative pt-24 px-4 2xl:pt-10`}
+          >
+            {body}
           </div>
         </div>
-      </HeaderWrapper>
-      {body}
-    </div>
+      </ChatProvider>
+    </>
   );
 }

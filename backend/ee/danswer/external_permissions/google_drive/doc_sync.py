@@ -8,18 +8,18 @@ from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError  # type: ignore
 from sqlalchemy.orm import Session
 
-from danswer.access.models import ExternalAccess
-from danswer.connectors.cross_connector_utils.retry_wrapper import retry_builder
-from danswer.connectors.factory import instantiate_connector
-from danswer.connectors.google_drive.connector_auth import (
+from enmedd.access.models import ExternalAccess
+from enmedd.connectors.cross_connector_utils.retry_wrapper import retry_builder
+from enmedd.connectors.factory import instantiate_connector
+from enmedd.connectors.google_drive.connector_auth import (
     get_google_drive_creds,
 )
-from danswer.connectors.interfaces import PollConnector
-from danswer.connectors.models import InputType
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.users import batch_add_non_web_user_if_not_exists__no_commit
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.document import upsert_document_external_perms__no_commit
+from enmedd.connectors.interfaces import PollConnector
+from enmedd.connectors.models import InputType
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.users import batch_add_non_web_user_if_not_exists__no_commit
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.document import upsert_document_external_perms__no_commit
 
 # Google Drive APIs are quite flakey and may 500 for an
 # extended period of time. Trying to combat here by adding a very
@@ -141,7 +141,7 @@ def _fetch_google_permissions_for_document_id(
 
     return ExternalAccess(
         external_user_emails=user_emails,
-        external_user_group_ids=group_emails,
+        external_teamspace_ids=group_emails,
         is_public=public,
     )
 

@@ -1,12 +1,12 @@
-import { DanswerDocument } from "./search/interfaces";
+import { EnmeddDocument } from "./search/interfaces";
 
 export function removeDuplicateDocs(
-  documents: DanswerDocument[],
+  documents: EnmeddDocument[],
   agentic?: boolean,
   relevance?: any
 ) {
   const seen = new Set<string>();
-  const output: DanswerDocument[] = [];
+  const output: EnmeddDocument[] = [];
   documents.forEach((document) => {
     if (
       document.document_id &&

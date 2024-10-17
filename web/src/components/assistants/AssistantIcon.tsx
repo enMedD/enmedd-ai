@@ -1,6 +1,5 @@
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import React from "react";
-import { Tooltip } from "../tooltip/Tooltip";
 import { createSVG } from "@/lib/assistantIconUtils";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { CustomTooltip } from "../tooltip/CustomTooltip";
@@ -24,13 +23,14 @@ export function AssistantIcon({
   size,
   border,
 }: {
-  assistant: Persona;
+  assistant: Assistant;
   size?: "small" | "medium" | "large";
   border?: boolean;
 }) {
   const color = darkerGenerateColorFromId(assistant.id.toString());
 
   return (
+    // TODO: change into using our tooltip
     <CustomTooltip showTick line wrap content={assistant.description}>
       {
         // Prioritization order: image, graph, defaults

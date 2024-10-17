@@ -1,3 +1,4 @@
+import { SearchSection } from "@/components/search/SearchSection";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
@@ -9,18 +10,21 @@ import { fetchSS } from "@/lib/utilsSS";
 import { CCPairBasicInfo, DocumentSet, Tag, User } from "@/lib/types";
 import { cookies } from "next/headers";
 import { SearchType } from "@/lib/search/interfaces";
-import { Persona } from "../admin/assistants/interfaces";
+import { Assistant } from "../admin/assistants/interfaces";
 import {
   WelcomeModal,
   hasCompletedWelcomeFlowSS,
 } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
 import { unstable_noStore as noStore } from "next/cache";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
-import { personaComparator } from "../admin/assistants/lib";
+import { assistantComparator } from "../admin/assistants/lib";
 import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { ChatPopup } from "../chat/ChatPopup";
+import { SearchSidebar } from "./SearchSidebar";
+import { BarLayout } from "@/components/BarLayout";
+import { HelperFab } from "@/components/HelperFab";
 import {
   FetchAssistantsResponse,
   fetchAssistantsSS,
@@ -33,12 +37,12 @@ import {
   DISABLE_LLM_DOC_RELEVANCE,
 } from "@/lib/constants";
 import WrappedSearch from "./WrappedSearch";
-import { SearchProvider } from "@/components/context/SearchContext";
 import { fetchLLMProvidersSS } from "@/lib/llm/fetchLLMs";
 import { LLMProviderDescriptor } from "../admin/configuration/llm/interfaces";
+import { SearchProvider } from "@/context/SearchContext";
 
 export default async function Home() {
-  // Disable caching so we always get the up to date connector / document set / persona info
+  // Disable caching so we always get the up to date connector / document set / assistant info
   // importantly, this prevents users from adding a connector, going back to the main page,
   // and then getting hit with a "No Connectors" popup
   noStore();
@@ -113,16 +117,16 @@ export default async function Home() {
     console.log(`Failed to fetch chat sessions - ${queryResponse?.text()}`);
   }
 
-  let assistants: Persona[] = initialAssistantsList;
+  let assistants: Assistant[] = initialAssistantsList;
   if (assistantsFetchError) {
     console.log(`Failed to fetch assistants - ${assistantsFetchError}`);
   } else {
     // remove those marked as hidden by an admin
     assistants = assistants.filter((assistant) => assistant.is_visible);
-    // hide personas with no retrieval
+    // hide assistants with no retrieval
     assistants = assistants.filter((assistant) => assistant.num_chunks !== 0);
     // sort them in priority order
-    assistants.sort(personaComparator);
+    assistants.sort(assistantComparator);
   }
 
   let tags: Tag[] = [];

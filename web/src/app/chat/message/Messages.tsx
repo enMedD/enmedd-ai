@@ -1,20 +1,11 @@
 "use client";
 
-import {
-  FiEdit2,
-  FiChevronRight,
-  FiChevronLeft,
-  FiTool,
-  FiGlobe,
-} from "react-icons/fi";
 import { FeedbackType } from "../types";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 import ReactMarkdown from "react-markdown";
-import {
-  DanswerDocument,
-  FilteredDanswerDocument,
-} from "@/lib/search/interfaces";
-import { SearchSummary } from "./SearchSummary";
+import { EnmeddDocument } from "@/lib/search/interfaces";
+import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
 import { SourceIcon } from "@/components/SourceIcon";
 import { SkippedSearch } from "./SkippedSearch";
 import remarkGfm from "remark-gfm";
@@ -26,7 +17,7 @@ import {
   INTERNET_SEARCH_TOOL_NAME,
 } from "../tools/constants";
 import { ToolRunDisplay } from "../tools/ToolRunningAnimation";
-import { Hoverable, HoverableIcon } from "@/components/Hoverable";
+import { Hoverable } from "@/components/Hoverable";
 import { DocumentPreview } from "../files/documents/DocumentPreview";
 import { InMessageImage } from "../files/images/InMessageImage";
 import { CodeBlock } from "./CodeBlock";
@@ -34,16 +25,13 @@ import rehypePrism from "rehype-prism-plus";
 
 import "prismjs/themes/prism-tomorrow.css";
 import "./custom-code-styles.css";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { Citation } from "@/components/search/results/Citation";
 import { DocumentMetadataBlock } from "@/components/search/DocumentDisplay";
 
 import { LikeFeedback, DislikeFeedback } from "@/components/icons/icons";
-import {
-  CustomTooltip,
-  TooltipGroup,
-} from "@/components/tooltip/CustomTooltip";
+import { CustomTooltip } from "@/components/CustomTooltip";
 import { ValidSources } from "@/lib/types";
 import { Tooltip } from "@/components/tooltip/Tooltip";
 import { useMouseTracking } from "./hooks";
@@ -55,6 +43,26 @@ import { LlmOverride } from "@/lib/hooks";
 import { ContinueGenerating } from "./ContinueMessage";
 import { MemoizedLink, MemoizedParagraph } from "./MemoizedTextComponents";
 import { extractCodeText } from "./codeUtils";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  ImageIcon,
+  Pencil,
+  ThumbsDownIcon,
+  ThumbsUp,
+  ThumbsUpIcon,
+  Wrench,
+} from "lucide-react";
+import Prism from "prismjs";
+import { CustomModal } from "@/components/CustomModal";
+import { FeedbackModal } from "../modal/FeedbackModal";
+import { Badge } from "@/components/ui/badge";
+import { User as UserTypes } from "@/lib/types";
+import { UserProfile } from "@/components/UserProfile";
 
 const TOOLS_WITH_CUSTOM_HANDLING = [
   SEARCH_TOOL_NAME,
@@ -76,7 +84,7 @@ function FileDisplay({
     <>
       {nonImgFiles && nonImgFiles.length > 0 && (
         <div
-          id="danswer-file"
+          id="enmedd-file"
           className={` ${alignBubble && "ml-auto"} mt-2 auto mb-4`}
         >
           <div className="flex flex-col gap-2">
@@ -96,7 +104,7 @@ function FileDisplay({
       )}
       {imageFiles && imageFiles.length > 0 && (
         <div
-          id="danswer-image"
+          id="enmedd-image"
           className={` ${alignBubble && "ml-auto"} mt-2 auto mb-4`}
         >
           <div className="flex flex-col gap-2">
@@ -110,21 +118,18 @@ function FileDisplay({
   );
 }
 
+interface FeedbackDetails {
+  message: string;
+  predefinedFeedback?: string;
+}
+
 export const AIMessage = ({
-  regenerate,
-  overriddenModel,
-  continueGenerating,
-  shared,
-  isActive,
-  toggleDocumentSelection,
   alternativeAssistant,
-  docs,
   messageId,
   content,
   files,
-  selectedDocuments,
   query,
-  personaName,
+  assistantName,
   citedDocuments,
   toolCall,
   isComplete,
@@ -135,26 +140,25 @@ export const AIMessage = ({
   handleSearchQueryEdit,
   handleForceSearch,
   retrievalDisabled,
-  currentPersona,
+  currentAssistant,
+  handleToggleSideBar,
+  currentFeedback,
+  onClose,
+  onSubmit,
+  isStreaming,
+  regenerate,
+  overriddenModel,
+  continueGenerating,
   otherMessagesCanSwitchTo,
   onMessageSelection,
 }: {
-  shared?: boolean;
-  isActive?: boolean;
-  continueGenerating?: () => void;
-  otherMessagesCanSwitchTo?: number[];
-  onMessageSelection?: (messageId: number) => void;
-  selectedDocuments?: DanswerDocument[] | null;
-  toggleDocumentSelection?: () => void;
-  docs?: DanswerDocument[] | null;
-  alternativeAssistant?: Persona | null;
-  currentPersona: Persona;
+  alternativeAssistant?: Assistant | null;
   messageId: number | null;
   content: string | JSX.Element;
   files?: FileDescriptor[];
   query?: string;
-  personaName?: string;
-  citedDocuments?: [string, DanswerDocument][] | null;
+  assistantName?: string;
+  citedDocuments?: [string, EnmeddDocument][] | null;
   toolCall?: ToolCallMetadata;
   isComplete?: boolean;
   hasDocs?: boolean;
@@ -164,15 +168,54 @@ export const AIMessage = ({
   handleSearchQueryEdit?: (query: string) => void;
   handleForceSearch?: () => void;
   retrievalDisabled?: boolean;
-  overriddenModel?: string;
+  currentAssistant: Assistant;
+  handleToggleSideBar?: () => void;
+  currentFeedback?: [FeedbackType, number] | null;
+  onClose?: () => void;
+  onSubmit?: (feedbackDetails: {
+    message: string;
+    predefinedFeedback?: string;
+  }) => void;
+  isStreaming?: boolean;
   regenerate?: (modelOverRide: LlmOverride) => Promise<void>;
+  overriddenModel?: string;
+  continueGenerating?: () => void;
+  otherMessagesCanSwitchTo?: number[];
+  onMessageSelection?: (messageId: number) => void;
 }) => {
+  const [isReady, setIsReady] = useState(false);
+  const [isLikeModalOpen, setIsLikeModalOpen] = useState(false);
+  const [isDislikeModalOpen, setIsDislikeModalOpen] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [showLikeButton, setShowLikeButton] = useState(true);
+  const [showDislikeButton, setShowDislikeButton] = useState(true);
+
+  const handleLikeSubmit = async (feedbackDetails: FeedbackDetails) => {
+    if (onSubmit) {
+      await onSubmit(feedbackDetails);
+      setFeedbackSubmitted(true);
+      setShowDislikeButton(false);
+    }
+  };
+
+  const handleDislikeSubmit = async (feedbackDetails: FeedbackDetails) => {
+    if (onSubmit) {
+      await onSubmit(feedbackDetails);
+      setFeedbackSubmitted(true);
+      setShowLikeButton(false);
+    }
+  };
+
+  useEffect(() => {
+    Prism.highlightAll();
+    setIsReady(true);
+  }, []);
+
   const toolCallGenerating = toolCall && !toolCall.tool_result;
   const processContent = (content: string | JSX.Element) => {
     if (typeof content !== "string") {
       return content;
     }
-
     const codeBlockRegex = /```(\w*)\n[\s\S]*?```|```[\s\S]*?$/g;
     const matches = content.match(codeBlockRegex);
 
@@ -200,14 +243,6 @@ export const AIMessage = ({
   const settings = useContext(SettingsContext);
   // this is needed to give Prism a chance to load
 
-  const selectedDocumentIds =
-    selectedDocuments?.map((document) => document.document_id) || [];
-  const citedDocumentIds: string[] = [];
-
-  citedDocuments?.forEach((doc) => {
-    citedDocumentIds.push(doc[1].document_id);
-  });
-
   if (!isComplete) {
     const trimIncompleteCodeSection = (
       content: string | JSX.Element
@@ -226,33 +261,9 @@ export const AIMessage = ({
     content = trimIncompleteCodeSection(content);
   }
 
-  let filteredDocs: FilteredDanswerDocument[] = [];
-
-  if (docs) {
-    filteredDocs = docs
-      .filter(
-        (doc, index, self) =>
-          doc.document_id &&
-          doc.document_id !== "" &&
-          index === self.findIndex((d) => d.document_id === doc.document_id)
-      )
-      .filter((doc) => {
-        return citedDocumentIds.includes(doc.document_id);
-      })
-      .map((doc: DanswerDocument, ind: number) => {
-        return {
-          ...doc,
-          included: selectedDocumentIds.includes(doc.document_id),
-        };
-      });
-  }
-
   const currentMessageInd = messageId
     ? otherMessagesCanSwitchTo?.indexOf(messageId)
     : undefined;
-  const uniqueSources: ValidSources[] = Array.from(
-    new Set((docs || []).map((doc) => doc.source_type))
-  ).slice(0, 3);
 
   const markdownComponents = useMemo(
     () => ({
@@ -294,320 +305,296 @@ export const AIMessage = ({
     otherMessagesCanSwitchTo &&
     otherMessagesCanSwitchTo.length > 1;
 
+  const shouldShowLoader =
+    !toolCall || (toolCall.tool_name === SEARCH_TOOL_NAME && !content);
+  const defaultLoader = shouldShowLoader ? (
+    <div className="my-auto text-sm flex flex-col gap-1">
+      <Skeleton className="h-5 w-full" />
+      <Skeleton className="h-5 w-full" />
+      <Skeleton className="h-5 w-3/4" />
+    </div>
+  ) : undefined;
+
   return (
-    <div
-      id="danswer-ai-message"
-      ref={trackedElementRef}
-      className={"py-5 ml-4 px-5 relative flex "}
-    >
-      <div
-        className={`mx-auto ${shared ? "w-full" : "w-[90%]"}  max-w-message-max`}
-      >
-        <div className={`desktop:mr-12 ${!shared && "mobile:ml-0 md:ml-8"}`}>
+    <div className={`flex -mr-6 w-full pb-5`}>
+      <div className="w-full">
+        <div className="">
           <div className="flex">
             <AssistantIcon
               size="small"
-              assistant={alternativeAssistant || currentPersona}
+              assistant={alternativeAssistant || currentAssistant}
             />
 
-            <div className="w-full">
-              <div className="max-w-message-max break-words">
-                <div className="w-full ml-4">
-                  <div className="max-w-message-max break-words">
-                    {!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME ? (
-                      <>
-                        {query !== undefined &&
-                          handleShowRetrieved !== undefined &&
-                          !retrievalDisabled && (
-                            <div className="mb-1">
-                              <SearchSummary
-                                query={query}
-                                finished={toolCall?.tool_result != undefined}
-                                hasDocs={hasDocs || false}
-                                messageId={messageId}
-                                handleShowRetrieved={handleShowRetrieved}
-                                handleSearchQueryEdit={handleSearchQueryEdit}
-                              />
-                            </div>
-                          )}
-                        {handleForceSearch &&
-                          content &&
-                          query === undefined &&
-                          !hasDocs &&
-                          !retrievalDisabled && (
-                            <div className="mb-1">
-                              <SkippedSearch
-                                handleForceSearch={handleForceSearch}
-                              />
-                            </div>
-                          )}
-                      </>
-                    ) : null}
+            <div className="my-auto ml-2 font-bold text-inverted-inverted">
+              {assistantName || "enMedD AI"}
+            </div>
 
-                    {toolCall &&
-                      !TOOLS_WITH_CUSTOM_HANDLING.includes(
-                        toolCall.tool_name
-                      ) && (
-                        <ToolRunDisplay
-                          toolName={
-                            toolCall.tool_result && content
-                              ? `Used "${toolCall.tool_name}"`
-                              : `Using "${toolCall.tool_name}"`
-                          }
-                          toolLogo={
-                            <FiTool size={15} className="my-auto mr-1" />
-                          }
-                          isRunning={!toolCall.tool_result || !content}
-                        />
-                      )}
-
-                    {toolCall &&
-                      (!files || files.length == 0) &&
-                      toolCall.tool_name === IMAGE_GENERATION_TOOL_NAME &&
-                      !toolCall.tool_result && <GeneratingImageDisplay />}
-
-                    {toolCall &&
-                      toolCall.tool_name === INTERNET_SEARCH_TOOL_NAME && (
-                        <ToolRunDisplay
-                          toolName={
-                            toolCall.tool_result
-                              ? `Searched the internet`
-                              : `Searching the internet`
-                          }
-                          toolLogo={
-                            <FiGlobe size={15} className="my-auto mr-1" />
-                          }
-                          isRunning={!toolCall.tool_result}
-                        />
-                      )}
-
-                    {content || files ? (
-                      <>
-                        <FileDisplay files={files || []} />
-
-                        {typeof content === "string" ? (
-                          <div className="overflow-x-visible max-w-content-max">
-                            {renderedMarkdown}
-                          </div>
-                        ) : (
-                          content
-                        )}
-                      </>
-                    ) : isComplete ? null : (
-                      <></>
-                    )}
-                    {isComplete && docs && docs.length > 0 && (
-                      <div className="mt-2 -mx-8 w-full mb-4 flex relative">
-                        <div className="w-full">
-                          <div className="px-8 flex gap-x-2">
-                            {!settings?.isMobile &&
-                              filteredDocs.length > 0 &&
-                              filteredDocs.slice(0, 2).map((doc, ind) => (
-                                <div
-                                  key={doc.document_id}
-                                  className={`w-[200px] rounded-lg flex-none transition-all duration-500 hover:bg-background-125 bg-text-100 px-4 pb-2 pt-1 border-b
-                              `}
-                                >
-                                  <a
-                                    href={doc.link || undefined}
-                                    target="_blank"
-                                    className="text-sm flex w-full pt-1 gap-x-1.5 overflow-hidden justify-between font-semibold text-text-700"
-                                    rel="noreferrer"
-                                  >
-                                    <Citation link={doc.link} index={ind + 1} />
-                                    <p className="shrink truncate ellipsis break-all">
-                                      {doc.semantic_identifier ||
-                                        doc.document_id}
-                                    </p>
-                                    <div className="ml-auto flex-none">
-                                      {doc.is_internet ? (
-                                        <InternetSearchIcon url={doc.link} />
-                                      ) : (
-                                        <SourceIcon
-                                          sourceType={doc.source_type}
-                                          iconSize={18}
-                                        />
-                                      )}
-                                    </div>
-                                  </a>
-                                  <div className="flex overscroll-x-scroll mt-.5">
-                                    <DocumentMetadataBlock document={doc} />
-                                  </div>
-                                  <div className="line-clamp-3 text-xs break-words pt-1">
-                                    {doc.blurb}
-                                  </div>
-                                </div>
-                              ))}
-                            <div
-                              onClick={() => {
-                                if (toggleDocumentSelection) {
-                                  toggleDocumentSelection();
-                                }
-                              }}
-                              key={-1}
-                              className="cursor-pointer w-[200px] rounded-lg flex-none transition-all duration-500 hover:bg-background-125 bg-text-100 px-4 py-2 border-b"
-                            >
-                              <div className="text-sm flex justify-between font-semibold text-text-700">
-                                <p className="line-clamp-1">See context</p>
-                                <div className="flex gap-x-1">
-                                  {uniqueSources.map((sourceType, ind) => {
-                                    return (
-                                      <div key={ind} className="flex-none">
-                                        <SourceIcon
-                                          sourceType={sourceType}
-                                          iconSize={18}
-                                        />
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                              <div className="line-clamp-3 text-xs break-words pt-1">
-                                See more
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+            {query === undefined &&
+              hasDocs &&
+              handleShowRetrieved !== undefined &&
+              isCurrentlyShowingRetrieved !== undefined &&
+              !retrievalDisabled && (
+                <div className="absolute flex ml-8 w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+                  <div className="ml-auto">
+                    <ShowHideDocsButton
+                      messageId={messageId}
+                      isCurrentlyShowingRetrieved={isCurrentlyShowingRetrieved}
+                      handleShowRetrieved={handleShowRetrieved}
+                      handleToggleSideBar={handleToggleSideBar}
+                    />
                   </div>
+                </div>
+              )}
+          </div>
 
-                  {handleFeedback &&
-                    (isActive ? (
-                      <div
-                        className={`
-                        flex md:flex-row gap-x-0.5 mt-1
-                        transition-transform duration-300 ease-in-out
-                        transform opacity-100 translate-y-0"
-                  `}
-                      >
-                        <TooltipGroup>
-                          <div className="flex justify-start w-full gap-x-0.5">
-                            {includeMessageSwitcher && (
-                              <div className="-mx-1 mr-auto">
-                                <MessageSwitcher
-                                  currentPage={currentMessageInd + 1}
-                                  totalPages={otherMessagesCanSwitchTo.length}
-                                  handlePrevious={() => {
-                                    onMessageSelection(
-                                      otherMessagesCanSwitchTo[
-                                        currentMessageInd - 1
-                                      ]
-                                    );
-                                  }}
-                                  handleNext={() => {
-                                    onMessageSelection(
-                                      otherMessagesCanSwitchTo[
-                                        currentMessageInd + 1
-                                      ]
-                                    );
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <CustomTooltip showTick line content="Copy!">
-                            <CopyButton content={content.toString()} />
-                          </CustomTooltip>
-                          <CustomTooltip showTick line content="Good response!">
-                            <HoverableIcon
-                              icon={<LikeFeedback />}
-                              onClick={() => handleFeedback("like")}
-                            />
-                          </CustomTooltip>
-                          <CustomTooltip showTick line content="Bad response!">
-                            <HoverableIcon
-                              icon={<DislikeFeedback size={16} />}
-                              onClick={() => handleFeedback("dislike")}
-                            />
-                          </CustomTooltip>
-                          {regenerate && (
-                            <RegenerateOption
-                              onHoverChange={setIsRegenerateHovered}
-                              selectedAssistant={currentPersona!}
-                              regenerate={regenerate}
-                              overriddenModel={overriddenModel}
+          <div className="pl-1.5 md:pl-12 break-words w-full">
+            {(!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME) && (
+              <>
+                {query !== undefined &&
+                  handleShowRetrieved !== undefined &&
+                  isCurrentlyShowingRetrieved !== undefined &&
+                  !retrievalDisabled && (
+                    <div>
+                      <SearchSummary
+                        finished={toolCall?.tool_result != undefined}
+                        query={query}
+                        hasDocs={hasDocs || false}
+                        messageId={messageId}
+                        isCurrentlyShowingRetrieved={
+                          isCurrentlyShowingRetrieved
+                        }
+                        handleShowRetrieved={handleShowRetrieved}
+                        handleSearchQueryEdit={handleSearchQueryEdit}
+                        handleToggleSideBar={handleToggleSideBar}
+                      />
+                    </div>
+                  )}
+                {handleForceSearch &&
+                  content &&
+                  query === undefined &&
+                  !hasDocs &&
+                  !retrievalDisabled && (
+                    <div className="pt-2">
+                      <SkippedSearch handleForceSearch={handleForceSearch} />
+                    </div>
+                  )}
+              </>
+            )}
+
+            {toolCall &&
+              !TOOLS_WITH_CUSTOM_HANDLING.includes(toolCall.tool_name) && (
+                <div className="my-2">
+                  <ToolRunDisplay
+                    toolName={
+                      toolCall.tool_result && content
+                        ? `Used "${toolCall.tool_name}"`
+                        : `Using "${toolCall.tool_name}"`
+                    }
+                    toolLogo={<Wrench size={15} className="my-auto mr-1" />}
+                    isRunning={!toolCall.tool_result || !content}
+                  />
+                </div>
+              )}
+
+            {toolCall &&
+              toolCall.tool_name === IMAGE_GENERATION_TOOL_NAME &&
+              !toolCall.tool_result && (
+                <div className="my-2">
+                  <ToolRunDisplay
+                    toolName={`Generating images`}
+                    toolLogo={<ImageIcon size={15} className="my-auto mr-1" />}
+                    isRunning={!toolCall.tool_result}
+                  />
+                </div>
+              )}
+
+            {toolCall && toolCall.tool_name === INTERNET_SEARCH_TOOL_NAME && (
+              <ToolRunDisplay
+                toolName={
+                  toolCall.tool_result
+                    ? `Searched the internet`
+                    : `Searching the internet`
+                }
+                toolLogo={<Globe size={15} className="my-auto mr-1" />}
+                isRunning={!toolCall.tool_result}
+              />
+            )}
+
+            {content || files ? (
+              <>
+                <FileDisplay files={files || []} />
+
+                {typeof content === "string" ? { renderedMarkdown } : content}
+              </>
+            ) : isComplete ? null : (
+              defaultLoader
+            )}
+            {citedDocuments && citedDocuments.length > 0 && (
+              <div className="mt-2 flex flex-col gap-1">
+                <b className="text-sm text-inverted-inverted">Sources:</b>
+                <div className="flex flex-wrap gap-2">
+                  {citedDocuments
+                    .filter(([_, document]) => document.semantic_identifier)
+                    .map(([citationKey, document], ind) => {
+                      const display = (
+                        <div className="w-full flex gap-1.5">
+                          {document.is_internet ? (
+                            <InternetSearchIcon url={document.link} />
+                          ) : (
+                            <SourceIcon
+                              sourceType={document.source_type}
+                              iconSize={16}
                             />
                           )}
-                        </TooltipGroup>
-                      </div>
-                    ) : (
-                      <div
-                        ref={hoverElementRef}
-                        className={`
-                        absolute -bottom-5
-                        z-10
-                        invisible ${(isHovering || isRegenerateHovered || settings?.isMobile) && "!visible"}
-                        opacity-0 ${(isHovering || isRegenerateHovered || settings?.isMobile) && "!opacity-100"}
-                        translate-y-2 ${(isHovering || settings?.isMobile) && "!translate-y-0"}
-                        transition-transform duration-300 ease-in-out 
-                        flex md:flex-row gap-x-0.5 bg-background-125/40 -mx-1.5 p-1.5 rounded-lg
-                        `}
-                      >
-                        <TooltipGroup>
-                          <div className="flex justify-start w-full gap-x-0.5">
-                            {includeMessageSwitcher && (
-                              <div className="-mx-1 mr-auto">
-                                <MessageSwitcher
-                                  currentPage={currentMessageInd + 1}
-                                  totalPages={otherMessagesCanSwitchTo.length}
-                                  handlePrevious={() => {
-                                    onMessageSelection(
-                                      otherMessagesCanSwitchTo[
-                                        currentMessageInd - 1
-                                      ]
-                                    );
-                                  }}
-                                  handleNext={() => {
-                                    onMessageSelection(
-                                      otherMessagesCanSwitchTo[
-                                        currentMessageInd + 1
-                                      ]
-                                    );
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <CustomTooltip showTick line content="Copy!">
-                            <CopyButton content={content.toString()} />
-                          </CustomTooltip>
-
-                          <CustomTooltip showTick line content="Good response!">
-                            <HoverableIcon
-                              icon={<LikeFeedback />}
-                              onClick={() => handleFeedback("like")}
-                            />
-                          </CustomTooltip>
-
-                          <CustomTooltip showTick line content="Bad response!">
-                            <HoverableIcon
-                              icon={<DislikeFeedback size={16} />}
-                              onClick={() => handleFeedback("dislike")}
-                            />
-                          </CustomTooltip>
-                          {regenerate && (
-                            <RegenerateOption
-                              selectedAssistant={currentPersona!}
-                              regenerate={regenerate}
-                              overriddenModel={overriddenModel}
-                              onHoverChange={setIsRegenerateHovered}
-                            />
-                          )}
-                        </TooltipGroup>
-                      </div>
-                    ))}
+                          <p className="truncate">
+                            [{citationKey}] {document!.semantic_identifier}
+                          </p>
+                        </div>
+                      );
+                      if (document.link) {
+                        return (
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-opacity-75"
+                            key={document.document_id}
+                          >
+                            <a
+                              href={document.link}
+                              target="_blank"
+                              className="cursor-pointer flex truncate"
+                            >
+                              {display}
+                            </a>
+                          </Badge>
+                        );
+                      } else {
+                        return (
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-opacity-75"
+                            key={document.document_id}
+                          >
+                            {display}
+                          </Badge>
+                        );
+                      }
+                    })}
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-        {(!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME) &&
-          !query &&
-          continueGenerating && (
-            <ContinueGenerating handleContinueGenerating={continueGenerating} />
+          {handleFeedback && (
+            <div className="flex flex-row gap-x-0.5 pl-1 md:pl-12 mt-1.5">
+              <CopyButton content={content.toString()} smallIcon />
+
+              {showLikeButton && (
+                <CustomTooltip
+                  trigger={
+                    <CustomModal
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="smallIcon"
+                          onClick={() => {
+                            handleFeedback("like");
+                            setIsLikeModalOpen(true);
+                          }}
+                          className={
+                            feedbackSubmitted ? "pointer-events-none" : ""
+                          }
+                        >
+                          <ThumbsUp
+                            size={16}
+                            className={
+                              feedbackSubmitted
+                                ? "fill-primary stroke-primary cursor-not-allowed"
+                                : ""
+                            }
+                          />
+                        </Button>
+                      }
+                      onClose={() => setIsLikeModalOpen(false)}
+                      open={isLikeModalOpen}
+                      title={
+                        <div className="flex text-2xl font-bold pb-6">
+                          <div className="my-auto mr-1">
+                            <ThumbsUpIcon className="my-auto mr-2 text-green-500" />
+                          </div>
+                          Provide additional feedback
+                        </div>
+                      }
+                    >
+                      <FeedbackModal
+                        feedbackType="like"
+                        onClose={onClose}
+                        onSubmit={handleLikeSubmit}
+                      />
+                    </CustomModal>
+                  }
+                  side="bottom"
+                >
+                  Good response
+                </CustomTooltip>
+              )}
+
+              {showDislikeButton && (
+                <CustomTooltip
+                  trigger={
+                    <CustomModal
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="smallIcon"
+                          onClick={() => {
+                            handleFeedback("dislike");
+                            setIsDislikeModalOpen(true);
+                          }}
+                          className={
+                            feedbackSubmitted ? "pointer-events-none" : ""
+                          }
+                        >
+                          <ThumbsDown
+                            size={16}
+                            className={
+                              feedbackSubmitted
+                                ? "fill-primary stroke-primary cursor-not-allowed"
+                                : ""
+                            }
+                          />
+                        </Button>
+                      }
+                      onClose={() => setIsDislikeModalOpen(false)}
+                      open={isDislikeModalOpen}
+                      title={
+                        <div className="flex text-2xl font-bold pb-6">
+                          <div className="my-auto mr-1">
+                            <ThumbsDownIcon className="my-auto mr-2 text-red-600" />
+                          </div>
+                          Provide additional feedback
+                        </div>
+                      }
+                    >
+                      <FeedbackModal
+                        feedbackType="dislike"
+                        onClose={onClose}
+                        onSubmit={handleDislikeSubmit}
+                      />
+                    </CustomModal>
+                  }
+                  side="bottom"
+                >
+                  Bad response
+                </CustomTooltip>
+              )}
+            </div>
           )}
+        </div>
       </div>
+      {(!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME) &&
+        !query &&
+        continueGenerating && (
+          <ContinueGenerating handleContinueGenerating={continueGenerating} />
+        )}
     </div>
   );
 };
@@ -624,20 +611,38 @@ function MessageSwitcher({
   handleNext: () => void;
 }) {
   return (
-    <div className="flex items-center text-sm space-x-0.5">
-      <Hoverable
-        icon={FiChevronLeft}
-        onClick={currentPage === 1 ? undefined : handlePrevious}
-      />
-
-      <span className="text-emphasis select-none">
+    <div className="flex items-center text-sm space-x-2 pt-2">
+      <CustomTooltip
+        trigger={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={currentPage === 1 ? undefined : handlePrevious}
+          >
+            <ChevronLeft />
+          </Button>
+        }
+        asChild
+      >
+        Previous
+      </CustomTooltip>
+      <span className="select-none  text-medium min-w-8 text-center">
         {currentPage} / {totalPages}
       </span>
-
-      <Hoverable
-        icon={FiChevronRight}
-        onClick={currentPage === totalPages ? undefined : handleNext}
-      />
+      <CustomTooltip
+        trigger={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={currentPage === totalPages ? undefined : handleNext}
+          >
+            <ChevronRight />
+          </Button>
+        }
+        asChild
+      >
+        Next
+      </CustomTooltip>
     </div>
   );
 }
@@ -649,10 +654,9 @@ export const HumanMessage = ({
   otherMessagesCanSwitchTo,
   onEdit,
   onMessageSelection,
-  shared,
+  user,
   stopGenerating = () => null,
 }: {
-  shared?: boolean;
   content: string;
   files?: FileDescriptor[];
   messageId?: number | null;
@@ -660,6 +664,7 @@ export const HumanMessage = ({
   onEdit?: (editedContent: string) => void;
   onMessageSelection?: (messageId: number) => void;
   stopGenerating?: () => void;
+  user?: UserTypes | null;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -697,190 +702,131 @@ export const HumanMessage = ({
 
   return (
     <div
-      id="danswer-human-message"
-      className="pt-5 pb-1 px-2 lg:px-5 flex -mr-6 relative"
+      className="relative flex w-full pb-5 -mr-6"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className={`text-user-text mx-auto ${shared ? "w-full" : "w-[90%]"} max-w-[790px]`}
-      >
-        <div className="xl:ml-8">
-          <div className="flex flex-col mr-4">
-            <FileDisplay alignBubble files={files || []} />
+      <div className="w-full">
+        <div className="">
+          <div className="flex">
+            <div className="mx-1">
+              <UserProfile user={user} size={34} textSize="text-base" />
+            </div>
 
-            <div className="flex justify-end">
-              <div className="w-full ml-8 flex w-full w-[800px] break-words">
-                {isEditing ? (
-                  <div className="w-full">
-                    <div
-                      className={`
+            <div className="my-auto ml-2 font-bold text-inverted-inverted">
+              You
+            </div>
+          </div>
+          <div className="flex flex-wrap pt-4 pl-1.5 md:pl-12 w-full">
+            <div className="break-words w-full">
+              <FileDisplay files={files || []} />
+              {isEditing ? (
+                <div>
+                  <div
+                    className={`
                       opacity-100
                       w-full
                       flex
                       flex-col
                       border 
                       border-border 
-                      rounded-lg 
-                      bg-background-emphasis
+                      rounded-regular 
                       pb-2
                       [&:has(textarea:focus)]::ring-1
                       [&:has(textarea:focus)]::ring-black
                     `}
-                    >
-                      <textarea
-                        ref={textareaRef}
-                        className={`
-                        m-0 
-                        w-full 
-                        h-auto
-                        shrink
-                        border-0
-                        rounded-lg 
-                        overflow-y-hidden
-                        bg-background-emphasis 
-                        whitespace-normal 
-                        break-word
-                        overscroll-contain
-                        outline-none 
-                        placeholder-gray-400 
-                        resize-none
-                        pl-4
-                        overflow-y-auto
-                        pr-12 
-                        py-4`}
-                        aria-multiline
-                        role="textarea"
-                        value={editedContent}
-                        style={{ scrollbarWidth: "thin" }}
-                        onChange={(e) => {
-                          setEditedContent(e.target.value);
-                          textareaRef.current!.style.height = "auto";
-                          e.target.style.height = `${e.target.scrollHeight}px`;
+                  >
+                    <Textarea
+                      ref={textareaRef}
+                      className={`
+                      m-0 
+                      focus-visible:!ring-0
+                      focus-visible:!ring-offset-0
+                      w-full 
+                      h-auto
+                      shrink
+                      border-0
+                      !rounded-regular 
+                      whitespace-normal 
+                      break-word
+                      overscroll-contain
+                      outline-none 
+                      placeholder-gray-400 
+                      resize-none
+                      pl-4
+                      overflow-y-auto
+                      py-4`}
+                      aria-multiline
+                      role="textarea"
+                      value={editedContent}
+                      style={{ scrollbarWidth: "thin" }}
+                      onChange={(e) => {
+                        setEditedContent(e.target.value);
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          e.preventDefault();
+                          setEditedContent(content);
+                          setIsEditing(false);
+                        }
+                        // Submit edit if "Command Enter" is pressed, like in ChatGPT
+                        if (e.key === "Enter" && e.metaKey) {
+                          handleEditSubmit();
+                        }
+                      }}
+                    />
+                    <div className="flex justify-end gap-2 pr-4 mt-2">
+                      <Button
+                        onClick={() => {
+                          setEditedContent(content);
+                          setIsEditing(false);
                         }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Escape") {
-                            e.preventDefault();
-                            setEditedContent(content);
-                            setIsEditing(false);
-                          }
-                          // Submit edit if "Command Enter" is pressed, like in ChatGPT
-                          if (e.key === "Enter" && e.metaKey) {
-                            handleEditSubmit();
-                          }
-                        }}
-                      />
-                      <div className="flex justify-end mt-2 gap-2 pr-4">
-                        <button
-                          className={`
-                          w-fit
-                          bg-accent 
-                          text-inverted 
-                          text-sm
-                          rounded-lg 
-                          inline-flex 
-                          items-center 
-                          justify-center 
-                          flex-shrink-0 
-                          font-medium 
-                          min-h-[38px]
-                          py-2
-                          px-3
-                          hover:bg-accent-hover
-                        `}
-                          onClick={handleEditSubmit}
-                        >
-                          Submit
-                        </button>
-                        <button
-                          className={`
-                          inline-flex 
-                          items-center 
-                          justify-center 
-                          flex-shrink-0 
-                          font-medium 
-                          min-h-[38px] 
-                          py-2 
-                          px-3 
-                          w-fit 
-                          bg-hover
-                          bg-background-strong 
-                          text-sm
-                          rounded-lg
-                          hover:bg-hover-emphasis
-                        `}
-                          onClick={() => {
-                            setEditedContent(content);
-                            setIsEditing(false);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                        variant="destructive"
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleEditSubmit}>Submit</Button>
                     </div>
                   </div>
-                ) : typeof content === "string" ? (
-                  <>
-                    <div className="ml-auto mr-1 my-auto">
-                      {onEdit &&
-                      isHovered &&
-                      !isEditing &&
-                      (!files || files.length === 0) ? (
-                        <Tooltip delayDuration={1000} content={"Edit message"}>
-                          <button
-                            className="hover:bg-hover p-1.5 rounded"
-                            onClick={() => {
-                              setIsEditing(true);
-                              setIsHovered(false);
-                            }}
-                          >
-                            <FiEdit2 className="!h-4 !w-4" />
-                          </button>
-                        </Tooltip>
-                      ) : (
-                        <div className="w-7" />
-                      )}
-                    </div>
+                </div>
+              ) : typeof content === "string" ? (
+                <div className="relative">
+                  <div className="relative flex-none whitespace-break-spaces max-w-full prose preserve-lines">
+                    {content}
+                  </div>
 
-                    <div
-                      className={`${
-                        !(
-                          onEdit &&
-                          isHovered &&
-                          !isEditing &&
-                          (!files || files.length === 0)
-                        ) && "ml-auto"
-                      } relative flex-none max-w-[70%] mb-auto whitespace-break-spaces rounded-3xl bg-user px-5 py-2.5`}
-                    >
-                      {content}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {onEdit &&
+                  {onEdit &&
                     isHovered &&
                     !isEditing &&
-                    (!files || files.length === 0) ? (
-                      <div className="my-auto">
-                        <Hoverable
-                          icon={FiEdit2}
-                          onClick={() => {
-                            setIsEditing(true);
-                            setIsHovered(false);
-                          }}
-                        />
+                    (!files || files.length === 0) && (
+                      <div className="bg-hover absolute -top-11 right-0 rounded">
+                        <CustomTooltip
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="smallIcon"
+                              onClick={() => {
+                                setIsEditing(true);
+                                setIsHovered(false);
+                              }}
+                            >
+                              <Pencil size={16} />
+                            </Button>
+                          }
+                          asChild
+                        >
+                          Edit
+                        </CustomTooltip>
                       </div>
-                    ) : (
-                      <div className="h-[27px]" />
                     )}
-                    <div className="ml-auto rounded-lg p-1">{content}</div>
-                  </>
-                )}
-              </div>
+                </div>
+              ) : (
+                content
+              )}
             </div>
           </div>
-
-          <div className="flex flex-col md:flex-row gap-x-0.5 mt-1">
+          <div className="flex flex-col md:flex-row gap-x-0.5 ml-12">
             {currentMessageInd !== undefined &&
               onMessageSelection &&
               otherMessagesCanSwitchTo &&

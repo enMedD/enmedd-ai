@@ -21,51 +21,51 @@ from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from danswer.auth.invited_users import get_invited_users
-from danswer.auth.invited_users import write_invited_users
-from danswer.auth.noauth_user import fetch_no_auth_user
-from danswer.auth.noauth_user import set_no_auth_user_preferences
-from danswer.auth.schemas import UserRole
-from danswer.auth.schemas import UserStatus
-from danswer.auth.users import current_admin_user
-from danswer.auth.users import current_curator_or_admin_user
-from danswer.auth.users import current_user
-from danswer.auth.users import optional_user
-from danswer.configs.app_configs import AUTH_TYPE
-from danswer.configs.app_configs import ENABLE_EMAIL_INVITES
-from danswer.configs.app_configs import MULTI_TENANT
-from danswer.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
-from danswer.configs.app_configs import VALID_EMAIL_DOMAINS
-from danswer.configs.constants import AuthType
-from danswer.db.auth import get_total_users
-from danswer.db.engine import current_tenant_id
-from danswer.db.engine import get_session
-from danswer.db.models import AccessToken
-from danswer.db.models import DocumentSet__User
-from danswer.db.models import Persona__User
-from danswer.db.models import SamlAccount
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.users import get_user_by_email
-from danswer.db.users import list_users
-from danswer.key_value_store.factory import get_kv_store
-from danswer.server.manage.models import AllUsersResponse
-from danswer.server.manage.models import UserByEmail
-from danswer.server.manage.models import UserInfo
-from danswer.server.manage.models import UserPreferences
-from danswer.server.manage.models import UserRoleResponse
-from danswer.server.manage.models import UserRoleUpdateRequest
-from danswer.server.models import FullUserSnapshot
-from danswer.server.models import InvitedUserSnapshot
-from danswer.server.models import MinimalUserSnapshot
-from danswer.server.utils import send_user_email_invite
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.api_key import is_api_key_email_address
-from ee.danswer.db.external_perm import delete_user__ext_group_for_user__no_commit
-from ee.danswer.db.user_group import remove_curator_status__no_commit
-from ee.danswer.server.tenants.billing import register_tenant_users
-from ee.danswer.server.tenants.provisioning import add_users_to_tenant
-from ee.danswer.server.tenants.provisioning import remove_users_from_tenant
+from enmedd.auth.invited_users import get_invited_users
+from enmedd.auth.invited_users import write_invited_users
+from enmedd.auth.noauth_user import fetch_no_auth_user
+from enmedd.auth.noauth_user import set_no_auth_user_preferences
+from enmedd.auth.schemas import UserRole
+from enmedd.auth.schemas import UserStatus
+from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_curator_or_admin_user
+from enmedd.auth.users import current_user
+from enmedd.auth.users import optional_user
+from enmedd.configs.app_configs import AUTH_TYPE
+from enmedd.configs.app_configs import ENABLE_EMAIL_INVITES
+from enmedd.configs.app_configs import MULTI_TENANT
+from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
+from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
+from enmedd.configs.constants import AuthType
+from enmedd.db.auth import get_total_users
+from enmedd.db.engine import current_tenant_id
+from enmedd.db.engine import get_session
+from enmedd.db.models import AccessToken
+from enmedd.db.models import DocumentSet__User
+from enmedd.db.models import Assistant__User
+from enmedd.db.models import SamlAccount
+from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
+from enmedd.db.users import get_user_by_email
+from enmedd.db.users import list_users
+from enmedd.key_value_store.factory import get_kv_store
+from enmedd.server.manage.models import AllUsersResponse
+from enmedd.server.manage.models import UserByEmail
+from enmedd.server.manage.models import UserInfo
+from enmedd.server.manage.models import UserPreferences
+from enmedd.server.manage.models import UserRoleResponse
+from enmedd.server.manage.models import UserRoleUpdateRequest
+from enmedd.server.models import FullUserSnapshot
+from enmedd.server.models import InvitedUserSnapshot
+from enmedd.server.models import MinimalUserSnapshot
+from enmedd.server.utils import send_user_email_invite
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.api_key import is_api_key_email_address
+from ee.enmedd.db.external_perm import delete_user__ext_group_for_user__no_commit
+from ee.enmedd.db.teamspace import remove_curator_status__no_commit
+from ee.enmedd.server.tenants.billing import register_tenant_users
+from ee.enmedd.server.tenants.provisioning import add_users_to_tenant
+from ee.enmedd.server.tenants.provisioning import remove_users_from_tenant
 
 logger = setup_logger()
 
@@ -209,7 +209,7 @@ def bulk_invite_users(
             if isinstance(e.orig, UniqueViolation):
                 raise HTTPException(
                     status_code=400,
-                    detail="User has already been invited to a Danswer organization",
+                    detail="User has already been invited to a enMedD AI organization",
                 )
             raise
 
@@ -333,11 +333,11 @@ async def delete_user(
         db_session.query(DocumentSet__User).filter(
             DocumentSet__User.user_id == user_to_delete.id
         ).delete()
-        db_session.query(Persona__User).filter(
-            Persona__User.user_id == user_to_delete.id
+        db_session.query(Assistant__User).filter(
+            Assistant__User.user_id == user_to_delete.id
         ).delete()
-        db_session.query(User__UserGroup).filter(
-            User__UserGroup.user_id == user_to_delete.id
+        db_session.query(User__Teamspace).filter(
+            User__Teamspace.user_id == user_to_delete.id
         ).delete()
         db_session.delete(user_to_delete)
         db_session.commit()

@@ -30,8 +30,9 @@ export interface NavigationItem {
   title: string;
 }
 
-export interface EnterpriseSettings {
-  application_name: string | null;
+export interface Workspaces {
+  workspace_name: string | null;
+  workspace_description: string | null;
   use_custom_logo: boolean;
   use_custom_logotype: boolean;
 
@@ -40,16 +41,28 @@ export interface EnterpriseSettings {
 
   // custom Chat components
   custom_lower_disclaimer_content: string | null;
-  custom_header_content: string | null;
   two_lines_for_chat_header: boolean | null;
   custom_popup_header: string | null;
   custom_popup_content: string | null;
   enable_consent_screen: boolean | null;
+  custom_header_logo: string | null;
+  custom_header_content: string | null;
+}
+
+export interface FeatureFlags {
+  profile_page: boolean;
+  multi_teamspace: boolean;
+  multi_workspace: boolean;
+  query_history: boolean;
+  whitelabelling: boolean;
+  share_chat: boolean;
+  explore_assistants: boolean;
 }
 
 export interface CombinedSettings {
   settings: Settings;
-  enterpriseSettings: EnterpriseSettings | null;
+  featureFlags: FeatureFlags;
+  workspaces: Workspaces | null;
   customAnalyticsScript: string | null;
   isMobile?: boolean;
   webVersion: string | null;

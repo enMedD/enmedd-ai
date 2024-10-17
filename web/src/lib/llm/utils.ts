@@ -1,10 +1,10 @@
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { LLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
 import { LlmOverride } from "@/lib/hooks";
 
 export function getFinalLLM(
   llmProviders: LLMProviderDescriptor[],
-  persona: Persona | null,
+  assistant: Assistant | null,
   llmOverride: LlmOverride | null
 ): [string, string] {
   const defaultProvider = llmProviders.find(
@@ -14,16 +14,16 @@ export function getFinalLLM(
   let provider = defaultProvider?.provider || "";
   let model = defaultProvider?.default_model_name || "";
 
-  if (persona) {
+  if (assistant) {
     // Map "provider override" to actual LLLMProvider
-    if (persona.llm_model_provider_override) {
+    if (assistant.llm_model_provider_override) {
       const underlyingProvider = llmProviders.find(
         (item: LLMProviderDescriptor) =>
-          item.name === persona.llm_model_provider_override
+          item.name === assistant.llm_model_provider_override
       );
       provider = underlyingProvider?.provider || provider;
     }
-    model = persona.llm_model_version_override || model;
+    model = assistant.llm_model_version_override || model;
   }
 
   if (llmOverride) {
@@ -34,8 +34,8 @@ export function getFinalLLM(
   return [provider, model];
 }
 
-export function getLLMProviderOverrideForPersona(
-  liveAssistant: Persona,
+export function getLLMProviderOverrideForAssistant(
+  liveAssistant: Assistant,
   llmProviders: LLMProviderDescriptor[]
 ): LlmOverride | null {
   const overrideProvider = liveAssistant.llm_model_provider_override;

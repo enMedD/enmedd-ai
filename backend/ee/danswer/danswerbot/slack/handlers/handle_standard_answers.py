@@ -5,27 +5,27 @@ from slack_sdk.models.blocks import ButtonElement
 from slack_sdk.models.blocks import SectionBlock
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import MessageType
-from danswer.configs.danswerbot_configs import DANSWER_REACT_EMOJI
-from danswer.danswerbot.slack.blocks import get_restate_blocks
-from danswer.danswerbot.slack.constants import GENERATE_ANSWER_BUTTON_ACTION_ID
-from danswer.danswerbot.slack.handlers.utils import send_team_member_message
-from danswer.danswerbot.slack.models import SlackMessageInfo
-from danswer.danswerbot.slack.utils import respond_in_thread
-from danswer.danswerbot.slack.utils import update_emote_react
-from danswer.db.chat import create_chat_session
-from danswer.db.chat import create_new_chat_message
-from danswer.db.chat import get_chat_messages_by_sessions
-from danswer.db.chat import get_chat_sessions_by_slack_thread_id
-from danswer.db.chat import get_or_create_root_message
-from danswer.db.models import Prompt
-from danswer.db.models import SlackBotConfig
-from danswer.db.models import StandardAnswer as StandardAnswerModel
-from danswer.utils.logger import DanswerLoggingAdapter
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.standard_answer import fetch_standard_answer_categories_by_names
-from ee.danswer.db.standard_answer import find_matching_standard_answers
-from ee.danswer.server.manage.models import StandardAnswer as PydanticStandardAnswer
+from enmedd.configs.constants import MessageType
+from enmedd.configs.enmedddbot_configs import DANSWER_REACT_EMOJI
+from enmedd.enmedddbot.slack.blocks import get_restate_blocks
+from enmedd.enmedddbot.slack.constants import GENERATE_ANSWER_BUTTON_ACTION_ID
+from enmedd.enmedddbot.slack.handlers.utils import send_team_member_message
+from enmedd.enmedddbot.slack.models import SlackMessageInfo
+from enmedd.enmedddbot.slack.utils import respond_in_thread
+from enmedd.enmedddbot.slack.utils import update_emote_react
+from enmedd.db.chat import create_chat_session
+from enmedd.db.chat import create_new_chat_message
+from enmedd.db.chat import get_chat_messages_by_sessions
+from enmedd.db.chat import get_chat_sessions_by_slack_thread_id
+from enmedd.db.chat import get_or_create_root_message
+from enmedd.db.models import Prompt
+from enmedd.db.models import SlackBotConfig
+from enmedd.db.models import StandardAnswer as StandardAnswerModel
+from enmedd.utils.logger import DanswerLoggingAdapter
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.standard_answer import fetch_standard_answer_categories_by_names
+from ee.enmedd.db.standard_answer import find_matching_standard_answers
+from ee.enmedd.server.manage.models import StandardAnswer as PydanticStandardAnswer
 
 logger = setup_logger()
 
@@ -150,8 +150,8 @@ def _handle_standard_answers(
             db_session=db_session,
             description="",
             user_id=None,
-            persona_id=slack_bot_config.persona.id if slack_bot_config.persona else 0,
-            danswerbot_flow=True,
+            assistant_id=slack_bot_config.assistant.id if slack_bot_config.assistant else 0,
+            enmedddbot_flow=True,
             slack_thread_id=slack_thread_id,
             one_shot=True,
         )
@@ -217,7 +217,7 @@ def _handle_standard_answers(
                 client=client,
                 channel=message_info.channel_to_respond,
                 receiver_ids=receiver_ids,
-                text="Hello! Danswer has some results for you!",
+                text="Hello! enMedD AI has some results for you!",
                 blocks=all_blocks,
                 thread_ts=message_info.msg_to_respond,
                 unfurl=False,

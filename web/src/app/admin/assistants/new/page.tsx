@@ -2,10 +2,10 @@ import { AssistantEditor } from "../AssistantEditor";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { RobotIcon } from "@/components/icons/icons";
 import { BackButton } from "@/components/BackButton";
-import { Card } from "@tremor/react";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchPersonaEditorInfoSS";
-import { SuccessfulPersonaUpdateRedirectType } from "../enums";
+import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchAssistantEditorInfoSS";
+import { SuccessfulAssistantUpdateRedirectType } from "../enums";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function Page() {
   const [values, error] = await fetchAssistantEditorInfoSS();
@@ -18,24 +18,29 @@ export default async function Page() {
   } else {
     body = (
       <Card>
-        <AssistantEditor
-          {...values}
-          admin
-          defaultPublic={true}
-          redirectType={SuccessfulPersonaUpdateRedirectType.ADMIN}
-        />
+        <CardContent>
+          <AssistantEditor
+            {...values}
+            defaultPublic={true}
+            redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
+          />
+        </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="w-full">
-      <BackButton />
-      <AdminPageTitle
-        title="Create a New Assistant"
-        icon={<RobotIcon size={32} />}
-      />
-      {body}
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
+
+        <AdminPageTitle
+          title="Create a New Assistant"
+          icon={<RobotIcon size={32} />}
+        />
+
+        {body}
+      </div>
     </div>
   );
 }

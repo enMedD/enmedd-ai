@@ -35,16 +35,16 @@ import {
   S3Icon,
   OCIStorageIcon,
   GoogleStorageIcon,
-  ColorSlackIcon,
   XenforoIcon,
+  GoogleSheetsIcon,
 } from "@/components/icons/icons";
 import { ValidSources } from "./types";
 import {
-  DanswerDocument,
+  EnmeddDocument,
   SourceCategory,
   SourceMetadata,
 } from "./search/interfaces";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 interface PartialSourceMetadata {
   icon: React.FC<{ size?: number; className?: string }>;
@@ -61,67 +61,61 @@ const SOURCE_METADATA_MAP: SourceMap = {
   web: {
     icon: GlobeIcon,
     displayName: "Web",
-    category: SourceCategory.Other,
+    category: SourceCategory.ImportedKnowledge,
     docs: "https://docs.danswer.dev/connectors/web",
   },
   file: {
     icon: FileIcon,
     displayName: "File",
-    category: SourceCategory.Storage,
+    category: SourceCategory.ImportedKnowledge,
     docs: "https://docs.danswer.dev/connectors/file",
-  },
-  slack: {
-    icon: ColorSlackIcon,
-    displayName: "Slack",
-    category: SourceCategory.Messaging,
-    docs: "https://docs.danswer.dev/connectors/slack",
   },
   gmail: {
     icon: GmailIcon,
     displayName: "Gmail",
-    category: SourceCategory.Messaging,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/gmail/overview",
   },
   google_drive: {
     icon: GoogleDriveIcon,
     displayName: "Google Drive",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/google_drive/overview",
   },
   github: {
     icon: GithubIcon,
     displayName: "Github",
-    category: SourceCategory.CodeRepository,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/github",
   },
   gitlab: {
     icon: GitlabIcon,
     displayName: "Gitlab",
-    category: SourceCategory.CodeRepository,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/gitlab",
   },
   confluence: {
     icon: ConfluenceIcon,
     displayName: "Confluence",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/confluence",
   },
   jira: {
     icon: JiraIcon,
     displayName: "Jira",
-    category: SourceCategory.ProjectManagement,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/jira",
   },
   notion: {
     icon: NotionIcon,
     displayName: "Notion",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/notion",
   },
   zendesk: {
     icon: ZendeskIcon,
     displayName: "Zendesk",
-    category: SourceCategory.CustomerSupport,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/zendesk",
   },
   gong: {
@@ -133,55 +127,55 @@ const SOURCE_METADATA_MAP: SourceMap = {
   linear: {
     icon: LinearIcon,
     displayName: "Linear",
-    category: SourceCategory.ProjectManagement,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/linear",
   },
   productboard: {
     icon: ProductboardIcon,
     displayName: "Productboard",
-    category: SourceCategory.ProjectManagement,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/productboard",
   },
   slab: {
     icon: SlabIcon,
     displayName: "Slab",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/slab",
   },
   zulip: {
     icon: ZulipIcon,
     displayName: "Zulip",
-    category: SourceCategory.Messaging,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/zulip",
   },
   guru: {
     icon: GuruIcon,
     displayName: "Guru",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/guru",
   },
   hubspot: {
     icon: HubSpotIcon,
     displayName: "HubSpot",
-    category: SourceCategory.CustomerSupport,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/hubspot",
   },
   document360: {
     icon: Document360Icon,
     displayName: "Document360",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/document360",
   },
   bookstack: {
     icon: BookstackIcon,
     displayName: "BookStack",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/bookstack",
   },
   google_sites: {
     icon: GoogleSitesIcon,
     displayName: "Google Sites",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/google_sites",
   },
   loopio: {
@@ -192,97 +186,102 @@ const SOURCE_METADATA_MAP: SourceMap = {
   dropbox: {
     icon: DropboxIcon,
     displayName: "Dropbox",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/dropbox",
   },
   salesforce: {
     icon: SalesforceIcon,
     displayName: "Salesforce",
-    category: SourceCategory.CustomerSupport,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/salesforce",
   },
   sharepoint: {
     icon: SharepointIcon,
     displayName: "Sharepoint",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/sharepoint",
   },
   teams: {
     icon: TeamsIcon,
     displayName: "Teams",
-    category: SourceCategory.Messaging,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/teams",
   },
   discourse: {
     icon: DiscourseIcon,
     displayName: "Discourse",
-    category: SourceCategory.Messaging,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/discourse",
   },
   axero: {
     icon: AxeroIcon,
     displayName: "Axero",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/axero",
   },
   wikipedia: {
     icon: WikipediaIcon,
     displayName: "Wikipedia",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.ImportedKnowledge,
     docs: "https://docs.danswer.dev/connectors/wikipedia",
   },
   asana: {
     icon: AsanaIcon,
     displayName: "Asana",
-    category: SourceCategory.ProjectManagement,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/asana",
   },
   mediawiki: {
     icon: MediaWikiIcon,
     displayName: "MediaWiki",
-    category: SourceCategory.Wiki,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/mediawiki",
   },
   requesttracker: {
     icon: RequestTrackerIcon,
     displayName: "Request Tracker",
-    category: SourceCategory.CustomerSupport,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/requesttracker",
   },
   clickup: {
     icon: ClickupIcon,
     displayName: "Clickup",
-    category: SourceCategory.ProjectManagement,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/clickup",
   },
   s3: {
     icon: S3Icon,
     displayName: "S3",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/s3",
   },
   r2: {
     icon: R2Icon,
     displayName: "R2",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/r2",
   },
   oci_storage: {
     icon: OCIStorageIcon,
     displayName: "Oracle Storage",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/oci_storage",
   },
   google_cloud_storage: {
     icon: GoogleStorageIcon,
     displayName: "Google Storage",
-    category: SourceCategory.Storage,
+    category: SourceCategory.AppConnection,
     docs: "https://docs.danswer.dev/connectors/google_storage",
+  },
+  google_sheets: {
+    icon: GoogleSheetsIcon,
+    displayName: "Google Sheets",
+    category: SourceCategory.ComingSoon,
   },
   xenforo: {
     icon: XenforoIcon,
     displayName: "Xenforo",
-    category: SourceCategory.Messaging,
+    category: SourceCategory.AppConnection,
   },
   ingestion_api: {
     icon: GlobeIcon,
@@ -346,14 +345,14 @@ export function getSourceMetadataForSources(sources: ValidSources[]) {
   return sources.map((source) => getSourceMetadata(source));
 }
 
-export function getSourcesForPersona(persona: Persona): ValidSources[] {
-  const personaSources: ValidSources[] = [];
-  persona.document_sets.forEach((documentSet) => {
+export function getSourcesForAssistant(assistant: Assistant): ValidSources[] {
+  const assistantSources: ValidSources[] = [];
+  assistant.document_sets.forEach((documentSet) => {
     documentSet.cc_pair_descriptors.forEach((ccPair) => {
-      if (!personaSources.includes(ccPair.connector.source)) {
-        personaSources.push(ccPair.connector.source);
+      if (!assistantSources.includes(ccPair.connector.source)) {
+        assistantSources.push(ccPair.connector.source);
       }
     });
   });
-  return personaSources;
+  return assistantSources;
 }

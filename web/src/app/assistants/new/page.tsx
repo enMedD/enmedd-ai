@@ -1,10 +1,10 @@
-import { Card } from "@tremor/react";
 import { HeaderWrapper } from "@/components/header/HeaderWrapper";
 import { AssistantEditor } from "@/app/admin/assistants/AssistantEditor";
-import { SuccessfulPersonaUpdateRedirectType } from "@/app/admin/assistants/enums";
-import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchPersonaEditorInfoSS";
+import { SuccessfulAssistantUpdateRedirectType } from "@/app/admin/assistants/enums";
+import { fetchAssistantEditorInfoSS } from "@/lib/assistants/fetchAssistantEditorInfoSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { LargeBackButton } from "../LargeBackButton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function Page() {
   const [values, error] = await fetchAssistantEditorInfoSS();
@@ -20,14 +20,16 @@ export default async function Page() {
     body = (
       <div className="w-full my-16">
         <div className="px-32">
-          <div className="mx-auto container">
+          <div className="">
             <Card>
-              <AssistantEditor
-                {...values}
-                defaultPublic={false}
-                redirectType={SuccessfulPersonaUpdateRedirectType.CHAT}
-                shouldAddAssistantToUserPreferences={true}
-              />
+              <CardContent>
+                <AssistantEditor
+                  {...values}
+                  defaultPublic={false}
+                  redirectType={SuccessfulAssistantUpdateRedirectType.CHAT}
+                  shouldAddAssistantToUserPreferences={true}
+                />
+              </CardContent>
             </Card>
           </div>
         </div>
@@ -38,11 +40,10 @@ export default async function Page() {
   return (
     <div>
       <HeaderWrapper>
-        <div className="h-full flex flex-col">
+        <div className="flex flex-col h-full">
           <div className="flex my-auto">
             <LargeBackButton />
-
-            <h1 className="flex text-xl text-strong font-bold my-auto">
+            <h1 className="flex my-auto text-xl font-bold text-strong">
               New Assistant
             </h1>
           </div>

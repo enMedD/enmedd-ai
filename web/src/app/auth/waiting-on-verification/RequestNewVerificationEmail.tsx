@@ -1,8 +1,8 @@
 "use client";
 
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { requestEmailVerification } from "../lib";
 import { Spinner } from "@/components/Spinner";
+import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 export function RequestNewVerificationEmail({
@@ -12,9 +12,9 @@ export function RequestNewVerificationEmail({
   children: JSX.Element | string;
   email: string;
 }) {
-  const { popup, setPopup } = usePopup();
   const [isRequestingVerification, setIsRequestingVerification] =
     useState(false);
+  const { toast } = useToast();
 
   return (
     <button
@@ -25,21 +25,24 @@ export function RequestNewVerificationEmail({
         setIsRequestingVerification(false);
 
         if (response.ok) {
-          setPopup({
-            type: "success",
-            message: "A new verification email has been sent!",
+          toast({
+            title: "Verification Email Sent",
+            description:
+              "We've sent a new verification email to your inbox. Please check your email.",
+            variant: "success",
           });
         } else {
           const errorDetail = (await response.json()).detail;
-          setPopup({
-            type: "error",
-            message: `Failed to send a new verification email - ${errorDetail}`,
+
+          toast({
+            title: "Email Verification Failed",
+            description: `Unable to send verification email: ${errorDetail}. Please try again later.`,
+            variant: "destructive",
           });
         }
       }}
     >
       {isRequestingVerification && <Spinner />}
-      {popup}
       {children}
     </button>
   );

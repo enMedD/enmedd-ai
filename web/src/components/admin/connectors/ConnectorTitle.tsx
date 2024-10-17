@@ -1,3 +1,5 @@
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { getSourceMetadata } from "@/lib/sources";
 import {
   ConfluenceConfig,
   Connector,
@@ -5,11 +7,7 @@ import {
   GitlabConfig,
   GoogleDriveConfig,
   JiraConfig,
-  SlackConfig,
-  ZulipConfig,
 } from "@/lib/connectors/connectors";
-import { getSourceMetadata } from "@/lib/sources";
-
 import Link from "next/link";
 
 interface ConnectorTitleProps {
@@ -79,39 +77,27 @@ export const ConnectorTitle = ({
     if (!isPublic && owner) {
       additionalMetadata.set("Owner", owner);
     }
-  } else if (connector.source === "slack") {
-    const typedConnector = connector as Connector<SlackConfig>;
-    if (
-      typedConnector.connector_specific_config?.channels &&
-      typedConnector.connector_specific_config?.channels.length > 0
-    ) {
-      additionalMetadata.set(
-        "Channels",
-        typedConnector.connector_specific_config.channels.join(", ")
-      );
-    }
-    if (typedConnector.connector_specific_config.channel_regex_enabled) {
-      additionalMetadata.set("Channel Regex Enabled", "True");
-    }
-  } else if (connector.source === "zulip") {
-    const typedConnector = connector as Connector<ZulipConfig>;
-    additionalMetadata.set(
-      "Realm",
-      typedConnector.connector_specific_config.realm_name
-    );
   }
 
-  const mainSectionClassName = "text-blue-500 flex w-fit";
+  const mainSectionClassName = "flex w-full";
+
   const mainDisplay = (
-    <>
-      {sourceMetadata.icon({ size: 20 })}
-      <div className="ml-1 my-auto">
-        {ccPairName || sourceMetadata.displayName}
-      </div>
-    </>
+    <CustomTooltip
+      trigger={
+        <div className="flex items-center gap-1 w-full">
+          {sourceMetadata.icon({ size: 14 })}
+          <div className="ml-1 my-auto w-full truncate">
+            {ccPairName || sourceMetadata.displayName}
+          </div>
+        </div>
+      }
+      asChild
+    >
+      {ccPairName || sourceMetadata.displayName}
+    </CustomTooltip>
   );
   return (
-    <div className="my-auto">
+    <div className="my-auto w-full">
       {isLink ? (
         <Link
           className={mainSectionClassName}

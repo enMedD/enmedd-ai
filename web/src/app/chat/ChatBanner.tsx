@@ -31,7 +31,7 @@ export function ChatBanner() {
     return () => window.removeEventListener("resize", checkOverflow);
   }, []);
 
-  if (!settings?.enterpriseSettings?.custom_header_content) {
+  if (!settings?.workspaces?.custom_header_content) {
     return null;
   }
 
@@ -60,22 +60,22 @@ export function ChatBanner() {
           <div className={`flex justify-center w-full overflow-hidden pr-8`}>
             <div
               ref={contentRef}
-              className={`overflow-hidden ${settings.enterpriseSettings.two_lines_for_chat_header ? "line-clamp-2" : "line-clamp-1"} text-center max-w-full`}
+              className={`overflow-hidden ${settings.workspaces?.two_lines_for_chat_header ? "line-clamp-2" : "line-clamp-1"} text-center max-w-full`}
             >
               <MinimalMarkdown
                 className="prose text-sm max-w-full"
-                content={settings.enterpriseSettings.custom_header_content}
+                content={settings.workspaces?.custom_header_content || ""}
               />
             </div>
           </div>
           <div className="absolute top-0 left-0 invisible flex justify-center max-w-full">
             <div
               ref={fullContentRef}
-              className={`overflow-hidden invisible ${settings.enterpriseSettings.two_lines_for_chat_header ? "line-clamp-2" : "line-clamp-1"} text-center max-w-full`}
+              className={`overflow-hidden invisible ${settings.workspaces?.two_lines_for_chat_header ? "line-clamp-2" : "line-clamp-1"} text-center max-w-full`}
             >
               <MinimalMarkdown
                 className="prose text-sm max-w-full"
-                content={settings.enterpriseSettings.custom_header_content}
+                content={settings.workspaces?.custom_header_content || ""}
               />
             </div>
           </div>
@@ -97,9 +97,7 @@ export function ChatBanner() {
                     <p className="text-lg font-bold">Banner Content</p>
                     <MinimalMarkdown
                       className="max-h-96 overflow-y-auto"
-                      content={
-                        settings.enterpriseSettings.custom_header_content
-                      }
+                      content={settings.workspaces?.custom_header_content || ""}
                     />
                   </div>
                 }

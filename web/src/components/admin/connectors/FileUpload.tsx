@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { useFormikContext } from "formik";
+import Image from "next/image";
 import { FC, useState } from "react";
 import React from "react";
 import Dropzone from "react-dropzone";
@@ -20,7 +22,7 @@ export const FileUpload: FC<FileUploadProps> = ({
   const { setFieldValue } = useFormikContext();
 
   return (
-    <div>
+    <div className="pb-6">
       <Dropzone
         onDrop={(acceptedFiles) => {
           setSelectedFiles(acceptedFiles);
@@ -36,14 +38,13 @@ export const FileUpload: FC<FileUploadProps> = ({
           <section>
             <div
               {...getRootProps()}
-              className={
-                "flex flex-col items-center w-full px-4 py-12 rounded " +
-                "shadow-lg tracking-wide border border-border cursor-pointer" +
-                (dragActive ? " border-accent" : "")
-              }
+              className={`bg-background p-4 flex items-center gap-4 border w-fit rounded-regular shadow-sm ${
+                dragActive ? " border-accent" : ""
+              }`}
             >
               <input {...getInputProps()} />
-              <b className="text-emphasis">
+              <Button type="button">Upload</Button>
+              <b className="">
                 {message ||
                   "Drag and drop some files here, or click to select files"}
               </b>
@@ -54,11 +55,21 @@ export const FileUpload: FC<FileUploadProps> = ({
 
       {selectedFiles.length > 0 && (
         <div className="mt-4">
-          <h2 className="text-sm font-bold">Selected Files</h2>
+          <span className="font-semibold text-sm">Uploaded image:</span>
           <ul>
             {selectedFiles.map((file) => (
-              <div key={file.name} className="flex">
-                <p className="text-sm mr-2">{file.name}</p>
+              <div key={file.name} className="flex items-center mt-2">
+                {file.type.startsWith("image/") ? (
+                  <Image
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    className="object-cover"
+                    width={150}
+                    height={150}
+                  />
+                ) : (
+                  <p className="text-sm mr-2">{file.name}</p>
+                )}
               </div>
             ))}
           </ul>

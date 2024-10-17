@@ -1,16 +1,26 @@
 "use client";
 
-import { Label, SubLabel } from "@/components/admin/connectors/Field";
-import { usePopup } from "@/components/admin/connectors/Popup";
-import { Title, Button } from "@tremor/react";
+import { SubLabel } from "@/components/admin/connectors/Field";
 import { Settings } from "./interfaces";
 import { useRouter } from "next/navigation";
-import { DefaultDropdown, Option } from "@/components/Dropdown";
-import React, { useContext, useState, useEffect } from "react";
+import { Option } from "@/components/Dropdown";
+import { useContext, useEffect, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label as ShadcnLabel } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
-function Checkbox({
+function CheckboxComponent({
   label,
   sublabel,
   checked,
@@ -19,21 +29,21 @@ function Checkbox({
   label: string;
   sublabel: string;
   checked: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex text-sm mb-4">
-      <input
-        checked={checked}
-        onChange={onChange}
-        type="checkbox"
-        className="mx-3 px-5 w-3.5 h-3.5 my-auto"
-      />
-      <div>
-        <Label>{label}</Label>
-        <SubLabel>{sublabel}</SubLabel>
+    <div className="flex text-sm mb-4 gap-3">
+      <Checkbox checked={checked} onCheckedChange={onChange} id={label} />
+      <div className="grid leading-none">
+        <ShadcnLabel
+          htmlFor={label}
+          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {label}
+        </ShadcnLabel>
+        <p className="text-sm text-muted-foreground">{sublabel}</p>
       </div>
-    </label>
+    </div>
   );
 }
 
@@ -52,15 +62,31 @@ function Selector({
 }) {
   return (
     <div className="mb-8">
-      {label && <Label>{label}</Label>}
-      {subtext && <SubLabel>{subtext}</SubLabel>}
+      {label && (
+        <ShadcnLabel
+          htmlFor={label}
+          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {label}
+        </ShadcnLabel>
+      )}
+      {subtext && <p className="text-sm text-muted-foreground">{subtext}</p>}
 
       <div className="mt-2 w-full max-w-96">
-        <DefaultDropdown
-          options={options}
-          selected={selected}
-          onSelect={onSelect}
-        />
+        <Select value={selected} onValueChange={onSelect}>
+          <SelectTrigger className="flex text-sm bg-background px-3 py-1.5 rounded-regular border border-border cursor-pointer">
+            <SelectValue
+              placeholder={selected ? undefined : "Select an option..."}
+            />
+          </SelectTrigger>
+          <SelectContent className="border rounded-regular flex flex-col bg-background max-h-96 overflow-y-auto overscroll-contain">
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -72,7 +98,7 @@ function IntegerInput({
   value,
   onChange,
   id,
-  placeholder = "Enter a number", // Default placeholder if none is provided
+  placeholder = "Enter a number",
 }: {
   label: string;
   sublabel: string;
@@ -83,11 +109,16 @@ function IntegerInput({
 }) {
   return (
     <label className="flex flex-col text-sm mb-4">
-      <Label>{label}</Label>
+      <ShadcnLabel
+        htmlFor={label}
+        className="font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        {label}
+      </ShadcnLabel>
       <SubLabel>{sublabel}</SubLabel>
-      <input
+      <Input
         type="number"
-        className="mt-1 p-2 border rounded w-full max-w-xs"
+        className="w-full max-w-xs"
         value={value ?? ""}
         onChange={onChange}
         min="1"
@@ -103,8 +134,8 @@ export function SettingsForm() {
   const router = useRouter();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [chatRetention, setChatRetention] = useState("");
-  const { popup, setPopup } = usePopup();
   const isEnterpriseEnabled = usePaidEnterpriseFeaturesEnabled();
+  const { toast } = useToast();
 
   const combinedSettings = useContext(SettingsContext);
 
@@ -151,17 +182,19 @@ export function SettingsForm() {
       }
 
       router.refresh();
-      setPopup({
-        message: "Settings updated successfully!",
-        type: "success",
+      toast({
+        title: "Settings Updated",
+        description: "Your settings have been successfully updated!",
+        variant: "success",
       });
     } catch (error) {
       // Revert the optimistic update
       setSettings(settings);
       console.error("Error updating settings:", error);
-      setPopup({
-        message: `Failed to update settings`,
-        type: "error",
+      toast({
+        title: "Update Failed",
+        description: `Unable to update settings. Reason: ${error}`,
+        variant: "destructive",
       });
     }
   }
@@ -174,7 +207,6 @@ export function SettingsForm() {
       { fieldName, newValue: checked },
     ];
 
-    // If we're disabling a page, check if we need to update the default page
     if (
       !checked &&
       (fieldName === "search_page_enabled" || fieldName === "chat_page_enabled")
@@ -216,24 +248,23 @@ export function SettingsForm() {
 
   return (
     <div>
-      {popup}
-      <Title className="mb-4">Page Visibility</Title>
+      <h3 className="mb-4">Page Visibility</h3>
 
-      <Checkbox
+      <CheckboxComponent
         label="Search Page Enabled?"
         sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
         checked={settings.search_page_enabled}
-        onChange={(e) =>
-          handleToggleSettingsField("search_page_enabled", e.target.checked)
+        onChange={(checked) =>
+          handleToggleSettingsField("search_page_enabled", checked)
         }
       />
 
-      <Checkbox
+      <CheckboxComponent
         label="Chat Page Enabled?"
         sublabel="If set, then the 'Chat' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
         checked={settings.chat_page_enabled}
-        onChange={(e) =>
-          handleToggleSettingsField("chat_page_enabled", e.target.checked)
+        onChange={(checked) =>
+          handleToggleSettingsField("chat_page_enabled", checked)
         }
       />
 
@@ -255,10 +286,10 @@ export function SettingsForm() {
 
       {isEnterpriseEnabled && (
         <>
-          <Title className="mb-4">Chat Settings</Title>
+          <h3 className="mb-4">Chat Settings</h3>
           <IntegerInput
             label="Chat Retention"
-            sublabel="Enter the maximum number of days you would like Danswer to retain chat messages. Leaving this field empty will cause Danswer to never delete chat messages."
+            sublabel="Enter the maximum number of days you would like enMedD AI to retain chat messages. Leaving this field empty will cause enMedD AI to never delete chat messages."
             value={chatRetention === "" ? null : Number(chatRetention)}
             onChange={(e) => {
               const numValue = parseInt(e.target.value, 10);
@@ -269,15 +300,10 @@ export function SettingsForm() {
             id="chatRetentionInput"
             placeholder="Infinite Retention"
           />
-          <Button
-            onClick={handleSetChatRetention}
-            color="green"
-            size="xs"
-            className="mr-3"
-          >
+          <Button onClick={handleSetChatRetention} className="mr-3">
             Set Retention Limit
           </Button>
-          <Button onClick={handleClearChatRetention} color="blue" size="xs">
+          <Button onClick={handleClearChatRetention} variant="outline">
             Retain All
           </Button>
         </>

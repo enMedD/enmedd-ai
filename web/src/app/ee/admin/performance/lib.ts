@@ -2,7 +2,6 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR, { mutate } from "swr";
 import {
   ChatSessionMinimal,
-  DanswerBotAnalytics,
   QueryAnalytics,
   UserAnalytics,
 } from "./usage/types";
@@ -15,17 +14,16 @@ import {
   convertDateToStartOfDay,
   getXDaysAgo,
 } from "./dateUtils";
-import { THIRTY_DAYS } from "./DateRangeSelector";
+import { DateRange } from "react-day-picker";
 
 export const useTimeRange = () => {
-  return useState<DateRangePickerValue>({
+  return useState<DateRange>({
     to: new Date(),
     from: getXDaysAgo(30),
-    selectValue: THIRTY_DAYS,
   });
 };
 
-export const useQueryAnalytics = (timeRange: DateRangePickerValue) => {
+export const useQueryAnalytics = (timeRange: DateRange) => {
   const url = buildApiPath("/api/analytics/admin/query", {
     start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
     end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
@@ -38,7 +36,7 @@ export const useQueryAnalytics = (timeRange: DateRangePickerValue) => {
   };
 };
 
-export const useUserAnalytics = (timeRange: DateRangePickerValue) => {
+export const useUserAnalytics = (timeRange: DateRange) => {
   const url = buildApiPath("/api/analytics/admin/user", {
     start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
     end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
@@ -48,19 +46,6 @@ export const useUserAnalytics = (timeRange: DateRangePickerValue) => {
   return {
     ...swrResponse,
     refreshUserAnalytics: () => mutate(url),
-  };
-};
-
-export const useDanswerBotAnalytics = (timeRange: DateRangePickerValue) => {
-  const url = buildApiPath("/api/analytics/admin/danswerbot", {
-    start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
-    end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
-  });
-  const swrResponse = useSWR<DanswerBotAnalytics[]>(url, errorHandlingFetcher); // TODO
-
-  return {
-    ...swrResponse,
-    refreshDanswerBotAnalytics: () => mutate(url),
   };
 };
 
@@ -87,13 +72,20 @@ export const useQueryHistory = () => {
   };
 };
 
-export function getDatesList(startDate: Date): string[] {
+export function getDatesList(startDate: Date, endDate: Date): string[] {
   const datesList: string[] = [];
-  const endDate = new Date(); // current date
+  const currentDate = new Date();
 
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = d.toISOString().split("T")[0]; // convert date object to 'YYYY-MM-DD' format
     datesList.push(dateStr);
+  }
+
+  if (endDate.toDateString() === currentDate.toDateString()) {
+    const todayStr = currentDate.toISOString().split("T")[0];
+    if (!datesList.includes(todayStr)) {
+      datesList.push(todayStr);
+    }
   }
 
   return datesList;

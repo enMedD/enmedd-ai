@@ -4,19 +4,19 @@ from uuid import UUID
 from pydantic import BaseModel
 from pydantic import Field
 
-from danswer.db.models import Persona
-from danswer.db.models import StarterMessage
-from danswer.search.enums import RecencyBiasSetting
-from danswer.server.features.document_set.models import DocumentSet
-from danswer.server.features.prompt.models import PromptSnapshot
-from danswer.server.features.tool.api import ToolSnapshot
-from danswer.server.models import MinimalUserSnapshot
-from danswer.utils.logger import setup_logger
+from enmedd.db.models import Assistant
+from enmedd.db.models import StarterMessage
+from enmedd.search.enums import RecencyBiasSetting
+from enmedd.server.features.document_set.models import DocumentSet
+from enmedd.server.features.prompt.models import PromptSnapshot
+from enmedd.server.features.tool.api import ToolSnapshot
+from enmedd.server.models import MinimalUserSnapshot
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
 
-class CreatePersonaRequest(BaseModel):
+class CreateAssistantRequest(BaseModel):
     name: str
     description: str
     num_chunks: float
@@ -31,19 +31,19 @@ class CreatePersonaRequest(BaseModel):
     llm_model_provider_override: str | None = None
     llm_model_version_override: str | None = None
     starter_messages: list[StarterMessage] | None = None
-    # For Private Personas, who should be able to access these
+    # For Private Assistants, who should be able to access these
     users: list[UUID] = Field(default_factory=list)
     groups: list[int] = Field(default_factory=list)
     icon_color: str | None = None
     icon_shape: int | None = None
     uploaded_image_id: str | None = None  # New field for uploaded image
     remove_image: bool | None = None
-    is_default_persona: bool = False
+    is_default_assistant: bool = False
     display_priority: int | None = None
     search_start_date: datetime | None = None
 
 
-class PersonaSnapshot(BaseModel):
+class AssistantSnapshot(BaseModel):
     id: int
     owner: MinimalUserSnapshot | None
     name: str
@@ -57,7 +57,7 @@ class PersonaSnapshot(BaseModel):
     llm_model_provider_override: str | None
     llm_model_version_override: str | None
     starter_messages: list[StarterMessage] | None
-    builtin_persona: bool
+    builtin_assistant: bool
     prompts: list[PromptSnapshot]
     tools: list[ToolSnapshot]
     document_sets: list[DocumentSet]
@@ -66,55 +66,55 @@ class PersonaSnapshot(BaseModel):
     icon_color: str | None
     icon_shape: int | None
     uploaded_image_id: str | None = None
-    is_default_persona: bool
+    is_default_assistant: bool
     search_start_date: datetime | None = None
 
     @classmethod
     def from_model(
-        cls, persona: Persona, allow_deleted: bool = False
-    ) -> "PersonaSnapshot":
-        if persona.deleted:
-            error_msg = f"Persona with ID {persona.id} has been deleted"
+        cls, assistant: Assistant, allow_deleted: bool = False
+    ) -> "AssistantSnapshot":
+        if assistant.deleted:
+            error_msg = f"Assistant with ID {assistant.id} has been deleted"
             if not allow_deleted:
                 raise ValueError(error_msg)
             else:
                 logger.warning(error_msg)
 
-        return PersonaSnapshot(
-            id=persona.id,
-            name=persona.name,
+        return AssistantSnapshot(
+            id=assistant.id,
+            name=assistant.name,
             owner=(
-                MinimalUserSnapshot(id=persona.user.id, email=persona.user.email)
-                if persona.user
+                MinimalUserSnapshot(id=assistant.user.id, email=assistant.user.email)
+                if assistant.user
                 else None
             ),
-            is_visible=persona.is_visible,
-            is_public=persona.is_public,
-            display_priority=persona.display_priority,
-            description=persona.description,
-            num_chunks=persona.num_chunks,
-            llm_relevance_filter=persona.llm_relevance_filter,
-            llm_filter_extraction=persona.llm_filter_extraction,
-            llm_model_provider_override=persona.llm_model_provider_override,
-            llm_model_version_override=persona.llm_model_version_override,
-            starter_messages=persona.starter_messages,
-            builtin_persona=persona.builtin_persona,
-            is_default_persona=persona.is_default_persona,
-            prompts=[PromptSnapshot.from_model(prompt) for prompt in persona.prompts],
-            tools=[ToolSnapshot.from_model(tool) for tool in persona.tools],
+            is_visible=assistant.is_visible,
+            is_public=assistant.is_public,
+            display_priority=assistant.display_priority,
+            description=assistant.description,
+            num_chunks=assistant.num_chunks,
+            llm_relevance_filter=assistant.llm_relevance_filter,
+            llm_filter_extraction=assistant.llm_filter_extraction,
+            llm_model_provider_override=assistant.llm_model_provider_override,
+            llm_model_version_override=assistant.llm_model_version_override,
+            starter_messages=assistant.starter_messages,
+            builtin_assistant=assistant.builtin_assistant,
+            is_default_assistant=assistant.is_default_assistant,
+            prompts=[PromptSnapshot.from_model(prompt) for prompt in assistant.prompts],
+            tools=[ToolSnapshot.from_model(tool) for tool in assistant.tools],
             document_sets=[
                 DocumentSet.from_model(document_set_model)
-                for document_set_model in persona.document_sets
+                for document_set_model in assistant.document_sets
             ],
             users=[
                 MinimalUserSnapshot(id=user.id, email=user.email)
-                for user in persona.users
+                for user in assistant.users
             ],
-            groups=[user_group.id for user_group in persona.groups],
-            icon_color=persona.icon_color,
-            icon_shape=persona.icon_shape,
-            uploaded_image_id=persona.uploaded_image_id,
-            search_start_date=persona.search_start_date,
+            groups=[teamspace.id for teamspace in assistant.groups],
+            icon_color=assistant.icon_color,
+            icon_shape=assistant.icon_shape,
+            uploaded_image_id=assistant.uploaded_image_id,
+            search_start_date=assistant.search_start_date,
         )
 
 

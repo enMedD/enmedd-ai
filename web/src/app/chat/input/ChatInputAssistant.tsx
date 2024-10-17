@@ -1,13 +1,13 @@
 "use client";
 
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { Tooltip } from "@/components/tooltip/Tooltip";
 import { ForwardedRef, forwardRef, useState } from "react";
 import { FiX } from "react-icons/fi";
 
 interface DocumentSidebarProps {
-  alternativeAssistant: Persona;
+  alternativeAssistant: Assistant;
   unToggle: () => void;
 }
 

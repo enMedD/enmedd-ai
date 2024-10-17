@@ -47,28 +47,37 @@ const Main = () => {
   }
 
   return (
-    <div className="mb-8">
-      <Title className="mb-2">Most Liked Documents</Title>
-      <DocumentFeedbackTable documents={mostLikedDocuments} refresh={refresh} />
+    <div className="space-y-24">
+      <div>
+        <h3 className="pb-4">Most Liked Documents</h3>
+        <DocumentFeedbackTable
+          documents={mostLikedDocuments}
+          refresh={refresh}
+        />
+      </div>
 
-      <Title className="mb-2 mt-6">Most Disliked Documents</Title>
-      <DocumentFeedbackTable
-        documents={mostDislikedDocuments}
-        refresh={refresh}
-      />
+      <div>
+        <h3 className=" pb-4">Most Disliked Documents</h3>
+        <DocumentFeedbackTable
+          documents={mostDislikedDocuments}
+          refresh={refresh}
+        />
+      </div>
     </div>
   );
 };
 
 const Page = () => {
   return (
-    <div className="container mx-auto">
-      <AdminPageTitle
-        icon={<ThumbsUpIcon size={32} />}
-        title="Document Feedback"
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          icon={<ThumbsUpIcon size={32} />}
+          title="Document Feedback"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 };

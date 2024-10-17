@@ -8,39 +8,39 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.auth.users import current_curator_or_admin_user
-from danswer.background.celery.celery_app import celery_app
-from danswer.configs.app_configs import GENERATIVE_MODEL_ACCESS_CHECK_FREQ
-from danswer.configs.constants import DanswerCeleryPriority
-from danswer.configs.constants import DocumentSource
-from danswer.configs.constants import KV_GEN_AI_KEY_CHECK_TIME
-from danswer.db.connector_credential_pair import get_connector_credential_pair
-from danswer.db.connector_credential_pair import (
+from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_curator_or_admin_user
+from enmedd.background.celery.celery_app import celery_app
+from enmedd.configs.app_configs import GENERATIVE_MODEL_ACCESS_CHECK_FREQ
+from enmedd.configs.constants import DanswerCeleryPriority
+from enmedd.configs.constants import DocumentSource
+from enmedd.configs.constants import KV_GEN_AI_KEY_CHECK_TIME
+from enmedd.db.connector_credential_pair import get_connector_credential_pair
+from enmedd.db.connector_credential_pair import (
     update_connector_credential_pair_from_id,
 )
-from danswer.db.deletion_attempt import check_deletion_attempt_is_allowed
-from danswer.db.engine import get_current_tenant_id
-from danswer.db.engine import get_session
-from danswer.db.enums import ConnectorCredentialPairStatus
-from danswer.db.feedback import fetch_docs_ranked_by_boost
-from danswer.db.feedback import update_document_boost
-from danswer.db.feedback import update_document_hidden
-from danswer.db.index_attempt import cancel_indexing_attempts_for_ccpair
-from danswer.db.models import User
-from danswer.document_index.document_index_utils import get_both_index_names
-from danswer.document_index.factory import get_default_document_index
-from danswer.file_store.file_store import get_default_file_store
-from danswer.key_value_store.factory import get_kv_store
-from danswer.key_value_store.interface import KvKeyNotFoundError
-from danswer.llm.factory import get_default_llms
-from danswer.llm.utils import test_llm
-from danswer.server.documents.models import ConnectorCredentialPairIdentifier
-from danswer.server.manage.models import BoostDoc
-from danswer.server.manage.models import BoostUpdateRequest
-from danswer.server.manage.models import HiddenUpdateRequest
-from danswer.server.models import StatusResponse
-from danswer.utils.logger import setup_logger
+from enmedd.db.deletion_attempt import check_deletion_attempt_is_allowed
+from enmedd.db.engine import get_current_tenant_id
+from enmedd.db.engine import get_session
+from enmedd.db.enums import ConnectorCredentialPairStatus
+from enmedd.db.feedback import fetch_docs_ranked_by_boost
+from enmedd.db.feedback import update_document_boost
+from enmedd.db.feedback import update_document_hidden
+from enmedd.db.index_attempt import cancel_indexing_attempts_for_ccpair
+from enmedd.db.models import User
+from enmedd.document_index.document_index_utils import get_both_index_names
+from enmedd.document_index.factory import get_default_document_index
+from enmedd.file_store.file_store import get_default_file_store
+from enmedd.key_value_store.factory import get_kv_store
+from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.llm.factory import get_default_llms
+from enmedd.llm.utils import test_llm
+from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd.server.manage.models import BoostDoc
+from enmedd.server.manage.models import BoostUpdateRequest
+from enmedd.server.manage.models import HiddenUpdateRequest
+from enmedd.server.models import StatusResponse
+from enmedd.utils.logger import setup_logger
 
 router = APIRouter(prefix="/manage")
 logger = setup_logger()

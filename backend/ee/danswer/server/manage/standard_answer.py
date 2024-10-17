@@ -3,22 +3,22 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from ee.danswer.db.standard_answer import fetch_standard_answer
-from ee.danswer.db.standard_answer import fetch_standard_answer_categories
-from ee.danswer.db.standard_answer import fetch_standard_answer_category
-from ee.danswer.db.standard_answer import fetch_standard_answers
-from ee.danswer.db.standard_answer import insert_standard_answer
-from ee.danswer.db.standard_answer import insert_standard_answer_category
-from ee.danswer.db.standard_answer import remove_standard_answer
-from ee.danswer.db.standard_answer import update_standard_answer
-from ee.danswer.db.standard_answer import update_standard_answer_category
-from ee.danswer.server.manage.models import StandardAnswer
-from ee.danswer.server.manage.models import StandardAnswerCategory
-from ee.danswer.server.manage.models import StandardAnswerCategoryCreationRequest
-from ee.danswer.server.manage.models import StandardAnswerCreationRequest
+from enmedd.auth.users import current_admin_user
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from ee.enmedd.db.standard_answer import fetch_standard_answer
+from ee.enmedd.db.standard_answer import fetch_standard_answer_categories
+from ee.enmedd.db.standard_answer import fetch_standard_answer_category
+from ee.enmedd.db.standard_answer import fetch_standard_answers
+from ee.enmedd.db.standard_answer import insert_standard_answer
+from ee.enmedd.db.standard_answer import insert_standard_answer_category
+from ee.enmedd.db.standard_answer import remove_standard_answer
+from ee.enmedd.db.standard_answer import update_standard_answer
+from ee.enmedd.db.standard_answer import update_standard_answer_category
+from ee.enmedd.server.manage.models import StandardAnswer
+from ee.enmedd.server.manage.models import StandardAnswerCategory
+from ee.enmedd.server.manage.models import StandardAnswerCategoryCreationRequest
+from ee.enmedd.server.manage.models import StandardAnswerCreationRequest
 
 router = APIRouter(prefix="/manage")
 

@@ -1,6 +1,7 @@
+import { Card, CardContent } from "@/components/ui/card";
 import { getNameFromPath } from "@/lib/fileUtils";
 import { ValidSources } from "@/lib/types";
-import { List, ListItem, Card, Title } from "@tremor/react";
+import { List, ListItem, Title } from "@tremor/react";
 
 function convertObjectToString(obj: any): string | any {
   // Check if obj is an object and not an array or null
@@ -30,11 +31,12 @@ function buildConfigEntries(
           file_names: obj.file_locations.map(getNameFromPath),
         }
       : {};
-  } else if (sourceType === "google_sites") {
-    return {
-      base_url: obj.base_url,
-    };
   }
+  // else if (sourceType === "google_sites") {
+  //   return {
+  //     base_url: obj.base_url,
+  //   };
+  // }
   return obj;
 }
 
@@ -115,16 +117,20 @@ export function ConfigDisplay({
 
   return (
     <>
-      <Title className="mb-2">Configuration</Title>
+      <h3 className="mb-4 mt-12">Configuration</h3>
       <Card>
-        <List>
-          {configEntries.map(([key, value]) => (
-            <ListItem key={key}>
-              <span>{key}</span>
-              <span>{convertObjectToString(value) || "-"}</span>
-            </ListItem>
-          ))}
-        </List>
+        <CardContent>
+          <ul className="flex flex-col gap-4">
+            {configEntries.map(([key, value]) => (
+              <li key={key} className="flex gap-10 justify-between">
+                <span>{key}:</span>
+                <span className="truncate">
+                  {convertObjectToString(value) || "-"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
       </Card>
     </>
   );

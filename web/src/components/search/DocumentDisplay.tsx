@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  DanswerDocument,
+  EnmeddDocument,
   DocumentRelevance,
-  SearchDanswerDocument,
+  SearchEnmeddDocument,
 } from "@/lib/search/interfaces";
 import { DocumentFeedbackBlock } from "./DocumentFeedbackBlock";
 import { useContext, useState } from "react";
@@ -13,11 +13,11 @@ import { SourceIcon } from "../SourceIcon";
 import { MetadataBadge } from "../MetadataBadge";
 import { BookIcon, LightBulbIcon } from "../icons/icons";
 
-import { FaStar } from "react-icons/fa";
-import { FiTag } from "react-icons/fi";
+import { Info, Radio, Tag } from "lucide-react";
 import { SettingsContext } from "../settings/SettingsProvider";
 import { CustomTooltip, TooltipGroup } from "../tooltip/CustomTooltip";
 import { WarningCircle } from "@phosphor-icons/react";
+import { FaStar } from "react-icons/fa";
 
 export const buildDocumentSummaryDisplay = (
   matchHighlights: string[],
@@ -84,7 +84,7 @@ export const buildDocumentSummaryDisplay = (
             finalJSX[finalJSX.length - 1] = finalJSX[finalJSX.length - 1] + " ";
           }
           finalJSX.push(
-            <b key={index} className="text-default bg-highlight-text">
+            <b key={index} className="text-highlight-text">
               {currentText}
             </b>
           );
@@ -108,7 +108,7 @@ export const buildDocumentSummaryDisplay = (
         finalJSX[finalJSX.length - 1] = finalJSX[finalJSX.length - 1] + " ";
       }
       finalJSX.push(
-        <b key={sections.length} className="text-default bg-highlight-text">
+        <b key={sections.length} className="text-highlight-text">
           {currentText}
         </b>
       );
@@ -122,17 +122,15 @@ export const buildDocumentSummaryDisplay = (
 export function DocumentMetadataBlock({
   document,
 }: {
-  document: DanswerDocument;
+  document: EnmeddDocument;
 }) {
   // don't display super long tags, as they are ugly
   const MAXIMUM_TAG_LENGTH = 40;
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-col">
       {document.updated_at && (
-        <div className="pr-1">
-          <DocumentUpdatedAtBadge updatedAt={document.updated_at} />
-        </div>
+        <DocumentUpdatedAtBadge updatedAt={document.updated_at} />
       )}
 
       {Object.entries(document.metadata).length > 0 && (
@@ -146,7 +144,7 @@ export function DocumentMetadataBlock({
               return (
                 <MetadataBadge
                   key={key}
-                  icon={FiTag}
+                  icon={<Tag size={12} />}
                   value={`${key}=${value}`}
                 />
               );
@@ -158,7 +156,7 @@ export function DocumentMetadataBlock({
 }
 
 interface DocumentDisplayProps {
-  document: SearchDanswerDocument;
+  document: SearchEnmeddDocument;
   messageId: number | null;
   documentRank: number;
   isSelected: boolean;
@@ -185,6 +183,10 @@ export const DocumentDisplay = ({
   const relevance_explanation =
     document.relevance_explanation ?? additional_relevance?.content;
   const settings = useContext(SettingsContext);
+
+  const score = Math.abs(document.score) * 100;
+  const badgeVariant =
+    score < 50 ? "destructive" : score < 90 ? "warning" : "success";
 
   return (
     <div

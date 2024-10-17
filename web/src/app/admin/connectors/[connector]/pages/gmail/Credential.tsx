@@ -342,13 +342,13 @@ export const GmailOAuthSection = ({
     return (
       <div>
         <p className="text-sm mb-2">
-          When using a Gmail Service Account, you can either have Danswer act as
-          the service account itself OR you can specify an account for the
-          service account to impersonate.
+          When using a Gmail Service Account, you can either have enMedD AI act
+          as the service account itself OR you can specify an account for the
+          service account to imassistantte.
           <br />
           <br />
           If you want to use the service account itself, leave the{" "}
-          <b>&apos;User email to impersonate&apos;</b> field blank when
+          <b>&apos;User email to imassistantte&apos;</b> field blank when
           submitting. If you do choose this option, make sure you have shared
           the documents you want to index with the service account.
         </p>
@@ -396,8 +396,8 @@ export const GmailOAuthSection = ({
               <Form>
                 <TextFormField
                   name="gmail_delegated_user"
-                  label="[Optional] User email to impersonate:"
-                  subtext="If left blank, Danswer will use the service account itself."
+                  label="[Optional] User email to imassistantte:"
+                  subtext="If left blank, enMedD AI will use the service account itself."
                 />
                 <div className="flex">
                   <button

@@ -1,29 +1,42 @@
 import { useState } from "react";
-import { FiCheck, FiCopy } from "react-icons/fi";
-import { Hoverable, HoverableIcon } from "./Hoverable";
-import { CheckmarkIcon, CopyMessageIcon } from "./icons/icons";
+import { Button } from "./ui/button";
+import { Check, Copy } from "lucide-react";
+import { CustomTooltip } from "./CustomTooltip";
 
 export function CopyButton({
   content,
   onClick,
+  smallIcon,
 }: {
   content?: string;
   onClick?: () => void;
+  smallIcon?: boolean;
 }) {
-  const [copyClicked, setCopyClicked] = useState(false);
+  const [isCopyClicked, setIsCopyClicked] = useState(false);
 
   return (
-    <HoverableIcon
-      icon={copyClicked ? <CheckmarkIcon /> : <CopyMessageIcon />}
-      onClick={() => {
-        if (content) {
-          navigator.clipboard.writeText(content.toString());
-        }
-        onClick && onClick();
+    <CustomTooltip
+      trigger={
+        <Button
+          onClick={() => {
+            if (content) {
+              navigator.clipboard.writeText(content.toString());
+            }
+            onClick && onClick();
 
-        setCopyClicked(true);
-        setTimeout(() => setCopyClicked(false), 3000);
-      }}
-    />
+            setIsCopyClicked(true);
+            setTimeout(() => setIsCopyClicked(false), 3000);
+          }}
+          variant="ghost"
+          size={smallIcon ? "smallIcon" : "icon"}
+        >
+          {isCopyClicked ? <Check size={16} /> : <Copy size={16} />}
+        </Button>
+      }
+      side="bottom"
+      asChild
+    >
+      {isCopyClicked ? "Copied" : "Copy"}
+    </CustomTooltip>
   );
 }

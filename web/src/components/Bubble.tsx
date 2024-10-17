@@ -1,4 +1,5 @@
-import { CustomCheckbox } from "./CustomCheckbox";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "./ui/badge";
 
 export function Bubble({
   isSelected,
@@ -14,30 +15,13 @@ export function Bubble({
   notSelectable?: boolean;
 }) {
   return (
-    <div
-      className={
-        `
-      px-1.5
-      py-1
-      rounded-lg 
-      border
-      border-border 
-      w-fit 
-      flex` +
-        (notSelectable
-          ? " bg-background cursor-default"
-          : isSelected
-            ? " bg-hover cursor-pointer"
-            : " bg-background hover:bg-hover-light cursor-pointer")
-      }
+    <Badge
+      variant={isSelected ? "default" : "outline"}
       onClick={onClick}
+      className="cursor-pointer hover:bg-opacity-80 py-1.5 px-3 gap-1.5"
     >
-      <div className="my-auto">{children}</div>
-      {showCheckbox && (
-        <div className="pl-2 my-auto">
-          <CustomCheckbox checked={isSelected} onChange={() => null} />
-        </div>
-      )}
-    </div>
+      {children}
+      {showCheckbox && <Checkbox checked={isSelected} onChange={() => null} />}
+    </Badge>
   );
 }

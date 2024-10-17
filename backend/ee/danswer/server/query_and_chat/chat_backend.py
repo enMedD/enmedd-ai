@@ -5,41 +5,41 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_user
-from danswer.chat.chat_utils import create_chat_chain
-from danswer.chat.models import AllCitations
-from danswer.chat.models import DanswerAnswerPiece
-from danswer.chat.models import FinalUsedContextDocsResponse
-from danswer.chat.models import LlmDoc
-from danswer.chat.models import LLMRelevanceFilterResponse
-from danswer.chat.models import QADocsResponse
-from danswer.chat.models import StreamingError
-from danswer.chat.process_message import ChatPacketStream
-from danswer.chat.process_message import stream_chat_message_objects
-from danswer.configs.constants import MessageType
-from danswer.configs.danswerbot_configs import DANSWER_BOT_TARGET_CHUNK_PERCENTAGE
-from danswer.db.chat import create_chat_session
-from danswer.db.chat import create_new_chat_message
-from danswer.db.chat import get_or_create_root_message
-from danswer.db.engine import get_session
-from danswer.db.models import User
-from danswer.llm.factory import get_llms_for_persona
-from danswer.llm.utils import get_max_input_tokens
-from danswer.natural_language_processing.utils import get_tokenizer
-from danswer.one_shot_answer.qa_utils import combine_message_thread
-from danswer.search.models import OptionalSearchSetting
-from danswer.search.models import RetrievalDetails
-from danswer.search.models import SavedSearchDoc
-from danswer.secondary_llm_flows.query_expansion import thread_based_query_rephrase
-from danswer.server.query_and_chat.models import ChatMessageDetail
-from danswer.server.query_and_chat.models import CreateChatMessageRequest
-from danswer.utils.logger import setup_logger
-from ee.danswer.server.query_and_chat.models import BasicCreateChatMessageRequest
-from ee.danswer.server.query_and_chat.models import (
+from enmedd.auth.users import current_user
+from enmedd.chat.chat_utils import create_chat_chain
+from enmedd.chat.models import AllCitations
+from enmedd.chat.models import DanswerAnswerPiece
+from enmedd.chat.models import FinalUsedContextDocsResponse
+from enmedd.chat.models import LlmDoc
+from enmedd.chat.models import LLMRelevanceFilterResponse
+from enmedd.chat.models import QADocsResponse
+from enmedd.chat.models import StreamingError
+from enmedd.chat.process_message import ChatPacketStream
+from enmedd.chat.process_message import stream_chat_message_objects
+from enmedd.configs.constants import MessageType
+from enmedd.configs.enmedddbot_configs import DANSWER_BOT_TARGET_CHUNK_PERCENTAGE
+from enmedd.db.chat import create_chat_session
+from enmedd.db.chat import create_new_chat_message
+from enmedd.db.chat import get_or_create_root_message
+from enmedd.db.engine import get_session
+from enmedd.db.models import User
+from enmedd.llm.factory import get_llms_for_assistant
+from enmedd.llm.utils import get_max_input_tokens
+from enmedd.natural_language_processing.utils import get_tokenizer
+from enmedd.one_shot_answer.qa_utils import combine_message_thread
+from enmedd.search.models import OptionalSearchSetting
+from enmedd.search.models import RetrievalDetails
+from enmedd.search.models import SavedSearchDoc
+from enmedd.secondary_llm_flows.query_expansion import thread_based_query_rephrase
+from enmedd.server.query_and_chat.models import ChatMessageDetail
+from enmedd.server.query_and_chat.models import CreateChatMessageRequest
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.server.query_and_chat.models import BasicCreateChatMessageRequest
+from ee.enmedd.server.query_and_chat.models import (
     BasicCreateChatMessageWithHistoryRequest,
 )
-from ee.danswer.server.query_and_chat.models import ChatBasicResponse
-from ee.danswer.server.query_and_chat.models import SimpleDoc
+from ee.enmedd.server.query_and_chat.models import ChatBasicResponse
+from ee.enmedd.server.query_and_chat.models import SimpleDoc
 
 logger = setup_logger()
 
@@ -230,11 +230,11 @@ def handle_send_message_simple_with_history(
         db_session=db_session,
         description="handle_send_message_simple_with_history",
         user_id=user_id,
-        persona_id=req.persona_id,
+        assistant_id=req.assistant_id,
         one_shot=False,
     )
 
-    llm, _ = get_llms_for_persona(persona=chat_session.persona)
+    llm, _ = get_llms_for_assistant(assistant=chat_session.assistant)
 
     llm_tokenizer = get_tokenizer(
         model_name=llm.config.model_name,

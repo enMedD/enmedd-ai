@@ -2,17 +2,19 @@
 
 import { AdminPageTitle } from "@/components/admin/Title";
 import { LLMConfiguration } from "./LLMConfiguration";
-import { CpuIcon } from "@/components/icons/icons";
+import { Cpu } from "lucide-react";
 
 const Page = () => {
   return (
-    <div className="mx-auto container">
-      <AdminPageTitle
-        title="LLM Setup"
-        icon={<CpuIcon size={32} className="my-auto" />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="LLM Setup"
+          icon={<Cpu size={32} className="my-auto" />}
+        />
 
-      <LLMConfiguration />
+        <LLMConfiguration />
+      </div>
     </div>
   );
 };

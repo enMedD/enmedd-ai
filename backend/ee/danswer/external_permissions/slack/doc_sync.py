@@ -1,17 +1,17 @@
 from slack_sdk import WebClient
 from sqlalchemy.orm import Session
 
-from danswer.access.models import ExternalAccess
-from danswer.connectors.factory import instantiate_connector
-from danswer.connectors.interfaces import IdConnector
-from danswer.connectors.models import InputType
-from danswer.connectors.slack.connector import get_channels
-from danswer.connectors.slack.connector import make_paginated_slack_api_call_w_retries
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.users import batch_add_non_web_user_if_not_exists__no_commit
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.document import upsert_document_external_perms__no_commit
-from ee.danswer.external_permissions.slack.utils import fetch_user_id_to_email_map
+from enmedd.access.models import ExternalAccess
+from enmedd.connectors.factory import instantiate_connector
+from enmedd.connectors.interfaces import IdConnector
+from enmedd.connectors.models import InputType
+from enmedd.connectors.slack.connector import get_channels
+from enmedd.connectors.slack.connector import make_paginated_slack_api_call_w_retries
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.users import batch_add_non_web_user_if_not_exists__no_commit
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.document import upsert_document_external_perms__no_commit
+from ee.enmedd.external_permissions.slack.utils import fetch_user_id_to_email_map
 
 
 logger = setup_logger()
@@ -75,7 +75,7 @@ def _fetch_worspace_permissions(
     return ExternalAccess(
         external_user_emails=user_emails,
         # No group<->document mapping for slack
-        external_user_group_ids=set(),
+        external_teamspace_ids=set(),
         # No way to determine if slack is invite only without enterprise liscense
         is_public=False,
     )
@@ -141,7 +141,7 @@ def _fetch_channel_permissions(
         channel_permissions[channel_id] = ExternalAccess(
             external_user_emails=member_emails,
             # No group<->document mapping for slack
-            external_user_group_ids=set(),
+            external_teamspace_ids=set(),
             # No way to determine if slack is invite only without enterprise liscense
             is_public=False,
         )

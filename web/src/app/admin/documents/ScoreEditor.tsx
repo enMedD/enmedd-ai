@@ -1,41 +1,44 @@
-import { PopupSpec } from "@/components/admin/connectors/Popup";
+import { useToast } from "@/hooks/use-toast";
 import { updateBoost } from "./lib";
 import { EditableValue } from "@/components/EditableValue";
 
 export const ScoreSection = ({
   documentId,
   initialScore,
-  setPopup,
   refresh,
   consistentWidth = true,
 }: {
   documentId: string;
   initialScore: number;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   refresh: () => void;
   consistentWidth?: boolean;
 }) => {
+  const { toast } = useToast();
+
   const onSubmit = async (value: string) => {
     const numericScore = Number(value);
     if (isNaN(numericScore)) {
-      setPopup({
-        message: "Score must be a number",
-        type: "error",
+      toast({
+        title: "Invalid Input",
+        description: "Please enter a valid number for the score.",
+        variant: "destructive",
       });
       return false;
     }
 
     const errorMsg = await updateBoost(documentId, numericScore);
     if (errorMsg) {
-      setPopup({
-        message: errorMsg,
-        type: "error",
+      toast({
+        title: "Update Failed",
+        description: errorMsg,
+        variant: "destructive",
       });
       return false;
     } else {
-      setPopup({
-        message: "Updated score!",
-        type: "success",
+      toast({
+        title: "Score Updated",
+        description: "The score has been successfully updated.",
+        variant: "success",
       });
       refresh();
     }

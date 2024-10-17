@@ -1,4 +1,3 @@
-import { useChatContext } from "@/components/context/ChatContext";
 import {
   getDisplayNameForModel,
   LlmOverride,
@@ -9,13 +8,17 @@ import {
   StringOrNumberOption,
 } from "@/components/Dropdown";
 
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 import { destructureValue, getFinalLLM, structureValue } from "@/lib/llm/utils";
 import { useState } from "react";
-import { Hoverable } from "@/components/Hoverable";
-import { Popover } from "@/components/popover/Popover";
 import { StarFeedback } from "@/components/icons/icons";
-import { IconType } from "react-icons";
+import { useChatContext } from "@/context/ChatContext";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 export function RegenerateDropdown({
   options,
@@ -79,28 +82,28 @@ export function RegenerateDropdown({
   );
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={(open) => setIsOpen(open)}
-      content={
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
         <div onClick={() => setIsOpen(!isOpen)}>
           {!alternate ? (
-            <Hoverable size={16} icon={StarFeedback as IconType} />
+            // <Hoverable size={16} icon={StarFeedback as IconType} />
+            <CustomTooltip trigger={<StarFeedback />}>Regenerate</CustomTooltip>
           ) : (
-            <Hoverable
-              size={16}
-              icon={StarFeedback as IconType}
-              hoverText={getDisplayNameForModel(alternate)}
-            />
+            // <Hoverable
+            //   size={16}
+            //   icon={StarFeedback as IconType}
+            //   hoverText={getDisplayNameForModel(alternate)}
+            // />
+            <CustomTooltip trigger={<StarFeedback />}>
+              {getDisplayNameForModel(alternate)}
+            </CustomTooltip>
           )}
         </div>
-      }
-      popover={Dropdown}
-      align="start"
-      side={side}
-      sideOffset={5}
-      triggerMaxWidth
-    />
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={5}>
+        {Dropdown}
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -110,7 +113,7 @@ export default function RegenerateOption({
   overriddenModel,
   onHoverChange,
 }: {
-  selectedAssistant: Persona;
+  selectedAssistant: Assistant;
   regenerate: (modelOverRide: LlmOverride) => Promise<void>;
   overriddenModel?: string;
   onHoverChange: (isHovered: boolean) => void;
