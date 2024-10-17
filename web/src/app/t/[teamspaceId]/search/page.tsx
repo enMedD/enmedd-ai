@@ -2,6 +2,7 @@ import { SearchSection } from "@/components/search/SearchSection";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
+  getCurrentTeamspaceUserSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
@@ -27,7 +28,11 @@ import { SearchSidebar } from "./SearchSidebar";
 import { BarLayout } from "@/components/BarLayout";
 import { HelperFab } from "@/components/HelperFab";
 
-export default async function Home() {
+export default async function Home({
+  params,
+}: {
+  params: { teamspaceId: string };
+}) {
   // Disable caching so we always get the up to date connector / document set / assistant info
   // importantly, this prevents users from adding a connector, going back to the main page,
   // and then getting hit with a "No Connectors" popup
@@ -41,6 +46,7 @@ export default async function Home() {
     fetchSS("/assistant"),
     fetchSS("/query/valid-tags"),
     fetchSS("/secondary-index/get-embedding-models"),
+    getCurrentTeamspaceUserSS(params.teamspaceId),
   ];
 
   // catch cases where the backend is completely unreachable here
@@ -59,7 +65,9 @@ export default async function Home() {
     console.log(`Some fetch failed for the main search page - ${e}`);
   }
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
-  const user = results[1] as User | null;
+  const user = params.teamspaceId
+    ? (results[7] as User | null)
+    : (results[1] as User | null);
   const ccPairsResponse = results[2] as Response | null;
   const documentSetsResponse = results[3] as Response | null;
   const assistantResponse = results[4] as Response | null;

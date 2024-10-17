@@ -9,13 +9,15 @@ import { fetchChatData } from "@/lib/chat/fetchChatData";
 import { ChatProvider } from "@/context/ChatContext";
 
 export default async function Page({
+  params,
   searchParams,
 }: {
+  params: { teamspaceId: string };
   searchParams: { [key: string]: string };
 }) {
   noStore();
 
-  const data = await fetchChatData(searchParams);
+  const data = await fetchChatData(searchParams, params.teamspaceId);
 
   if ("redirect" in data) {
     redirect(data.redirect);

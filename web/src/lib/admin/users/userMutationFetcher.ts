@@ -1,4 +1,4 @@
-/* const userMutationFetcher = async (
+const userMutationFetcher = async (
   url: string,
   { arg }: { arg: { user_email: string } }
 ) => {
@@ -17,8 +17,8 @@
   });
 };
 
-export default userMutationFetcher; */
-const userMutationFetcher = async (
+export default userMutationFetcher;
+/* const userMutationFetcher = async (
   url: string,
   {
     arg,
@@ -40,4 +40,4 @@ const userMutationFetcher = async (
   });
 };
 
-export default userMutationFetcher;
+export default userMutationFetcher; */

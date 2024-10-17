@@ -2,6 +2,7 @@ import { User } from "@/lib/types";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
+  getCurrentTeamspaceUserSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { fetchSS } from "@/lib/utilsSS";
@@ -32,7 +33,11 @@ async function fetchSharedChatSession(sessionId: number) {
   return response.json();
 }
 
-export default async function Page({ params }: { params: { chatId: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: { chatId: string; teamspaceId: string };
+}) {
   const data = await fetchChatData(params);
 
   if ("redirect" in data) {
@@ -54,6 +59,7 @@ export default async function Page({ params }: { params: { chatId: string } }) {
     getAuthTypeMetadataSS(),
     getCurrentUserSS(),
     getSharedChat(params.chatId),
+    getCurrentTeamspaceUserSS(params.teamspaceId),
   ];
 
   // catch cases where the backend is completely unreachable here
@@ -71,9 +77,11 @@ export default async function Page({ params }: { params: { chatId: string } }) {
     console.log(`Some fetch failed for the main search page - ${e}`);
   }
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
-  const user = results[1] as User | null;
+  const user = params.teamspaceId
+    ? (results[1] as User | null)
+    : (results[3] as User | null);
   const chatSession = results[2] as BackendChatSession | null;
-  const availableAssistants = results[3] as Assistant[] | null;
+  const availableAssistants = results[4] as Assistant[] | null;
 
   const authDisabled = authTypeMetadata?.authType === "disabled";
   if (!authDisabled && !user) {

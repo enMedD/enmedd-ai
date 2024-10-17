@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button";
 import { CustomModal } from "../CustomModal";
 import { useState } from "react";
 import { MinimalTeamspaceSnapshot } from "@/lib/types";
+import Link from "next/link";
 
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
+  defaultPage: string;
 }
 
-export const TeamspaceModal = ({ teamspace }: TeamspaceModalProps) => {
+export const TeamspaceModal = ({
+  teamspace,
+  defaultPage,
+}: TeamspaceModalProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   if (!teamspace) return null;
@@ -50,9 +55,10 @@ export const TeamspaceModal = ({ teamspace }: TeamspaceModalProps) => {
     >
       <div className="grid grid-cols-3 gap-4">
         {teamspace.map((team) => (
-          <div
+          <Link
             key={team.id}
             className="flex items-center gap-4 border rounded-md p-4 cursor-pointer"
+            href={`/t/${team.id}/${defaultPage}`}
           >
             <div
               style={{ background: generateGradient(team.name) }}
@@ -61,7 +67,7 @@ export const TeamspaceModal = ({ teamspace }: TeamspaceModalProps) => {
               {team.name.charAt(0)}
             </div>
             <h3>{team.name}</h3>
-          </div>
+          </Link>
         ))}
       </div>
     </CustomModal>

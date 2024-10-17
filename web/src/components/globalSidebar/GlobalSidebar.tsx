@@ -32,8 +32,6 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const displayedTeamspaces = user?.groups && user.groups.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
 
-  console.log(user?.groups?.length);
-
   return (
     <div className={`bg-background h-full p-4 border-r border-border z-10`}>
       <div
@@ -83,7 +81,12 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
                   link={`t/${teamspace.id}/${defaultPage}`}
                 />
               ))}
-              {showEllipsis && <TeamspaceModal teamspace={user.groups} />}
+              {showEllipsis && (
+                <TeamspaceModal
+                  teamspace={user.groups}
+                  defaultPage={defaultPage}
+                />
+              )}
             </div>
           )}
         </div>

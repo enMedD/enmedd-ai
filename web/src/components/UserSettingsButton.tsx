@@ -117,7 +117,7 @@ export function UserSettingsButton({
                     size={24}
                     strokeWidth={1.5}
                   />
-                  Admin Panel
+                  {teamspaceId ? "Teamspace" : "Workspace"} Admin Panel
                 </Link>
               </>
             )}
