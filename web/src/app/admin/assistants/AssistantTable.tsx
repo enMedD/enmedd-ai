@@ -24,7 +24,7 @@ function AssistantTypeDisplay({ assistant }: { assistant: Assistant }) {
     return <p>Global</p>;
   }
 
-  return <p>Assistant {assistant.owner && <>({assistant.owner.email})</>}</p>;
+  return <p>Private {assistant.owner && <>({assistant.owner.email})</>}</p>;
 }
 
 export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {

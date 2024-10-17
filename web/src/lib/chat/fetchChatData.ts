@@ -1,6 +1,7 @@
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
+  getCurrentTeamspaceUserSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { fetchSS } from "@/lib/utilsSS";
@@ -40,9 +41,10 @@ interface FetchChatDataResult {
   shouldDisplaySourcesIncompleteModal: boolean;
 }
 
-export async function fetchChatData(searchParams: {
-  [key: string]: string;
-}): Promise<FetchChatDataResult | { redirect: string }> {
+export async function fetchChatData(
+  searchParams: { [key: string]: string },
+  teamspaceId?: string
+): Promise<FetchChatDataResult | { redirect: string }> {
   const tasks = [
     getAuthTypeMetadataSS(),
     getCurrentUserSS(),
@@ -53,6 +55,7 @@ export async function fetchChatData(searchParams: {
     fetchSS("/query/valid-tags"),
     fetchLLMProvidersSS(),
     fetchSS("/folder"),
+    getCurrentTeamspaceUserSS(teamspaceId!),
   ];
 
   let results: (
@@ -71,14 +74,16 @@ export async function fetchChatData(searchParams: {
   }
 
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
-  const user = results[1] as User | null;
+  const user = teamspaceId
+    ? (results[9] as User | null)
+    : (results[1] as User | null);
   const ccPairsResponse = results[2] as Response | null;
   const documentSetsResponse = results[3] as Response | null;
   const assistantsResponse = results[4] as Response | null;
   const chatSessionsResponse = results[5] as Response | null;
   const tagsResponse = results[6] as Response | null;
   const llmProviders = (results[7] || []) as LLMProviderDescriptor[];
-  const foldersResponse = results[8] as Response | null; // Handle folders result
+  const foldersResponse = results[8] as Response | null;
 
   const authDisabled = authTypeMetadata?.authType === "disabled";
   if (!authDisabled && !user) {

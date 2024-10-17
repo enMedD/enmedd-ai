@@ -1,4 +1,4 @@
-from uuid import UUID
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -10,7 +10,6 @@ from enmedd.auth.users import current_user
 from enmedd.db.assistant import create_update_assistant
 from enmedd.db.assistant import get_assistant_by_id
 from enmedd.db.assistant import get_assistants
-from enmedd.db.assistant import get_assistants_by_teamspace_id
 from enmedd.db.assistant import mark_assistant_as_deleted
 from enmedd.db.assistant import mark_assistant_as_not_deleted
 from enmedd.db.assistant import update_all_assistants_display_priority
@@ -19,6 +18,7 @@ from enmedd.db.assistant import update_assistant_visibility
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.llm.answering.prompts.utils import build_dummy_prompt
+from enmedd.server.features.assistant.models import AssistantShareRequest
 from enmedd.server.features.assistant.models import AssistantSnapshot
 from enmedd.server.features.assistant.models import CreateAssistantRequest
 from enmedd.server.features.assistant.models import PromptTemplateResponse
@@ -62,8 +62,10 @@ def patch_assistant_display_priority(
     )
 
 
+# TODO this should be current teamspace admin user
 @admin_router.get("")
 def list_assistants_admin(
+    teamspace_id: Optional[int] = None,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
@@ -71,8 +73,8 @@ def list_assistants_admin(
     return [
         AssistantSnapshot.from_model(assistant)
         for assistant in get_assistants(
+            teamspace_id=teamspace_id,
             db_session=db_session,
-            user_id=None,  # user_id = None -> give back all assistants
             include_deleted=include_deleted,
         )
     ]
@@ -123,10 +125,6 @@ def update_assistant(
     )
 
 
-class AssistantShareRequest(BaseModel):
-    user_ids: list[UUID]
-
-
 @basic_router.patch("/{assistant_id}/share")
 def share_assistant(
     assistant_id: int,
@@ -157,15 +155,15 @@ def delete_assistant(
 
 @basic_router.get("")
 def list_assistants(
-    user: User | None = Depends(current_user),
+    _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
 ) -> list[AssistantSnapshot]:
-    user_id = user.id if user is not None else None
     return [
         AssistantSnapshot.from_model(assistant)
         for assistant in get_assistants(
-            user_id=user_id, include_deleted=include_deleted, db_session=db_session
+            include_deleted=include_deleted,
+            db_session=db_session,
         )
     ]
 
@@ -184,22 +182,6 @@ def get_assistant(
             is_for_edit=False,
         )
     )
-
-
-@basic_router.get("/teamspace/{teamspace_id}")
-def get_assistants_by_id(
-    teamspace_id: int,
-    user: User | None = Depends(current_user),
-    db_session: Session = Depends(get_session),
-) -> list[AssistantSnapshot]:
-    assistants = get_assistants_by_teamspace_id(
-        teamspace_id=teamspace_id,
-        user=user,
-        db_session=db_session,
-        include_deleted=False,
-    )
-
-    return [AssistantSnapshot.from_model(assistant) for assistant in assistants]
 
 
 @basic_router.get("/utils/prompt-explorer")

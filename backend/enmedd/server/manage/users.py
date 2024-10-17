@@ -4,6 +4,7 @@ import string
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Optional
 
 from email_validator import validate_email
 from fastapi import APIRouter
@@ -46,6 +47,7 @@ from enmedd.db.engine import get_session
 from enmedd.db.models import AccessToken
 from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
@@ -197,19 +199,65 @@ def list_all_users(
     q: str | None = None,
     accepted_page: int | None = None,
     invited_page: int | None = None,
+    teamspace_id: int | None = None,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> AllUsersResponse:
     if not q:
         q = ""
 
-    users = [
-        user
-        for user in list_users(db_session, q=q)
-        if not is_api_key_email_address(user.email)
+    users_with_roles = []
+
+    if teamspace_id is not None:
+        users = (
+            db_session.query(User)
+            .join(User__Teamspace)
+            .filter(User__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+        roles = (
+            db_session.query(User__Teamspace.role)
+            .filter(User__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+
+        users_with_roles = [
+            {**user.__dict__, "role": role[0]} for user, role in zip(users, roles)
+        ]
+
+        return AllUsersResponse(
+            accepted=[
+                FullUserSnapshot(
+                    id=user["id"],
+                    email=user["email"],
+                    role=user["role"],
+                    status=UserStatus.LIVE
+                    if user["is_active"]
+                    else UserStatus.DEACTIVATED,
+                    full_name=user["full_name"],
+                    billing_email_address=user["billing_email_address"],
+                    company_billing=user["company_billing"],
+                    company_email=user["company_email"],
+                    company_name=user["company_name"],
+                    vat=user["vat"],
+                )
+                for user in users_with_roles
+                if not is_api_key_email_address(user["email"])
+            ],
+            invited=[InvitedUserSnapshot(email=email) for email in get_invited_users()],
+            accepted_pages=1,
+            invited_pages=1,
+        )
+    else:
+        users_with_roles = list_users(db_session, q=q)
+
+    users_with_roles = [
+        user for user in users_with_roles if not is_api_key_email_address(user.email)
     ]
-    accepted_emails = {user.email for user in users}
+
+    accepted_emails = {user.email for user in users_with_roles}
     invited_emails = get_invited_users()
+
     if q:
         invited_emails = [
             email for email in invited_emails if re.search(r"{}".format(q), email, re.I)
@@ -226,9 +274,7 @@ def list_all_users(
                     id=user.id,
                     email=user.email,
                     role=user.role,
-                    status=UserStatus.LIVE
-                    if user.is_active
-                    else UserStatus.DEACTIVATED,
+                    status=UserStatus.LIVE if user.is_active else UserStatus.DEACTIVATED,
                     full_name=user.full_name,
                     billing_email_address=user.billing_email_address,
                     company_billing=user.company_billing,
@@ -236,7 +282,7 @@ def list_all_users(
                     company_name=user.company_name,
                     vat=user.vat,
                 )
-                for user in users
+                for user in users_with_roles
             ],
             invited=[InvitedUserSnapshot(email=email) for email in invited_emails],
             accepted_pages=1,
@@ -258,7 +304,7 @@ def list_all_users(
                 company_name=user.company_name,
                 vat=user.vat,
             )
-            for user in users
+            for user in users_with_roles
         ][accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE],
         invited=[InvitedUserSnapshot(email=email) for email in invited_emails][
             invited_page * USERS_PAGE_SIZE : (invited_page + 1) * USERS_PAGE_SIZE
@@ -381,27 +427,50 @@ async def get_user_role(user: User = Depends(current_user)) -> UserRoleResponse:
 def put_profile(
     file: UploadFile,
     db_session: Session = Depends(get_session),
-    _: User | None = Depends(current_user),
+    current_user: User = Depends(current_user),
 ) -> None:
-    upload_profile(file=file, db_session=db_session)
+    upload_profile(file=file, db_session=db_session, user=current_user)
 
 
 @router.get("/me/profile")
 def fetch_profile(
     db_session: Session = Depends(get_session),
-    _: User | None = Depends(current_user),  # Ensure that the user is authenticated
+    current_user: User = Depends(current_user),
 ) -> Response:
     try:
+        file_path = f"{current_user.id}/{_PROFILE_FILENAME}"
+
         file_store = get_default_file_store(db_session)
-        file_io = file_store.read_file(_PROFILE_FILENAME, mode="b")
+        file_io = file_store.read_file(file_path, mode="b")
+
         return Response(content=file_io.read(), media_type="image/jpeg")
     except Exception:
-        raise HTTPException(status_code=404, detail="No logo file found")
+        raise HTTPException(status_code=404, detail="No profile file found")
+
+
+@router.delete("/me/profile")
+def remove_profile(
+    db_session: Session = Depends(get_session),
+    current_user: User = Depends(current_user),  # Get the current user
+) -> None:
+    try:
+        file_name = f"{current_user.id}/{_PROFILE_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+
+        file_store.delete_file(file_name)
+
+        return {"detail": "Profile picture removed successfully."}
+    except Exception as e:
+        logger.error(f"Error removing profile picture: {str(e)}")
+        raise HTTPException(status_code=404, detail="Profile picture not found.")
 
 
 @router.get("/me")
 def verify_user_logged_in(
     user: User | None = Depends(optional_user),
+    teamspace_id: Optional[int] = None,
+    db: Session = Depends(get_session),
 ) -> UserInfo:
     # NOTE: this does not use `current_user` / `current_admin_user` because we don't want
     # to enforce user verification here - the frontend always wants to get the info about
@@ -412,12 +481,33 @@ def verify_user_logged_in(
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_dynamic_config_store()
             return fetch_no_auth_user(store)
-
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="User Not Authenticated"
         )
 
-    return UserInfo.from_model(user)
+    role = user.role
+    if teamspace_id:
+        user_teamspace = (
+            db.query(User__Teamspace)
+            .filter(
+                User__Teamspace.user_id == user.id,
+                User__Teamspace.teamspace_id == teamspace_id,
+            )
+            .first()
+        )
+
+        if user_teamspace is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teamspace or role not found",
+            )
+
+        role = user_teamspace.role
+
+    user_info = UserInfo.from_model(user)
+    user_info.role = role
+
+    return user_info
 
 
 """APIs to adjust user preferences"""

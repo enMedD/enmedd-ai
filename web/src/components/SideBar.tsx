@@ -25,11 +25,15 @@ import {
 } from "lucide-react";
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
+import { useParams } from "next/navigation";
 
-interface SideBarProps {}
+interface SideBarProps {
+  isTeamspace?: boolean;
+}
 
-export const SideBar: React.FC<SideBarProps> = ({}) => {
+export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
   const dynamicSettings = useContext(SettingsContext);
+  const { teamspaceId } = useParams();
 
   return (
     <div className="w-full h-full p-4 overflow-y-auto bg-background">
@@ -45,7 +49,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Existing Data Sources</div>
                   </div>
                 ),
-                link: "/admin/indexing/status",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/indexing/status`
+                  : `/admin/indexing/status`,
               },
               {
                 name: (
@@ -54,7 +60,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Data Sources</div>
                   </div>
                 ),
-                link: "/admin/data-sources",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/data-sources`
+                  : `/admin/data-sources`,
               },
             ],
           },
@@ -68,7 +76,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Document Sets</div>
                   </div>
                 ),
-                link: "/admin/documents/sets",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/sets`
+                  : `/admin/documents/sets`,
               },
               {
                 name: (
@@ -77,7 +87,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Explorer</div>
                   </div>
                 ),
-                link: "/admin/documents/explorer",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/explorer`
+                  : `/admin/documents/explorer`,
               },
               {
                 name: (
@@ -86,7 +98,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Feedback</div>
                   </div>
                 ),
-                link: "/admin/documents/feedback",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/feedback`
+                  : `/admin/documents/feedback`,
               },
             ],
           },
@@ -100,7 +114,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Assistants</div>
                   </div>
                 ),
-                link: "/admin/assistants",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/assistants`
+                  : `/admin/assistants`,
               },
               {
                 name: (
@@ -109,7 +125,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Tools</div>
                   </div>
                 ),
-                link: "/admin/tools",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/tools`
+                  : `/admin/tools`,
               },
             ],
           },
@@ -123,7 +141,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>LLM</div>
                   </div>
                 ),
-                link: "/admin/models/llm",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/models/llm`
+                  : `/admin/models/llm`,
               },
               {
                 name: (
@@ -132,7 +152,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Embedding</div>
                   </div>
                 ),
-                link: "/admin/models/embedding",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/models/embedding`
+                  : `/admin/models/embedding`,
               },
             ],
           },
@@ -146,9 +168,12 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Users</div>
                   </div>
                 ),
-                link: "/admin/users",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/users`
+                  : `/admin/users`,
               },
-              ...(dynamicSettings?.featureFlags.multi_teamspace
+
+              ...(dynamicSettings?.featureFlags.multi_teamspace && !isTeamspace
                 ? [
                     {
                       name: (
@@ -161,24 +186,28 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     },
                   ]
                 : []),
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <KeyIcon size={20} />
-                    <div>API Keys</div>
-                  </div>
-                ),
-                link: "/admin/api-key",
-              },
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Shield size={20} />
-                    <div>Token Rate Limits</div>
-                  </div>
-                ),
-                link: "/admin/token-rate-limits",
-              },
+              ...(!isTeamspace
+                ? [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <KeyIcon size={20} />
+                          <div>API Keys</div>
+                        </div>
+                      ),
+                      link: "/admin/api-key",
+                    },
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <Shield size={20} />
+                          <div>Token Rate Limits</div>
+                        </div>
+                      ),
+                      link: "/admin/token-rate-limits",
+                    },
+                  ]
+                : []),
             ],
           },
           {
@@ -191,7 +220,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                     <div>Usage Statistics</div>
                   </div>
                 ),
-                link: "/admin/performance/usage",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/performance/usage`
+                  : `/admin/performance/usage`,
               },
               ...(dynamicSettings?.featureFlags.query_history
                 ? [
@@ -202,7 +233,9 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
                           <div>Query History</div>
                         </div>
                       ),
-                      link: "/admin/performance/query-history",
+                      link: teamspaceId
+                        ? `/t/${teamspaceId}/admin/performance/query-history`
+                        : `/admin/performance/query-history`,
                     },
                   ]
                 : []),
@@ -220,28 +253,44 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
           {
             name: "Settings",
             items: [
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Settings size={20} />
-                    <div>Workspace Settings</div>
-                  </div>
-                ),
-                link: "/admin/settings",
-              },
-              ...(dynamicSettings?.featureFlags.whitelabelling
+              ...(isTeamspace
                 ? [
                     {
                       name: (
                         <div className="flex items-center gap-2">
-                          <ImageIcon size={20} />
-                          <div>Whitelabeling</div>
+                          <Settings size={20} />
+                          <div>Teamspace Settings</div>
                         </div>
                       ),
-                      link: "/admin/whitelabeling",
+                      link: teamspaceId
+                        ? `/t/${teamspaceId}/admin/settings`
+                        : `/admin/settings`,
                     },
                   ]
-                : []),
+                : [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <Settings size={20} />
+                          <div>Workspace Settings</div>
+                        </div>
+                      ),
+                      link: "/admin/settings",
+                    },
+                    ...(dynamicSettings?.featureFlags.whitelabelling
+                      ? [
+                          {
+                            name: (
+                              <div className="flex items-center gap-2">
+                                <ImageIcon size={20} />
+                                <div>Whitelabeling</div>
+                              </div>
+                            ),
+                            link: "/admin/whitelabeling",
+                          },
+                        ]
+                      : []),
+                  ]),
             ],
           },
         ]}

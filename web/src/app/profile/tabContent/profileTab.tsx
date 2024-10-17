@@ -26,7 +26,7 @@ export default function ProfileTab({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
-  // Fetch profile image on mount
+  // TODO: Update instantly when user profile changes
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
@@ -131,7 +131,7 @@ export default function ProfileTab({
 
   return (
     <>
-      <div className="flex py-8 border-b">
+      <div className="flex py-8 border-b gap-5">
         <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
           <span className="font-semibold text-inverted-inverted">
             Your Photo
@@ -177,14 +177,17 @@ export default function ProfileTab({
       </div>
 
       <div className="py-8 border-b flex flex-col gap-8">
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Name</span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 value={fullName}
+                placeholder="Enter Full Name"
                 onChange={(e) => setFullName(e.target.value)}
               />
             ) : (
@@ -194,16 +197,19 @@ export default function ProfileTab({
             )}
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">
               Company
             </span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 value={companyName}
+                placeholder="Enter Company Name"
                 onChange={(e) => setCompanyName(e.target.value)}
               />
             ) : (
@@ -213,14 +219,17 @@ export default function ProfileTab({
             )}
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Email</span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 disabled
+                placeholder="Enter Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />

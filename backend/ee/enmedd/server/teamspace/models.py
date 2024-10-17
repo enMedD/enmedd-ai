@@ -16,6 +16,7 @@ from enmedd.server.manage.models import UserPreferences
 from enmedd.server.models import MinimalTeamspaceSnapshot
 from enmedd.server.models import MinimalWorkspaceSnapshot
 from enmedd.server.query_and_chat.models import ChatSessionDetails
+from enmedd.server.settings.models import TeamspaceSettings
 from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 
 
@@ -31,6 +32,7 @@ class Teamspace(BaseModel):
     is_up_for_deletion: bool
     workspace: list[MinimalWorkspaceSnapshot]
     token_rate_limit: Optional[TokenRateLimitDisplay] = None
+    settings: Optional[TeamspaceSettings] = None
 
     @classmethod
     def from_model(cls, teamspace_model: TeamspaceModel) -> "Teamspace":
@@ -118,23 +120,31 @@ class Teamspace(BaseModel):
                 if teamspace_model.token_rate_limit is not None
                 else None
             ),
+            settings=(
+                TeamspaceSettings.from_db(teamspace_model.settings)
+                if teamspace_model.settings is not None
+                else None
+            ),
         )
 
 
 class TeamspaceCreate(BaseModel):
     name: str
     user_ids: list[UUID]
-    cc_pair_ids: list[int]
-    document_set_ids: Optional[List[int]] = []
-    assistant_ids: Optional[List[int]] = []
+    cc_pair_ids: Optional[List[int]] = None
+    document_set_ids: Optional[List[int]] = None
+    assistant_ids: Optional[List[int]] = None
     workspace_id: Optional[int] = 0
-
 
 class TeamspaceUpdate(BaseModel):
     user_ids: list[UUID]
-    cc_pair_ids: list[int]
-    document_set_ids: Optional[List[int]] = []
-    assistant_ids: Optional[List[int]] = []
+    cc_pair_ids: Optional[List[int]] = None
+    document_set_ids: Optional[List[int]] = None
+    assistant_ids: Optional[List[int]] = None
+
+
+class TeamspaceUpdateName(BaseModel):
+    name: str
 
 
 class TeamspaceUserRole(str, Enum):
