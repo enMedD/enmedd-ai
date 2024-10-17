@@ -181,7 +181,9 @@ export default function ProfileTab({
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Name</span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 value={fullName}
@@ -201,7 +203,9 @@ export default function ProfileTab({
               Company
             </span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 value={companyName}
@@ -219,7 +223,9 @@ export default function ProfileTab({
           <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Email</span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 disabled

@@ -93,7 +93,9 @@ export default function SecurityTab({ user }: { user: UserTypes | null }) {
               Current Password
             </span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 type="password"
@@ -117,7 +119,9 @@ export default function SecurityTab({ user }: { user: UserTypes | null }) {
                 New Password
               </span>
             </div>
-            <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+            <div
+              className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+            >
               {isEditing ? (
                 <Input
                   type="password"
@@ -175,7 +179,9 @@ export default function SecurityTab({ user }: { user: UserTypes | null }) {
               Confirm Password
             </span>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+            className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 type="password"

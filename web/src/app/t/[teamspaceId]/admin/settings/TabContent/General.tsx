@@ -55,7 +55,9 @@ export default function General({
               This will be displayed on your profile.
             </p>
           </div>
-          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+          <div
+          className={`md:w-[500px] h-10 flex items-center justify-between ${isEditing ? "" : "truncate"}`}
+          >
             {isEditing ? (
               <Input
                 placeholder="Enter Teamspace Name"
@@ -64,7 +66,7 @@ export default function General({
               />
             ) : (
               <>
-                {!localTeamspaceName ? (
+                {isLoading ? (
                   <Skeleton className="w-full h-8 rounded-md" />
                 ) : (
                   <span className="font-semibold text-inverted-inverted w-full truncate">
