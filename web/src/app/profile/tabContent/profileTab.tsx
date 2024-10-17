@@ -185,6 +185,7 @@ export default function ProfileTab({
             {isEditing ? (
               <Input
                 value={fullName}
+                placeholder="Enter Full Name"
                 onChange={(e) => setFullName(e.target.value)}
               />
             ) : (
@@ -204,6 +205,7 @@ export default function ProfileTab({
             {isEditing ? (
               <Input
                 value={companyName}
+                placeholder="Enter Company Name"
                 onChange={(e) => setCompanyName(e.target.value)}
               />
             ) : (
@@ -221,6 +223,7 @@ export default function ProfileTab({
             {isEditing ? (
               <Input
                 disabled
+                placeholder="Enter Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
