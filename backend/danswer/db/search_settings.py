@@ -3,29 +3,29 @@ from sqlalchemy import delete
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.configs.model_configs import ASYM_PASSAGE_PREFIX
-from danswer.configs.model_configs import ASYM_QUERY_PREFIX
-from danswer.configs.model_configs import DEFAULT_DOCUMENT_ENCODER_MODEL
-from danswer.configs.model_configs import DOC_EMBEDDING_DIM
-from danswer.configs.model_configs import DOCUMENT_ENCODER_MODEL
-from danswer.configs.model_configs import NORMALIZE_EMBEDDINGS
-from danswer.configs.model_configs import OLD_DEFAULT_DOCUMENT_ENCODER_MODEL
-from danswer.configs.model_configs import OLD_DEFAULT_MODEL_DOC_EMBEDDING_DIM
-from danswer.configs.model_configs import OLD_DEFAULT_MODEL_NORMALIZE_EMBEDDINGS
-from danswer.db.engine import get_session_with_tenant
-from danswer.db.llm import fetch_embedding_provider
-from danswer.db.models import CloudEmbeddingProvider
-from danswer.db.models import IndexAttempt
-from danswer.db.models import IndexModelStatus
-from danswer.db.models import SearchSettings
-from danswer.indexing.models import IndexingSetting
-from danswer.natural_language_processing.search_nlp_models import clean_model_name
-from danswer.natural_language_processing.search_nlp_models import warm_up_cross_encoder
-from danswer.search.models import SavedSearchSettings
-from danswer.server.manage.embedding.models import (
+from enmeddd.configs.model_configs import ASYM_PASSAGE_PREFIX
+from enmeddd.configs.model_configs import ASYM_QUERY_PREFIX
+from enmeddd.configs.model_configs import DEFAULT_DOCUMENT_ENCODER_MODEL
+from enmeddd.configs.model_configs import DOC_EMBEDDING_DIM
+from enmeddd.configs.model_configs import DOCUMENT_ENCODER_MODEL
+from enmeddd.configs.model_configs import NORMALIZE_EMBEDDINGS
+from enmeddd.configs.model_configs import OLD_DEFAULT_DOCUMENT_ENCODER_MODEL
+from enmeddd.configs.model_configs import OLD_DEFAULT_MODEL_DOC_EMBEDDING_DIM
+from enmeddd.configs.model_configs import OLD_DEFAULT_MODEL_NORMALIZE_EMBEDDINGS
+from enmeddd.db.engine import get_session_with_tenant
+from enmeddd.db.llm import fetch_embedding_provider
+from enmeddd.db.models import CloudEmbeddingProvider
+from enmeddd.db.models import IndexAttempt
+from enmeddd.db.models import IndexModelStatus
+from enmeddd.db.models import SearchSettings
+from enmeddd.indexing.models import IndexingSetting
+from enmeddd.natural_language_processing.search_nlp_models import clean_model_name
+from enmeddd.natural_language_processing.search_nlp_models import warm_up_cross_encoder
+from enmeddd.search.models import SavedSearchSettings
+from enmeddd.server.manage.embedding.models import (
     CloudEmbeddingProvider as ServerCloudEmbeddingProvider,
 )
-from danswer.utils.logger import setup_logger
+from enmeddd.utils.logger import setup_logger
 from shared_configs.configs import PRESERVED_SEARCH_FIELDS
 from shared_configs.enums import EmbeddingProvider
 
@@ -241,7 +241,7 @@ def get_old_default_search_settings() -> SearchSettings:
         query_prefix=(ASYM_QUERY_PREFIX if is_overridden else ""),
         passage_prefix=(ASYM_PASSAGE_PREFIX if is_overridden else ""),
         status=IndexModelStatus.PRESENT,
-        index_name="danswer_chunk",
+        index_name="enmeddd_chunk",
     )
 
 
@@ -253,7 +253,7 @@ def get_new_default_search_settings(is_present: bool) -> SearchSettings:
         query_prefix=ASYM_QUERY_PREFIX,
         passage_prefix=ASYM_PASSAGE_PREFIX,
         status=IndexModelStatus.PRESENT if is_present else IndexModelStatus.FUTURE,
-        index_name=f"danswer_chunk_{clean_model_name(DOCUMENT_ENCODER_MODEL)}",
+        index_name=f"enmeddd_chunk_{clean_model_name(DOCUMENT_ENCODER_MODEL)}",
     )
 
 
@@ -275,7 +275,7 @@ def get_old_default_embedding_model() -> IndexingSetting:
         ),
         query_prefix=(ASYM_QUERY_PREFIX if is_overridden else ""),
         passage_prefix=(ASYM_PASSAGE_PREFIX if is_overridden else ""),
-        index_name="danswer_chunk",
+        index_name="enmeddd_chunk",
         multipass_indexing=False,
         api_url=None,
     )
@@ -288,7 +288,7 @@ def get_new_default_embedding_model() -> IndexingSetting:
         normalize=NORMALIZE_EMBEDDINGS,
         query_prefix=ASYM_QUERY_PREFIX,
         passage_prefix=ASYM_PASSAGE_PREFIX,
-        index_name=f"danswer_chunk_{clean_model_name(DOCUMENT_ENCODER_MODEL)}",
+        index_name=f"enmeddd_chunk_{clean_model_name(DOCUMENT_ENCODER_MODEL)}",
         multipass_indexing=False,
         api_url=None,
     )

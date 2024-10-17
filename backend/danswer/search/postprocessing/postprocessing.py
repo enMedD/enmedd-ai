@@ -4,29 +4,29 @@ from typing import cast
 
 import numpy
 
-from danswer.chat.models import SectionRelevancePiece
-from danswer.configs.app_configs import BLURB_SIZE
-from danswer.configs.constants import RETURN_SEPARATOR
-from danswer.configs.model_configs import CROSS_ENCODER_RANGE_MAX
-from danswer.configs.model_configs import CROSS_ENCODER_RANGE_MIN
-from danswer.document_index.document_index_utils import (
+from enmedd.chat.models import SectionRelevancePiece
+from enmedd.configs.app_configs import BLURB_SIZE
+from enmedd.configs.constants import RETURN_SEPARATOR
+from enmedd.configs.model_configs import CROSS_ENCODER_RANGE_MAX
+from enmedd.configs.model_configs import CROSS_ENCODER_RANGE_MIN
+from enmedd.document_index.document_index_utils import (
     translate_boost_count_to_multiplier,
 )
-from danswer.llm.interfaces import LLM
-from danswer.natural_language_processing.search_nlp_models import RerankingModel
-from danswer.search.enums import LLMEvaluationType
-from danswer.search.models import ChunkMetric
-from danswer.search.models import InferenceChunk
-from danswer.search.models import InferenceChunkUncleaned
-from danswer.search.models import InferenceSection
-from danswer.search.models import MAX_METRICS_CONTENT
-from danswer.search.models import RerankMetricsContainer
-from danswer.search.models import SearchQuery
-from danswer.secondary_llm_flows.chunk_usefulness import llm_batch_eval_sections
-from danswer.utils.logger import setup_logger
-from danswer.utils.threadpool_concurrency import FunctionCall
-from danswer.utils.threadpool_concurrency import run_functions_in_parallel
-from danswer.utils.timing import log_function_time
+from enmedd.llm.interfaces import LLM
+from enmedd.natural_language_processing.search_nlp_models import RerankingModel
+from enmedd.search.enums import LLMEvaluationType
+from enmedd.search.models import ChunkMetric
+from enmedd.search.models import InferenceChunk
+from enmedd.search.models import InferenceChunkUncleaned
+from enmedd.search.models import InferenceSection
+from enmedd.search.models import MAX_METRICS_CONTENT
+from enmedd.search.models import RerankMetricsContainer
+from enmedd.search.models import SearchQuery
+from enmedd.secondary_llm_flows.chunk_usefulness import llm_batch_eval_sections
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.threadpool_concurrency import FunctionCall
+from enmedd.utils.threadpool_concurrency import run_functions_in_parallel
+from enmedd.utils.timing import log_function_time
 
 
 logger = setup_logger()

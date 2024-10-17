@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel
 from pydantic import Field
 
-from danswer.access.models import DocumentAccess
-from danswer.connectors.models import Document
-from danswer.utils.logger import setup_logger
+from enmedd.access.models import DocumentAccess
+from enmedd.connectors.models import Document
+from enmedd.utils.logger import setup_logger
 from shared_configs.enums import EmbeddingProvider
 from shared_configs.model_server_models import Embedding
 
 if TYPE_CHECKING:
-    from danswer.db.models import SearchSettings
+    from enmedd.db.models import SearchSettings
 
 
 logger = setup_logger()
@@ -70,7 +70,7 @@ class DocMetadataAwareIndexChunk(IndexChunk):
     access: holds all information about which users should have access to the
             source document for this chunk.
     document_sets: all document sets the source document for this chunk is a part
-                   of. This is used for filtering / personas.
+                   of. This is used for filtering / assistants.
     boost: influences the ranking of this chunk at query time. Positive -> ranked higher,
            negative -> ranked lower.
     """

@@ -14,29 +14,29 @@ from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
-from danswer.auth.schemas import UserRole
-from danswer.chat.models import DocumentRelevance
-from danswer.configs.chat_configs import HARD_DELETE_CHATS
-from danswer.configs.constants import MessageType
-from danswer.db.models import ChatMessage
-from danswer.db.models import ChatMessage__SearchDoc
-from danswer.db.models import ChatSession
-from danswer.db.models import ChatSessionSharedStatus
-from danswer.db.models import Prompt
-from danswer.db.models import SearchDoc
-from danswer.db.models import SearchDoc as DBSearchDoc
-from danswer.db.models import ToolCall
-from danswer.db.models import User
-from danswer.db.pg_file_store import delete_lobj_by_name
-from danswer.file_store.models import FileDescriptor
-from danswer.llm.override_models import LLMOverride
-from danswer.llm.override_models import PromptOverride
-from danswer.search.models import RetrievalDocs
-from danswer.search.models import SavedSearchDoc
-from danswer.search.models import SearchDoc as ServerSearchDoc
-from danswer.server.query_and_chat.models import ChatMessageDetail
-from danswer.tools.tool_runner import ToolCallFinalResult
-from danswer.utils.logger import setup_logger
+from enmeddd.auth.schemas import UserRole
+from enmeddd.chat.models import DocumentRelevance
+from enmeddd.configs.chat_configs import HARD_DELETE_CHATS
+from enmeddd.configs.constants import MessageType
+from enmeddd.db.models import ChatMessage
+from enmeddd.db.models import ChatMessage__SearchDoc
+from enmeddd.db.models import ChatSession
+from enmeddd.db.models import ChatSessionSharedStatus
+from enmeddd.db.models import Prompt
+from enmeddd.db.models import SearchDoc
+from enmeddd.db.models import SearchDoc as DBSearchDoc
+from enmeddd.db.models import ToolCall
+from enmeddd.db.models import User
+from enmeddd.db.pg_file_store import delete_lobj_by_name
+from enmeddd.file_store.models import FileDescriptor
+from enmeddd.llm.override_models import LLMOverride
+from enmeddd.llm.override_models import PromptOverride
+from enmeddd.search.models import RetrievalDocs
+from enmeddd.search.models import SavedSearchDoc
+from enmeddd.search.models import SearchDoc as ServerSearchDoc
+from enmeddd.server.query_and_chat.models import ChatMessageDetail
+from enmeddd.tools.tool_runner import ToolCallFinalResult
+from enmeddd.utils.logger import setup_logger
 
 
 logger = setup_logger()
@@ -226,21 +226,21 @@ def create_chat_session(
     db_session: Session,
     description: str,
     user_id: UUID | None,
-    persona_id: int | None,  # Can be none if temporary persona is used
+    assistant_id: int | None,  # Can be none if temporary assistant is used
     llm_override: LLMOverride | None = None,
     prompt_override: PromptOverride | None = None,
     one_shot: bool = False,
-    danswerbot_flow: bool = False,
+    enmedddbot_flow: bool = False,
     slack_thread_id: str | None = None,
 ) -> ChatSession:
     chat_session = ChatSession(
         user_id=user_id,
-        persona_id=persona_id,
+        assistant_id=assistant_id,
         description=description,
         llm_override=llm_override,
         prompt_override=prompt_override,
         one_shot=one_shot,
-        danswerbot_flow=danswerbot_flow,
+        enmedddbot_flow=enmedddbot_flow,
         slack_thread_id=slack_thread_id,
     )
 

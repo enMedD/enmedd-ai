@@ -4,11 +4,11 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.db.models import InputPrompt
-from danswer.db.models import User
-from danswer.server.features.input_prompt.models import InputPromptSnapshot
-from danswer.server.manage.models import UserInfo
-from danswer.utils.logger import setup_logger
+from enmeddd.db.models import InputPrompt
+from enmeddd.db.models import User
+from enmeddd.server.features.input_prompt.models import InputPromptSnapshot
+from enmeddd.server.manage.models import UserInfo
+from enmeddd.utils.logger import setup_logger
 
 
 logger = setup_logger()

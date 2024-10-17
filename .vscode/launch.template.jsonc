@@ -7,14 +7,13 @@
     "version": "0.2.0",
     "compounds": [
         {
-            "name": "Run All Danswer Services",
+            "name": "Run All Arnold AI Services",
             "configurations": [
                 "Web Server",
                 "Model Server",
                 "API Server",
                 "Indexing",
-                "Background Jobs",
-                "Slack Bot"
+                "Background Jobs"
             ]
         }
     ],
@@ -64,7 +63,7 @@
                 "PYTHONUNBUFFERED": "1"
             },
             "args": [
-                "danswer.main:app",
+                "enmedd.main:app",
                 "--reload",
                 "--port",
                 "8080"
@@ -75,7 +74,7 @@
             "consoleName": "Indexing",
             "type": "debugpy",
             "request": "launch",
-            "program": "danswer/background/update.py",
+            "program": "enmedd/background/update.py",
             "cwd": "${workspaceFolder}/backend",
             "envFile": "${workspaceFolder}/.vscode/.env",
             "env": {
@@ -104,22 +103,6 @@
                 "--no-indexing"
             ]
         },
-        // For the listner to access the Slack API,
-        // DANSWER_BOT_SLACK_APP_TOKEN & DANSWER_BOT_SLACK_BOT_TOKEN need to be set in .env file located in the root of the project
-        {
-            "name": "Slack Bot",
-            "consoleName": "Slack Bot",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "danswer/danswerbot/slack/listener.py",
-            "cwd": "${workspaceFolder}/backend",
-            "envFile": "${workspaceFolder}/.vscode/.env",
-            "env": {
-                "LOG_LEVEL": "DEBUG",
-                "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "."
-            }
-        },
         {
             "name": "Pytest",
             "consoleName": "Pytest",
@@ -136,7 +119,7 @@
             "args": [
                 "-v"
                 // Specify a sepcific module/test to run or provide nothing to run all tests
-                //"tests/unit/danswer/llm/answering/test_prune_and_merge.py"
+                //"tests/unit/enmedd/llm/answering/test_prune_and_merge.py"
             ]
         },
         {

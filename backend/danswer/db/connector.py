@@ -9,16 +9,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import Session
 
-from danswer.configs.app_configs import DEFAULT_PRUNING_FREQ
-from danswer.configs.constants import DocumentSource
-from danswer.connectors.models import InputType
-from danswer.db.models import Connector
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import IndexAttempt
-from danswer.server.documents.models import ConnectorBase
-from danswer.server.documents.models import ObjectCreationIdResponse
-from danswer.server.models import StatusResponse
-from danswer.utils.logger import setup_logger
+from enmeddd.configs.app_configs import DEFAULT_PRUNING_FREQ
+from enmeddd.configs.constants import DocumentSource
+from enmeddd.connectors.models import InputType
+from enmeddd.db.models import Connector
+from enmeddd.db.models import ConnectorCredentialPair
+from enmeddd.db.models import IndexAttempt
+from enmeddd.server.documents.models import ConnectorBase
+from enmeddd.server.documents.models import ObjectCreationIdResponse
+from enmeddd.server.models import StatusResponse
+from enmeddd.utils.logger import setup_logger
 
 logger = setup_logger()
 

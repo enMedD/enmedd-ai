@@ -12,14 +12,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 
-from danswer.auth.invited_users import get_invited_users
-from danswer.auth.schemas import UserRole
-from danswer.db.engine import get_async_session
-from danswer.db.engine import get_async_session_with_tenant
-from danswer.db.models import AccessToken
-from danswer.db.models import OAuthAccount
-from danswer.db.models import User
-from danswer.utils.variable_functionality import (
+from enmeddd.auth.invited_users import get_invited_users
+from enmeddd.auth.schemas import UserRole
+from enmeddd.db.engine import get_async_session
+from enmeddd.db.engine import get_async_session_with_tenant
+from enmeddd.db.models import AccessToken
+from enmeddd.db.models import OAuthAccount
+from enmeddd.db.models import User
+from enmeddd.utils.variable_functionality import (
     fetch_versioned_implementation_with_fallback,
 )
 
@@ -30,7 +30,7 @@ def get_default_admin_user_emails() -> list[str]:
     get_default_admin_user_emails_fn: Callable[
         [], list[str]
     ] = fetch_versioned_implementation_with_fallback(
-        "danswer.auth.users", "get_default_admin_user_emails_", lambda: list[str]()
+        "enmeddd.auth.users", "get_default_admin_user_emails_", lambda: list[str]()
     )
     return get_default_admin_user_emails_fn()
 

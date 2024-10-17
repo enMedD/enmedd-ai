@@ -4,29 +4,29 @@ from fastapi import HTTPException
 from fastapi import Query
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_admin_user
-from danswer.auth.users import current_curator_or_admin_user
-from danswer.auth.users import current_user
-from danswer.db.credentials import alter_credential
-from danswer.db.credentials import create_credential
-from danswer.db.credentials import CREDENTIAL_PERMISSIONS_TO_IGNORE
-from danswer.db.credentials import delete_credential
-from danswer.db.credentials import fetch_credential_by_id
-from danswer.db.credentials import fetch_credentials
-from danswer.db.credentials import fetch_credentials_by_source
-from danswer.db.credentials import swap_credentials_connector
-from danswer.db.credentials import update_credential
-from danswer.db.engine import get_session
-from danswer.db.models import DocumentSource
-from danswer.db.models import User
-from danswer.server.documents.models import CredentialBase
-from danswer.server.documents.models import CredentialDataUpdateRequest
-from danswer.server.documents.models import CredentialSnapshot
-from danswer.server.documents.models import CredentialSwapRequest
-from danswer.server.documents.models import ObjectCreationIdResponse
-from danswer.server.models import StatusResponse
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.user_group import validate_user_creation_permissions
+from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_curator_or_admin_user
+from enmedd.auth.users import current_user
+from enmedd.db.credentials import alter_credential
+from enmedd.db.credentials import create_credential
+from enmedd.db.credentials import CREDENTIAL_PERMISSIONS_TO_IGNORE
+from enmedd.db.credentials import delete_credential
+from enmedd.db.credentials import fetch_credential_by_id
+from enmedd.db.credentials import fetch_credentials
+from enmedd.db.credentials import fetch_credentials_by_source
+from enmedd.db.credentials import swap_credentials_connector
+from enmedd.db.credentials import update_credential
+from enmedd.db.engine import get_session
+from enmedd.db.models import DocumentSource
+from enmedd.db.models import User
+from enmedd.server.documents.models import CredentialBase
+from enmedd.server.documents.models import CredentialDataUpdateRequest
+from enmedd.server.documents.models import CredentialSnapshot
+from enmedd.server.documents.models import CredentialSwapRequest
+from enmedd.server.documents.models import ObjectCreationIdResponse
+from enmedd.server.models import StatusResponse
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.teamspace import validate_user_creation_permissions
 
 logger = setup_logger()
 

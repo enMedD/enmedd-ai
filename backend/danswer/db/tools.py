@@ -4,9 +4,9 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.db.models import Tool
-from danswer.server.features.tool.models import Header
-from danswer.utils.logger import setup_logger
+from enmeddd.db.models import Tool
+from enmeddd.server.features.tool.models import Header
+from enmeddd.utils.logger import setup_logger
 
 logger = setup_logger()
 

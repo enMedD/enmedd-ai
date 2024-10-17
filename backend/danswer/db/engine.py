@@ -23,22 +23,22 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
-from danswer.configs.app_configs import LOG_POSTGRES_CONN_COUNTS
-from danswer.configs.app_configs import LOG_POSTGRES_LATENCY
-from danswer.configs.app_configs import MULTI_TENANT
-from danswer.configs.app_configs import POSTGRES_API_SERVER_POOL_OVERFLOW
-from danswer.configs.app_configs import POSTGRES_API_SERVER_POOL_SIZE
-from danswer.configs.app_configs import POSTGRES_DB
-from danswer.configs.app_configs import POSTGRES_HOST
-from danswer.configs.app_configs import POSTGRES_PASSWORD
-from danswer.configs.app_configs import POSTGRES_POOL_PRE_PING
-from danswer.configs.app_configs import POSTGRES_POOL_RECYCLE
-from danswer.configs.app_configs import POSTGRES_PORT
-from danswer.configs.app_configs import POSTGRES_USER
-from danswer.configs.app_configs import SECRET_JWT_KEY
-from danswer.configs.constants import POSTGRES_DEFAULT_SCHEMA
-from danswer.configs.constants import POSTGRES_UNKNOWN_APP_NAME
-from danswer.utils.logger import setup_logger
+from enmedd.configs.app_configs import LOG_POSTGRES_CONN_COUNTS
+from enmedd.configs.app_configs import LOG_POSTGRES_LATENCY
+from enmedd.configs.app_configs import MULTI_TENANT
+from enmedd.configs.app_configs import POSTGRES_API_SERVER_POOL_OVERFLOW
+from enmedd.configs.app_configs import POSTGRES_API_SERVER_POOL_SIZE
+from enmedd.configs.app_configs import POSTGRES_DB
+from enmedd.configs.app_configs import POSTGRES_HOST
+from enmedd.configs.app_configs import POSTGRES_PASSWORD
+from enmedd.configs.app_configs import POSTGRES_POOL_PRE_PING
+from enmedd.configs.app_configs import POSTGRES_POOL_RECYCLE
+from enmedd.configs.app_configs import POSTGRES_PORT
+from enmedd.configs.app_configs import POSTGRES_USER
+from enmedd.configs.app_configs import SECRET_JWT_KEY
+from enmedd.configs.constants import POSTGRES_DEFAULT_SCHEMA
+from enmedd.configs.constants import POSTGRES_UNKNOWN_APP_NAME
+from enmedd.utils.logger import setup_logger
 from shared_configs.configs import current_tenant_id
 
 logger = setup_logger()

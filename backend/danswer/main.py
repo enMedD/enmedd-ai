@@ -17,78 +17,78 @@ from fastapi.responses import JSONResponse
 from httpx_oauth.clients.google import GoogleOAuth2
 from sqlalchemy.orm import Session
 
-from danswer import __version__
-from danswer.auth.schemas import UserCreate
-from danswer.auth.schemas import UserRead
-from danswer.auth.schemas import UserUpdate
-from danswer.auth.users import auth_backend
-from danswer.auth.users import fastapi_users
-from danswer.configs.app_configs import APP_API_PREFIX
-from danswer.configs.app_configs import APP_HOST
-from danswer.configs.app_configs import APP_PORT
-from danswer.configs.app_configs import AUTH_TYPE
-from danswer.configs.app_configs import DISABLE_GENERATIVE_AI
-from danswer.configs.app_configs import LOG_ENDPOINT_LATENCY
-from danswer.configs.app_configs import MULTI_TENANT
-from danswer.configs.app_configs import OAUTH_CLIENT_ID
-from danswer.configs.app_configs import OAUTH_CLIENT_SECRET
-from danswer.configs.app_configs import POSTGRES_API_SERVER_POOL_OVERFLOW
-from danswer.configs.app_configs import POSTGRES_API_SERVER_POOL_SIZE
-from danswer.configs.app_configs import SYSTEM_RECURSION_LIMIT
-from danswer.configs.app_configs import USER_AUTH_SECRET
-from danswer.configs.app_configs import WEB_DOMAIN
-from danswer.configs.constants import AuthType
-from danswer.configs.constants import POSTGRES_WEB_APP_NAME
-from danswer.db.engine import SqlEngine
-from danswer.db.engine import warm_up_connections
-from danswer.server.auth_check import check_router_auth
-from danswer.server.danswer_api.ingestion import router as danswer_api_router
-from danswer.server.documents.cc_pair import router as cc_pair_router
-from danswer.server.documents.connector import router as connector_router
-from danswer.server.documents.credential import router as credential_router
-from danswer.server.documents.document import router as document_router
-from danswer.server.documents.indexing import router as indexing_router
-from danswer.server.features.document_set.api import router as document_set_router
-from danswer.server.features.folder.api import router as folder_router
-from danswer.server.features.input_prompt.api import (
+from enmedd import __version__
+from enmedd.auth.schemas import UserCreate
+from enmedd.auth.schemas import UserRead
+from enmedd.auth.schemas import UserUpdate
+from enmedd.auth.users import auth_backend
+from enmedd.auth.users import fastapi_users
+from enmedd.configs.app_configs import APP_API_PREFIX
+from enmedd.configs.app_configs import APP_HOST
+from enmedd.configs.app_configs import APP_PORT
+from enmedd.configs.app_configs import AUTH_TYPE
+from enmedd.configs.app_configs import DISABLE_GENERATIVE_AI
+from enmedd.configs.app_configs import LOG_ENDPOINT_LATENCY
+from enmedd.configs.app_configs import MULTI_TENANT
+from enmedd.configs.app_configs import OAUTH_CLIENT_ID
+from enmedd.configs.app_configs import OAUTH_CLIENT_SECRET
+from enmedd.configs.app_configs import POSTGRES_API_SERVER_POOL_OVERFLOW
+from enmedd.configs.app_configs import POSTGRES_API_SERVER_POOL_SIZE
+from enmedd.configs.app_configs import SYSTEM_RECURSION_LIMIT
+from enmedd.configs.app_configs import USER_AUTH_SECRET
+from enmedd.configs.app_configs import WEB_DOMAIN
+from enmedd.configs.constants import AuthType
+from enmedd.configs.constants import POSTGRES_WEB_APP_NAME
+from enmedd.db.engine import SqlEngine
+from enmedd.db.engine import warm_up_connections
+from enmedd.server.auth_check import check_router_auth
+from enmedd.server.enmeddd_api.ingestion import router as enmeddd_api_router
+from enmedd.server.documents.cc_pair import router as cc_pair_router
+from enmedd.server.documents.connector import router as connector_router
+from enmedd.server.documents.credential import router as credential_router
+from enmedd.server.documents.document import router as document_router
+from enmedd.server.documents.indexing import router as indexing_router
+from enmedd.server.features.document_set.api import router as document_set_router
+from enmedd.server.features.folder.api import router as folder_router
+from enmedd.server.features.input_prompt.api import (
     admin_router as admin_input_prompt_router,
 )
-from danswer.server.features.input_prompt.api import basic_router as input_prompt_router
-from danswer.server.features.persona.api import admin_router as admin_persona_router
-from danswer.server.features.persona.api import basic_router as persona_router
-from danswer.server.features.prompt.api import basic_router as prompt_router
-from danswer.server.features.tool.api import admin_router as admin_tool_router
-from danswer.server.features.tool.api import router as tool_router
-from danswer.server.gpts.api import router as gpts_router
-from danswer.server.manage.administrative import router as admin_router
-from danswer.server.manage.embedding.api import admin_router as embedding_admin_router
-from danswer.server.manage.embedding.api import basic_router as embedding_router
-from danswer.server.manage.get_state import router as state_router
-from danswer.server.manage.llm.api import admin_router as llm_admin_router
-from danswer.server.manage.llm.api import basic_router as llm_router
-from danswer.server.manage.search_settings import router as search_settings_router
-from danswer.server.manage.slack_bot import router as slack_bot_management_router
-from danswer.server.manage.users import router as user_router
-from danswer.server.middleware.latency_logging import add_latency_logging_middleware
-from danswer.server.query_and_chat.chat_backend import router as chat_router
-from danswer.server.query_and_chat.query_backend import (
+from enmedd.server.features.input_prompt.api import basic_router as input_prompt_router
+from enmedd.server.features.assistant.api import admin_router as admin_assistant_router
+from enmedd.server.features.assistant.api import basic_router as assistant_router
+from enmedd.server.features.prompt.api import basic_router as prompt_router
+from enmedd.server.features.tool.api import admin_router as admin_tool_router
+from enmedd.server.features.tool.api import router as tool_router
+from enmedd.server.gpts.api import router as gpts_router
+from enmedd.server.manage.administrative import router as admin_router
+from enmedd.server.manage.embedding.api import admin_router as embedding_admin_router
+from enmedd.server.manage.embedding.api import basic_router as embedding_router
+from enmedd.server.manage.get_state import router as state_router
+from enmedd.server.manage.llm.api import admin_router as llm_admin_router
+from enmedd.server.manage.llm.api import basic_router as llm_router
+from enmedd.server.manage.search_settings import router as search_settings_router
+from enmedd.server.manage.slack_bot import router as slack_bot_management_router
+from enmedd.server.manage.users import router as user_router
+from enmedd.server.middleware.latency_logging import add_latency_logging_middleware
+from enmedd.server.query_and_chat.chat_backend import router as chat_router
+from enmedd.server.query_and_chat.query_backend import (
     admin_router as admin_query_router,
 )
-from danswer.server.query_and_chat.query_backend import basic_router as query_router
-from danswer.server.settings.api import admin_router as settings_admin_router
-from danswer.server.settings.api import basic_router as settings_router
-from danswer.server.token_rate_limits.api import (
+from enmedd.server.query_and_chat.query_backend import basic_router as query_router
+from enmedd.server.settings.api import admin_router as settings_admin_router
+from enmedd.server.settings.api import basic_router as settings_router
+from enmedd.server.token_rate_limits.api import (
     router as token_rate_limit_settings_router,
 )
-from danswer.setup import setup_danswer
-from danswer.setup import setup_multitenant_danswer
-from danswer.utils.logger import setup_logger
-from danswer.utils.telemetry import get_or_generate_uuid
-from danswer.utils.telemetry import optional_telemetry
-from danswer.utils.telemetry import RecordType
-from danswer.utils.variable_functionality import fetch_versioned_implementation
-from danswer.utils.variable_functionality import global_version
-from danswer.utils.variable_functionality import set_is_ee_based_on_env_variable
+from enmedd.setup import setup_enmeddd
+from enmedd.setup import setup_multitenant_enmeddd
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.telemetry import get_or_generate_uuid
+from enmedd.utils.telemetry import optional_telemetry
+from enmedd.utils.telemetry import RecordType
+from enmedd.utils.variable_functionality import fetch_versioned_implementation
+from enmedd.utils.variable_functionality import global_version
+from enmedd.utils.variable_functionality import set_is_ee_based_on_env_variable
 from shared_configs.configs import CORS_ALLOWED_ORIGIN
 
 logger = setup_logger()
@@ -157,7 +157,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     engine = SqlEngine.get_engine()
 
     verify_auth = fetch_versioned_implementation(
-        "danswer.auth.users", "verify_auth_setting"
+        "enmedd.auth.users", "verify_auth_setting"
     )
 
     # Will throw exception if an issue is found
@@ -177,10 +177,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         get_or_generate_uuid()
 
         with Session(engine) as db_session:
-            setup_danswer(db_session)
+            setup_enmeddd(db_session)
 
     else:
-        setup_multitenant_danswer()
+        setup_multitenant_enmeddd()
 
     optional_telemetry(record_type=RecordType.VERSION, data={"version": __version__})
     yield
@@ -202,7 +202,7 @@ def log_http_error(_: Request, exc: Exception) -> JSONResponse:
 
 def get_application() -> FastAPI:
     application = FastAPI(
-        title="Danswer Backend", version=__version__, lifespan=lifespan
+        title="enMedD AI Backend", version=__version__, lifespan=lifespan
     )
 
     # Add the custom exception handler
@@ -229,15 +229,15 @@ def get_application() -> FastAPI:
     include_router_with_global_prefix_prepended(
         application, slack_bot_management_router
     )
-    include_router_with_global_prefix_prepended(application, persona_router)
-    include_router_with_global_prefix_prepended(application, admin_persona_router)
+    include_router_with_global_prefix_prepended(application, assistant_router)
+    include_router_with_global_prefix_prepended(application, admin_assistant_router)
     include_router_with_global_prefix_prepended(application, input_prompt_router)
     include_router_with_global_prefix_prepended(application, admin_input_prompt_router)
     include_router_with_global_prefix_prepended(application, prompt_router)
     include_router_with_global_prefix_prepended(application, tool_router)
     include_router_with_global_prefix_prepended(application, admin_tool_router)
     include_router_with_global_prefix_prepended(application, state_router)
-    include_router_with_global_prefix_prepended(application, danswer_api_router)
+    include_router_with_global_prefix_prepended(application, enmeddd_api_router)
     include_router_with_global_prefix_prepended(application, gpts_router)
     include_router_with_global_prefix_prepended(application, settings_router)
     include_router_with_global_prefix_prepended(application, settings_admin_router)
@@ -335,12 +335,12 @@ def get_application() -> FastAPI:
 # NOTE: needs to be outside of the `if __name__ == "__main__"` block so that the
 # app is exportable
 set_is_ee_based_on_env_variable()
-app = fetch_versioned_implementation(module="danswer.main", attribute="get_application")
+app = fetch_versioned_implementation(module="enmedd.main", attribute="get_application")
 
 
 if __name__ == "__main__":
     logger.notice(
-        f"Starting Danswer Backend version {__version__} on http://{APP_HOST}:{str(APP_PORT)}/"
+        f"Starting enMedD AI Backend version {__version__} on http://{APP_HOST}:{str(APP_PORT)}/"
     )
 
     if global_version.is_ee_version():

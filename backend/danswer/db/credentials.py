@@ -8,23 +8,23 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import and_
 from sqlalchemy.sql.expression import or_
 
-from danswer.auth.schemas import UserRole
-from danswer.configs.constants import DocumentSource
-from danswer.connectors.gmail.constants import (
+from enmedd.auth.schemas import UserRole
+from enmedd.configs.constants import DocumentSource
+from enmedd.connectors.gmail.constants import (
     GMAIL_DB_CREDENTIALS_DICT_SERVICE_ACCOUNT_KEY,
 )
-from danswer.connectors.google_drive.constants import (
+from enmedd.connectors.google_drive.constants import (
     DB_CREDENTIALS_DICT_SERVICE_ACCOUNT_KEY,
 )
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import Credential
-from danswer.db.models import Credential__UserGroup
-from danswer.db.models import DocumentByConnectorCredentialPair
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.server.documents.models import CredentialBase
-from danswer.server.documents.models import CredentialDataUpdateRequest
-from danswer.utils.logger import setup_logger
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import Credential
+from enmedd.db.models import Credential__Teamspace
+from enmedd.db.models import DocumentByConnectorCredentialPair
+from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
+from enmedd.server.documents.models import CredentialBase
+from enmedd.server.documents.models import CredentialDataUpdateRequest
+from enmedd.utils.logger import setup_logger
 
 
 logger = setup_logger()
@@ -79,38 +79,38 @@ def _add_user_filters(
     """
     THIS PART IS FOR CURATORS AND GLOBAL CURATORS
     Here we select cc_pairs by relation:
-    User -> User__UserGroup -> Credential__UserGroup -> Credential
+    User -> User__Teamspace -> Credential__Teamspace -> Credential
     """
-    stmt = stmt.outerjoin(Credential__UserGroup).outerjoin(
-        User__UserGroup,
-        User__UserGroup.user_group_id == Credential__UserGroup.user_group_id,
+    stmt = stmt.outerjoin(Credential__Teamspace).outerjoin(
+        User__Teamspace,
+        User__Teamspace.teamspace_id == Credential__Teamspace.teamspace_id,
     )
     """
     Filter Credentials by:
-    - if the user is in the user_group that owns the Credential
+    - if the user is in the teamspace that owns the Credential
     - if the user is not a global_curator, they must also have a curator relationship
-    to the user_group
+    to the teamspace
     - if editing is being done, we also filter out Credentials that are owned by groups
     that the user isn't a curator for
     - if we are not editing, we show all Credentials in the groups the user is a curator
     for (as well as public Credentials)
     - if we are not editing, we return all Credentials directly connected to the user
     """
-    where_clause = User__UserGroup.user_id == user.id
+    where_clause = User__Teamspace.user_id == user.id
     if user.role == UserRole.CURATOR:
-        where_clause &= User__UserGroup.is_curator == True  # noqa: E712
+        where_clause &= User__Teamspace.is_curator == True  # noqa: E712
     if get_editable:
-        user_groups = select(User__UserGroup.user_group_id).where(
-            User__UserGroup.user_id == user.id
+        teamspaces = select(User__Teamspace.teamspace_id).where(
+            User__Teamspace.user_id == user.id
         )
         if user.role == UserRole.CURATOR:
-            user_groups = user_groups.where(
-                User__UserGroup.is_curator == True  # noqa: E712
+            teamspaces = teamspaces.where(
+                User__Teamspace.is_curator == True  # noqa: E712
             )
         where_clause &= (
             ~exists()
-            .where(Credential__UserGroup.credential_id == Credential.id)
-            .where(~Credential__UserGroup.user_group_id.in_(user_groups))
+            .where(Credential__Teamspace.credential_id == Credential.id)
+            .where(~Credential__Teamspace.teamspace_id.in_(teamspaces))
             .correlate(Credential)
         )
     else:
@@ -122,20 +122,20 @@ def _add_user_filters(
     return stmt.where(where_clause)
 
 
-def _relate_credential_to_user_groups__no_commit(
+def _relate_credential_to_teamspaces__no_commit(
     db_session: Session,
     credential_id: int,
-    user_group_ids: list[int],
+    teamspace_ids: list[int],
 ) -> None:
-    credential_user_groups = []
-    for group_id in user_group_ids:
-        credential_user_groups.append(
-            Credential__UserGroup(
+    credential_teamspaces = []
+    for group_id in teamspace_ids:
+        credential_teamspaces.append(
+            Credential__Teamspace(
                 credential_id=credential_id,
-                user_group_id=group_id,
+                teamspace_id=group_id,
             )
         )
-    db_session.add_all(credential_user_groups)
+    db_session.add_all(credential_teamspaces)
 
 
 def fetch_credentials(
@@ -243,10 +243,10 @@ def create_credential(
     db_session.add(credential)
     db_session.flush()  # This ensures the credential gets an ID
 
-    _relate_credential_to_user_groups__no_commit(
+    _relate_credential_to_teamspaces__no_commit(
         db_session=db_session,
         credential_id=credential.id,
-        user_group_ids=credential_data.groups,
+        teamspace_ids=credential_data.groups,
     )
 
     db_session.commit()
@@ -254,12 +254,12 @@ def create_credential(
     return credential
 
 
-def _cleanup_credential__user_group_relationships__no_commit(
+def _cleanup_credential__teamspace_relationships__no_commit(
     db_session: Session, credential_id: int
 ) -> None:
     """NOTE: does not commit the transaction."""
-    db_session.query(Credential__UserGroup).filter(
-        Credential__UserGroup.credential_id == credential_id
+    db_session.query(Credential__Teamspace).filter(
+        Credential__Teamspace.credential_id == credential_id
     ).delete(synchronize_session=False)
 
 
@@ -379,7 +379,7 @@ def delete_credential(
     else:
         logger.notice(f"Deleting credential {credential_id}")
 
-    _cleanup_credential__user_group_relationships__no_commit(db_session, credential_id)
+    _cleanup_credential__teamspace_relationships__no_commit(db_session, credential_id)
     db_session.delete(credential)
     db_session.commit()
 

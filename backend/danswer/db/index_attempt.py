@@ -9,18 +9,18 @@ from sqlalchemy import update
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
-from danswer.connectors.models import Document
-from danswer.connectors.models import DocumentErrorSummary
-from danswer.db.models import IndexAttempt
-from danswer.db.models import IndexAttemptError
-from danswer.db.models import IndexingStatus
-from danswer.db.models import IndexModelStatus
-from danswer.db.models import SearchSettings
-from danswer.server.documents.models import ConnectorCredentialPair
-from danswer.server.documents.models import ConnectorCredentialPairIdentifier
-from danswer.utils.logger import setup_logger
-from danswer.utils.telemetry import optional_telemetry
-from danswer.utils.telemetry import RecordType
+from enmedd.connectors.models import Document
+from enmedd.connectors.models import DocumentErrorSummary
+from enmedd.db.models import IndexAttempt
+from enmedd.db.models import IndexAttemptError
+from enmedd.db.models import IndexingStatus
+from enmedd.db.models import IndexModelStatus
+from enmedd.db.models import SearchSettings
+from enmedd.server.documents.models import ConnectorCredentialPair
+from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.telemetry import optional_telemetry
+from enmedd.utils.telemetry import RecordType
 
 logger = setup_logger()
 

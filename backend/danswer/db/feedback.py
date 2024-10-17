@@ -13,21 +13,21 @@ from sqlalchemy import select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import MessageType
-from danswer.configs.constants import SearchFeedbackType
-from danswer.db.chat import get_chat_message
-from danswer.db.enums import AccessType
-from danswer.db.models import ChatMessageFeedback
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import Document as DbDocument
-from danswer.db.models import DocumentByConnectorCredentialPair
-from danswer.db.models import DocumentRetrievalFeedback
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup__ConnectorCredentialPair
-from danswer.db.models import UserRole
-from danswer.document_index.interfaces import DocumentIndex
-from danswer.utils.logger import setup_logger
+from enmedd.configs.constants import MessageType
+from enmedd.configs.constants import SearchFeedbackType
+from enmedd.db.chat import get_chat_message
+from enmedd.db.enums import AccessType
+from enmedd.db.models import ChatMessageFeedback
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import Document as DbDocument
+from enmedd.db.models import DocumentByConnectorCredentialPair
+from enmedd.db.models import DocumentRetrievalFeedback
+from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
+from enmedd.db.models import Teamspace__ConnectorCredentialPair
+from enmedd.db.models import UserRole
+from enmedd.document_index.interfaces import DocumentIndex
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
@@ -52,12 +52,12 @@ def _add_user_filters(
 
     DocByCC = aliased(DocumentByConnectorCredentialPair)
     CCPair = aliased(ConnectorCredentialPair)
-    UG__CCpair = aliased(UserGroup__ConnectorCredentialPair)
-    User__UG = aliased(User__UserGroup)
+    UG__CCpair = aliased(Teamspace__ConnectorCredentialPair)
+    User__UG = aliased(User__Teamspace)
 
     """
     Here we select documents by relation:
-    User -> User__UserGroup -> UserGroup__ConnectorCredentialPair ->
+    User -> User__Teamspace -> Teamspace__ConnectorCredentialPair ->
     ConnectorCredentialPair -> DocumentByConnectorCredentialPair -> Document
     """
     stmt = (
@@ -70,14 +70,14 @@ def _add_user_filters(
             ),
         )
         .outerjoin(UG__CCpair, UG__CCpair.cc_pair_id == CCPair.id)
-        .outerjoin(User__UG, User__UG.user_group_id == UG__CCpair.user_group_id)
+        .outerjoin(User__UG, User__UG.teamspace_id == UG__CCpair.teamspace_id)
     )
 
     """
     Filter Documents by:
-    - if the user is in the user_group that owns the object
+    - if the user is in the teamspace that owns the object
     - if the user is not a global_curator, they must also have a curator relationship
-    to the user_group
+    to the teamspace
     - if editing is being done, we also filter out objects that are owned by groups
     that the user isn't a curator for
     - if we are not editing, we show all objects in the groups the user is a curator
@@ -87,11 +87,11 @@ def _add_user_filters(
     if user.role == UserRole.CURATOR and get_editable:
         where_clause &= User__UG.is_curator == True  # noqa: E712
     if get_editable:
-        user_groups = select(User__UG.user_group_id).where(User__UG.user_id == user.id)
+        teamspaces = select(User__UG.teamspace_id).where(User__UG.user_id == user.id)
         where_clause &= (
             ~exists()
             .where(UG__CCpair.cc_pair_id == CCPair.id)
-            .where(~UG__CCpair.user_group_id.in_(user_groups))
+            .where(~UG__CCpair.teamspace_id.in_(teamspaces))
             .correlate(CCPair)
         )
     else:

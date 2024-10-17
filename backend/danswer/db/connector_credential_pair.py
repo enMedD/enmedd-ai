@@ -9,24 +9,24 @@ from sqlalchemy import select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import Session
 
-from danswer.configs.constants import DocumentSource
-from danswer.db.connector import fetch_connector_by_id
-from danswer.db.credentials import fetch_credential_by_id
-from danswer.db.enums import AccessType
-from danswer.db.enums import ConnectorCredentialPairStatus
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import IndexAttempt
-from danswer.db.models import IndexingStatus
-from danswer.db.models import IndexModelStatus
-from danswer.db.models import SearchSettings
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserGroup__ConnectorCredentialPair
-from danswer.db.models import UserRole
-from danswer.server.models import StatusResponse
-from danswer.utils.logger import setup_logger
-from ee.danswer.db.external_perm import delete_user__ext_group_for_cc_pair__no_commit
-from ee.danswer.external_permissions.sync_params import check_if_valid_sync_source
+from enmedd.configs.constants import DocumentSource
+from enmedd.db.connector import fetch_connector_by_id
+from enmedd.db.credentials import fetch_credential_by_id
+from enmedd.db.enums import AccessType
+from enmedd.db.enums import ConnectorCredentialPairStatus
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import IndexAttempt
+from enmedd.db.models import IndexingStatus
+from enmedd.db.models import IndexModelStatus
+from enmedd.db.models import SearchSettings
+from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
+from enmedd.db.models import Teamspace__ConnectorCredentialPair
+from enmedd.db.models import UserRole
+from enmedd.server.models import StatusResponse
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.db.external_perm import delete_user__ext_group_for_cc_pair__no_commit
+from ee.enmedd.external_permissions.sync_params import check_if_valid_sync_source
 
 logger = setup_logger()
 
@@ -38,24 +38,24 @@ def _add_user_filters(
     if user is None or user.role == UserRole.ADMIN:
         return stmt
 
-    UG__CCpair = aliased(UserGroup__ConnectorCredentialPair)
-    User__UG = aliased(User__UserGroup)
+    UG__CCpair = aliased(Teamspace__ConnectorCredentialPair)
+    User__UG = aliased(User__Teamspace)
 
     """
     Here we select cc_pairs by relation:
-    User -> User__UserGroup -> UserGroup__ConnectorCredentialPair ->
+    User -> User__Teamspace -> Teamspace__ConnectorCredentialPair ->
     ConnectorCredentialPair
     """
     stmt = stmt.outerjoin(UG__CCpair).outerjoin(
         User__UG,
-        User__UG.user_group_id == UG__CCpair.user_group_id,
+        User__UG.teamspace_id == UG__CCpair.teamspace_id,
     )
 
     """
     Filter cc_pairs by:
-    - if the user is in the user_group that owns the cc_pair
+    - if the user is in the teamspace that owns the cc_pair
     - if the user is not a global_curator, they must also have a curator relationship
-    to the user_group
+    to the teamspace
     - if editing is being done, we also filter out cc_pairs that are owned by groups
     that the user isn't a curator for
     - if we are not editing, we show all cc_pairs in the groups the user is a curator
@@ -65,15 +65,15 @@ def _add_user_filters(
     if user.role == UserRole.CURATOR and get_editable:
         where_clause &= User__UG.is_curator == True  # noqa: E712
     if get_editable:
-        user_groups = select(User__UG.user_group_id).where(User__UG.user_id == user.id)
+        teamspaces = select(User__UG.teamspace_id).where(User__UG.user_id == user.id)
         if user.role == UserRole.CURATOR:
-            user_groups = user_groups.where(
-                User__UserGroup.is_curator == True  # noqa: E712
+            teamspaces = teamspaces.where(
+                User__Teamspace.is_curator == True  # noqa: E712
             )
         where_clause &= (
             ~exists()
             .where(UG__CCpair.cc_pair_id == ConnectorCredentialPair.id)
-            .where(~UG__CCpair.user_group_id.in_(user_groups))
+            .where(~UG__CCpair.teamspace_id.in_(teamspaces))
             .correlate(ConnectorCredentialPair)
         )
     else:
@@ -117,14 +117,14 @@ def get_cc_pair_groups_for_ids(
     cc_pair_ids: list[int],
     user: User | None = None,
     get_editable: bool = True,
-) -> list[UserGroup__ConnectorCredentialPair]:
-    stmt = select(UserGroup__ConnectorCredentialPair).distinct()
+) -> list[Teamspace__ConnectorCredentialPair]:
+    stmt = select(Teamspace__ConnectorCredentialPair).distinct()
     stmt = stmt.outerjoin(
         ConnectorCredentialPair,
-        UserGroup__ConnectorCredentialPair.cc_pair_id == ConnectorCredentialPair.id,
+        Teamspace__ConnectorCredentialPair.cc_pair_id == ConnectorCredentialPair.id,
     )
     stmt = _add_user_filters(stmt, user, get_editable)
-    stmt = stmt.where(UserGroup__ConnectorCredentialPair.cc_pair_id.in_(cc_pair_ids))
+    stmt = stmt.where(Teamspace__ConnectorCredentialPair.cc_pair_id.in_(cc_pair_ids))
     return list(db_session.scalars(stmt).all())
 
 
@@ -322,12 +322,12 @@ def associate_default_cc_pair(db_session: Session) -> None:
 def _relate_groups_to_cc_pair__no_commit(
     db_session: Session,
     cc_pair_id: int,
-    user_group_ids: list[int],
+    teamspace_ids: list[int],
 ) -> None:
-    for group_id in user_group_ids:
+    for group_id in teamspace_ids:
         db_session.add(
-            UserGroup__ConnectorCredentialPair(
-                user_group_id=group_id, cc_pair_id=cc_pair_id
+            Teamspace__ConnectorCredentialPair(
+                teamspace_id=group_id, cc_pair_id=cc_pair_id
             )
         )
 
@@ -396,7 +396,7 @@ def add_credential_to_connector(
         _relate_groups_to_cc_pair__no_commit(
             db_session=db_session,
             cc_pair_id=association.id,
-            user_group_ids=groups,
+            teamspace_ids=groups,
         )
 
     db_session.commit()

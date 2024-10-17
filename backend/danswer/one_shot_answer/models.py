@@ -4,17 +4,17 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import model_validator
 
-from danswer.chat.models import CitationInfo
-from danswer.chat.models import DanswerContexts
-from danswer.chat.models import DanswerQuotes
-from danswer.chat.models import QADocsResponse
-from danswer.configs.constants import MessageType
-from danswer.search.enums import LLMEvaluationType
-from danswer.search.enums import RecencyBiasSetting
-from danswer.search.enums import SearchType
-from danswer.search.models import ChunkContext
-from danswer.search.models import RerankingDetails
-from danswer.search.models import RetrievalDetails
+from enmedd.chat.models import CitationInfo
+from enmedd.chat.models import DanswerContexts
+from enmedd.chat.models import DanswerQuotes
+from enmedd.chat.models import QADocsResponse
+from enmedd.configs.constants import MessageType
+from enmedd.search.enums import LLMEvaluationType
+from enmedd.search.enums import RecencyBiasSetting
+from enmedd.search.enums import SearchType
+from enmedd.search.models import ChunkContext
+from enmedd.search.models import RerankingDetails
+from enmedd.search.models import RetrievalDetails
 
 
 class QueryRephrase(BaseModel):
@@ -44,7 +44,7 @@ class ToolConfig(BaseModel):
     id: int
 
 
-class PersonaConfig(BaseModel):
+class AssistantConfig(BaseModel):
     name: str
     description: str
     search_type: SearchType = SearchType.SEMANTIC
@@ -65,8 +65,8 @@ class PersonaConfig(BaseModel):
 
 
 class DirectQARequest(ChunkContext):
-    persona_config: PersonaConfig | None = None
-    persona_id: int | None = None
+    assistant_config: AssistantConfig | None = None
+    assistant_id: int | None = None
 
     messages: list[ThreadMessage]
     prompt_id: int | None = None
@@ -87,9 +87,9 @@ class DirectQARequest(ChunkContext):
     skip_gen_ai_answer_generation: bool = False
 
     @model_validator(mode="after")
-    def check_persona_fields(self) -> "DirectQARequest":
-        if (self.persona_config is None) == (self.persona_id is None):
-            raise ValueError("Exactly one of persona_config or persona_id must be set")
+    def check_assistant_fields(self) -> "DirectQARequest":
+        if (self.assistant_config is None) == (self.assistant_id is None):
+            raise ValueError("Exactly one of assistant_config or assistant_id must be set")
         return self
 
     @model_validator(mode="after")

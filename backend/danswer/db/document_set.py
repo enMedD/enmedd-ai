@@ -12,23 +12,23 @@ from sqlalchemy import select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import Session
 
-from danswer.db.connector_credential_pair import get_cc_pair_groups_for_ids
-from danswer.db.connector_credential_pair import get_connector_credential_pairs
-from danswer.db.enums import AccessType
-from danswer.db.enums import ConnectorCredentialPairStatus
-from danswer.db.models import ConnectorCredentialPair
-from danswer.db.models import Document
-from danswer.db.models import DocumentByConnectorCredentialPair
-from danswer.db.models import DocumentSet as DocumentSetDBModel
-from danswer.db.models import DocumentSet__ConnectorCredentialPair
-from danswer.db.models import DocumentSet__UserGroup
-from danswer.db.models import User
-from danswer.db.models import User__UserGroup
-from danswer.db.models import UserRole
-from danswer.server.features.document_set.models import DocumentSetCreationRequest
-from danswer.server.features.document_set.models import DocumentSetUpdateRequest
-from danswer.utils.logger import setup_logger
-from danswer.utils.variable_functionality import fetch_versioned_implementation
+from enmeddd.db.connector_credential_pair import get_cc_pair_groups_for_ids
+from enmeddd.db.connector_credential_pair import get_connector_credential_pairs
+from enmeddd.db.enums import AccessType
+from enmeddd.db.enums import ConnectorCredentialPairStatus
+from enmeddd.db.models import ConnectorCredentialPair
+from enmeddd.db.models import Document
+from enmeddd.db.models import DocumentByConnectorCredentialPair
+from enmeddd.db.models import DocumentSet as DocumentSetDBModel
+from enmeddd.db.models import DocumentSet__ConnectorCredentialPair
+from enmeddd.db.models import DocumentSet__Teamspace
+from enmeddd.db.models import User
+from enmeddd.db.models import User__Teamspace
+from enmeddd.db.models import UserRole
+from enmeddd.server.features.document_set.models import DocumentSetCreationRequest
+from enmeddd.server.features.document_set.models import DocumentSetUpdateRequest
+from enmeddd.utils.logger import setup_logger
+from enmeddd.utils.variable_functionality import fetch_versioned_implementation
 
 logger = setup_logger()
 
@@ -40,37 +40,37 @@ def _add_user_filters(
     if user is None or user.role == UserRole.ADMIN:
         return stmt
 
-    DocumentSet__UG = aliased(DocumentSet__UserGroup)
-    User__UG = aliased(User__UserGroup)
+    DocumentSet__UG = aliased(DocumentSet__Teamspace)
+    User__UG = aliased(User__Teamspace)
     """
     Here we select cc_pairs by relation:
-    User -> User__UserGroup -> DocumentSet__UserGroup -> DocumentSet
+    User -> User__Teamspace -> DocumentSet__Teamspace -> DocumentSet
     """
     stmt = stmt.outerjoin(DocumentSet__UG).outerjoin(
-        User__UserGroup,
-        User__UserGroup.user_group_id == DocumentSet__UG.user_group_id,
+        User__Teamspace,
+        User__Teamspace.teamspace_id == DocumentSet__UG.teamspace_id,
     )
     """
     Filter DocumentSets by:
-    - if the user is in the user_group that owns the DocumentSet
+    - if the user is in the teamspace that owns the DocumentSet
     - if the user is not a global_curator, they must also have a curator relationship
-    to the user_group
+    to the teamspace
     - if editing is being done, we also filter out DocumentSets that are owned by groups
     that the user isn't a curator for
     - if we are not editing, we show all DocumentSets in the groups the user is a curator
     for (as well as public DocumentSets)
     """
-    where_clause = User__UserGroup.user_id == user.id
+    where_clause = User__Teamspace.user_id == user.id
     if user.role == UserRole.CURATOR and get_editable:
-        where_clause &= User__UserGroup.is_curator == True  # noqa: E712
+        where_clause &= User__Teamspace.is_curator == True  # noqa: E712
     if get_editable:
-        user_groups = select(User__UG.user_group_id).where(User__UG.user_id == user.id)
+        teamspaces = select(User__UG.teamspace_id).where(User__UG.user_id == user.id)
         if user.role == UserRole.CURATOR:
-            user_groups = user_groups.where(User__UG.is_curator == True)  # noqa: E712
+            teamspaces = teamspaces.where(User__UG.is_curator == True)  # noqa: E712
         where_clause &= (
             ~exists()
             .where(DocumentSet__UG.document_set_id == DocumentSetDBModel.id)
-            .where(~DocumentSet__UG.user_group_id.in_(user_groups))
+            .where(~DocumentSet__UG.teamspace_id.in_(teamspaces))
             .correlate(DocumentSetDBModel)
         )
     else:
@@ -164,7 +164,7 @@ def _check_if_cc_pairs_are_owned_by_groups(
     )
 
     group_cc_pair_relationships_set = {
-        (relationship.cc_pair_id, relationship.user_group_id)
+        (relationship.cc_pair_id, relationship.teamspace_id)
         for relationship in group_cc_pair_relationships
     }
 
@@ -225,7 +225,7 @@ def insert_document_set(
         db_session.add_all(ds_cc_pairs)
 
         versioned_private_doc_set_fn = fetch_versioned_implementation(
-            "danswer.db.document_set", "make_doc_set_private"
+            "enmeddd.db.document_set", "make_doc_set_private"
         )
 
         # Private Document Sets
@@ -287,7 +287,7 @@ def update_document_set(
         document_set_row.is_public = document_set_update_request.is_public
 
         versioned_private_doc_set_fn = fetch_versioned_implementation(
-            "danswer.db.document_set", "make_doc_set_private"
+            "enmeddd.db.document_set", "make_doc_set_private"
         )
 
         # Private Document Sets
@@ -381,7 +381,7 @@ def mark_document_set_as_to_be_deleted(
 
         # delete all private document set information
         versioned_delete_private_fn = fetch_versioned_implementation(
-            "danswer.db.document_set", "delete_document_set_privacy__no_commit"
+            "enmeddd.db.document_set", "delete_document_set_privacy__no_commit"
         )
         versioned_delete_private_fn(
             document_set_id=document_set_id, db_session=db_session
@@ -661,10 +661,10 @@ def fetch_document_sets_for_documents(
 def get_or_create_document_set_by_name(
     db_session: Session,
     document_set_name: str,
-    document_set_description: str = "Default Persona created Document-Set, "
+    document_set_description: str = "Default Assistant created Document-Set, "
     "please update description",
 ) -> DocumentSetDBModel:
-    """This is used by the default personas which need to attach to document sets
+    """This is used by the default assistants which need to attach to document sets
     on server startup"""
     doc_set = get_document_set_by_name(db_session, document_set_name)
     if doc_set is not None:

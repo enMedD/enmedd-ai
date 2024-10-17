@@ -1,18 +1,5 @@
 FROM python:3.11.7-slim-bookworm
 
-LABEL com.danswer.maintainer="founders@danswer.ai"
-LABEL com.danswer.description="This image is the web/frontend container of Danswer which \
-contains code for both the Community and Enterprise editions of Danswer. If you do not \
-have a contract or agreement with DanswerAI, you are not permitted to use the Enterprise \
-Edition features outside of personal development or testing purposes. Please reach out to \
-founders@danswer.ai for more information. Please visit https://github.com/danswer-ai/danswer"
-
-# Default DANSWER_VERSION, typically overriden during builds by GitHub Actions.
-ARG DANSWER_VERSION=0.3-dev
-ENV DANSWER_VERSION=${DANSWER_VERSION} \
-    DANSWER_RUNNING_IN_DOCKER="true"
-
-RUN echo "DANSWER_VERSION: ${DANSWER_VERSION}"
 # Install system dependencies
 # cmake needed for psycopg (postgres)
 # libpq-dev needed for psycopg (postgres)
@@ -53,7 +40,7 @@ RUN pip install --no-cache-dir --upgrade \
 # Cleanup for CVEs and size reduction
 # https://github.com/tornadoweb/tornado/issues/3107
 # xserver-common and xvfb included by playwright installation but not needed after
-# perl-base is part of the base Python Debian image but not needed for Danswer functionality
+# perl-base is part of the base Python Debian image but not needed for enMedD AI functionality
 # perl-base could only be removed with --allow-remove-essential
 RUN apt-get update && \
     apt-get remove -y --allow-remove-essential \
@@ -89,7 +76,7 @@ COPY ./ee /app/ee
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set up application files
-COPY ./danswer /app/danswer
+COPY ./enmedd /app/enmedd
 COPY ./shared_configs /app/shared_configs
 COPY ./alembic /app/alembic
 COPY ./alembic_tenants /app/alembic_tenants
@@ -103,6 +90,8 @@ COPY ./scripts/force_delete_connector_by_id.py /app/scripts/force_delete_connect
 COPY ./assets /app/assets
 
 ENV PYTHONPATH=/app
+
+EXPOSE 8080
 
 # Default command which does nothing
 # This container is used by api server and background which specify their own CMD

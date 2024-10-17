@@ -16,63 +16,63 @@ from typing import List
 import httpx  # type: ignore
 import requests  # type: ignore
 
-from danswer.configs.app_configs import DOCUMENT_INDEX_NAME
-from danswer.configs.app_configs import MULTI_TENANT
-from danswer.configs.app_configs import VESPA_REQUEST_TIMEOUT
-from danswer.configs.chat_configs import DOC_TIME_DECAY
-from danswer.configs.chat_configs import NUM_RETURNED_HITS
-from danswer.configs.chat_configs import TITLE_CONTENT_RATIO
-from danswer.configs.chat_configs import VESPA_SEARCHER_THREADS
-from danswer.configs.constants import KV_REINDEX_KEY
-from danswer.document_index.interfaces import DocumentIndex
-from danswer.document_index.interfaces import DocumentInsertionRecord
-from danswer.document_index.interfaces import UpdateRequest
-from danswer.document_index.interfaces import VespaChunkRequest
-from danswer.document_index.interfaces import VespaDocumentFields
-from danswer.document_index.vespa.chunk_retrieval import batch_search_api_retrieval
-from danswer.document_index.vespa.chunk_retrieval import (
+from enmedd.configs.app_configs import DOCUMENT_INDEX_NAME
+from enmedd.configs.app_configs import MULTI_TENANT
+from enmedd.configs.app_configs import VESPA_REQUEST_TIMEOUT
+from enmedd.configs.chat_configs import DOC_TIME_DECAY
+from enmedd.configs.chat_configs import NUM_RETURNED_HITS
+from enmedd.configs.chat_configs import TITLE_CONTENT_RATIO
+from enmedd.configs.chat_configs import VESPA_SEARCHER_THREADS
+from enmedd.configs.constants import KV_REINDEX_KEY
+from enmedd.document_index.interfaces import DocumentIndex
+from enmedd.document_index.interfaces import DocumentInsertionRecord
+from enmedd.document_index.interfaces import UpdateRequest
+from enmedd.document_index.interfaces import VespaChunkRequest
+from enmedd.document_index.interfaces import VespaDocumentFields
+from enmedd.document_index.vespa.chunk_retrieval import batch_search_api_retrieval
+from enmedd.document_index.vespa.chunk_retrieval import (
     get_all_vespa_ids_for_document_id,
 )
-from danswer.document_index.vespa.chunk_retrieval import (
+from enmedd.document_index.vespa.chunk_retrieval import (
     parallel_visit_api_retrieval,
 )
-from danswer.document_index.vespa.chunk_retrieval import query_vespa
-from danswer.document_index.vespa.deletion import delete_vespa_docs
-from danswer.document_index.vespa.indexing_utils import batch_index_vespa_chunks
-from danswer.document_index.vespa.indexing_utils import clean_chunk_id_copy
-from danswer.document_index.vespa.indexing_utils import (
+from enmedd.document_index.vespa.chunk_retrieval import query_vespa
+from enmedd.document_index.vespa.deletion import delete_vespa_docs
+from enmedd.document_index.vespa.indexing_utils import batch_index_vespa_chunks
+from enmedd.document_index.vespa.indexing_utils import clean_chunk_id_copy
+from enmedd.document_index.vespa.indexing_utils import (
     get_existing_documents_from_chunks,
 )
-from danswer.document_index.vespa.shared_utils.utils import (
+from enmedd.document_index.vespa.shared_utils.utils import (
     replace_invalid_doc_id_characters,
 )
-from danswer.document_index.vespa.shared_utils.vespa_request_builders import (
+from enmedd.document_index.vespa.shared_utils.vespa_request_builders import (
     build_vespa_filters,
 )
-from danswer.document_index.vespa_constants import ACCESS_CONTROL_LIST
-from danswer.document_index.vespa_constants import BATCH_SIZE
-from danswer.document_index.vespa_constants import BOOST
-from danswer.document_index.vespa_constants import CONTENT_SUMMARY
-from danswer.document_index.vespa_constants import DANSWER_CHUNK_REPLACEMENT_PAT
-from danswer.document_index.vespa_constants import DATE_REPLACEMENT
-from danswer.document_index.vespa_constants import DOCUMENT_ID_ENDPOINT
-from danswer.document_index.vespa_constants import DOCUMENT_REPLACEMENT_PAT
-from danswer.document_index.vespa_constants import DOCUMENT_SETS
-from danswer.document_index.vespa_constants import HIDDEN
-from danswer.document_index.vespa_constants import NUM_THREADS
-from danswer.document_index.vespa_constants import SEARCH_THREAD_NUMBER_PAT
-from danswer.document_index.vespa_constants import TENANT_ID_PAT
-from danswer.document_index.vespa_constants import TENANT_ID_REPLACEMENT
-from danswer.document_index.vespa_constants import VESPA_APPLICATION_ENDPOINT
-from danswer.document_index.vespa_constants import VESPA_DIM_REPLACEMENT_PAT
-from danswer.document_index.vespa_constants import VESPA_TIMEOUT
-from danswer.document_index.vespa_constants import YQL_BASE
-from danswer.indexing.models import DocMetadataAwareIndexChunk
-from danswer.key_value_store.factory import get_kv_store
-from danswer.search.models import IndexFilters
-from danswer.search.models import InferenceChunkUncleaned
-from danswer.utils.batching import batch_generator
-from danswer.utils.logger import setup_logger
+from enmedd.document_index.vespa_constants import ACCESS_CONTROL_LIST
+from enmedd.document_index.vespa_constants import BATCH_SIZE
+from enmedd.document_index.vespa_constants import BOOST
+from enmedd.document_index.vespa_constants import CONTENT_SUMMARY
+from enmedd.document_index.vespa_constants import DANSWER_CHUNK_REPLACEMENT_PAT
+from enmedd.document_index.vespa_constants import DATE_REPLACEMENT
+from enmedd.document_index.vespa_constants import DOCUMENT_ID_ENDPOINT
+from enmedd.document_index.vespa_constants import DOCUMENT_REPLACEMENT_PAT
+from enmedd.document_index.vespa_constants import DOCUMENT_SETS
+from enmedd.document_index.vespa_constants import HIDDEN
+from enmedd.document_index.vespa_constants import NUM_THREADS
+from enmedd.document_index.vespa_constants import SEARCH_THREAD_NUMBER_PAT
+from enmedd.document_index.vespa_constants import TENANT_ID_PAT
+from enmedd.document_index.vespa_constants import TENANT_ID_REPLACEMENT
+from enmedd.document_index.vespa_constants import VESPA_APPLICATION_ENDPOINT
+from enmedd.document_index.vespa_constants import VESPA_DIM_REPLACEMENT_PAT
+from enmedd.document_index.vespa_constants import VESPA_TIMEOUT
+from enmedd.document_index.vespa_constants import YQL_BASE
+from enmedd.indexing.models import DocMetadataAwareIndexChunk
+from enmedd.key_value_store.factory import get_kv_store
+from enmedd.search.models import IndexFilters
+from enmedd.search.models import InferenceChunkUncleaned
+from enmedd.utils.batching import batch_generator
+from enmedd.utils.logger import setup_logger
 from shared_configs.model_server_models import Embedding
 
 
@@ -143,9 +143,9 @@ class VespaIndex(DocumentIndex):
         logger.info(f"Deploying Vespa application package to {deploy_url}")
 
         vespa_schema_path = os.path.join(
-            os.getcwd(), "danswer", "document_index", "vespa", "app_config"
+            os.getcwd(), "enmedd", "document_index", "vespa", "app_config"
         )
-        schema_file = os.path.join(vespa_schema_path, "schemas", "danswer_chunk.sd")
+        schema_file = os.path.join(vespa_schema_path, "schemas", "enmeddd_chunk.sd")
         services_file = os.path.join(vespa_schema_path, "services.xml")
         overrides_file = os.path.join(vespa_schema_path, "validation-overrides.xml")
 
@@ -208,7 +208,7 @@ class VespaIndex(DocumentIndex):
         response = requests.post(deploy_url, headers=headers, data=zip_file)
         if response.status_code != 200:
             raise RuntimeError(
-                f"Failed to prepare Vespa Danswer Index. Response: {response.text}"
+                f"Failed to prepare Vespa enMedD AI Index. Response: {response.text}"
             )
 
     @staticmethod
@@ -223,9 +223,9 @@ class VespaIndex(DocumentIndex):
         logger.info(f"Deploying Vespa application package to {deploy_url}")
 
         vespa_schema_path = os.path.join(
-            os.getcwd(), "danswer", "document_index", "vespa", "app_config"
+            os.getcwd(), "enmedd", "document_index", "vespa", "app_config"
         )
-        schema_file = os.path.join(vespa_schema_path, "schemas", "danswer_chunk.sd")
+        schema_file = os.path.join(vespa_schema_path, "schemas", "enmeddd_chunk.sd")
         services_file = os.path.join(vespa_schema_path, "services.xml")
         overrides_file = os.path.join(vespa_schema_path, "validation-overrides.xml")
 
@@ -293,7 +293,7 @@ class VespaIndex(DocumentIndex):
 
         if response.status_code != 200:
             raise RuntimeError(
-                f"Failed to prepare Vespa Danswer Indexes. Response: {response.text}"
+                f"Failed to prepare Vespa enMedD AI Indexes. Response: {response.text}"
             )
 
     def index(

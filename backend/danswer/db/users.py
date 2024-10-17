@@ -6,8 +6,8 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from danswer.auth.schemas import UserRole
-from danswer.db.models import User
+from enmedd.auth.schemas import UserRole
+from enmedd.db.models import User
 
 
 def list_users(

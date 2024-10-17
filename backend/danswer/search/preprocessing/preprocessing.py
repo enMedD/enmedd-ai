@@ -1,36 +1,36 @@
 from sqlalchemy.orm import Session
 
-from danswer.configs.app_configs import MULTI_TENANT
-from danswer.configs.chat_configs import BASE_RECENCY_DECAY
-from danswer.configs.chat_configs import CONTEXT_CHUNKS_ABOVE
-from danswer.configs.chat_configs import CONTEXT_CHUNKS_BELOW
-from danswer.configs.chat_configs import DISABLE_LLM_DOC_RELEVANCE
-from danswer.configs.chat_configs import FAVOR_RECENT_DECAY_MULTIPLIER
-from danswer.configs.chat_configs import HYBRID_ALPHA
-from danswer.configs.chat_configs import HYBRID_ALPHA_KEYWORD
-from danswer.configs.chat_configs import NUM_POSTPROCESSED_RESULTS
-from danswer.configs.chat_configs import NUM_RETURNED_HITS
-from danswer.db.engine import current_tenant_id
-from danswer.db.models import User
-from danswer.db.search_settings import get_current_search_settings
-from danswer.llm.interfaces import LLM
-from danswer.natural_language_processing.search_nlp_models import QueryAnalysisModel
-from danswer.search.enums import LLMEvaluationType
-from danswer.search.enums import RecencyBiasSetting
-from danswer.search.enums import SearchType
-from danswer.search.models import BaseFilters
-from danswer.search.models import IndexFilters
-from danswer.search.models import RerankingDetails
-from danswer.search.models import SearchQuery
-from danswer.search.models import SearchRequest
-from danswer.search.preprocessing.access_filters import build_access_filters_for_user
-from danswer.search.retrieval.search_runner import remove_stop_words_and_punctuation
-from danswer.secondary_llm_flows.source_filter import extract_source_filter
-from danswer.secondary_llm_flows.time_filter import extract_time_filter
-from danswer.utils.logger import setup_logger
-from danswer.utils.threadpool_concurrency import FunctionCall
-from danswer.utils.threadpool_concurrency import run_functions_in_parallel
-from danswer.utils.timing import log_function_time
+from enmedd.configs.app_configs import MULTI_TENANT
+from enmedd.configs.chat_configs import BASE_RECENCY_DECAY
+from enmedd.configs.chat_configs import CONTEXT_CHUNKS_ABOVE
+from enmedd.configs.chat_configs import CONTEXT_CHUNKS_BELOW
+from enmedd.configs.chat_configs import DISABLE_LLM_DOC_RELEVANCE
+from enmedd.configs.chat_configs import FAVOR_RECENT_DECAY_MULTIPLIER
+from enmedd.configs.chat_configs import HYBRID_ALPHA
+from enmedd.configs.chat_configs import HYBRID_ALPHA_KEYWORD
+from enmedd.configs.chat_configs import NUM_POSTPROCESSED_RESULTS
+from enmedd.configs.chat_configs import NUM_RETURNED_HITS
+from enmedd.db.engine import current_tenant_id
+from enmedd.db.models import User
+from enmedd.db.search_settings import get_current_search_settings
+from enmedd.llm.interfaces import LLM
+from enmedd.natural_language_processing.search_nlp_models import QueryAnalysisModel
+from enmedd.search.enums import LLMEvaluationType
+from enmedd.search.enums import RecencyBiasSetting
+from enmedd.search.enums import SearchType
+from enmedd.search.models import BaseFilters
+from enmedd.search.models import IndexFilters
+from enmedd.search.models import RerankingDetails
+from enmedd.search.models import SearchQuery
+from enmedd.search.models import SearchRequest
+from enmedd.search.preprocessing.access_filters import build_access_filters_for_user
+from enmedd.search.retrieval.search_runner import remove_stop_words_and_punctuation
+from enmedd.secondary_llm_flows.source_filter import extract_source_filter
+from enmedd.secondary_llm_flows.time_filter import extract_time_filter
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.threadpool_concurrency import FunctionCall
+from enmedd.utils.threadpool_concurrency import run_functions_in_parallel
+from enmedd.utils.timing import log_function_time
 
 
 logger = setup_logger()
@@ -55,22 +55,22 @@ def retrieval_preprocessing(
     """Logic is as follows:
     Any global disables apply first
     Then any filters or settings as part of the query are used
-    Then defaults to Persona settings if not specified by the query
+    Then defaults to Assistant settings if not specified by the query
     """
     query = search_request.query
     limit = search_request.limit
     offset = search_request.offset
-    persona = search_request.persona
+    assistant = search_request.assistant
 
     preset_filters = search_request.human_selected_filters or BaseFilters()
-    if persona and persona.document_sets and preset_filters.document_set is None:
+    if assistant and assistant.document_sets and preset_filters.document_set is None:
         preset_filters.document_set = [
-            document_set.name for document_set in persona.document_sets
+            document_set.name for document_set in assistant.document_sets
         ]
 
     time_filter = preset_filters.time_cutoff
-    if time_filter is None and persona:
-        time_filter = persona.search_start_date
+    if time_filter is None and assistant:
+        time_filter = assistant.search_start_date
 
     source_filter = preset_filters.source_type
 
@@ -80,8 +80,8 @@ def retrieval_preprocessing(
         logger.debug("Retrieval details disables auto detect filters")
         auto_detect_time_filter = False
         auto_detect_source_filter = False
-    elif persona and persona.llm_filter_extraction is False:
-        logger.debug("Persona disables auto detect filters")
+    elif assistant and assistant.llm_filter_extraction is False:
+        logger.debug("Assistant disables auto detect filters")
         auto_detect_time_filter = False
         auto_detect_source_filter = False
     else:
@@ -89,8 +89,8 @@ def retrieval_preprocessing(
 
     if (
         time_filter is not None
-        and persona
-        and persona.recency_bias != RecencyBiasSetting.AUTO
+        and assistant
+        and assistant.recency_bias != RecencyBiasSetting.AUTO
     ):
         auto_detect_time_filter = False
         logger.debug("Not extract time filter - already provided")
@@ -169,10 +169,10 @@ def retrieval_preprocessing(
     if search_request.evaluation_type is not LLMEvaluationType.UNSPECIFIED:
         llm_evaluation_type = search_request.evaluation_type
 
-    elif persona:
+    elif assistant:
         llm_evaluation_type = (
             LLMEvaluationType.BASIC
-            if persona.llm_relevance_filter
+            if assistant.llm_relevance_filter
             else LLMEvaluationType.SKIP
         )
 
@@ -193,11 +193,11 @@ def retrieval_preprocessing(
             rerank_settings = RerankingDetails.from_db_model(search_settings)
 
     # Decays at 1 / (1 + (multiplier * num years))
-    if persona and persona.recency_bias == RecencyBiasSetting.NO_DECAY:
+    if assistant and assistant.recency_bias == RecencyBiasSetting.NO_DECAY:
         recency_bias_multiplier = 0.0
-    elif persona and persona.recency_bias == RecencyBiasSetting.BASE_DECAY:
+    elif assistant and assistant.recency_bias == RecencyBiasSetting.BASE_DECAY:
         recency_bias_multiplier = base_recency_decay
-    elif persona and persona.recency_bias == RecencyBiasSetting.FAVOR_RECENT:
+    elif assistant and assistant.recency_bias == RecencyBiasSetting.FAVOR_RECENT:
         recency_bias_multiplier = base_recency_decay * favor_recent_decay_multiplier
     else:
         if predicted_favor_recent:
@@ -210,17 +210,17 @@ def retrieval_preprocessing(
         hybrid_alpha = search_request.hybrid_alpha
 
     # Search request overrides anything else as it's explicitly set by the request
-    # If not explicitly specified, use the persona settings if they exist
+    # If not explicitly specified, use the assistant settings if they exist
     # Otherwise, use the global defaults
     chunks_above = (
         search_request.chunks_above
         if search_request.chunks_above is not None
-        else (persona.chunks_above if persona else CONTEXT_CHUNKS_ABOVE)
+        else (assistant.chunks_above if assistant else CONTEXT_CHUNKS_ABOVE)
     )
     chunks_below = (
         search_request.chunks_below
         if search_request.chunks_below is not None
-        else (persona.chunks_below if persona else CONTEXT_CHUNKS_BELOW)
+        else (assistant.chunks_below if assistant else CONTEXT_CHUNKS_BELOW)
     )
 
     return SearchQuery(

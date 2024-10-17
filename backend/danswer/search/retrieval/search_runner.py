@@ -6,28 +6,28 @@ from nltk.corpus import stopwords  # type:ignore
 from nltk.tokenize import word_tokenize  # type:ignore
 from sqlalchemy.orm import Session
 
-from danswer.db.search_settings import get_current_search_settings
-from danswer.db.search_settings import get_multilingual_expansion
-from danswer.document_index.interfaces import DocumentIndex
-from danswer.document_index.interfaces import VespaChunkRequest
-from danswer.document_index.vespa.shared_utils.utils import (
+from enmedd.db.search_settings import get_current_search_settings
+from enmedd.db.search_settings import get_multilingual_expansion
+from enmedd.document_index.interfaces import DocumentIndex
+from enmedd.document_index.interfaces import VespaChunkRequest
+from enmedd.document_index.vespa.shared_utils.utils import (
     replace_invalid_doc_id_characters,
 )
-from danswer.natural_language_processing.search_nlp_models import EmbeddingModel
-from danswer.search.models import ChunkMetric
-from danswer.search.models import IndexFilters
-from danswer.search.models import InferenceChunk
-from danswer.search.models import InferenceChunkUncleaned
-from danswer.search.models import InferenceSection
-from danswer.search.models import MAX_METRICS_CONTENT
-from danswer.search.models import RetrievalMetricsContainer
-from danswer.search.models import SearchQuery
-from danswer.search.postprocessing.postprocessing import cleanup_chunks
-from danswer.search.utils import inference_section_from_chunks
-from danswer.secondary_llm_flows.query_expansion import multilingual_query_expansion
-from danswer.utils.logger import setup_logger
-from danswer.utils.threadpool_concurrency import run_functions_tuples_in_parallel
-from danswer.utils.timing import log_function_time
+from enmedd.natural_language_processing.search_nlp_models import EmbeddingModel
+from enmedd.search.models import ChunkMetric
+from enmedd.search.models import IndexFilters
+from enmedd.search.models import InferenceChunk
+from enmedd.search.models import InferenceChunkUncleaned
+from enmedd.search.models import InferenceSection
+from enmedd.search.models import MAX_METRICS_CONTENT
+from enmedd.search.models import RetrievalMetricsContainer
+from enmedd.search.models import SearchQuery
+from enmedd.search.postprocessing.postprocessing import cleanup_chunks
+from enmedd.search.utils import inference_section_from_chunks
+from enmedd.secondary_llm_flows.query_expansion import multilingual_query_expansion
+from enmedd.utils.logger import setup_logger
+from enmedd.utils.threadpool_concurrency import run_functions_tuples_in_parallel
+from enmedd.utils.timing import log_function_time
 from shared_configs.configs import MODEL_SERVER_HOST
 from shared_configs.configs import MODEL_SERVER_PORT
 from shared_configs.enums import EmbedTextType

@@ -8,9 +8,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.sql import text
 
-from danswer.configs.app_configs import MULTI_TENANT
-from danswer.db.engine import build_connection_string
-from danswer.db.models import Base
+from enmedd.configs.app_configs import MULTI_TENANT
+from enmedd.db.engine import build_connection_string
+from enmedd.db.models import Base
 from celery.backends.database.session import ResultModelBase  # type: ignore
 
 # Alembic Config object

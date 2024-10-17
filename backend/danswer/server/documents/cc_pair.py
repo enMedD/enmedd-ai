@@ -8,45 +8,45 @@ from fastapi import Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from danswer.auth.users import current_curator_or_admin_user
-from danswer.auth.users import current_user
-from danswer.background.celery.celery_redis import RedisConnectorPruning
-from danswer.background.celery.celery_utils import get_deletion_attempt_snapshot
-from danswer.background.celery.tasks.pruning.tasks import (
+from enmedd.auth.users import current_curator_or_admin_user
+from enmedd.auth.users import current_user
+from enmedd.background.celery.celery_redis import RedisConnectorPruning
+from enmedd.background.celery.celery_utils import get_deletion_attempt_snapshot
+from enmedd.background.celery.tasks.pruning.tasks import (
     try_creating_prune_generator_task,
 )
-from danswer.db.connector_credential_pair import add_credential_to_connector
-from danswer.db.connector_credential_pair import get_connector_credential_pair_from_id
-from danswer.db.connector_credential_pair import remove_credential_from_connector
-from danswer.db.connector_credential_pair import (
+from enmedd.db.connector_credential_pair import add_credential_to_connector
+from enmedd.db.connector_credential_pair import get_connector_credential_pair_from_id
+from enmedd.db.connector_credential_pair import remove_credential_from_connector
+from enmedd.db.connector_credential_pair import (
     update_connector_credential_pair_from_id,
 )
-from danswer.db.document import get_document_counts_for_cc_pairs
-from danswer.db.engine import current_tenant_id
-from danswer.db.engine import get_session
-from danswer.db.enums import AccessType
-from danswer.db.enums import ConnectorCredentialPairStatus
-from danswer.db.index_attempt import cancel_indexing_attempts_for_ccpair
-from danswer.db.index_attempt import cancel_indexing_attempts_past_model
-from danswer.db.index_attempt import count_index_attempts_for_connector
-from danswer.db.index_attempt import get_latest_index_attempt_for_cc_pair_id
-from danswer.db.index_attempt import get_paginated_index_attempts_for_cc_pair_id
-from danswer.db.models import User
-from danswer.db.tasks import check_task_is_live_and_not_timed_out
-from danswer.db.tasks import get_latest_task
-from danswer.redis.redis_pool import get_redis_client
-from danswer.server.documents.models import CCPairFullInfo
-from danswer.server.documents.models import CCStatusUpdateRequest
-from danswer.server.documents.models import CeleryTaskStatus
-from danswer.server.documents.models import ConnectorCredentialPairIdentifier
-from danswer.server.documents.models import ConnectorCredentialPairMetadata
-from danswer.server.documents.models import PaginatedIndexAttempts
-from danswer.server.models import StatusResponse
-from danswer.utils.logger import setup_logger
-from ee.danswer.background.task_name_builders import (
+from enmedd.db.document import get_document_counts_for_cc_pairs
+from enmedd.db.engine import current_tenant_id
+from enmedd.db.engine import get_session
+from enmedd.db.enums import AccessType
+from enmedd.db.enums import ConnectorCredentialPairStatus
+from enmedd.db.index_attempt import cancel_indexing_attempts_for_ccpair
+from enmedd.db.index_attempt import cancel_indexing_attempts_past_model
+from enmedd.db.index_attempt import count_index_attempts_for_connector
+from enmedd.db.index_attempt import get_latest_index_attempt_for_cc_pair_id
+from enmedd.db.index_attempt import get_paginated_index_attempts_for_cc_pair_id
+from enmedd.db.models import User
+from enmedd.db.tasks import check_task_is_live_and_not_timed_out
+from enmedd.db.tasks import get_latest_task
+from enmedd.redis.redis_pool import get_redis_client
+from enmedd.server.documents.models import CCPairFullInfo
+from enmedd.server.documents.models import CCStatusUpdateRequest
+from enmedd.server.documents.models import CeleryTaskStatus
+from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd.server.documents.models import ConnectorCredentialPairMetadata
+from enmedd.server.documents.models import PaginatedIndexAttempts
+from enmedd.server.models import StatusResponse
+from enmedd.utils.logger import setup_logger
+from ee.enmedd.background.task_name_builders import (
     name_sync_external_doc_permissions_task,
 )
-from ee.danswer.db.user_group import validate_user_creation_permissions
+from ee.enmedd.db.teamspace import validate_user_creation_permissions
 
 logger = setup_logger()
 router = APIRouter(prefix="/manage")
@@ -316,7 +316,7 @@ def sync_cc_pair(
     db_session: Session = Depends(get_session),
 ) -> StatusResponse[list[int]]:
     # avoiding circular refs
-    from ee.danswer.background.celery.celery_app import (
+    from ee.enmedd.background.celery.celery_app import (
         sync_external_doc_permissions_task,
     )
 
