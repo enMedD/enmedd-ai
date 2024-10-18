@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 import enmedd.db.models as db_models
 from ee.enmedd.db.query_history import fetch_chat_sessions_eagerly_by_time
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import get_display_email
 from enmedd.chat.chat_utils import create_chat_chain
 from enmedd.configs.constants import MessageType
@@ -252,9 +253,14 @@ def fetch_and_process_chat_session_history(
     end: datetime,
     feedback_type: QAFeedbackType | None,
     limit: int | None = 500,
+    teamspace_id: Optional[int] = None,
 ) -> list[ChatSessionSnapshot]:
     chat_sessions = fetch_chat_sessions_eagerly_by_time(
-        start=start, end=end, db_session=db_session, limit=limit
+        start=start,
+        end=end,
+        db_session=db_session,
+        limit=limit,
+        teamspace_id=teamspace_id,
     )
 
     chat_session_snapshots = [
@@ -312,7 +318,7 @@ def get_chat_session_history(
     feedback_type: QAFeedbackType | None = None,
     start: datetime | None = None,
     end: datetime | None = None,
-    _: db_models.User | None = Depends(current_admin_user),
+    _: db_models.User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
 ) -> list[ChatSessionMinimal]:
@@ -360,8 +366,9 @@ def get_chat_session_admin(
 
 @router.get("/admin/query-history-csv")
 def get_query_history_as_csv(
-    _: db_models.User | None = Depends(current_admin_user),
+    _: db_models.User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    teamspace_id: Optional[int] = None,
 ) -> StreamingResponse:
     complete_chat_session_history = fetch_and_process_chat_session_history(
         db_session=db_session,
@@ -369,6 +376,7 @@ def get_query_history_as_csv(
         end=datetime.now(tz=timezone.utc),
         feedback_type=None,
         limit=None,
+        teamspace_id=teamspace_id,
     )
 
     question_answer_pairs: list[QuestionAnswerPairSnapshot] = []

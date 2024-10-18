@@ -75,6 +75,7 @@ def store_settings(
                 chat_history_enabled=settings.chat_history_enabled,
                 default_page=settings.default_page,
                 maximum_chat_retention_days=settings.maximum_chat_retention_days,
+                workspace_id=0,
             )
         )
         db.add(new_record)

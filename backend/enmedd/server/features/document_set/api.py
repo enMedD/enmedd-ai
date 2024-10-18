@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.document_set import check_document_sets_are_public
 from enmedd.db.document_set import fetch_all_document_sets
@@ -80,7 +81,7 @@ def delete_document_set(
 @router.get("/admin/document-set")
 def list_document_sets_admin(
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[DocumentSet]:
     if teamspace_id:
