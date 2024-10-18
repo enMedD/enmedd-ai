@@ -1,10 +1,8 @@
 "use client";
 
 import { SubLabel } from "@/components/admin/connectors/Field";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Option } from "@/components/Dropdown";
-import { useContext } from "react";
-import { SettingsContext } from "@/components/settings/SettingsProvider";
 import React, { useState, useEffect } from "react";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,9 +16,8 @@ import {
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { Settings } from "@/app/admin/settings/interfaces";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 function CheckboxComponent({
   label,
@@ -123,7 +120,7 @@ function IntegerInput({
         className="w-full max-w-xs"
         value={value ?? ""}
         onChange={onChange}
-        min="1"
+        min="0"
         step="1"
         id={id}
         placeholder={placeholder}
@@ -134,43 +131,117 @@ function IntegerInput({
 
 export function Configuration() {
   const { teamspaceId } = useParams();
-  const router = useRouter();
-  const [settings, setSettings] = useState<Settings | null>(null);
-  const [chatRetention, setChatRetention] = useState("");
-  const isEnterpriseEnabled = usePaidEnterpriseFeaturesEnabled();
   const { toast } = useToast();
+  const [chatPageEnabled, setChatPageEnabled] = useState<boolean>(true);
+  const [searchPageEnabled, setSearchPageEnabled] = useState<boolean>(true);
+  const [chatHistoryEnabled, setChatHistoryEnabled] = useState<boolean>(true);
+  const [defaultPage, setDefaultPage] = useState<string>("chat");
+  const [chatRetention, setChatRetention] = useState<string | null>(null);
 
-  const combinedSettings = useContext(SettingsContext);
+  const isEnterpriseEnabled = usePaidEnterpriseFeaturesEnabled();
 
   useEffect(() => {
-    if (combinedSettings) {
-      setSettings(combinedSettings.settings);
-      setChatRetention(
-        combinedSettings.settings.maximum_chat_retention_days?.toString() || ""
-      );
-    }
-  }, []);
-
-  if (!settings) {
-    return null;
-  }
-
-  async function updateSettingField(
-    updateRequests: { fieldName: keyof Settings; newValue: any }[]
-  ) {
-    // Optimistically update the local state
-    const newSettings: Settings | null = settings
-      ? {
-          ...settings,
-          ...updateRequests.reduce((acc, { fieldName, newValue }) => {
-            acc[fieldName] = newValue ?? settings[fieldName];
-            return acc;
-          }, {} as Partial<Settings>),
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch(
+          `/api/settings?teamspace_id=${teamspaceId}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch settings");
         }
-      : null;
+        const settings = await response.json();
+        setChatPageEnabled(settings.chat_page_enabled);
+        setSearchPageEnabled(settings.search_page_enabled);
+        setChatHistoryEnabled(settings.chat_history_enabled);
+        setDefaultPage(settings.default_page);
+        setChatRetention(
+          settings.maximum_chat_retention_days?.toString() || null
+        );
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+        toast({
+          title: "Error",
+          description: `Error fetching settings: ${error}`,
+          variant: "destructive",
+        });
+      }
+    };
 
-    console.log(newSettings);
-    setSettings(newSettings);
+    fetchSettings();
+  }, [teamspaceId]);
+
+  const handleCheckboxChange =
+    (
+      setter: React.Dispatch<React.SetStateAction<boolean>>,
+      fieldName: string
+    ) =>
+    (checked: boolean) => {
+      if (
+        !checked &&
+        ((fieldName === "search_page_enabled" && !chatPageEnabled) ||
+          (fieldName === "chat_page_enabled" && !searchPageEnabled))
+      ) {
+        toast({
+          title: "Error",
+          description:
+            "You cannot disable both Chat and Search page visibility.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setter(checked);
+
+      if (
+        !checked &&
+        (fieldName === "search_page_enabled" ||
+          fieldName === "chat_page_enabled")
+      ) {
+        const isSearchField = fieldName === "search_page_enabled";
+        const otherPageEnabled = isSearchField
+          ? chatPageEnabled
+          : searchPageEnabled;
+
+        if (
+          otherPageEnabled &&
+          defaultPage === (isSearchField ? "search" : "chat")
+        ) {
+          const newDefaultPage = isSearchField ? "chat" : "search";
+          setDefaultPage(newDefaultPage);
+        }
+      }
+    };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (defaultPage === "chat" && !chatPageEnabled) {
+      toast({
+        title: "Error",
+        description:
+          "The default page cannot be 'chat' if the chat page is disabled.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (defaultPage === "search" && !searchPageEnabled) {
+      toast({
+        title: "Error",
+        description:
+          "The default page cannot be 'search' if the search page is disabled.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const settings = {
+      chat_page_enabled: chatPageEnabled,
+      search_page_enabled: searchPageEnabled,
+      chat_history_enabled: chatHistoryEnabled,
+      default_page: defaultPage,
+      maximum_chat_retention_days: chatRetention,
+    };
 
     try {
       const response = await fetch(
@@ -180,83 +251,32 @@ export function Configuration() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(newSettings),
+          body: JSON.stringify(settings),
         }
       );
 
       if (!response.ok) {
-        const errorMsg = (await response.json()).detail;
-        throw new Error(errorMsg);
+        throw new Error("Failed to update settings");
       }
 
-      router.refresh();
+      const result = await response.json();
       toast({
-        title: "Settings Updated",
-        description: "Your settings have been successfully updated!",
+        title: "Success",
+        description: "Settings updated successfully!",
         variant: "success",
       });
     } catch (error) {
-      // Revert the optimistic update
-      setSettings(settings);
-      console.error("Error updating settings:", error);
       toast({
-        title: "Update Failed",
-        description: `Unable to update settings. Reason: ${error}`,
+        title: "Error",
+        description: "Failed to update settings.",
         variant: "destructive",
       });
     }
-  }
-
-  function handleToggleSettingsField(
-    fieldName: keyof Settings,
-    checked: boolean
-  ) {
-    const updates: { fieldName: keyof Settings; newValue: any }[] = [
-      { fieldName, newValue: checked },
-    ];
-
-    if (
-      !checked &&
-      (fieldName === "search_page_enabled" || fieldName === "chat_page_enabled")
-    ) {
-      const otherPageField =
-        fieldName === "search_page_enabled"
-          ? "chat_page_enabled"
-          : "search_page_enabled";
-      const otherPageEnabled = settings && settings[otherPageField];
-
-      if (
-        otherPageEnabled &&
-        settings?.default_page ===
-          (fieldName === "search_page_enabled" ? "search" : "chat")
-      ) {
-        updates.push({
-          fieldName: "default_page",
-          newValue: fieldName === "search_page_enabled" ? "chat" : "search",
-        });
-      }
-    }
-
-    updateSettingField(updates);
-  }
-
-  function handleSetChatRetention() {
-    const newValue = chatRetention === "" ? null : parseInt(chatRetention, 10);
-    updateSettingField([
-      { fieldName: "maximum_chat_retention_days", newValue },
-    ]);
-  }
-
-  function handleClearChatRetention() {
-    setChatRetention("");
-    updateSettingField([
-      { fieldName: "maximum_chat_retention_days", newValue: null },
-    ]);
-  }
+  };
 
   return (
-    <div className="mt-8 w-full">
-      <div>
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="mt-8">
         <h2 className="font-bold text:lg md:text-xl">Page and Chat Setup</h2>
         <p className="text-sm">
           Manage general enMedD AI settings applicable to all users in the
@@ -264,98 +284,80 @@ export function Configuration() {
         </p>
       </div>
 
-      <div className="mt-8 w-full">
+      <div>
         <h3 className="mb-4">Page Visibility</h3>
-
         <CheckboxComponent
-          label="Search Page Enabled?"
-          sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
-          checked={settings.search_page_enabled}
-          onChange={(checked) =>
-            handleToggleSettingsField("search_page_enabled", checked)
-          }
+          label="Chat Page Enabled"
+          sublabel="Enable the chat page."
+          checked={chatPageEnabled}
+          onChange={handleCheckboxChange(
+            setChatPageEnabled,
+            "chat_page_enabled"
+          )}
         />
-
         <CheckboxComponent
-          label="Chat Page Enabled?"
-          sublabel="If set, then the 'Chat' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
-          checked={settings.chat_page_enabled}
-          onChange={(checked) =>
-            handleToggleSettingsField("chat_page_enabled", checked)
-          }
+          label="Search Page Enabled"
+          sublabel="Enable the search page."
+          checked={searchPageEnabled}
+          onChange={handleCheckboxChange(
+            setSearchPageEnabled,
+            "search_page_enabled"
+          )}
         />
+      </div>
 
-        <div className="pt-4">
-          <Selector
-            label="Default Page"
-            subtext="The page that users will be redirected to after logging in. Can only be set to a page that is enabled."
-            options={[
-              { value: "search", name: "Search" },
-              { value: "chat", name: "Chat" },
-            ]}
-            selected={settings.default_page}
-            onSelect={(value) => {
-              value &&
-                updateSettingField([
-                  { fieldName: "default_page", newValue: value },
-                ]);
+      <Selector
+        label="Default Page"
+        subtext="Select the default page to display."
+        options={[
+          { value: "chat", name: "Chat" },
+          { value: "search", name: "Search" },
+        ]}
+        selected={defaultPage}
+        onSelect={(value) => setDefaultPage(value as string)}
+      />
+
+      {isEnterpriseEnabled && (
+        <>
+          <h3 className="mb-4">Chat Settings</h3>
+          <IntegerInput
+            label="Maximum Chat Retention Days"
+            sublabel="Set the maximum number of days to retain chat history."
+            value={chatRetention === null ? null : Number(chatRetention)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setChatRetention(value === "" ? null : value);
             }}
+            placeholder="Enter number of days"
           />
-        </div>
+        </>
+      )}
 
-        {isEnterpriseEnabled && (
-          <>
-            <h3 className="mb-4">Chat Settings</h3>
-            <IntegerInput
-              label="Chat Retention"
-              sublabel="Enter the maximum number of days you would like Danswer to retain chat messages. Leaving this field empty will cause Danswer to never delete chat messages."
-              value={chatRetention === "" ? null : Number(chatRetention)}
-              onChange={(e) => {
-                const numValue = parseInt(e.target.value, 10);
-                if (numValue >= 1 || e.target.value === "") {
-                  setChatRetention(e.target.value);
-                }
-              }}
-              id="chatRetentionInput"
-              placeholder="Infinite Retention"
-            />
-            <Button onClick={handleSetChatRetention} className="mr-3">
-              Set Retention Limit
-            </Button>
-            <Button onClick={handleClearChatRetention} variant="outline">
-              Retain All
-            </Button>
-          </>
-        )}
+      <div className="mt-8">
+        <h3>Query History</h3>
+        <p className="text-sm">
+          Allows users to track and review their past searches and responses
+          within the platform.
+        </p>
 
-        <div className="mt-8">
-          <h3>Query History</h3>
+        <div className="flex items-center gap-4 pt-4">
+          <Switch
+            checked={chatHistoryEnabled}
+            onCheckedChange={handleCheckboxChange(
+              setChatHistoryEnabled,
+              "chat_history_enabled"
+            )}
+          />
           <p className="text-sm">
-            Allows users to track and review their past searches and respons
-            within the platform.
+            Query History allows users to conduct searches and activities
+            without them being recorded in the query history. When enabled,
+            these activities remain hidden from both the workspace and admin
+            logs, ensuring privacy and discretion for the user.
           </p>
-
-          {/* <div className="flex gap-4 items-center pt-4">
-            <Switch />
-            <p className="text-sm">
-              Private Mode for Query History allows users to conduct searches
-              and activities without them being recorded in the query history.
-              When enabled, these activities remain hidden from both the
-              workspace and admin logs, ensuring privacy and discretion for the
-              user.
-            </p>
-          </div> */}
-
-          <CheckboxComponent
-            label="chat_history_enabled?"
-            sublabel="If set, then the 'Chat' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
-            checked={settings.chat_history_enabled}
-            onChange={(checked) =>
-              handleToggleSettingsField("chat_history_enabled", checked)
-            }
-          />
         </div>
       </div>
-    </div>
+
+      <Button type="submit">Update Settings</Button>
+    </form>
   );
 }

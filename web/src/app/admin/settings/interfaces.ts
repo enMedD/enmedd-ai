@@ -3,6 +3,14 @@ export interface Settings {
   search_page_enabled: boolean;
   default_page: "search" | "chat";
   maximum_chat_retention_days: number | null;
+  chat_history_enabled?: boolean;
+}
+
+export interface TeamspaceSettings {
+  chat_page_enabled: boolean;
+  search_page_enabled: boolean;
+  default_page: "search" | "chat";
+  maximum_chat_retention_days: number | null;
   chat_history_enabled: boolean;
 }
 

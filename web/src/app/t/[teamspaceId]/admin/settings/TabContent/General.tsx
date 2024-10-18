@@ -127,7 +127,12 @@ export default function General({
 
   const handleRemoveLogo = async () => {
     try {
-      const response = await fetch("/api/me/profile", { method: "DELETE" });
+      const response = await fetch(
+        `/api/manage/admin/teamspace/logo?teamspace_id=${teamspaceId}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (response.ok) {
         setProfileImageUrl(null);
         showToast("Success", "Logo removed successfully.", "success");
@@ -173,12 +178,12 @@ export default function General({
             {selectedFile ? (
               <img
                 src={URL.createObjectURL(selectedFile)}
-                alt="Selected Logo"
+                alt="selected_teamspace_logo"
               />
             ) : profileImageUrl ? (
               <img
                 src={profileImageUrl}
-                alt="Current Logo"
+                alt="current_teamspace_logo"
                 className="object-cover w-full h-full"
               />
             ) : (
