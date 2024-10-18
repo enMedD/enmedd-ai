@@ -137,6 +137,7 @@ export function Configuration() {
   const [chatHistoryEnabled, setChatHistoryEnabled] = useState<boolean>(true);
   const [defaultPage, setDefaultPage] = useState<string>("chat");
   const [chatRetention, setChatRetention] = useState<string | null>(null);
+  const [initialSettings, setInitialSettings] = useState<any>(null); // Track initial settings
 
   const isEnterpriseEnabled = usePaidEnterpriseFeaturesEnabled();
 
@@ -157,6 +158,8 @@ export function Configuration() {
         setChatRetention(
           settings.maximum_chat_retention_days?.toString() || null
         );
+
+        setInitialSettings(settings);
       } catch (error) {
         console.error("Error fetching settings:", error);
         toast({
@@ -274,6 +277,18 @@ export function Configuration() {
     }
   };
 
+  const handleCancel = () => {
+    if (initialSettings) {
+      setChatPageEnabled(initialSettings.chat_page_enabled);
+      setSearchPageEnabled(initialSettings.search_page_enabled);
+      setChatHistoryEnabled(initialSettings.chat_history_enabled);
+      setDefaultPage(initialSettings.default_page);
+      setChatRetention(
+        initialSettings.maximum_chat_retention_days?.toString() || null
+      );
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div className="mt-8">
@@ -357,7 +372,12 @@ export function Configuration() {
         </div>
       </div>
 
-      <Button type="submit">Update Settings</Button>
+      <div className="flex justify-end gap-2 py-8">
+        <Button type="button" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button type="submit">Update Settings</Button>
+      </div>
     </form>
   );
 }
