@@ -29,8 +29,22 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
-  const displayedTeamspaces = user?.groups && user.groups.slice(0, 8);
+  let displayedTeamspaces = user?.groups || [];
+  if (teamspaceId) {
+    const matchingTeamspace = displayedTeamspaces.find(
+      (group) => group.id.toString() === teamspaceId
+    );
+    const otherTeamspaces = displayedTeamspaces.filter(
+      (group) => group.id.toString() !== teamspaceId
+    );
+    displayedTeamspaces = matchingTeamspace
+      ? [matchingTeamspace, ...otherTeamspaces]
+      : otherTeamspaces;
+  }
+  displayedTeamspaces = displayedTeamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
+
+  console.log(user?.groups);
 
   return (
     <div className={`bg-background h-full p-4 border-r border-border z-10`}>

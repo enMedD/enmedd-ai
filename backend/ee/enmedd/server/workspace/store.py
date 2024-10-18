@@ -1,3 +1,4 @@
+import io
 import os
 from io import BytesIO
 from typing import Any
@@ -7,10 +8,13 @@ from typing import IO
 from dotenv import load_dotenv
 from fastapi import HTTPException
 from fastapi import UploadFile
+from PIL import Image
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
 from enmedd.configs.constants import FileOrigin
+from enmedd.configs.constants import QUALITY
+from enmedd.configs.constants import SIZE
 from enmedd.db.models import User
 from enmedd.dynamic_configs.factory import get_dynamic_config_store
 from enmedd.dynamic_configs.interface import ConfigNotFoundError
@@ -70,10 +74,8 @@ def upload_logo(
 
     if isinstance(file, str):
         logger.info(f"Uploading logo from local path {file}")
-        if not os.path.isfile(file) or not is_valid_file_type(file):
-            logger.error(
-                "Invalid file type- only .png, .jpg, and .jpeg files are allowed"
-            )
+        if not os.path.isfile(file):
+            logger.error("File does not exist")
             return False
 
         with open(file, "rb") as file_handle:
@@ -84,14 +86,31 @@ def upload_logo(
 
     else:
         logger.info("Uploading logo from uploaded file")
-        if not file.filename or not is_valid_file_type(file.filename):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type- only .png, .jpg, and .jpeg files are allowed",
-            )
-        content = file.file
-        display_name = file.filename
-        file_type = file.content_type or "image/jpeg"
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded.")
+
+        try:
+            image = Image.open(file.file)
+            image.verify()
+
+            file.file.seek(0)
+            image = Image.open(file.file)
+
+            max_size = SIZE
+            image.thumbnail(max_size)
+
+            img_byte_arr = io.BytesIO()
+            image_format = image.format or "JPEG"
+            image.save(img_byte_arr, format=image_format, quality=QUALITY)
+            img_byte_arr.seek(0)
+            content = img_byte_arr
+
+            display_name = file.filename
+            file_type = file.content_type or f"image/{image_format.lower()}"
+
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file.")
 
     file_store = get_default_file_store(db_session)
     file_store.save_file(
@@ -109,10 +128,8 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
 
     if isinstance(file, str):
         logger.info(f"Uploading profile from local path {file}")
-        if not os.path.isfile(file) or not is_valid_file_type(file):
-            logger.error(
-                "Invalid file type - only .png, .jpg, and .jpeg files are allowed"
-            )
+        if not os.path.isfile(file):
+            logger.error("File does not exist")
             return False
 
         with open(file, "rb") as file_handle:
@@ -123,14 +140,31 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
 
     else:
         logger.info("Uploading profile from uploaded file")
-        if not file.filename or not is_valid_file_type(file.filename):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
-            )
-        content = file.file
-        display_name = file.filename
-        file_type = file.content_type or "image/jpeg"
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded.")
+
+        try:
+            image = Image.open(file.file)
+            image.verify()
+
+            file.file.seek(0)
+            image = Image.open(file.file)
+
+            max_size = SIZE
+            image.thumbnail(max_size)
+
+            img_byte_arr = io.BytesIO()
+            image_format = image.format or "JPEG"
+            image.save(img_byte_arr, format=image_format, quality=QUALITY)
+            img_byte_arr.seek(0)
+            content = img_byte_arr
+
+            display_name = file.filename
+            file_type = file.content_type or f"image/{image_format.lower()}"
+
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file.")
 
     file_name = f"{user.id}/{_PROFILE_FILENAME}"
 
@@ -154,10 +188,8 @@ def upload_teamspace_logo(
 
     if isinstance(file, str):
         logger.info(f"Uploading teamspace logo from local path {file}")
-        if not os.path.isfile(file) or not is_valid_file_type(file):
-            logger.error(
-                "Invalid file type - only .png, .jpg, and .jpeg files are allowed"
-            )
+        if not os.path.isfile(file):
+            logger.error("File does not exist")
             return False
 
         with open(file, "rb") as file_handle:
@@ -168,14 +200,31 @@ def upload_teamspace_logo(
 
     else:
         logger.info("Uploading teamspace logo from uploaded file")
-        if not file.filename or not is_valid_file_type(file.filename):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
-            )
-        content = file.file
-        display_name = file.filename
-        file_type = file.content_type or "image/jpeg"
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded.")
+
+        try:
+            image = Image.open(file.file)
+            image.verify()
+
+            file.file.seek(0)
+            image = Image.open(file.file)
+
+            max_size = SIZE
+            image.thumbnail(max_size)
+
+            img_byte_arr = io.BytesIO()
+            image_format = image.format or "JPEG"
+            image.save(img_byte_arr, format=image_format, quality=QUALITY)
+            img_byte_arr.seek(0)
+            content = img_byte_arr
+
+            display_name = file.filename
+            file_type = file.content_type or f"image/{image_format.lower()}"
+
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file.")
 
     file_name = f"{teamspace_id}/{_LOGO_FILENAME}"
 
