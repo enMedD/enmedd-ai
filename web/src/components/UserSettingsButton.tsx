@@ -102,14 +102,24 @@ export function UserSettingsButton({
               />
               Chat & Search
             </Link>
+
             {showAdminPanel && (
               <>
+                {teamspaceId && (
+                  <Link
+                    href={`/t/${teamspaceId}/admin/indexing/status`}
+                    className="flex py-3 px-4 cursor-pointer rounded-regular hover:bg-primary hover:text-inverted"
+                  >
+                    <Wrench
+                      className="my-auto mr-3"
+                      size={24}
+                      strokeWidth={1.5}
+                    />
+                    Teamspace Admin Panel
+                  </Link>
+                )}
                 <Link
-                  href={
-                    teamspaceId
-                      ? `/t/${teamspaceId}/admin/indexing/status`
-                      : "/admin/indexing/status"
-                  }
+                  href="/admin/indexing/status"
                   className="flex py-3 px-4 cursor-pointer rounded-regular hover:bg-primary hover:text-inverted"
                 >
                   <Wrench
@@ -117,7 +127,7 @@ export function UserSettingsButton({
                     size={24}
                     strokeWidth={1.5}
                   />
-                  {teamspaceId ? "Teamspace" : "Workspace"} Admin Panel
+                  Workspace Admin Panel
                 </Link>
               </>
             )}
