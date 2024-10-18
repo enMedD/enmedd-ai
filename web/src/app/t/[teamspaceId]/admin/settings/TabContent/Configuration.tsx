@@ -336,14 +336,14 @@ export function Configuration() {
         <>
           <h3 className="mb-4">Chat Settings</h3>
           <IntegerInput
-            label="Maximum Chat Retention Days"
-            sublabel="Set the maximum number of days to retain chat history."
+            label="Chat Retention"
+            sublabel="Enter the maximum number of days you would like Danswer to retain chat messages. Leaving this field empty will cause Danswer to never delete chat messages."
             value={chatRetention === null ? null : Number(chatRetention)}
             onChange={(e) => {
               const value = e.target.value;
               setChatRetention(value === "" ? null : value);
             }}
-            placeholder="Enter number of days"
+            placeholder="Infinite Retention"
           />
         </>
       )}
@@ -372,8 +372,8 @@ export function Configuration() {
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 py-8">
-        <Button type="button" onClick={handleCancel}>
+      <div className="flex justify-end gap-2 py-8 border-t">
+        <Button type="button" variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
         <Button type="submit">Update Settings</Button>
