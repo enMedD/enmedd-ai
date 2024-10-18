@@ -210,41 +210,31 @@ def list_all_users(
     users_with_roles = []
 
     if teamspace_id is not None:
-        users = (
-            db_session.query(User)
+        users_with_roles = (
+            db_session.query(User, User__Teamspace.role)
             .join(User__Teamspace)
             .filter(User__Teamspace.teamspace_id == teamspace_id)
             .all()
         )
 
-        roles = (
-            db_session.query(User__Teamspace.role)
-            .filter(User__Teamspace.teamspace_id == teamspace_id)
-            .all()
-        )
-
-        users_with_roles = [
-            {**user.__dict__, "role": role[0]} for user, role in zip(users, roles)
-        ]
-
         return AllUsersResponse(
             accepted=[
                 FullUserSnapshot(
-                    id=user["id"],
-                    email=user["email"],
-                    role=user["role"],
+                    id=user.id,
+                    email=user.email,
+                    role=role,
                     status=UserStatus.LIVE
-                    if user["is_active"]
+                    if user.is_active
                     else UserStatus.DEACTIVATED,
-                    full_name=user["full_name"],
-                    billing_email_address=user["billing_email_address"],
-                    company_billing=user["company_billing"],
-                    company_email=user["company_email"],
-                    company_name=user["company_name"],
-                    vat=user["vat"],
+                    full_name=user.full_name,
+                    billing_email_address=user.billing_email_address,
+                    company_billing=user.company_billing,
+                    company_email=user.company_email,
+                    company_name=user.company_name,
+                    vat=user.vat,
                 )
-                for user in users_with_roles
-                if not is_api_key_email_address(user["email"])
+                for user, role in users_with_roles
+                if not is_api_key_email_address(user.email)
             ],
             invited=[InvitedUserSnapshot(email=email) for email in get_invited_users()],
             accepted_pages=1,

@@ -1,3 +1,4 @@
+import io
 import os
 from io import BytesIO
 from typing import Any
@@ -7,10 +8,13 @@ from typing import IO
 from dotenv import load_dotenv
 from fastapi import HTTPException
 from fastapi import UploadFile
+from PIL import Image
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
 from enmedd.configs.constants import FileOrigin
+from enmedd.configs.constants import QUALITY
+from enmedd.configs.constants import SIZE
 from enmedd.db.models import User
 from enmedd.dynamic_configs.factory import get_dynamic_config_store
 from enmedd.dynamic_configs.interface import ConfigNotFoundError
@@ -87,11 +91,26 @@ def upload_logo(
         if not file.filename or not is_valid_file_type(file.filename):
             raise HTTPException(
                 status_code=400,
-                detail="Invalid file type- only .png, .jpg, and .jpeg files are allowed",
+                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
             )
-        content = file.file
-        display_name = file.filename
-        file_type = file.content_type or "image/jpeg"
+
+        try:
+            image = Image.open(file.file)
+
+            max_size = SIZE
+            image.thumbnail(max_size)
+
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format="JPEG", quality=QUALITY)
+            img_byte_arr.seek(0)
+            content = img_byte_arr
+
+            display_name = file.filename
+            file_type = file.content_type or "image/jpeg"
+
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file.")
 
     file_store = get_default_file_store(db_session)
     file_store.save_file(
@@ -128,9 +147,24 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
                 status_code=400,
                 detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
             )
-        content = file.file
-        display_name = file.filename
-        file_type = file.content_type or "image/jpeg"
+
+        try:
+            image = Image.open(file.file)
+
+            max_size = SIZE
+            image.thumbnail(max_size)
+
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format="JPEG", quality=QUALITY)
+            img_byte_arr.seek(0)
+            content = img_byte_arr
+
+            display_name = file.filename
+            file_type = file.content_type or "image/jpeg"
+
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file.")
 
     file_name = f"{user.id}/{_PROFILE_FILENAME}"
 
@@ -173,9 +207,23 @@ def upload_teamspace_logo(
                 status_code=400,
                 detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
             )
-        content = file.file
-        display_name = file.filename
-        file_type = file.content_type or "image/jpeg"
+        try:
+            image = Image.open(file.file)
+
+            max_size = SIZE
+            image.thumbnail(max_size)
+
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format="JPEG", quality=QUALITY)
+            img_byte_arr.seek(0)
+            content = img_byte_arr
+
+            display_name = file.filename
+            file_type = file.content_type or "image/jpeg"
+
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file.")
 
     file_name = f"{teamspace_id}/{_LOGO_FILENAME}"
 
