@@ -51,7 +51,11 @@ export async function fetchChatData(
     fetchSS("/manage/indexing-status"),
     fetchSS("/manage/document-set"),
     fetchSS("/assistant?include_default=true"),
-    fetchSS("/chat/get-user-chat-sessions"),
+    fetchSS(
+      teamspaceId
+        ? `/chat/get-user-chat-sessions?teamspace_id=${teamspaceId}`
+        : "/chat/get-user-chat-sessions"
+    ),
     fetchSS("/query/valid-tags"),
     fetchLLMProvidersSS(),
     fetchSS("/folder"),

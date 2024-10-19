@@ -1,6 +1,6 @@
 export async function createChatSession(
   assistantId?: number | null,
-  teamspaceId?: number | null
+  teamspaceId?: string | string[]
 ) {
   const url = teamspaceId
     ? `/api/chat/create-chat-session?teamspace_id=${teamspaceId}`

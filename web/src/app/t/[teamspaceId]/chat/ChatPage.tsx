@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   BackendChatSession,
   BackendMessage,
@@ -110,6 +110,7 @@ export function ChatPage({
     folders,
     openedFolders,
   } = useChatContext();
+  const { teamspaceId } = useParams();
 
   const { toast } = useToast();
   const filteredAssistants = orderAssistantsForUser(availableAssistants, user);
@@ -662,7 +663,8 @@ export function ChatPage({
     if (isNewSession) {
       currChatSessionId = await createChatSession(
         liveAssistant?.id || 0,
-        searchParamBasedChatSessionName
+        searchParamBasedChatSessionName,
+        teamspaceId
       );
     } else {
       currChatSessionId = chatSessionIdRef.current as number;

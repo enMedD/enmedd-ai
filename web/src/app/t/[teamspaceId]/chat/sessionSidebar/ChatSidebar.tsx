@@ -12,7 +12,7 @@ import {
 import { useContext, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ChatSession } from "../interfaces";
 
 import { NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT } from "@/lib/constants";
@@ -48,6 +48,7 @@ export const ChatSidebar = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const currentChatId = currentChatSession?.id;
 
@@ -74,7 +75,7 @@ export const ChatSidebar = ({
     {
       key: "i",
       handler: () => {
-        createFolder("New Folder")
+        createFolder("New Folder", teamspaceId)
           .then((folderId) => {
             console.log(`Folder created with ID: ${folderId}`);
             router.refresh();
@@ -217,7 +218,7 @@ export const ChatSidebar = ({
               trigger={
                 <Button
                   onClick={() =>
-                    createFolder("New Folder")
+                    createFolder("New Folder", teamspaceId)
                       .then((folderId) => {
                         console.log(`Folder created with ID: ${folderId}`);
                         router.refresh();
