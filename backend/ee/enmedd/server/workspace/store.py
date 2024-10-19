@@ -74,10 +74,8 @@ def upload_logo(
 
     if isinstance(file, str):
         logger.info(f"Uploading logo from local path {file}")
-        if not os.path.isfile(file) or not is_valid_file_type(file):
-            logger.error(
-                "Invalid file type- only .png, .jpg, and .jpeg files are allowed"
-            )
+        if not os.path.isfile(file):
+            logger.error("File does not exist")
             return False
 
         with open(file, "rb") as file_handle:
@@ -88,25 +86,27 @@ def upload_logo(
 
     else:
         logger.info("Uploading logo from uploaded file")
-        if not file.filename or not is_valid_file_type(file.filename):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
-            )
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded.")
 
         try:
+            image = Image.open(file.file)
+            image.verify()
+
+            file.file.seek(0)
             image = Image.open(file.file)
 
             max_size = SIZE
             image.thumbnail(max_size)
 
             img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format="JPEG", quality=QUALITY)
+            image_format = image.format or "JPEG"
+            image.save(img_byte_arr, format=image_format, quality=QUALITY)
             img_byte_arr.seek(0)
             content = img_byte_arr
 
             display_name = file.filename
-            file_type = file.content_type or "image/jpeg"
+            file_type = file.content_type or f"image/{image_format.lower()}"
 
         except Exception as e:
             logger.error(f"Error processing image: {e}")
@@ -128,10 +128,8 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
 
     if isinstance(file, str):
         logger.info(f"Uploading profile from local path {file}")
-        if not os.path.isfile(file) or not is_valid_file_type(file):
-            logger.error(
-                "Invalid file type - only .png, .jpg, and .jpeg files are allowed"
-            )
+        if not os.path.isfile(file):
+            logger.error("File does not exist")
             return False
 
         with open(file, "rb") as file_handle:
@@ -142,25 +140,27 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
 
     else:
         logger.info("Uploading profile from uploaded file")
-        if not file.filename or not is_valid_file_type(file.filename):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
-            )
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded.")
 
         try:
+            image = Image.open(file.file)
+            image.verify()
+
+            file.file.seek(0)
             image = Image.open(file.file)
 
             max_size = SIZE
             image.thumbnail(max_size)
 
             img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format="JPEG", quality=QUALITY)
+            image_format = image.format or "JPEG"
+            image.save(img_byte_arr, format=image_format, quality=QUALITY)
             img_byte_arr.seek(0)
             content = img_byte_arr
 
             display_name = file.filename
-            file_type = file.content_type or "image/jpeg"
+            file_type = file.content_type or f"image/{image_format.lower()}"
 
         except Exception as e:
             logger.error(f"Error processing image: {e}")
@@ -188,10 +188,8 @@ def upload_teamspace_logo(
 
     if isinstance(file, str):
         logger.info(f"Uploading teamspace logo from local path {file}")
-        if not os.path.isfile(file) or not is_valid_file_type(file):
-            logger.error(
-                "Invalid file type - only .png, .jpg, and .jpeg files are allowed"
-            )
+        if not os.path.isfile(file):
+            logger.error("File does not exist")
             return False
 
         with open(file, "rb") as file_handle:
@@ -202,24 +200,27 @@ def upload_teamspace_logo(
 
     else:
         logger.info("Uploading teamspace logo from uploaded file")
-        if not file.filename or not is_valid_file_type(file.filename):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
-            )
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file uploaded.")
+
         try:
+            image = Image.open(file.file)
+            image.verify()
+
+            file.file.seek(0)
             image = Image.open(file.file)
 
             max_size = SIZE
             image.thumbnail(max_size)
 
             img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format="JPEG", quality=QUALITY)
+            image_format = image.format or "JPEG"
+            image.save(img_byte_arr, format=image_format, quality=QUALITY)
             img_byte_arr.seek(0)
             content = img_byte_arr
 
             display_name = file.filename
-            file_type = file.content_type or "image/jpeg"
+            file_type = file.content_type or f"image/{image_format.lower()}"
 
         except Exception as e:
             logger.error(f"Error processing image: {e}")

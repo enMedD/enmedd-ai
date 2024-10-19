@@ -156,6 +156,7 @@ def delete_assistant(
 
 @basic_router.get("")
 def list_assistants(
+    teamspace_id: Optional[int] = None,
     _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
@@ -163,6 +164,7 @@ def list_assistants(
     return [
         AssistantSnapshot.from_model(assistant)
         for assistant in get_assistants(
+            teamspace_id=teamspace_id,
             include_deleted=include_deleted,
             db_session=db_session,
         )
