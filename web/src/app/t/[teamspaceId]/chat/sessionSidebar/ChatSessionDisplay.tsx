@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ChatSession } from "../interfaces";
 import { useState, useEffect, useContext } from "react";
 import { deleteChatSession, renameChatSession } from "../lib";
@@ -41,6 +41,7 @@ export function ChatSessionDisplay({
   skipGradient?: boolean;
   toggleSideBar?: () => void;
 }) {
+  const { teamspaceId } = useParams();
   const router = useRouter();
   const combinedSettings = useContext(SettingsContext);
   const [isRenamingChat, setIsRenamingChat] = useState(false);
@@ -84,7 +85,7 @@ export function ChatSessionDisplay({
         <Link
           className="flex relative"
           key={chatSession.id}
-          href={`/chat?chatId=${chatSession.id}`}
+          href={`/t/${teamspaceId}/chat?chatId=${chatSession.id}`}
           scroll={false}
           draggable="true"
           onDragStart={(event) => {
@@ -191,7 +192,7 @@ export function ChatSessionDisplay({
                               );
                               if (response.ok) {
                                 // go back to the main page
-                                router.push("/chat");
+                                router.push(`/t/${teamspaceId}/chat`);
                                 toast({
                                   title: "Chat session deleted",
                                   description:

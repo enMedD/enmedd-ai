@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED } from "@/lib/constants";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Logo } from "@/components/Logo";
+import { useParams } from "next/navigation";
 
 export const SearchSidebar = ({
   isExpanded,
@@ -29,6 +30,7 @@ export const SearchSidebar = ({
   openSidebar?: boolean;
   toggleSideBar?: () => void;
 }) => {
+  const { teamspaceId } = useParams();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -89,7 +91,7 @@ export const SearchSidebar = ({
             {settings.chat_page_enabled && (
               <>
                 <Link
-                  href="/chat"
+                  href={`/t/${teamspaceId}/chat`}
                   className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2 justify-between`}
                 >
                   <div className="flex items-center gap-2">

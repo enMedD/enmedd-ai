@@ -48,9 +48,21 @@ export async function fetchChatData(
   const tasks = [
     getAuthTypeMetadataSS(),
     getCurrentUserSS(),
-    fetchSS("/manage/indexing-status"),
-    fetchSS("/manage/document-set"),
-    fetchSS("/assistant?include_default=true"),
+    fetchSS(
+      teamspaceId
+        ? `/manage/indexing-status?teamspace_id=${teamspaceId}`
+        : "/manage/indexing-status"
+    ),
+    fetchSS(
+      teamspaceId
+        ? `/manage/document-set?teamspace_id=${teamspaceId}`
+        : "/manage/document-set"
+    ),
+    fetchSS(
+      teamspaceId
+        ? `/assistant?include_default=false&teamspace_id=${teamspaceId}`
+        : "/assistant?include_default=true"
+    ),
     fetchSS(
       teamspaceId
         ? `/chat/get-user-chat-sessions?teamspace_id=${teamspaceId}`

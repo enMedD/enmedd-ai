@@ -63,7 +63,7 @@ export const ChatSidebar = ({
       key: "k",
       handler: () => {
         router.push(
-          "/chat" +
+          `/t/${teamspaceId}/chat` +
             (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
             currentChatSession
               ? `?assistantId=${currentChatSession.assistant_id}`
@@ -151,7 +151,7 @@ export const ChatSidebar = ({
             {settings.chat_page_enabled && (
               <>
                 <Link
-                  href="/chat"
+                  href={`/t/${teamspaceId}/chat`}
                   className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer items-center gap-2 justify-between ${
                     !isAssistant
                       ? "bg-primary text-white"
@@ -197,7 +197,7 @@ export const ChatSidebar = ({
         <div className="flex items-center gap-3 px-4 pt-5 mt-auto">
           <Link
             href={
-              "/chat" +
+              `/t/${teamspaceId}/chat` +
               (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
               currentChatSession
                 ? `?assistantId=${currentChatSession.assistant_id}`

@@ -23,7 +23,7 @@ import { questionValidationStreamed } from "@/lib/search/streamingQuestionValida
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { AssistantSelector } from "./AssistantSelector";
 import { computeAvailableFilters } from "@/lib/filters";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { SettingsContext } from "../settings/SettingsProvider";
 import { SortSearch } from "./SortSearch";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -57,6 +57,7 @@ export const SearchSection = ({
   tags,
   defaultSearchType,
 }: SearchSectionProps) => {
+  const { teamspaceId } = useParams();
   // Search Bar
   const [query, setQuery] = useState<string>("");
 
@@ -225,7 +226,7 @@ export const SearchSection = ({
   const router = useRouter();
   const settings = useContext(SettingsContext);
   if (settings?.settings?.search_page_enabled === false) {
-    router.push("/chat");
+    router.push(teamspaceId ? `/t/${teamspaceId}/chat` : "/chat");
   }
 
   return (
