@@ -72,7 +72,7 @@ export function SelectedFilterDisplay({
 
   return (
     <div className="flex mb-2">
-      <div className="flex flex-wrap gap-x-2">
+      <div className="flex flex-wrap gap-2">
         {timeRange && (
           <SelectedFilter onClick={() => setTimeRange(null)}>
             <div className="flex">{displayTimeRange(timeRange)}</div>

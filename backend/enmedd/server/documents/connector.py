@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.background.celery.celery_utils import get_deletion_status
 from enmedd.configs.app_configs import ENABLED_CONNECTOR_TYPES
@@ -371,7 +372,7 @@ def upload_files(
 def get_connector_indexing_status(
     teamspace_id: Optional[int] = None,
     secondary_index: bool = False,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[ConnectorIndexingStatus]:
     indexing_statuses: list[ConnectorIndexingStatus] = []
@@ -760,10 +761,23 @@ class BasicCCPairInfo(BaseModel):
 
 @router.get("/indexing-status")
 def get_basic_connector_indexing_status(
+    teamspace_id: Optional[int] = None,
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> list[BasicCCPairInfo]:
-    cc_pairs = get_connector_credential_pairs(db_session)
+    if teamspace_id:
+        cc_pairs = (
+            db_session.query(ConnectorCredentialPair)
+            .join(Teamspace__ConnectorCredentialPair)
+            .filter(
+                Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id,
+                Teamspace__ConnectorCredentialPair.is_current == True,  # noqa: E712
+            )
+            .all()
+        )
+    else:
+        cc_pairs = get_connector_credential_pairs(db_session)
+
     cc_pair_identifiers = [
         ConnectorCredentialPairIdentifier(
             connector_id=cc_pair.connector_id, credential_id=cc_pair.credential_id

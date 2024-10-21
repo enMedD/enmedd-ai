@@ -2,7 +2,7 @@
 
 import { useState, useRef, useContext } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { User as UserTypes } from "@/lib/types";
 import { checkUserIsNoAuthUser, logout } from "@/lib/user";
 import { BasicSelectable } from "@/components/BasicClickable";
@@ -20,6 +20,7 @@ export function UserDropdown({
   user: UserTypes | null;
   hideChatAndSearch?: boolean;
 }) {
+  const { teamspaceId } = useParams();
   const [userInfoVisible, setUserInfoVisible] = useState(false);
   const { toast } = useToast();
   const userInfoRef = useRef<HTMLDivElement>(null);
@@ -92,7 +93,7 @@ export function UserDropdown({
               <>
                 {settings.search_page_enabled && (
                   <Link
-                    href="/search"
+                    href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
                     className="flex px-4 py-3 rounded cursor-pointer hover:bg-hover-light"
                   >
                     <Search className="my-auto mr-2 text-lg" />
@@ -102,7 +103,7 @@ export function UserDropdown({
                 {settings.chat_page_enabled && (
                   <>
                     <Link
-                      href="/chat"
+                      href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
                       className="flex px-4 py-3 rounded cursor-pointer hover:bg-hover-light"
                     >
                       <MessageSquare className="my-auto mr-2 text-lg" />
@@ -125,7 +126,11 @@ export function UserDropdown({
                   <div className="my-1 border-t border-border" />
                 )}
                 <Link
-                  href="/admin/indexing/status"
+                  href={
+                    teamspaceId
+                      ? `/t/${teamspaceId}/admin/indexing/status`
+                      : "/admin/indexing/status"
+                  }
                   className="flex px-4 py-3 rounded cursor-pointer hover:bg-hover-light"
                 >
                   <Wrench className="my-auto mr-2 text-lg" />

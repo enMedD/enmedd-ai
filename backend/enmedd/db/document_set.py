@@ -378,6 +378,39 @@ def fetch_document_sets_by_teamspace(
     )
 
 
+def fetch_document_sets_by_teamspace_non_admin(
+    teamspace_id: int, db_session: Session
+) -> list[tuple[DocumentSetDBModel, list[ConnectorCredentialPair]]]:
+    """Fetch document sets and associated connector-credential pairs for a specific teamspace."""
+    document_set_data = (
+        db_session.query(DocumentSetDBModel, ConnectorCredentialPair)
+        .join(
+            DocumentSet__Teamspace,
+            DocumentSetDBModel.id == DocumentSet__Teamspace.document_set_id,
+        )
+        .join(
+            DocumentSet__ConnectorCredentialPair,
+            DocumentSetDBModel.id
+            == DocumentSet__ConnectorCredentialPair.document_set_id,
+        )
+        .join(
+            ConnectorCredentialPair,
+            DocumentSet__ConnectorCredentialPair.connector_credential_pair_id
+            == ConnectorCredentialPair.id,
+        )
+        .filter(DocumentSet__Teamspace.teamspace_id == teamspace_id)
+        .all()
+    )
+
+    document_sets = {}
+    for document_set, cc_pair in document_set_data:
+        if document_set not in document_sets:
+            document_sets[document_set] = []
+        document_sets[document_set].append(cc_pair)
+
+    return [(doc_set, cc_pairs) for doc_set, cc_pairs in document_sets.items()]
+
+
 def fetch_user_document_sets(
     user_id: UUID | None, db_session: Session
 ) -> list[tuple[DocumentSetDBModel, list[ConnectorCredentialPair]]]:

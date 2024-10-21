@@ -11,7 +11,7 @@ import {
 } from "../../lib";
 import { AIMessage, HumanMessage } from "../../message/Messages";
 import { Callout } from "@tremor/react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/Divider";
 import { Assistant } from "@/app/admin/assistants/interfaces";
@@ -21,11 +21,14 @@ import { User } from "@/lib/types";
 // TODO: replace the component name
 function BackToEnmeddButton() {
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   return (
     <div className="fixed bottom-0 w-full flex border-t border-border py-4 bg-background">
       <div className="mx-auto">
-        <Button onClick={() => router.push("/chat")}>Back to Chat</Button>
+        <Button onClick={() => router.push(`/t/${teamspaceId}/chat`)}>
+          Back to Chat
+        </Button>
       </div>
     </div>
   );
