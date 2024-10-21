@@ -87,7 +87,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
           </div>
           <Separator className="mt-4" />
           {user?.groups && (
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col items-center gap-3 pt-4">
               {displayedTeamspaces?.map((teamspace) => (
                 <TeamspaceBubble
                   key={teamspace.id}

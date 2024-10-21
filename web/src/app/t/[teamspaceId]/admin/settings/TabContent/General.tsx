@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface GeneralProps {
   teamspaceId: string | string[];
@@ -15,11 +16,12 @@ export default function General({
   isEditing,
   setIsEditing,
 }: GeneralProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const [teamspaceName, setTeamspaceName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [teamspaceLogo, setTeamspaceLogo] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTeamspaceData = async () => {
@@ -39,7 +41,7 @@ export default function General({
         if (logoResponse.ok) {
           const blob = await logoResponse.blob();
           const logoUrl = URL.createObjectURL(blob);
-          setProfileImageUrl(logoUrl);
+          setTeamspaceLogo(logoUrl);
         } else {
           console.error("Failed to fetch teamspace logo");
         }
@@ -67,11 +69,12 @@ export default function General({
 
       if (!updateResponse.ok) {
         const error = await updateResponse.json();
-        showToast(
-          "Update Failed",
-          error.detail || "Failed to update teamspace.",
-          "destructive"
-        );
+
+        toast({
+          title: "Update Failed",
+          description: error.detail || "Failed to update teamspace.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -87,26 +90,31 @@ export default function General({
 
         if (!uploadResponse.ok) {
           const error = await uploadResponse.json();
-          showToast("Logo Upload Failed", error.detail, "destructive");
+          toast({
+            title: "Logo Upload Failed",
+            description: error.detail,
+            variant: "destructive",
+          });
           return;
         }
       }
 
-      showToast("Success", "Teamspace updated successfully.", "success");
+      router.refresh();
+      toast({
+        title: "Success",
+        description: "Teamspace updated successfully.",
+        variant: "success",
+      });
       setIsEditing(false);
     } catch (error) {
-      showToast("Error", "An error occurred. Please try again.", "destructive");
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const showToast = (
-    title: string,
-    description: string,
-    variant: "success" | "destructive"
-  ) => {
-    toast({ title, description, variant });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,14 +142,28 @@ export default function General({
         }
       );
       if (response.ok) {
-        setProfileImageUrl(null);
-        showToast("Success", "Logo removed successfully.", "success");
+        setTeamspaceLogo(null);
+
+        toast({
+          title: "Success",
+          description: "Logo removed successfully.",
+          variant: "success",
+        });
       } else {
         const error = await response.json();
-        showToast("Removal Failed", error.detail, "destructive");
+
+        toast({
+          title: "Removal Failed",
+          description: error.detail,
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      showToast("Error", "An error occurred. Please try again.", "destructive");
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -179,12 +201,13 @@ export default function General({
               <img
                 src={URL.createObjectURL(selectedFile)}
                 alt="selected_teamspace_logo"
+                className="w-full h-full object-cover object-center"
               />
-            ) : profileImageUrl ? (
+            ) : teamspaceLogo ? (
               <img
-                src={profileImageUrl}
+                src={teamspaceLogo}
                 alt="current_teamspace_logo"
-                className="object-cover w-full h-full"
+                className="w-full h-full object-cover object-center"
               />
             ) : (
               <Skeleton className="w-16 h-16 rounded-full" />

@@ -75,7 +75,7 @@ export const SearchSidebar = ({
               <>
                 <Separator className="mb-4" />
                 <Link
-                  href="/search"
+                  href={`/t/${teamspaceId}/search`}
                   className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer bg-primary text-white items-center gap-2 justify-between`}
                 >
                   <div className="flex items-center gap-2">

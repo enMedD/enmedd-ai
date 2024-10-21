@@ -33,7 +33,13 @@ export function NoSourcesModal() {
           Without any connected knowledge sources, there isn&apos;t anything to
           search over.
         </p>
-        <Link href="/admin/data-sources">
+        <Link
+          href={
+            teamspaceId
+              ? `/t/${teamspaceId}/admin/data-sources`
+              : "/admin/data-sources"
+          }
+        >
           <Button className="mt-3">
             <Share2 size={16} /> Connect a Source!
           </Button>

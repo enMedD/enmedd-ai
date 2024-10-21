@@ -136,7 +136,7 @@ export const ChatSidebar = ({
             <Separator className="mb-4" />
             {settings.search_page_enabled && (
               <Link
-                href="/search"
+                href={`/t/${teamspaceId}/search`}
                 className="flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2 justify-between"
               >
                 <div className="flex items-center gap-2">
