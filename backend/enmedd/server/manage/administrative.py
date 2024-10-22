@@ -9,7 +9,6 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_curator_or_admin_user
 from enmedd.background.celery.celery_app import celery_app
 from enmedd.configs.app_configs import GENERATIVE_MODEL_ACCESS_CHECK_FREQ
 from enmedd.configs.constants import DocumentSource
@@ -144,7 +143,7 @@ def validate_existing_genai_api_key(
 @router.post("/admin/deletion-attempt")
 def create_deletion_attempt_for_connector_id(
     connector_credential_pair_identifier: ConnectorCredentialPairIdentifier,
-    user: User = Depends(current_curator_or_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     connector_id = connector_credential_pair_identifier.connector_id
