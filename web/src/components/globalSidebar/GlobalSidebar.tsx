@@ -29,8 +29,22 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
-  const displayedTeamspaces = user?.groups && user.groups.slice(0, 8);
+  let displayedTeamspaces = user?.groups || [];
+  if (teamspaceId) {
+    const matchingTeamspace = displayedTeamspaces.find(
+      (group) => group.id.toString() === teamspaceId
+    );
+    const otherTeamspaces = displayedTeamspaces.filter(
+      (group) => group.id.toString() !== teamspaceId
+    );
+    displayedTeamspaces = matchingTeamspace
+      ? [matchingTeamspace, ...otherTeamspaces]
+      : otherTeamspaces;
+  }
+  displayedTeamspaces = displayedTeamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
+
+  console.log(user?.groups);
 
   return (
     <div className={`bg-background h-full p-4 border-r border-border z-10`}>
@@ -73,7 +87,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
           </div>
           <Separator className="mt-4" />
           {user?.groups && (
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col items-center gap-3 pt-4">
               {displayedTeamspaces?.map((teamspace) => (
                 <TeamspaceBubble
                   key={teamspace.id}

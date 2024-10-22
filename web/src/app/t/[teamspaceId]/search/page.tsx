@@ -41,9 +41,11 @@ export default async function Home({
   const tasks = [
     getAuthTypeMetadataSS(),
     getCurrentUserSS(),
-    fetchSS("/manage/indexing-status"),
-    fetchSS("/manage/document-set"),
-    fetchSS("/assistant"),
+    fetchSS(`/manage/indexing-status?teamspace_id=${params.teamspaceId}`),
+    fetchSS(`/manage/document-set?teamspace_id=${params.teamspaceId}`),
+    fetchSS(
+      `/assistant?include_default=false&teamspace_id=${params.teamspaceId}`
+    ),
     fetchSS("/query/valid-tags"),
     fetchSS("/secondary-index/get-embedding-models"),
     getCurrentTeamspaceUserSS(params.teamspaceId),

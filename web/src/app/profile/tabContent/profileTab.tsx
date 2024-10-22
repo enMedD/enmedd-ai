@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ProfileTab({
   user,
@@ -18,8 +19,10 @@ export default function ProfileTab({
   combinedSettings: CombinedSettings | null;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [companyName, setCompanyName] = useState(user?.company_name || "");
   const [email, setEmail] = useState(user?.email || "");
@@ -45,66 +48,78 @@ export default function ProfileTab({
   }, []);
 
   const handleSaveChanges = async () => {
-    const updatedUser = {
-      full_name: fullName,
-      company_name: companyName,
-    };
-    const response = await fetch("/api/users/me", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "PATCH",
-      body: JSON.stringify(updatedUser),
-    });
-    if (response.status == 200) {
-      toast({
-        title: "Successfully edited user information",
-        description: "You have successfully updated your personal information.",
-        variant: "success",
-      });
-    } else {
-      toast({
-        title: "Something went wrong during update",
-        description: `Error: ${response.statusText}`,
-        variant: "destructive",
-      });
-    }
+    setIsLoading(true);
 
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      setSelectedFile(null);
-      const uploadResponse = await fetch("/api/me/profile", {
-        method: "PUT",
-        body: formData,
+    try {
+      const updateResponse = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          company_name: companyName,
+        }),
       });
-      if (!uploadResponse.ok) {
-        const errorMsg = (await uploadResponse.json()).detail;
+
+      if (!updateResponse.ok) {
+        const error = await updateResponse.json();
         toast({
-          title: "Failed to upload logo.",
-          description: errorMsg,
+          title: "Update Failed",
+          description: error.detail || "Failed to update profile.",
           variant: "destructive",
         });
         return;
       }
+
+      // Upload logo if selected
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const uploadResponse = await fetch("/api/me/profile", {
+          method: "PUT",
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          const error = await uploadResponse.json();
+
+          toast({
+            title: "Profile Upload Failed",
+            description: error.detail,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      router.refresh();
+      toast({
+        title: "Success",
+        description: "Profile updated successfully.",
+        variant: "success",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    setIsEditing(false);
   };
 
-  const UploadProfilePhoto = () => {
+  const handleProfileUpload = () => {
     setIsEditing(true);
-
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = (e) => {
-      const target = e.target as HTMLInputElement;
-      if (target.files) {
-        const file = target.files[0];
-        setSelectedFile(file);
-      }
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) setSelectedFile(file);
     };
-    input.click();
+    fileInput.click();
   };
 
   const handleRemovePhoto = async () => {
@@ -113,6 +128,7 @@ export default function ProfileTab({
       method: "DELETE",
     });
     if (response.ok) {
+      router.refresh();
       setProfileImageUrl(null);
       toast({
         title: "Profile photo removed",
@@ -140,22 +156,22 @@ export default function ProfileTab({
             This will be displayed on your profile.
           </p>
         </div>
-        <div className="flex items-center justify-between gap-3 md:w-[100px] cursor-pointer">
+        <div className="flex items-center justify-between gap-3 cursor-pointer">
           <div
-            className="flex items-center justify-center rounded-full h-[65px] w-[65px] shrink-0 aspect-square text-2xl font-normal"
-            onClick={UploadProfilePhoto}
+            className="flex items-center justify-center rounded-full h-[65px] w-[65px] shrink-0 aspect-square text-2xl font-normal overflow-hidden"
+            onClick={handleProfileUpload}
           >
             {selectedFile ? (
               <img
                 src={URL.createObjectURL(selectedFile)}
-                alt="Profile"
-                className="rounded-full object-cover object-center h-[65px] w-[65px]"
+                alt="selected_teamspace_logo"
+                className="w-full h-full object-cover object-center"
               />
             ) : profileImageUrl ? (
               <img
                 src={profileImageUrl}
-                alt="Fetch Profile"
-                className="rounded-full object-cover object-center h-[65px] w-[65px]"
+                alt="current_teamspace_logo"
+                className="w-full h-full object-cover object-center"
               />
             ) : (
               <UserProfile size={65} user={user} textSize="text-2xl" />
@@ -163,15 +179,14 @@ export default function ProfileTab({
           </div>
 
           {isEditing && (selectedFile || profileImageUrl) && (
-            <div className="py-4">
-              <Button
-                variant="link"
-                className="text-destructive"
-                onClick={handleRemovePhoto}
-              >
-                Remove
-              </Button>
-            </div>
+            <Button
+              variant="link"
+              className="text-destructive"
+              onClick={handleRemovePhoto}
+              disabled={isLoading}
+            >
+              Remove
+            </Button>
           )}
         </div>
       </div>
@@ -249,13 +264,20 @@ export default function ProfileTab({
               variant="outline"
               className="border-destructive-foreground hover:bg-destructive-foreground"
               onClick={() => setIsEditing(false)}
+              disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button onClick={handleSaveChanges} disabled={isLoading}>
+              Save Changes
+            </Button>
           </>
         ) : (
-          <Button variant="outline" onClick={() => setIsEditing(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+            disabled={isLoading}
+          >
             Edit
           </Button>
         )}

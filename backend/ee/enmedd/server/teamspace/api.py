@@ -20,6 +20,7 @@ from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
 from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import Teamspace as TeamspaceModel
@@ -81,7 +82,7 @@ def create_teamspace(
 def patch_teamspace(
     teamspace_id: int,
     teamspace: TeamspaceUpdate,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     try:
@@ -95,7 +96,7 @@ def patch_teamspace(
 @admin_router.delete("/admin/teamspace/{teamspace_id}")
 def delete_teamspace(
     teamspace_id: int,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     try:
@@ -108,7 +109,7 @@ def delete_teamspace(
 def update_teamspace_name(
     teamspace_id: int,
     teamspace_update: TeamspaceUpdateName,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     db_teamspace = fetch_teamspace(db_session, teamspace_id)
@@ -141,7 +142,7 @@ def update_teamspace_name(
 def update_teamspace_user_role(
     teamspace_id: int,
     body: UpdateUserRoleRequest,
-    user: User = Depends(current_admin_user),
+    user: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_update = get_user_by_email(email=body.user_email, db_session=db_session)
@@ -180,7 +181,7 @@ def update_teamspace_user_role(
 def put_teamspace_logo(
     teamspace_id: int,
     file: UploadFile,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     upload_teamspace_logo(teamspace_id=teamspace_id, file=file, db_session=db_session)
@@ -189,7 +190,7 @@ def put_teamspace_logo(
 @admin_router.delete("/admin/teamspace/logo")
 def remove_teamspace_logo(
     teamspace_id: int,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     try:

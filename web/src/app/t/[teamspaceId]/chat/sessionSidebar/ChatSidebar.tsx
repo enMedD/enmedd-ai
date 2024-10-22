@@ -12,7 +12,7 @@ import {
 import { useContext, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ChatSession } from "../interfaces";
 
 import { NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT } from "@/lib/constants";
@@ -48,6 +48,7 @@ export const ChatSidebar = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const currentChatId = currentChatSession?.id;
 
@@ -62,7 +63,7 @@ export const ChatSidebar = ({
       key: "k",
       handler: () => {
         router.push(
-          "/chat" +
+          `/t/${teamspaceId}/chat` +
             (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
             currentChatSession
               ? `?assistantId=${currentChatSession.assistant_id}`
@@ -74,7 +75,7 @@ export const ChatSidebar = ({
     {
       key: "i",
       handler: () => {
-        createFolder("New Folder")
+        createFolder("New Folder", teamspaceId)
           .then((folderId) => {
             console.log(`Folder created with ID: ${folderId}`);
             router.refresh();
@@ -135,7 +136,7 @@ export const ChatSidebar = ({
             <Separator className="mb-4" />
             {settings.search_page_enabled && (
               <Link
-                href="/search"
+                href={`/t/${teamspaceId}/search`}
                 className="flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2 justify-between"
               >
                 <div className="flex items-center gap-2">
@@ -150,7 +151,7 @@ export const ChatSidebar = ({
             {settings.chat_page_enabled && (
               <>
                 <Link
-                  href="/chat"
+                  href={`/t/${teamspaceId}/chat`}
                   className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer items-center gap-2 justify-between ${
                     !isAssistant
                       ? "bg-primary text-white"
@@ -196,7 +197,7 @@ export const ChatSidebar = ({
         <div className="flex items-center gap-3 px-4 pt-5 mt-auto">
           <Link
             href={
-              "/chat" +
+              `/t/${teamspaceId}/chat` +
               (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
               currentChatSession
                 ? `?assistantId=${currentChatSession.assistant_id}`
@@ -217,7 +218,7 @@ export const ChatSidebar = ({
               trigger={
                 <Button
                   onClick={() =>
-                    createFolder("New Folder")
+                    createFolder("New Folder", teamspaceId)
                       .then((folderId) => {
                         console.log(`Folder created with ID: ${folderId}`);
                         router.refresh();
