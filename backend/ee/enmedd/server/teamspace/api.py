@@ -23,7 +23,6 @@ from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
 from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_curator_or_admin_user
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session
@@ -44,7 +43,7 @@ basic_router = APIRouter(prefix="/teamspace")
 @admin_router.get("/admin/teamspace/{teamspace_id}")
 def get_teamspace_by_id(
     teamspace_id: int,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     db_teamspace = fetch_teamspace(db_session, teamspace_id)
@@ -57,7 +56,7 @@ def get_teamspace_by_id(
 
 @admin_router.get("/admin/teamspace")
 def list_teamspaces(
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[Teamspace]:
     if user is None or user.role == UserRole.ADMIN:
