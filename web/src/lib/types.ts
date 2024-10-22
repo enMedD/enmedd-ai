@@ -209,6 +209,7 @@ export interface Teamspace {
   assistants: Assistant[];
   is_up_to_date: boolean;
   is_up_for_deletion: boolean;
+  is_custom_logo: boolean;
 }
 
 export interface MinimalTeamspaceSnapshot {

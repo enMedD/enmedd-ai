@@ -3,12 +3,13 @@
 import { usePopup } from "@/components/admin/connectors/Popup";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Button, Divider, Text } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { useState } from "react";
 import AddPromptModal from "./modals/AddPromptModal";
 import EditPromptModal from "./modals/EditPromptModal";
 import { PromptLibraryTable } from "./promptLibrary";
 import { CreateInputPromptRequest, InputPrompt } from "./interfaces";
+import { Button } from "@/components/ui/button";
 
 export const PromptSection = ({
   promptLibrary,
@@ -110,7 +111,7 @@ export const PromptSection = ({
         />
       )}
       <div className={centering ? "max-w-sm mx-auto" : ""}>
-        <Text className="mb-2 my-auto">
+        <Text className="my-auto mb-2">
           Create prompts that can be accessed with the <i>`/`</i> shortcut in
           enMedD AI Chat.{" "}
           {isPublic
@@ -124,8 +125,6 @@ export const PromptSection = ({
       <Button
         onClick={() => setNewPrompt(true)}
         className={centering ? "mx-auto" : ""}
-        color="green"
-        size="xs"
       >
         New Prompt
       </Button>

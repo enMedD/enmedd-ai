@@ -28,7 +28,7 @@ export const EnmeddApiKeyForm = ({
   return (
     <Modal onOutsideClick={onClose} width="w-2/6">
       <>
-        <h2 className="text-xl font-bold flex">
+        <h2 className="flex text-xl font-bold">
           {isUpdate ? "Update API Key" : "Create a new API Key"}
         </h2>
 

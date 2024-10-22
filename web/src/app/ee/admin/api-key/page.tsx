@@ -172,7 +172,7 @@ function Main() {
         <CardContent className="p-0">
           <Table className="overflow-visible">
             <TableHeader>
-              <TableRow>
+              <TableRow className="text-sm">
                 <TableHead>Name</TableHead>
                 <TableHead>API Key</TableHead>
                 <TableHead>Role</TableHead>
@@ -183,15 +183,23 @@ function Main() {
             <TableBody>
               {apiKeys.map((apiKey) => (
                 <TableRow key={apiKey.api_key_id}>
-                  <TableCell className="max-w-[200px] truncate">
-                    <Button
-                      variant="ghost"
-                      className="w-full truncate"
-                      onClick={() => handleEdit(apiKey)}
+                  <TableCell>
+                    <CustomTooltip
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleEdit(apiKey)}
+                          className="truncate max-w-[400px]"
+                        >
+                          <Pencil size={14} />
+                          <p className="w-full truncate">
+                            {apiKey.api_key_name || <i>null</i>}
+                          </p>
+                        </Button>
+                      }
                     >
-                      <Pencil size={14} />
                       {apiKey.api_key_name || <i>null</i>}
-                    </Button>
+                    </CustomTooltip>
                   </TableCell>
                   <TableCell className="max-w-64">
                     {apiKey.api_key_display}
@@ -200,17 +208,8 @@ function Main() {
                     {apiKey.api_key_role.toUpperCase()}
                   </TableCell>
                   <TableCell>
-                    <div
-                      className={`
-                  my-auto 
-                  flex 
-                  mb-1 
-                  w-fit 
-                  hover:bg-hover cursor-pointer
-                  p-2 
-                  rounded-lg
-                  border-border
-                  text-sm`}
+                    <Button
+                      variant="ghost"
                       onClick={async () => {
                         setKeyIsGenerating(true);
                         const response = await regenerateApiKey(apiKey);
@@ -230,7 +229,7 @@ function Main() {
                     >
                       <FiRefreshCw className="my-auto mr-1" />
                       Refresh
-                    </div>
+                    </Button>
                   </TableCell>
                   <TableCell>
                     <DeleteButton

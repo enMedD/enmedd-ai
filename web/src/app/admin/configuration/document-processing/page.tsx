@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card } from "@tremor/react";
+import { Card } from "@tremor/react";
 import { DocumentIcon2 } from "@/components/icons/icons";
 import useSWR from "swr";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Lock } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 function Main() {
   const {
@@ -52,9 +54,9 @@ function Main() {
     return <ThreeDotsLoader />;
   }
   return (
-    <div className="container mx-auto p-4">
-      <Card className="mb-8 max-w-2xl bg-white text-text shadow-lg rounded-lg">
-        <h3 className="text-2xl text-text-800 font-bold mb-4 text-text border-b border-b-border pb-2">
+    <div className="container p-4 mx-auto">
+      <Card className="max-w-2xl mb-8 bg-white rounded-lg shadow-lg text-text">
+        <h3 className="pb-2 mb-4 text-2xl font-bold border-b text-text-800 text-text border-b-border">
           Process with Unstructured API
         </h3>
 
@@ -74,7 +76,7 @@ function Main() {
               href="https://unstructured.io/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline font-medium"
+              className="font-medium text-blue-500 hover:underline"
             >
               here
             </a>
@@ -82,42 +84,31 @@ function Main() {
           </p>
           <div className="mt-4">
             {isApiKeySet ? (
-              <div className="w-full p-3 border rounded-md bg-background text-text flex items-center">
+              <div className="flex items-center w-full p-3 border rounded-md bg-background text-text">
                 <span className="flex-grow">••••••••••••••••</span>
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="w-5 h-5 text-gray-400" />
               </div>
             ) : (
-              <input
+              <Input
                 type="text"
                 placeholder="Enter API Key"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                className="w-full p-3 border rounded-md bg-background text-text focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
             )}
           </div>
-          <div className="flex space-x-4 mt-6">
+          <div className="flex mt-6 space-x-4">
             {isApiKeySet ? (
               <>
-                <Button
-                  color="red"
-                  onClick={handleDelete}
-                  variant="secondary"
-                  className="bg-red-100 text-red-600 hover:bg-red-400 transition duration-200"
-                >
+                <Button variant="destructive" onClick={handleDelete}>
                   Delete API Key
                 </Button>
-                <p className="text-text-600 my-auto">
+                <p className="my-auto text-text-600">
                   Delete the current API key before updating.
                 </p>
               </>
             ) : (
-              <Button
-                onClick={handleSave}
-                className="bg-blue-500 text-white hover:bg-blue-600 transition duration-200"
-              >
-                Save API Key
-              </Button>
+              <Button onClick={handleSave}>Save API Key</Button>
             )}
           </div>
         </div>
@@ -128,7 +119,7 @@ function Main() {
 
 function Page() {
   return (
-    <div className="mx-auto container">
+    <div className="container mx-auto">
       <AdminPageTitle
         title="Document Processing"
         icon={<DocumentIcon2 size={32} className="my-auto" />}
