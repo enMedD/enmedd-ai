@@ -15,7 +15,6 @@ from fastapi import Response
 from fastapi import status
 from fastapi import UploadFile
 from fastapi_users.password import PasswordHelper
-from file_store.file_store import get_default_file_store
 from pydantic import BaseModel
 from sqlalchemy import Column
 from sqlalchemy import delete
@@ -59,6 +58,7 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
+from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.server.manage.models import AllUsersResponse
 from enmedd.server.manage.models import OTPVerificationRequest
