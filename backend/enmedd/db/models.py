@@ -669,8 +669,6 @@ class Credential(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    curator_public: Mapped[bool] = mapped_column(Boolean, default=False)
-
     connectors: Mapped[list["ConnectorCredentialPair"]] = relationship(
         "ConnectorCredentialPair",
         back_populates="credential",
@@ -1224,6 +1222,7 @@ class LLMProvider(Base):
     model_names: Mapped[list[str] | None] = mapped_column(
         postgresql.ARRAY(String), nullable=True
     )
+    deployment_name: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # should only be set for a single provider
     is_default_provider: Mapped[bool | None] = mapped_column(Boolean, unique=True)
@@ -1566,8 +1565,6 @@ class SamlAccount(Base):
 
 class User__Teamspace(Base):
     __tablename__ = "user__teamspace"
-
-    is_curator: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     teamspace_id: Mapped[int] = mapped_column(
         ForeignKey("teamspace.id"), primary_key=True
