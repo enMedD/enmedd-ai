@@ -173,7 +173,7 @@ def insert_global_token_rate_limit(
 def insert_teamspace_token_rate_limit(
     db_session: Session,
     token_rate_limit_settings: TokenRateLimitArgs,
-    group_id: int,
+    team_id: int,
 ) -> TokenRateLimit:
     token_limit = TokenRateLimit(
         enabled=token_rate_limit_settings.enabled,
@@ -185,7 +185,7 @@ def insert_teamspace_token_rate_limit(
     db_session.flush()
 
     rate_limit = TokenRateLimit__Teamspace(
-        rate_limit_id=token_limit.id, teamspace_id=group_id
+        rate_limit_id=token_limit.id, teamspace_id=team_id
     )
     db_session.add(rate_limit)
     db_session.commit()

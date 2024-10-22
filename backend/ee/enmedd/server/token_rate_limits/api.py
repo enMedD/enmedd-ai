@@ -43,23 +43,23 @@ def get_all_group_token_limit_settings(
     return dict(token_rate_limits_by_teamspace)
 
 
-@router.get("/user-group/{group_id}")
+@router.get("/teamspace/{team_id}")
 def get_group_token_limit_settings(
-    group_id: int,
+    team_id: int,
     user: User | None = Depends(current_curator_or_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[TokenRateLimitDisplay]:
     return [
         TokenRateLimitDisplay.from_db(token_rate_limit)
         for token_rate_limit in fetch_teamspace_token_rate_limits(
-            db_session, group_id, user
+            db_session, team_id, user
         )
     ]
 
 
-@router.post("/user-group/{group_id}")
+@router.post("/teamspace/{team_id}")
 def create_group_token_limit_settings(
-    group_id: int,
+    team_id: int,
     token_limit_settings: TokenRateLimitArgs,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
@@ -68,7 +68,7 @@ def create_group_token_limit_settings(
         insert_teamspace_token_rate_limit(
             db_session=db_session,
             token_rate_limit_settings=token_limit_settings,
-            group_id=group_id,
+            team_id=team_id,
         )
     )
     # clear cache in case this was the first rate limit created
