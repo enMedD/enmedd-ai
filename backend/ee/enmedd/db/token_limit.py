@@ -40,21 +40,15 @@ def _add_user_filters(
     """
     Filter token_rate_limits by:
     - if the user is in the teamspace that owns the token_rate_limit
-    - if the user is not a global_curator, they must also have a curator relationship
-    to the teamspace
     - if editing is being done, we also filter out token_rate_limits that are owned by groups
-    that the user isn't a curator for
-    - if we are not editing, we show all token_rate_limits in the groups the user curates
+    that the user isn't associated with
+    - if we are not editing, we show all token_rate_limits in the groups the user is associated with
     """
     where_clause = User__UG.user_id == user.id
-    if user.role == UserRole.CURATOR and get_editable:
-        where_clause &= User__UG.is_curator == True  # noqa: E712
+
     if get_editable:
         teamspaces = select(User__UG.teamspace_id).where(User__UG.user_id == user.id)
-        if user.role == UserRole.CURATOR:
-            teamspaces = teamspaces.where(
-                User__Teamspace.is_curator == True  # noqa: E712
-            )
+
         where_clause &= (
             ~exists()
             .where(TRLimit_UG.rate_limit_id == TokenRateLimit.id)

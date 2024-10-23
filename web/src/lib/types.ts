@@ -37,6 +37,7 @@ export interface User {
   is_active: string;
   is_superuser: string;
   is_verified: string;
+  is_custom_profile: string;
   role: UserRole;
   workspace?: Workspace;
   full_name?: string;
@@ -209,6 +210,12 @@ export interface Teamspace {
   assistants: Assistant[];
   is_up_to_date: boolean;
   is_up_for_deletion: boolean;
+  is_custom_logo: boolean;
+}
+
+export interface MinimalTeamspaceSnapshot {
+  id: number;
+  name: string;
   is_custom_logo: boolean;
 }
 
