@@ -30,6 +30,7 @@ class Teamspace(BaseModel):
     chat_sessions: list[ChatSessionDetails]
     is_up_to_date: bool
     is_up_for_deletion: bool
+    is_custom_logo: bool = False
     workspace: list[MinimalWorkspaceSnapshot]
     token_rate_limit: Optional[TokenRateLimitDisplay] = None
     settings: Optional[TeamspaceSettings] = None
@@ -142,11 +143,6 @@ class TeamspaceUpdate(BaseModel):
     cc_pair_ids: Optional[List[int]] = None
     document_set_ids: Optional[List[int]] = None
     assistant_ids: Optional[List[int]] = None
-
-
-class SetCuratorRequest(BaseModel):
-    user_id: UUID
-    is_curator: bool
 
 
 class TeamspaceUpdateName(BaseModel):

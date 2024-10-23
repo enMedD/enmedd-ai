@@ -61,11 +61,7 @@ export async function fetchChatData(
         ? `/manage/document-set?teamspace_id=${teamspaceId}`
         : "/manage/document-set"
     ),
-    fetchSS(
-      teamspaceId
-        ? `/assistant?include_default=false&teamspace_id=${teamspaceId}`
-        : "/assistant?include_default=true"
-    ),
+    teamspaceId ? fetchAssistantsSS(teamspaceId) : fetchAssistantsSS(),
     fetchSS(
       teamspaceId
         ? `/chat/get-user-chat-sessions?teamspace_id=${teamspaceId}`
@@ -75,7 +71,7 @@ export async function fetchChatData(
     fetchLLMProvidersSS(),
     fetchSS(teamspaceId ? `/folder?teamspace_id=${teamspaceId}` : "/folder"),
     fetchSS("/input_prompt?include_public=true"),
-    getCurrentTeamspaceUserSS(teamspaceId!),
+    teamspaceId ? getCurrentTeamspaceUserSS(teamspaceId) : null,
   ];
 
   let results: (

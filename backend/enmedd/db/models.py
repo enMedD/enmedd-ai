@@ -114,6 +114,9 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     company_email: Mapped[str] = mapped_column(String, nullable=True)
     company_billing: Mapped[str] = mapped_column(Text, nullable=True)
     billing_email_address: Mapped[str] = mapped_column(String, nullable=True)
+    is_custom_profile: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
     vat: Mapped[str] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -665,8 +668,6 @@ class Credential(Base):
     time_updated: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
-
-    curator_public: Mapped[bool] = mapped_column(Boolean, default=False)
 
     connectors: Mapped[list["ConnectorCredentialPair"]] = relationship(
         "ConnectorCredentialPair",
@@ -1221,6 +1222,7 @@ class LLMProvider(Base):
     model_names: Mapped[list[str] | None] = mapped_column(
         postgresql.ARRAY(String), nullable=True
     )
+    deployment_name: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # should only be set for a single provider
     is_default_provider: Mapped[bool | None] = mapped_column(Boolean, unique=True)
@@ -1564,8 +1566,6 @@ class SamlAccount(Base):
 class User__Teamspace(Base):
     __tablename__ = "user__teamspace"
 
-    is_curator: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-
     teamspace_id: Mapped[int] = mapped_column(
         ForeignKey("teamspace.id"), primary_key=True
     )
@@ -1658,6 +1658,7 @@ class Teamspace(Base):
     is_up_for_deletion: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
+    is_custom_logo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     users: Mapped[list[User]] = relationship(
         "User", secondary=User__Teamspace.__table__, viewonly=True

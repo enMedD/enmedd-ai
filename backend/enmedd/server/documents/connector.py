@@ -15,7 +15,6 @@ from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import validate_user_creation_permissions
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_curator_or_admin_user
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.background.celery.celery_utils import get_deletion_attempt_snapshot
@@ -83,6 +82,7 @@ from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
 from enmedd.server.documents.models import AuthStatus
 from enmedd.server.documents.models import AuthUrl
+from enmedd.server.documents.models import ConnectorBase
 from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
 from enmedd.server.documents.models import ConnectorIndexingStatus
 from enmedd.server.documents.models import ConnectorSnapshot
@@ -116,7 +116,7 @@ router = APIRouter(prefix="/manage")
 
 @router.get("/admin/connector/gmail/app-credential")
 def check_google_app_gmail_credentials_exist(
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
 ) -> dict[str, str]:
     try:
         return {"client_id": get_google_app_gmail_cred().web.client_id}
@@ -154,7 +154,7 @@ def delete_google_app_gmail_credentials(
 
 @router.get("/admin/connector/google-drive/app-credential")
 def check_google_app_credentials_exist(
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
 ) -> dict[str, str]:
     try:
         return {"client_id": get_google_app_cred().web.client_id}
@@ -192,7 +192,7 @@ def delete_google_app_credentials(
 
 @router.get("/admin/connector/gmail/service-account-key")
 def check_google_service_gmail_account_key_exist(
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
 ) -> dict[str, str]:
     try:
         return {"service_account_email": get_gmail_service_account_key().client_email}
@@ -232,7 +232,7 @@ def delete_google_service_gmail_account_key(
 
 @router.get("/admin/connector/google-drive/service-account-key")
 def check_google_service_account_key_exist(
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
 ) -> dict[str, str]:
     try:
         return {"service_account_email": get_service_account_key().client_email}
@@ -273,7 +273,7 @@ def delete_google_service_account_key(
 @router.put("/admin/connector/google-drive/service-account-credential")
 def upsert_service_account_credential(
     service_account_credential_request: GoogleServiceAccountCredentialRequest,
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> ObjectCreationIdResponse:
     """Special API which allows the creation of a credential for a service account.
@@ -299,7 +299,7 @@ def upsert_service_account_credential(
 @router.put("/admin/connector/gmail/service-account-credential")
 def upsert_gmail_service_account_credential(
     service_account_credential_request: GoogleServiceAccountCredentialRequest,
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> ObjectCreationIdResponse:
     """Special API which allows the creation of a credential for a service account.
@@ -360,7 +360,7 @@ def admin_google_drive_auth(
 @router.post("/admin/connector/file/upload")
 def upload_files(
     files: list[UploadFile],
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> FileUploadResponse:
     for file in files:
@@ -388,7 +388,7 @@ def upload_files(
 @router.get("/admin/connector/failed-indexing-status")
 def get_currently_failed_indexing_status(
     secondary_index: bool = False,
-    user: User = Depends(current_curator_or_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
     get_editable: bool = Query(
         False, description="If true, return editable document sets"
@@ -629,25 +629,14 @@ def _validate_connector_allowed(source: DocumentSource) -> None:
 
 @router.post("/admin/connector")
 def create_connector_from_model(
-    connector_data: ConnectorUpdateRequest,
-    user: User = Depends(current_curator_or_admin_user),
+    connector_data: ConnectorBase,
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> ObjectCreationIdResponse:
     try:
         _validate_connector_allowed(connector_data.source)
-        validate_user_creation_permissions(
-            db_session=db_session,
-            user=user,
-            target_group_ids=connector_data.groups,
-            object_is_public=connector_data.is_public,
-        )
-        connector_base = connector_data.to_connector_base()
-        return create_connector(
-            db_session=db_session,
-            connector_data=connector_base,
-        )
+        return create_connector(connector_data, db_session)
     except ValueError as e:
-        logger.error(f"Error creating connector: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -655,7 +644,7 @@ def create_connector_from_model(
 @router.post("/admin/connector-with-mock-credential")
 def create_connector_with_mock_credential(
     connector_data: ConnectorUpdateRequest,
-    user: User = Depends(current_curator_or_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> StatusResponse:
     if user and user.role != UserRole.ADMIN:
@@ -702,7 +691,7 @@ def create_connector_with_mock_credential(
 def update_connector_from_model(
     connector_id: int,
     connector_data: ConnectorUpdateRequest,
-    user: User = Depends(current_curator_or_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> ConnectorSnapshot | StatusResponse[int]:
     try:
@@ -743,7 +732,7 @@ def update_connector_from_model(
 @router.delete("/admin/connector/{connector_id}", response_model=StatusResponse[int])
 def delete_connector_by_id(
     connector_id: int,
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> StatusResponse[int]:
     try:
@@ -759,7 +748,7 @@ def delete_connector_by_id(
 @router.post("/admin/connector/run-once")
 def connector_run_once(
     run_info: RunConnectorRequest,
-    _: User = Depends(current_curator_or_admin_user),
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> StatusResponse[list[int]]:
     connector_id = run_info.connector_id

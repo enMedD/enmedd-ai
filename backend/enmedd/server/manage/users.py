@@ -15,7 +15,6 @@ from fastapi import Response
 from fastapi import status
 from fastapi import UploadFile
 from fastapi_users.password import PasswordHelper
-from file_store.file_store import get_default_file_store
 from pydantic import BaseModel
 from sqlalchemy import Column
 from sqlalchemy import delete
@@ -27,15 +26,15 @@ from sqlalchemy.orm import Session
 
 from ee.enmedd.db.api_key import is_api_key_email_address
 from ee.enmedd.db.external_perm import delete_user__ext_teamspace_for_user__no_commit
-from ee.enmedd.db.teamspace import remove_curator_status__no_commit
 from ee.enmedd.server.workspace.store import _PROFILE_FILENAME
 from ee.enmedd.server.workspace.store import upload_profile
+from enmedd.auth.invited_users import generate_invite_email
 from enmedd.auth.invited_users import get_invited_users
+from enmedd.auth.invited_users import send_invite_user_email
 from enmedd.auth.invited_users import write_invited_users
 from enmedd.auth.noauth_user import fetch_no_auth_user
 from enmedd.auth.noauth_user import set_no_auth_user_preferences
 from enmedd.auth.schemas import ChangePassword
-from enmedd.auth.schemas import UserRole
 from enmedd.auth.schemas import UserStatus
 from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_teamspace_admin_user
@@ -46,6 +45,7 @@ from enmedd.auth.utils import send_2fa_email
 from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
 from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
+from enmedd.configs.app_configs import WEB_DOMAIN
 from enmedd.configs.constants import AuthType
 from enmedd.db.engine import get_async_session
 from enmedd.db.engine import get_session
@@ -59,6 +59,7 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
+from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.server.manage.models import AllUsersResponse
 from enmedd.server.manage.models import OTPVerificationRequest
@@ -176,12 +177,6 @@ def set_user_role(
     if not user_to_update:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if user_role_update_request.new_role == UserRole.CURATOR:
-        raise HTTPException(
-            status_code=400,
-            detail="Curator role must be set via the User Group Menu",
-        )
-
     if user_to_update.role == user_role_update_request.new_role:
         return
 
@@ -190,9 +185,6 @@ def set_user_role(
             status_code=400,
             detail="An admin cannot demote themselves from admin role!",
         )
-
-    if user_to_update.role == UserRole.CURATOR:
-        remove_curator_status__no_commit(db_session, user_to_update)
 
     user_to_update.role = user_role_update_request.new_role.value
 
@@ -236,6 +228,7 @@ def list_all_users(
                     company_email=user.company_email,
                     company_name=user.company_name,
                     vat=user.vat,
+                    is_custom_profile=user.is_custom_profile,
                 )
                 for user, role in users_with_roles
                 if not is_api_key_email_address(user.email)
@@ -278,6 +271,7 @@ def list_all_users(
                     company_email=user.company_email,
                     company_name=user.company_name,
                     vat=user.vat,
+                    is_custom_profile=user.is_custom_profile,
                 )
                 for user in users_with_roles
             ],
@@ -299,6 +293,7 @@ def list_all_users(
                 company_email=user.company_email,
                 company_name=user.company_name,
                 vat=user.vat,
+                is_custom_profile=user.is_custom_profile,
             )
             for user in users_with_roles
         ][accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE],
@@ -324,8 +319,11 @@ def bulk_invite_users(
 
     normalized_emails = []
     for email in emails:
-        email_info = validate_email(email)  # can raise EmailNotValidError
-        normalized_emails.append(email_info.normalized)  # type: ignore
+        email_info = validate_email(email)
+        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email_info.email}"
+        subject, body = generate_invite_email(signup_link)
+        send_invite_user_email(email, subject, body)
+        normalized_emails.append(email_info.normalized)
     all_emails = list(set(normalized_emails) | set(get_invited_users()))
     return write_invited_users(all_emails)
 
@@ -470,7 +468,12 @@ def list_all_users_basic_info(
     db_session: Session = Depends(get_session),
 ) -> list[MinimalUserSnapshot]:
     users = list_users(db_session)
-    return [MinimalUserSnapshot(id=user.id, email=user.email) for user in users]
+    return [
+        MinimalUserSnapshot(
+            id=user.id, email=user.email, is_custom_profile=user.is_custom_profile
+        )
+        for user in users
+    ]
 
 
 @router.get("/get-user-role")
@@ -534,13 +537,17 @@ def fetch_profile(
 def remove_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),  # Get the current user
-) -> None:
+) -> dict:
     try:
         file_name = f"{current_user.id}/{_PROFILE_FILENAME}"
 
         file_store = get_default_file_store(db_session)
 
         file_store.delete_file(file_name)
+
+        current_user.is_custom_profile = False
+        db_session.merge(current_user)
+        db_session.commit()
 
         return {"detail": "Profile picture removed successfully."}
     except Exception as e:

@@ -3,7 +3,6 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
 from fastapi import UploadFile
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import fetch_teamspace
@@ -12,8 +11,6 @@ from ee.enmedd.db.teamspace import fetch_teamspaces_for_user
 from ee.enmedd.db.teamspace import insert_teamspace
 from ee.enmedd.db.teamspace import prepare_teamspace_for_deletion
 from ee.enmedd.db.teamspace import update_teamspace
-from ee.enmedd.db.teamspace import update_user_curator_relationship
-from ee.enmedd.server.teamspace.models import SetCuratorRequest
 from ee.enmedd.server.teamspace.models import Teamspace
 from ee.enmedd.server.teamspace.models import TeamspaceCreate
 from ee.enmedd.server.teamspace.models import TeamspaceUpdate
@@ -23,7 +20,6 @@ from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
 from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_curator_or_admin_user
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session
@@ -44,7 +40,7 @@ basic_router = APIRouter(prefix="/teamspace")
 @admin_router.get("/admin/teamspace/{teamspace_id}")
 def get_teamspace_by_id(
     teamspace_id: int,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     db_teamspace = fetch_teamspace(db_session, teamspace_id)
@@ -57,7 +53,7 @@ def get_teamspace_by_id(
 
 @admin_router.get("/admin/teamspace")
 def list_teamspaces(
-    user: User | None = Depends(current_curator_or_admin_user),
+    user: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[Teamspace]:
     if user is None or user.role == UserRole.ADMIN:
@@ -66,7 +62,6 @@ def list_teamspaces(
         teamspaces = fetch_teamspaces_for_user(
             db_session=db_session,
             user_id=user.id,
-            only_curator_groups=user.role == UserRole.CURATOR,
         )
     return [Teamspace.from_model(teamspace) for teamspace in teamspaces]
 
@@ -74,18 +69,17 @@ def list_teamspaces(
 @admin_router.post("/admin/teamspace")
 def create_teamspace(
     teamspace: TeamspaceCreate,
-    _: User | None = Depends(current_admin_user),
+    current_user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
-    try:
-        # TODO: revert it back to having creator id
-        db_teamspace = insert_teamspace(db_session, teamspace)
-    except IntegrityError:
-        raise HTTPException(
-            400,
-            f"Teamspace with name '{teamspace.name}' already exists. Please "
-            + "choose a different name.",
-        )
+    # try:
+    db_teamspace = insert_teamspace(db_session, teamspace, creator_id=current_user.id)
+    # except IntegrityError:
+    #     raise HTTPException(
+    #         400,
+    #         f"Teamspace with name '{teamspace.name}' already exists. Please "
+    #         + "choose a different name.",
+    #     )
     return Teamspace.from_model(db_teamspace)
 
 
@@ -101,24 +95,6 @@ def patch_teamspace(
             update_teamspace(db_session, teamspace_id, teamspace)
         )
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@basic_router.post("/admin/teamspace/{teamspace_id}/set-curator")
-def set_user_curator(
-    teamspace_id: int,
-    set_curator_request: SetCuratorRequest,
-    _: User | None = Depends(current_admin_user),
-    db_session: Session = Depends(get_session),
-) -> None:
-    try:
-        update_user_curator_relationship(
-            db_session=db_session,
-            teamspace_id=teamspace_id,
-            set_curator_request=set_curator_request,
-        )
-    except ValueError as e:
-        logger.error(f"Error setting user curator: {e}")
         raise HTTPException(status_code=404, detail=str(e))
 
 
@@ -223,12 +199,21 @@ def remove_teamspace_logo(
     db_session: Session = Depends(get_session),
 ) -> None:
     try:
+        teamspace = db_session.query(Teamspace).filter_by(id=teamspace_id).first()
+        if not teamspace:
+            raise HTTPException(status_code=404, detail="Teamspace not found")
+
         file_name = f"{teamspace_id}/{_LOGO_FILENAME}"
 
         file_store = get_default_file_store(db_session)
         file_store.delete_file(file_name)
 
+        teamspace.is_custom_logo = False
+        db_session.merge(teamspace)
+        db_session.commit()
+
         return {"detail": "Teamspace logo removed successfully."}
+
     except Exception as e:
         logger.error(f"Error removing teamspace logo: {str(e)}")
         raise HTTPException(status_code=404, detail="Teamspace logo not found.")
