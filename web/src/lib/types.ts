@@ -163,7 +163,7 @@ export interface DocumentSet {
   is_up_to_date: boolean;
   is_public: boolean;
   users: string[];
-  teamspace: number[];
+  groups: number[];
 }
 
 export interface Tag {

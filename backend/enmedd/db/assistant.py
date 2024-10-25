@@ -167,7 +167,7 @@ def create_update_assistant(
         versioned_make_assistant_private(
             assistant_id=assistant.id,
             user_ids=create_assistant_request.users,
-            group_ids=create_assistant_request.groups,
+            team_ids=create_assistant_request.groups,
             db_session=db_session,
         )
 

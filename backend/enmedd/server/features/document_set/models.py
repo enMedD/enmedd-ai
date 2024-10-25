@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import Field
 
 from enmedd.db.models import DocumentSet as DocumentSetDBModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
@@ -18,8 +19,8 @@ class DocumentSetCreationRequest(BaseModel):
     cc_pair_ids: List[int]
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: Optional[List[UUID]] = None
-    groups: Optional[List[int]] = None
+    users: list[UUID] = Field(default_factory=list)
+    groups: list[int] = Field(default_factory=list)
 
 
 class DocumentSetUpdateRequest(BaseModel):
