@@ -29,7 +29,7 @@ export const TeamspaceContent = ({
 }: {
   assistants: Assistant[];
   onClick: (teamspaceId: number) => void;
-  data: Teamspace[] | undefined;
+  data: Teamspace[];
   refreshTeamspaces: () => void;
   ccPairs: ConnectorIndexingStatus<any, any>[];
   users: UsersResponse;
@@ -38,7 +38,7 @@ export const TeamspaceContent = ({
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredTeamspaces = data!.filter((teamspace) =>
+  const filteredTeamspaces = data.filter((teamspace) =>
     teamspace.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

@@ -83,7 +83,9 @@ export function ChatDocumentDisplay({
                       </CustomTooltip>
                     </div>
                   )}
-                  <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
+                  <Badge variant={badgeVariant}>
+                    {document.score.toFixed()}%
+                  </Badge>
                 </div>
               ))}
             {!isInternet && (
@@ -99,12 +101,12 @@ export function ChatDocumentDisplay({
           <DocumentMetadataBlock document={document} />
         )}
 
-        <p className="break-words whitespace-normal pt-2">
+        <div className="break-words whitespace-normal pt-2">
           {buildDocumentSummaryDisplay(
             document.match_highlights,
             document.blurb
           )}
-        </p>
+        </div>
       </div>
     </div>
   );
