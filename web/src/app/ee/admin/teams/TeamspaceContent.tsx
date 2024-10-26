@@ -31,7 +31,7 @@ export const TeamspaceContent = ({
   onClick: (teamspaceId: number) => void;
   data: Teamspace[] | undefined;
   refreshTeamspaces: () => void;
-  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
+  ccPairs: ConnectorIndexingStatus<any, any>[];
   users: UsersResponse;
   documentSets: DocumentSet[] | undefined;
 }) => {
