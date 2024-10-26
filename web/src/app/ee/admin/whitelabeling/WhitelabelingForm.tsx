@@ -220,7 +220,8 @@ export function WhitelabelingForm() {
 
             <div className="pt-2" />
 
-            <AdvancedOptionsToggle
+            {/* TODO: polish the features here*/}
+            {/* <AdvancedOptionsToggle
               showAdvancedOptions={showAdvancedOptions}
               setShowAdvancedOptions={setShowAdvancedOptions}
             />
@@ -364,7 +365,7 @@ export function WhitelabelingForm() {
                   />
                 </div>
               </div>
-            )}
+            )} */}
 
             <div className="pt-2" />
 
