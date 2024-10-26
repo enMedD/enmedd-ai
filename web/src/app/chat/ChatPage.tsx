@@ -122,6 +122,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useAssistants } from "@/context/AssistantsContext";
+import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -149,9 +150,10 @@ export function ChatPage({
   } = useChatContext();
 
   const { toast } = useToast();
-  const { user, refreshUser, isLoadingUser } = useUser();
 
   const [showApiKeyModal, setShowApiKeyModal] = useState(true);
+
+  const { user, isAdmin, isLoadingUser } = useUser();
 
   const existingChatIdRaw = searchParams.get("chatId");
   const currentAssistantId = searchParams.get(SEARCH_PARAM_NAMES.ASSISTANT_ID);
@@ -227,6 +229,8 @@ export function ChatPage({
     selectedAssistant ||
     finalAssistants[0] ||
     availableAssistants[0];
+
+  const noAssistants = liveAssistant == null || liveAssistant == undefined;
 
   useEffect(() => {
     if (!loadedIdSessionRef.current && !currentAssistantId) {
@@ -1700,6 +1704,9 @@ export function ChatPage({
   ]);
 
   useEffect(() => {
+    if (noAssistants) {
+      return;
+    }
     const includes = checkAnyAssistantHasSearch(
       messageHistory,
       availableAssistants,
@@ -1709,12 +1716,16 @@ export function ChatPage({
   }, [messageHistory, availableAssistants, liveAssistant]);
 
   const [retrievalEnabled, setRetrievalEnabled] = useState(() => {
+    if (noAssistants) {
+      return false;
+    }
     return checkAnyAssistantHasSearch(
       messageHistory,
       availableAssistants,
       liveAssistant
     );
   });
+
   const [stackTraceModalContent, setStackTraceModalContent] = useState<
     string | null
   >(null);
@@ -1768,8 +1779,13 @@ export function ChatPage({
     <>
       <HealthCheckBanner />
 
-      {showApiKeyModal && !shouldShowWelcomeModal && (
-        <ApiKeyModal user={user} />
+      {showApiKeyModal && !shouldShowWelcomeModal ? (
+        <ApiKeyModal
+          hide={() => setShowApiKeyModal(false)}
+          setPopup={setPopup}
+        />
+      ) : (
+        noAssistants && <NoAssistantModal isAdmin={isAdmin} />
       )}
 
       {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
@@ -1799,9 +1815,15 @@ export function ChatPage({
               setPopup={setPopup}
               setLlmOverride={llmOverrideManager.setGlobalDefault}
               defaultModel={user?.preferences.default_model!}
-              refreshUser={refreshUser}
               llmProviders={llmProviders}
               onClose={() => setSettingsToggled(false)}
+            />
+          )}
+
+          {stackTraceModalContent && (
+            <ExceptionTraceModal
+              onOutsideClick={() => setStackTraceModalContent(null)}
+              exceptionTrace={stackTraceModalContent}
             />
           )}
 
@@ -2348,8 +2370,8 @@ export function ChatPage({
                           handleFileUpload={handleImageUpload}
                           textAreaRef={textAreaRef}
                           chatSessionId={chatSessionIdRef.current!}
-                          refreshUser={refreshUser}
                         />
+
                         {enterpriseSettings &&
                           enterpriseSettings.custom_lower_disclaimer_content && (
                             <div className="mobile:hidden mt-4 flex items-center justify-center relative w-[95%] mx-auto">

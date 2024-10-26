@@ -19,11 +19,13 @@ export interface WellKnownLLMProviderDescriptor {
   name: string;
   display_name: string;
 
+  deployment_name_required: boolean;
   api_key_required: boolean;
   api_base_required: boolean;
   api_version_required: boolean;
-  custom_config_keys: CustomConfigKey[] | null;
 
+  single_model_supported: boolean;
+  custom_config_keys: CustomConfigKey[] | null;
   llm_names: string[];
   default_model: string | null;
   default_fast_model: string | null;

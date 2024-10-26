@@ -143,10 +143,12 @@ export function TextFormField({
   explanationLink,
   width,
   maxHeight,
+  small,
 }: {
+  small?: boolean;
   value?: string;
   name: string;
-  label?: string;
+  label: string;
   subtext?: string | JSX.Element;
   placeholder?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -195,12 +197,9 @@ export function TextFormField({
       {(label || subtext) && (
         <div className="grid leading-none">
           <div className="flex items-start gap-2">
-            <ShadcnLabel
-              htmlFor={label}
-              className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed"
-            >
+            <Label className="text-text-950" small={small}>
               {label}
-            </ShadcnLabel>
+            </Label>
             {tooltip && <ToolTipDetails>{tooltip}</ToolTipDetails>}
           </div>
           {subtext && (

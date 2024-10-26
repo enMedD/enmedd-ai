@@ -12,7 +12,6 @@ interface ChatContextProps {
   chatSessions: ChatSession[];
   availableSources: ValidSources[];
   availableDocumentSets: DocumentSet[];
-  availableAssistants: Assistant[];
   availableTags: Tag[];
   llmProviders: LLMProviderDescriptor[];
   folders: Folder[];
