@@ -254,6 +254,8 @@ def _add_user__teamspace_relationships__no_commit(
         User__Teamspace(
             user_id=user_id,
             teamspace_id=teamspace_id,
+            # TODO: replace this with the CREATOR role but with the same
+            # privilege as the ADMIN.
             role=TeamspaceUserRole.ADMIN
             if user_id == creator_id
             else TeamspaceUserRole.BASIC,
