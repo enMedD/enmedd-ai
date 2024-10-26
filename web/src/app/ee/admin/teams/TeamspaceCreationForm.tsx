@@ -47,6 +47,27 @@ export const TeamspaceCreationForm = ({
   const isUpdate = existingTeamspace !== undefined;
   const { toast } = useToast();
 
+  const uploadLogo = async (teamspaceId: number, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(
+      `/api/manage/admin/teamspace/logo?teamspace_id=${teamspaceId}`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorMsg =
+        (await response.json()).detail || "Failed to upload logo.";
+      throw new Error(errorMsg);
+    }
+
+    return response.json();
+  };
+
   // const setTokenRateLimit = async (teamspaceId: number) => {
   //   const response = await fetch(
   //     `/api/admin/token-rate-limits/teamspace/${teamspaceId}`,
@@ -62,7 +83,6 @@ export const TeamspaceCreationForm = ({
   //       }),
   //     }
   //   );
-
   //   if (!response.ok) {
   //     const errorMsg =
   //       (await response.json()).detail || "Failed to set token rate limit.";
@@ -107,6 +127,9 @@ export const TeamspaceCreationForm = ({
           if (response.ok) {
             const { id } = await response.json();
 
+            if (selectedFiles.length > 0) {
+              await uploadLogo(id, selectedFiles[0]);
+            }
             // await setTokenRateLimit(id);
             router.refresh();
             toast({
@@ -134,8 +157,8 @@ export const TeamspaceCreationForm = ({
         {({ isSubmitting, values, setFieldValue }) => (
           <Form>
             <div className="pt-8 space-y-6">
-              <div className="flex justify-between gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              <div className="flex flex-col justify-between gap-2 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                   Teamspace Name
                 </p>
                 <TextFormField
@@ -147,11 +170,11 @@ export const TeamspaceCreationForm = ({
                 />
               </div>
 
-              <div className="flex justify-between gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              <div className="flex flex-col justify-between gap-2 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                   Teamspace Logo
                 </p>
-                <div className="flex items-center gap-2 w-full">
+                <div className="flex items-center w-full gap-2">
                   <FileUpload
                     selectedFiles={selectedFiles}
                     setSelectedFiles={setSelectedFiles}
@@ -159,8 +182,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                   Select Users
                 </p>
                 <div className="w-full">
@@ -175,8 +198,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                   Select assistants
                 </p>
                 <div className="w-full">
@@ -189,8 +212,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                   Select document sets
                 </p>
                 <div className="w-full">
@@ -203,8 +226,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                   Select connectors
                 </p>
                 <div className="w-full">
@@ -220,9 +243,10 @@ export const TeamspaceCreationForm = ({
 
               {/* <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
                 <p className="whitespace-nowrap w-1/2 font-semibold">
+                
                   Set Token Rate Limit
                 </p>
-                <div className="flex items-center gap-4 w-full">
+                <div className="flex items-center w-full gap-4">
                   <Input
                     placeholder="Time Window (Hours)"
                     type="number"
@@ -238,7 +262,7 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div> */}
 
-              <div className="flex gap-2 pt-4 justify-end">
+              <div className="flex justify-end gap-2 pt-4">
                 <Button
                   disabled={isSubmitting}
                   className=""
