@@ -1860,19 +1860,20 @@ export function ChatPage({
                             <Image src={Logo} alt="Logo" width={112} />
                           </div>
                           <div className="flex ml-auto gap-2 items-center">
-                            {chatSessionIdRef.current !== null && (
-                              <ShareChatSessionModal
-                                chatSessionId={chatSessionIdRef.current}
-                                existingSharedStatus={chatSessionSharedStatus}
-                                onShare={(shared) =>
-                                  setChatSessionSharedStatus(
-                                    shared
-                                      ? ChatSessionSharedStatus.Public
-                                      : ChatSessionSharedStatus.Private
-                                  )
-                                }
-                              />
-                            )}
+                            {settings?.featureFlags.share_chat &&
+                              chatSessionIdRef.current !== null && (
+                                <ShareChatSessionModal
+                                  chatSessionId={chatSessionIdRef.current}
+                                  existingSharedStatus={chatSessionSharedStatus}
+                                  onShare={(shared) =>
+                                    setChatSessionSharedStatus(
+                                      shared
+                                        ? ChatSessionSharedStatus.Public
+                                        : ChatSessionSharedStatus.Private
+                                    )
+                                  }
+                                />
+                              )}
 
                             {retrievalEnabled && (
                               <CustomTooltip
