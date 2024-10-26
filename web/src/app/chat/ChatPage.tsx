@@ -1979,6 +1979,7 @@ export function ChatPage({
                                 key={messageReactComponentKey}
                               >
                                 <HumanMessage
+                                  user={user}
                                   stopGenerating={stopGenerating}
                                   content={message.message}
                                   files={message.files}
@@ -2274,6 +2275,7 @@ export function ChatPage({
                             messageHistory[messageHistory.length - 1]?.type !=
                               "user")) && (
                           <HumanMessage
+                            user={user}
                             key={-2}
                             messageId={-1}
                             content={submittedMessage}
