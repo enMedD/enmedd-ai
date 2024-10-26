@@ -306,7 +306,7 @@ export const AIMessage = ({
   const renderedMarkdown = useMemo(() => {
     return (
       <ReactMarkdown
-        className="prose max-w-full text-base"
+        className="prose max-w-full markdown"
         components={markdownComponents}
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypePrism, { ignoreMissing: true }]]}
