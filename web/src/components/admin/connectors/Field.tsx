@@ -148,7 +148,7 @@ export function TextFormField({
   small?: boolean;
   value?: string;
   name: string;
-  label: string;
+  label?: string;
   subtext?: string | JSX.Element;
   placeholder?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -197,9 +197,11 @@ export function TextFormField({
       {(label || subtext) && (
         <div className="grid leading-none">
           <div className="flex items-start gap-2">
-            <Label className="text-text-950" small={small}>
-              {label}
-            </Label>
+            {label && (
+              <Label className="text-text-950" small={small}>
+                {label}
+              </Label>
+            )}
             {tooltip && <ToolTipDetails>{tooltip}</ToolTipDetails>}
           </div>
           {subtext && (
