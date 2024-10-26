@@ -22,27 +22,6 @@ import {
 import { Assistant } from "../admin/assistants/interfaces";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 import {
-  buildChatUrl,
-  buildLatestMessageChain,
-  checkAnyAssistantHasSearch,
-  createChatSession,
-  deleteChatSession,
-  getCitedDocumentsFromMessage,
-  getHumanAndAIMessageFromMessageNumber,
-  getLastSuccessfulMessageId,
-  handleChatFeedback,
-  nameChatSession,
-  PacketType,
-  assistantIncludesRetrieval,
-  processRawChatHistory,
-  removeMessage,
-  sendMessage,
-  setMessageAsLatest,
-  updateParentChildren,
-  uploadFilesForChat,
-  useScrollonStream,
-} from "./lib";
-import {
   Dispatch,
   SetStateAction,
   useContext,
@@ -54,7 +33,6 @@ import {
 } from "react";
 import Image from "next/image";
 import { usePopup } from "@/components/admin/connectors/Popup";
-import { SEARCH_PARAM_NAMES, shouldSubmitOnLoad } from "./searchParams";
 import { useDocumentSelection } from "./useDocumentSelection";
 import { LlmOverride, useFilters, useLlmOverride } from "@/lib/hooks";
 import { computeAvailableFilters } from "@/lib/filters";
@@ -64,8 +42,6 @@ import { InitializingLoader } from "@/components/InitializingLoader";
 import { FeedbackModal } from "./modal/FeedbackModal";
 import { ShareChatSessionModal } from "./modal/ShareChatSessionModal";
 import { FiArrowDown } from "react-icons/fi";
-import { ChatIntro } from "./ChatIntro";
-import { AIMessage, HumanMessage } from "./message/Messages";
 import { StarterMessage } from "./StarterMessage";
 import {
   AnswerPiecePacket,
@@ -83,7 +59,6 @@ import {
   getLLMProviderOverrideForAssistant,
 } from "@/lib/llm/utils";
 
-import { ChatInputBar } from "./input/ChatInputBar";
 import { v4 as uuidv4 } from "uuid";
 import { ChatPopup } from "./ChatPopup";
 
@@ -110,7 +85,7 @@ import { HelperFab } from "@/components/HelperFab";
 import { Button } from "@/components/ui/button";
 import { CircleArrowDown, PanelLeftClose, PanelRightClose } from "lucide-react";
 
-import Logo from "../../../public/logo-brand.png";
+import Logo from "../../../../../public/logo-brand.png";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { StarterMessage as StarterMessageType } from "../admin/assistants/interfaces";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -120,6 +95,34 @@ import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useAssistants } from "@/context/AssistantsContext";
 import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
+import {
+  SEARCH_PARAM_NAMES,
+  shouldSubmitOnLoad,
+} from "@/app/chat/searchParams";
+import {
+  buildLatestMessageChain,
+  checkAnyAssistantHasSearch,
+  createChatSession,
+  deleteChatSession,
+  getCitedDocumentsFromMessage,
+  getHumanAndAIMessageFromMessageNumber,
+  getLastSuccessfulMessageId,
+  handleChatFeedback,
+  nameChatSession,
+  PacketType,
+  assistantIncludesRetrieval,
+  processRawChatHistory,
+  removeMessage,
+  sendMessage,
+  setMessageAsLatest,
+  updateParentChildren,
+  uploadFilesForChat,
+  useScrollonStream,
+  buildChatUrl,
+} from "@/app/chat/lib";
+import { AIMessage, HumanMessage } from "@/app/chat/message/Messages";
+import { ChatInputBar } from "@/app/chat/input/ChatInputBar";
+import { ChatIntro } from "@/app/chat/ChatIntro";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -2388,7 +2391,7 @@ export function ChatPage({
                           enterpriseSettings.use_custom_logotype && (
                             <div className="hidden lg:block absolute right-0 bottom-0">
                               <Image
-                                src="/api/enterprise-settings/logotype"
+                                src="/api/workspace/logotype"
                                 alt="logotype"
                                 style={{ objectFit: "contain" }}
                                 className="w-fit h-8"
