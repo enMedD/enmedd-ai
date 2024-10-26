@@ -43,6 +43,7 @@ export interface LLMProvider {
   is_public: boolean;
   groups: number[];
   display_model_names: string[] | null;
+  deployment_name: string | null;
 }
 
 export interface FullLLMProvider extends LLMProvider {
