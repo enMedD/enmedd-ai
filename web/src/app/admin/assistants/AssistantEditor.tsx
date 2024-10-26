@@ -247,7 +247,7 @@ export function AssistantEditor({
     uploaded_image: null,
 
     // EE Only
-    teamspace: existingAssistant?.teamspace ?? [],
+    groups: existingAssistant?.groups ?? [],
   };
 
   const [isRequestSuccessful, setIsRequestSuccessful] = useState(false);
@@ -292,7 +292,7 @@ export function AssistantEditor({
             icon_shape: Yup.number(),
             uploaded_image: Yup.mixed().nullable(),
             // EE Only
-            teamspace: Yup.array().of(Yup.number()),
+            groups: Yup.array().of(Yup.number()),
           })
           .test(
             "system-prompt-or-task-prompt",
@@ -371,7 +371,7 @@ export function AssistantEditor({
           const numChunks = searchToolEnabled ? values.num_chunks || 10 : 0;
 
           // don't set teamspace if marked as public
-          const teamspace = values.is_public ? [] : values.teamspace;
+          const groups = values.is_public ? [] : values.groups;
 
           let promptResponse;
           let assistantResponse;
@@ -386,7 +386,7 @@ export function AssistantEditor({
               num_chunks: numChunks,
               users:
                 user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
-              teamspace,
+              groups,
               tool_ids: enabledTools,
               remove_image: removeAssistantImage,
             });
@@ -400,7 +400,7 @@ export function AssistantEditor({
                 : null,
               users:
                 user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
-              teamspace,
+              groups,
               tool_ids: enabledTools,
             });
           }
