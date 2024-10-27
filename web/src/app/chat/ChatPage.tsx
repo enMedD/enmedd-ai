@@ -2420,7 +2420,7 @@ export function ChatPage({
 
                       <div
                         ref={sidebarElementRef}
-                        className={`fixed 2xl:relative top-0 right-0 z-overlay bg-background  flex-none overflow-y-hidden h-full ${
+                        className={`fixed 2xl:relative top-0 right-0 z-overlay bg-background  flex-none overflow-hidden h-full ${
                           showDocSidebar ? "translate-x-0" : "translate-x-full"
                         }`}
                         style={{
