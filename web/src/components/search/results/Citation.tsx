@@ -35,7 +35,7 @@ export function Citation({
         }
         asChild
       >
-        <div className="inline-block p-0 m-0 truncate">{link}</div>
+        <div className="inline-block truncate">{link}</div>
       </CustomTooltip>
     );
   } else {

@@ -58,7 +58,7 @@ export function CustomTooltip({
         <TooltipContent
           align={align}
           side={side}
-          className={`!z-modal ${style} bg-${variant} border-none text-inverted`}
+          className={`!z-modal ${style} bg-${variant} border-none text-inverted flex items-center`}
         >
           {children}
         </TooltipContent>
