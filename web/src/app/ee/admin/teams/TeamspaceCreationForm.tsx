@@ -237,8 +237,8 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              {/* <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
-                <p className="whitespace-nowrap w-1/2 font-semibold">
+              {/* <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
                 
                   Set Token Rate Limit
                 </p>
