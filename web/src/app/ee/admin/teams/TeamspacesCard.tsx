@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
 import { useState } from "react";
 import Image from "next/image";
+import "../../../../components/loading.css";
 
 interface TeamspaceWithGradient extends Teamspace {
   gradient?: string;
@@ -178,12 +179,14 @@ export const TeamspacesCard = ({
                 trigger={
                   <div
                     className={`inline-block ml-2 w-2.5 h-2.5 rounded-full ${
-                      teamspace.is_up_to_date ? "bg-success" : "bg-secondary"
+                      teamspace.is_up_to_date
+                        ? "bg-success"
+                        : "bg-secondary loading dots"
                     }`}
                   />
                 }
               >
-                {teamspace.is_up_to_date ? "Updated" : "Outdated"}
+                {teamspace.is_up_to_date ? "Active" : "Syncing"}
               </CustomTooltip>
             </h2>
             {/* TODO: replace with teamspace creator  */}
