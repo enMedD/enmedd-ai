@@ -170,7 +170,6 @@ interface DocumentDisplayProps {
   messageId: number | null;
   documentRank: number;
   isSelected: boolean;
-  setPopup: (popupSpec: PopupSpec | null) => void;
   hide?: boolean;
   index?: number;
   contentEnriched?: boolean;
@@ -186,7 +185,6 @@ export const DocumentDisplay = ({
   documentRank,
   hide,
   index,
-  setPopup,
 }: DocumentDisplayProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [alternativeToggled, setAlternativeToggled] = useState(false);
@@ -243,7 +241,6 @@ export const DocumentDisplay = ({
                   documentId={document.document_id}
                   messageId={messageId}
                   documentRank={documentRank}
-                  setPopup={setPopup}
                 />
               )}
               {(contentEnriched || additional_relevance) &&
@@ -298,7 +295,6 @@ export const AgenticDocumentDisplay = ({
   documentRank,
   index,
   hide,
-  setPopup,
 }: DocumentDisplayProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -343,7 +339,6 @@ export const AgenticDocumentDisplay = ({
                   documentId={document.document_id}
                   messageId={messageId}
                   documentRank={documentRank}
-                  setPopup={setPopup}
                 />
               )}
 

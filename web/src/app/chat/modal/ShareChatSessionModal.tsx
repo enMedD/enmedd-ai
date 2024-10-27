@@ -67,9 +67,8 @@ export function ShareChatSessionModal({
       trigger={
         onPopover ? (
           <Button
-            variant="ghost"
             onClick={() => setIsShareModalOpen(true)}
-            className="w-full hover:bg-primary hover:text-inverted justify-start"
+             variant='ghost'
           >
             <Share className="mr-2" size={16} />
             Share
@@ -85,7 +84,6 @@ export function ShareChatSessionModal({
                 <Share size={20} />
               </Button>
             }
-            asChild
           >
             Share
           </CustomTooltip>
