@@ -47,7 +47,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { CustomModal } from "@/components/CustomModal";
 
 const MAX_INPUT_HEIGHT = 200;
 
@@ -99,28 +98,16 @@ export function ChatInputBar({
   textAreaRef: React.RefObject<HTMLTextAreaElement>;
   chatSessionId?: number;
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     const textarea = textAreaRef.current;
     if (textarea) {
-      const updateHeight = () => {
-        const isSmallDevice = window.innerWidth < 768; // Adjust the breakpoint as needed
-
-        textarea.style.height = "0px";
-        textarea.style.height = `${Math.min(
-          isSmallDevice ? textarea.scrollHeight : 40 + textarea.scrollHeight,
-          MAX_INPUT_HEIGHT
-        )}px`;
-      };
-
-      updateHeight(); // Initial update
-      window.addEventListener("resize", updateHeight); // Update on resize
-
-      return () => {
-        window.removeEventListener("resize", updateHeight); // Clean up on unmount
-      };
+      textarea.style.height = "0px";
+      textarea.style.height = `${Math.min(
+        textarea.scrollHeight,
+        MAX_INPUT_HEIGHT
+      )}px`;
     }
-  }, [message]);
+  }, [message, textAreaRef]);
 
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items;
@@ -296,9 +283,6 @@ export function ChatInputBar({
       );
     }
   };
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
 
   return (
     <div id="enmedd-chat-input">
@@ -530,26 +514,10 @@ export function ChatInputBar({
             />
             <div className="flex items-center justify-between py-4 overflow-hidden border-t border-border-light">
               <div className="flex w-auto items-center">
-                <CustomModal title="Change Assistant"  open={isModalOpen}   onClose={closeModal} trigger={<Button  variant="ghost" className="mr-2 border" 
-          onClick={openModal} >
-                      <Cpu size={16} className="shrink-0" />
-                      {selectedAssistant
-                        ? selectedAssistant.name
-                        : "Assistants"}
-                    </Button>}>
-                <AssistantsTab
-                      llmProviders={llmProviders}
-                      selectedAssistant={selectedAssistant}
-                      onSelect={(assistant) => {
-                        setSelectedAssistant(assistant);
-                        closeModal();
-                      }}
-                    />
-                </CustomModal>
-                {/* <Popover>
+                <Popover>
                   <PopoverTrigger>
                     <Button variant="ghost" className="mr-2 border">
-                      <Cpu size={16} className="shrink-0" />
+                      <Cpu size={16} />
                       {selectedAssistant
                         ? selectedAssistant.name
                         : "Assistants"}
@@ -565,13 +533,23 @@ export function ChatInputBar({
                       }}
                     />
                   </PopoverContent>
-                </Popover> */}
+                </Popover>
 
                 {/* <Popover>
                   <PopoverTrigger>
-                    <Button variant='ghost' size='icon' className="mr-2">
-                      <CpuIconSkeleton size={16} className="shrink-0" />
-                    </Button>
+                    <ChatInputOption
+                      flexPriority="second"
+                      toggle
+                      name={getDisplayNameForModel(
+                        llmOverrideManager.llmOverride.modelName ||
+                          (selectedAssistant
+                            ? selectedAssistant.llm_model_version_override ||
+                              llmOverrideManager.globalDefault.modelName ||
+                              llmName
+                            : llmName)
+                      )}
+                      Icon={CpuIconSkeleton}
+                    />
                   </PopoverTrigger>
                   <PopoverContent>
                     <LlmTab
@@ -609,7 +587,7 @@ export function ChatInputBar({
                     };
                     input.click();
                   }}
-                  variant="ghost"  size='icon' className="mr-2"
+                  variant="ghost"
                 >
                   <Paperclip size={16} />
                   File
