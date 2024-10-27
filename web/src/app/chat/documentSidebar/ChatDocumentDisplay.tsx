@@ -14,8 +14,6 @@ interface DocumentDisplayProps {
   document: EnmeddDocument;
   queryEventId: number | null;
   isAIPick: boolean;
-  isSelected: boolean;
-  handleSelect: (documentId: string) => void;
   tokenLimitReached: boolean;
 }
 
@@ -23,8 +21,6 @@ export function ChatDocumentDisplay({
   document,
   queryEventId,
   isAIPick,
-  isSelected,
-  handleSelect,
   tokenLimitReached,
 }: DocumentDisplayProps) {
   // Consider reintroducing null scored docs in the future
@@ -64,36 +60,26 @@ export function ChatDocumentDisplay({
                 {document.semantic_identifier || document.document_id}
               </span>
             </a>
-            {score !== null ||
-              (score > 0 && (
-                <div className="ml-auto">
-                  {isAIPick && (
-                    <div className="w-4 h-4 my-auto mr-1 flex flex-col">
-                      <CustomTooltip trigger={<Radio className="my-auto" />}>
-                        <div className="text-xs text-gray-300 flex">
-                          <div className="flex mx-auto">
-                            <div className="w-3 h-3 flex flex-col my-auto mr-1">
-                              <Info className="my-auto" />
-                            </div>
-                            <div className="my-auto">
-                              The AI liked this doc!
-                            </div>
+            {document.score !== null && (
+              <div className="ml-auto">
+                {isAIPick && (
+                  <div className="w-4 h-4 my-auto mr-1 flex flex-col">
+                    <CustomTooltip trigger={<Radio className="my-auto" />}>
+                      <div className="text-xs text-gray-300 flex">
+                        <div className="flex mx-auto">
+                          <div className="w-3 h-3 flex flex-col my-auto mr-1">
+                            <Info className="my-auto" />
                           </div>
+                          <div className="my-auto">The AI liked this doc!</div>
                         </div>
-                      </CustomTooltip>
-                    </div>
-                  )}
-                  <Badge variant={badgeVariant}>
-                    {document.score.toFixed()}%
-                  </Badge>
-                </div>
-              ))}
-            {!isInternet && (
-              <DocumentSelector
-                isSelected={isSelected}
-                handleSelect={() => handleSelect(document.document_id)}
-                isDisabled={tokenLimitReached && !isSelected}
-              />
+                      </div>
+                    </CustomTooltip>
+                  </div>
+                )}
+                {!isInternet && (
+                  <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
+                )}
+              </div>
             )}
           </div>
         </div>
