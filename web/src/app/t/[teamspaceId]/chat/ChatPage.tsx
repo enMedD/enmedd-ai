@@ -37,7 +37,6 @@ import { useDocumentSelection } from "./useDocumentSelection";
 import { LlmOverride, useFilters, useLlmOverride } from "@/lib/hooks";
 import { computeAvailableFilters } from "@/lib/filters";
 import { ChatState, FeedbackType, RegenerationState } from "./types";
-import { DocumentSidebar } from "./documentSidebar/DocumentSidebar";
 import { InitializingLoader } from "@/components/InitializingLoader";
 import { FeedbackModal } from "./modal/FeedbackModal";
 import { ShareChatSessionModal } from "./modal/ShareChatSessionModal";
@@ -123,6 +122,7 @@ import {
 import { AIMessage, HumanMessage } from "@/app/chat/message/Messages";
 import { ChatInputBar } from "@/app/chat/input/ChatInputBar";
 import { ChatIntro } from "@/app/chat/ChatIntro";
+import { DocumentSidebar } from "@/app/chat/documentSidebar/DocumentSidebar";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1880,17 +1880,13 @@ export function ChatPage({
                             {retrievalEnabled && (
                               <CustomTooltip
                                 trigger={
-                                  <Button
-                                    onClick={toggleSidebar}
-                                    variant="ghost"
-                                    size="icon"
-                                  >
+                                  <div onClick={toggleSidebar}>
                                     {showDocSidebar ? (
                                       <PanelRightClose size={24} />
                                     ) : (
                                       <PanelLeftClose size={24} />
                                     )}
-                                  </Button>
+                                  </div>
                                 }
                                 asChild
                               >

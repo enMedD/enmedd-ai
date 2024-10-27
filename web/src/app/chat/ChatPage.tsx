@@ -1878,17 +1878,13 @@ export function ChatPage({
                             {retrievalEnabled && (
                               <CustomTooltip
                                 trigger={
-                                  <Button
-                                    onClick={toggleSidebar}
-                                    variant="ghost"
-                                    size="icon"
-                                  >
+                                  <div onClick={toggleSidebar}>
                                     {showDocSidebar ? (
                                       <PanelRightClose size={24} />
                                     ) : (
                                       <PanelLeftClose size={24} />
                                     )}
-                                  </Button>
+                                  </div>
                                 }
                                 asChild
                               >
