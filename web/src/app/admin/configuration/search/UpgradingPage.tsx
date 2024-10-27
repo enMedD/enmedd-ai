@@ -1,5 +1,4 @@
 import { ThreeDotsLoader } from "@/components/Loading";
-import { Modal } from "@/components/Modal";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import {
   ConnectorIndexingStatus,
@@ -18,6 +17,7 @@ import {
 import { Connector } from "@/lib/connectors/connectors";
 import { FailedReIndexAttempts } from "@/components/embedding/FailedReIndexAttempts";
 import { useToast } from "@/hooks/use-toast";
+import { CustomModal } from "@/components/CustomModal";
 
 export default function UpgradingPage({
   futureEmbeddingModel,
@@ -92,9 +92,11 @@ export default function UpgradingPage({
   return (
     <>
       {isCancelling && (
-        <Modal
-          onOutsideClick={() => setIsCancelling(false)}
+        <CustomModal
+          onClose={() => setIsCancelling(false)}
           title="Cancel Embedding Model Switch"
+          trigger={null}
+          open={isCancelling}
         >
           <div>
             <div>
@@ -110,7 +112,7 @@ export default function UpgradingPage({
               </Button>
             </div>
           </div>
-        </Modal>
+        </CustomModal>
       )}
 
       {futureEmbeddingModel && (

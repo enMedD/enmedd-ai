@@ -10,17 +10,20 @@ import { useToast } from "@/hooks/use-toast";
 import { Divider } from "@/components/Divider";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Button } from "@/components/ui/button";
+import { CustomModal } from "@/components/CustomModal";
 
 function ReIndexPopup({
   connectorId,
   credentialId,
   ccPairId,
   hide,
+  reIndexPopupVisible
 }: {
   connectorId: number;
   credentialId: number;
   ccPairId: number;
   hide: () => void;
+  reIndexPopupVisible: boolean
 }) {
   const { toast } = useToast();
   async function triggerIndexing(fromBeginning: boolean) {
@@ -46,7 +49,12 @@ function ReIndexPopup({
   }
 
   return (
-    <Modal title="Run Indexing" onOutsideClick={hide}>
+    <CustomModal 
+      title="Run Indexing" 
+      onClose={hide} 
+      trigger={null}
+      open={reIndexPopupVisible}
+      >
       <div>
         <Button
           className="ml-auto"
@@ -85,7 +93,7 @@ function ReIndexPopup({
           source, this may take a long time.
         </p>
       </div>
-    </Modal>
+    </CustomModal>
   );
 }
 
@@ -111,6 +119,7 @@ export function ReIndexButton({
           credentialId={credentialId}
           ccPairId={ccPairId}
           hide={() => setReIndexPopupVisible(false)}
+          reIndexPopupVisible={reIndexPopupVisible}
         />
       )}
       {isDeleting || isDisabled ? (
@@ -122,6 +131,7 @@ export function ReIndexButton({
                 setReIndexPopupVisible(true);
               }}
               disabled={isDisabled || isDeleting}
+              variant='outline'
             >
               Index
             </Button>

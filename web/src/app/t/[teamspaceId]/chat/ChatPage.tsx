@@ -1821,6 +1821,7 @@ export function ChatPage({
             <ExceptionTraceModal
               onOutsideClick={() => setStackTraceModalContent(null)}
               exceptionTrace={stackTraceModalContent}
+              isOpen={!!stackTraceModalContent}
             />
           )}
 

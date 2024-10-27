@@ -163,6 +163,7 @@ export function EmbeddingModelSelection({
             setShowTentativeOpenProvider(null);
           }}
           onCancel={() => setShowTentativeOpenProvider(null)}
+          showTentativeOpenProvider={!!showTentativeOpenProvider}
         />
       )}
 
@@ -183,6 +184,7 @@ export function EmbeddingModelSelection({
             setShowModelInQueue(null);
             setShowTentativeProvider(null);
           }}
+          showTentativeProvider={!!showTentativeProvider}
         />
       )}
 
@@ -224,6 +226,7 @@ export function EmbeddingModelSelection({
             mutateEmbeddingProviderDetails();
           }}
           onCancel={() => setShowDeleteCredentialsModal(false)}
+          showDeleteCredentialsModal={showDeleteCredentialsModal}
         />
       )}
 

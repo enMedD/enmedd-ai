@@ -141,8 +141,6 @@ export const DocumentSetCreationForm = ({
               autoCompleteDisabled={true}
             />
 
-            <Divider />
-
             <div>
               <p className="mb-1 text-sm font-semibold">Pick your connectors:</p>
               <Combobox

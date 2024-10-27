@@ -55,6 +55,7 @@ import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Stepper from "./Stepper";
 import { useToast } from "@/hooks/use-toast";
+import { CustomModal } from "@/components/CustomModal";
 
 const BASE_CONNECTOR_URL = "/api/manage/admin/connector";
 
@@ -389,7 +390,6 @@ export default function AddConnector({
                 <Card>
                   <CardContent>
                     <h3 className="mb-2">Select a credential</h3>
-
                     {connector == "google_drive" ? (
                       <GDriveMain />
                     ) : connector == "gmail" ? (
@@ -423,11 +423,15 @@ export default function AddConnector({
     prevent that, but still keeping this here for safety in case the above changes. */}
                         {(connector as ValidSources) !== "google_drive" &&
                           createConnectorToggle && (
-                            <Modal
-                              className="max-w-3xl rounded-lg"
-                              onOutsideClick={() =>
+                            <CustomModal
+                              onClose={() =>
                                 setCreateConnectorToggle(false)
                               }
+
+                              title={`Create a ${getSourceDisplayName(connector)} credential`}
+                              trigger={null}
+                              open={(connector as ValidSources) !== "google_drive" &&
+                                createConnectorToggle}
                             >
                               <>
                                 <h3 className="mb-2">
@@ -444,7 +448,7 @@ export default function AddConnector({
                                   }
                                 />
                               </>
-                            </Modal>
+                            </CustomModal>
                           )}
                       </>
                     )}
@@ -461,7 +465,6 @@ export default function AddConnector({
                       setSelectedFiles={setSelectedFiles}
                       selectedFiles={selectedFiles}
                     />
-
                     <AccessTypeForm connector={connector} />
                     <AccessTypeGroupSelector />
                   </CardContent>

@@ -26,6 +26,7 @@ import {
   Credential,
 } from "@/lib/connectors/credentials";
 import { useToast } from "@/hooks/use-toast";
+import { CustomModal } from "../CustomModal";
 
 export default function CredentialSection({
   ccPair,
@@ -143,10 +144,11 @@ export default function CredentialSection({
         </button>
       </div>
       {showModifyCredential && (
-        <Modal
-          onOutsideClick={closeModifyCredential}
-          className="max-w-3xl rounded-lg"
+        <CustomModal
+        onClose={closeModifyCredential}
           title="Update Credentials"
+      trigger={null}
+      open={showModifyCredential}
         >
           <ModifyCredential
             showCreate={() => {
@@ -165,28 +167,30 @@ export default function CredentialSection({
             onSwap={onSwap}
             onCreateNew={() => makeShowCreateCredential()}
           />
-        </Modal>
+        </CustomModal>
       )}
 
       {editingCredential && (
-        <Modal
-          onOutsideClick={closeEditingCredential}
-          className="max-w-3xl rounded-lg"
+        <CustomModal
+        onClose={closeEditingCredential}
           title="Edit Credential"
+      trigger={null}
+      open={!!editingCredential}
         >
           <EditCredential
             onUpdate={onUpdateCredential}
             credential={editingCredential}
             onClose={closeEditingCredential}
           />
-        </Modal>
+        </CustomModal>
       )}
 
       {showCreateCredential && (
-        <Modal
-          onOutsideClick={closeCreateCredential}
-          className="max-w-3xl rounded-lg"
+        <CustomModal
+        onClose={closeCreateCredential}
           title={`Create ${getSourceDisplayName(sourceType)} Credential`}
+      trigger={null}
+      open={showCreateCredential}
         >
           <CreateCredential
             sourceType={sourceType}
@@ -194,7 +198,7 @@ export default function CredentialSection({
             onSwap={onSwap}
             onClose={closeCreateCredential}
           />
-        </Modal>
+        </CustomModal>
       )}
     </div>
   );

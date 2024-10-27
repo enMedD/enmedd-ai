@@ -101,13 +101,24 @@ export function ChatInputBar({
   useEffect(() => {
     const textarea = textAreaRef.current;
     if (textarea) {
-      textarea.style.height = "0px";
-      textarea.style.height = `${Math.min(
-        textarea.scrollHeight,
-        MAX_INPUT_HEIGHT
-      )}px`;
+      const updateHeight = () => {
+        const isSmallDevice = window.innerWidth < 768; // Adjust the breakpoint as needed
+
+        textarea.style.height = "0px";
+        textarea.style.height = `${Math.min(
+          isSmallDevice ? textarea.scrollHeight : 40 + textarea.scrollHeight,
+          MAX_INPUT_HEIGHT
+        )}px`;
+      };
+
+      updateHeight(); // Initial update
+      window.addEventListener("resize", updateHeight); // Update on resize
+
+      return () => {
+        window.removeEventListener("resize", updateHeight); // Clean up on unmount
+      };
     }
-  }, [message, textAreaRef]);
+  }, [message]);
 
   const handlePaste = (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items;
@@ -516,7 +527,7 @@ export function ChatInputBar({
                 <Popover>
                   <PopoverTrigger>
                     <Button variant="ghost" className="mr-2 border">
-                      <Cpu size={16} />
+                      <Cpu size={16} className="shrink-0" />
                       {selectedAssistant
                         ? selectedAssistant.name
                         : "Assistants"}
@@ -534,21 +545,11 @@ export function ChatInputBar({
                   </PopoverContent>
                 </Popover>
 
-                <Popover>
+                {/* <Popover>
                   <PopoverTrigger>
-                    <ChatInputOption
-                      flexPriority="second"
-                      toggle
-                      name={getDisplayNameForModel(
-                        llmOverrideManager.llmOverride.modelName ||
-                          (selectedAssistant
-                            ? selectedAssistant.llm_model_version_override ||
-                              llmOverrideManager.globalDefault.modelName ||
-                              llmName
-                            : llmName)
-                      )}
-                      Icon={CpuIconSkeleton}
-                    />
+                    <Button variant='ghost' size='icon' className="mr-2">
+                      <CpuIconSkeleton size={16} className="shrink-0" />
+                    </Button>
                   </PopoverTrigger>
                   <PopoverContent>
                     <LlmTab
@@ -569,7 +570,7 @@ export function ChatInputBar({
                       chatSessionId={chatSessionId}
                     />
                   </PopoverContent>
-                </Popover>
+                </Popover> */}
 
                 <Button
                   onClick={() => {
@@ -586,9 +587,9 @@ export function ChatInputBar({
                     };
                     input.click();
                   }}
-                  variant="ghost"
+                  variant="ghost"  size='icon' className="mr-2"
                 >
-                  <Paperclip size={16} />
+                  <Paperclip size={16} className="shrink-0" />
                 </Button>
               </div>
               <div>

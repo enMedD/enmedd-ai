@@ -1,6 +1,6 @@
 import { LoadingAnimation } from "@/components/Loading";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
-import { Button, Divider, Text } from "@tremor/react";
+import { Divider, Text } from "@tremor/react";
 import { Form, Formik } from "formik";
 import { FiTrash } from "react-icons/fi";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import isEqual from "lodash/isEqual";
 import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 export function LLMProviderUpdateForm({
   llmProviderDescriptor,
@@ -209,7 +210,7 @@ export function LLMProviderUpdateForm({
       }}
     >
       {(formikProps) => (
-        <Form className="gap-y-4 items-stretch mt-6">
+        <Form className="gap-y-4 items-stretch">
           {!hideAdvanced && (
             <TextFormField
               name="name"
@@ -375,7 +376,7 @@ export function LLMProviderUpdateForm({
             {testError && <Text className="text-error mt-2">{testError}</Text>}
 
             <div className="flex w-full mt-4">
-              <Button type="submit" size="xs">
+              <Button type="submit" >
                 {isTesting ? (
                   <LoadingAnimation text="Testing" />
                 ) : existingLlmProvider ? (
@@ -387,10 +388,8 @@ export function LLMProviderUpdateForm({
               {existingLlmProvider && (
                 <Button
                   type="button"
-                  color="red"
+                  variant="destructive"
                   className="ml-3"
-                  size="xs"
-                  icon={FiTrash}
                   onClick={async () => {
                     const response = await fetch(
                       `${LLM_PROVIDERS_ADMIN_URL}/${existingLlmProvider.id}`,
@@ -429,7 +428,7 @@ export function LLMProviderUpdateForm({
                     onClose();
                   }}
                 >
-                  Delete
+                <FiTrash /> Delete
                 </Button>
               )}
             </div>

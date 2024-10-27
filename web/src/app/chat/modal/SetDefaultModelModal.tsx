@@ -10,17 +10,20 @@ import { useRouter } from "next/navigation";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { useUser } from "@/components/user/UserProvider";
 import { useToast } from "@/hooks/use-toast";
+import { CustomModal } from "@/components/CustomModal";
 
 export function SetDefaultModelModal({
   llmProviders,
   onClose,
   setLlmOverride,
   defaultModel,
+  settingsToggled
 }: {
   llmProviders: LLMProviderDescriptor[];
   setLlmOverride: Dispatch<SetStateAction<LlmOverride>>;
   onClose: () => void;
   defaultModel: string | null;
+  settingsToggled?: boolean;
 }) {
   const { toast } = useToast()
   const { refreshUser } = useUser();
@@ -125,17 +128,13 @@ export function SetDefaultModelModal({
   );
 
   return (
-    <ModalWrapper
+    <CustomModal
       onClose={onClose}
-      modalClassName="rounded-lg  bg-white max-w-xl"
+          title="Set Default Model"
+          trigger={null}
+          open={settingsToggled}
     >
       <>
-        <div className="flex mb-4">
-          <h2 className="text-2xl text-emphasis font-bold flex my-auto">
-            Set Default Model
-          </h2>
-        </div>
-
         <Text className="mb-4">
           Choose a Large Language Model (LLM) to serve as the default for
           assistants that don&apos;t have a default model assigned.
@@ -205,6 +204,6 @@ export function SetDefaultModelModal({
           </div>
         </div>
       </>
-    </ModalWrapper>
+    </CustomModal>
   );
 }

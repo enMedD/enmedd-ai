@@ -1779,6 +1779,7 @@ export function ChatPage({
       {showApiKeyModal && !shouldShowWelcomeModal ? (
         <ApiKeyModal
           hide={() => setShowApiKeyModal(false)}
+          isOpen={showApiKeyModal && !shouldShowWelcomeModal}
         />
       ) : (
         noAssistants && <NoAssistantModal isAdmin={isAdmin} />
@@ -1811,6 +1812,7 @@ export function ChatPage({
               defaultModel={user?.preferences.default_model!}
               llmProviders={llmProviders}
               onClose={() => setSettingsToggled(false)}
+              settingsToggled={settingsToggled}
             />
           )}
 
@@ -1818,6 +1820,7 @@ export function ChatPage({
             <ExceptionTraceModal
               onOutsideClick={() => setStackTraceModalContent(null)}
               exceptionTrace={stackTraceModalContent}
+              isOpen={!!stackTraceModalContent}
             />
           )}
 
