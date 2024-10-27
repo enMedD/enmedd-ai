@@ -47,6 +47,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { CustomModal } from "@/components/CustomModal";
 
 const MAX_INPUT_HEIGHT = 200;
 
@@ -98,6 +99,7 @@ export function ChatInputBar({
   textAreaRef: React.RefObject<HTMLTextAreaElement>;
   chatSessionId?: number;
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     const textarea = textAreaRef.current;
     if (textarea) {
@@ -294,6 +296,9 @@ export function ChatInputBar({
       );
     }
   };
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <div id="enmedd-chat-input">
@@ -524,7 +529,23 @@ export function ChatInputBar({
             />
             <div className="flex items-center justify-between py-4 overflow-hidden border-t border-border-light">
               <div className="flex w-auto items-center">
-                <Popover>
+                <CustomModal title="Change Assistant"  open={isModalOpen}   onClose={closeModal} trigger={<Button  variant="ghost" className="mr-2 border" 
+          onClick={openModal} >
+                      <Cpu size={16} className="shrink-0" />
+                      {selectedAssistant
+                        ? selectedAssistant.name
+                        : "Assistants"}
+                    </Button>}>
+                <AssistantsTab
+                      llmProviders={llmProviders}
+                      selectedAssistant={selectedAssistant}
+                      onSelect={(assistant) => {
+                        setSelectedAssistant(assistant);
+                        closeModal();
+                      }}
+                    />
+                </CustomModal>
+                {/* <Popover>
                   <PopoverTrigger>
                     <Button variant="ghost" className="mr-2 border">
                       <Cpu size={16} className="shrink-0" />
@@ -543,7 +564,7 @@ export function ChatInputBar({
                       }}
                     />
                   </PopoverContent>
-                </Popover>
+                </Popover> */}
 
                 {/* <Popover>
                   <PopoverTrigger>

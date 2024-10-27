@@ -88,7 +88,6 @@ import { ChatPopup } from "./ChatPopup";
 
 import FunctionalHeader from "@/components/chat_search/Header";
 import { useSidebarVisibility } from "@/components/chat_search/hooks";
-import { SIDEBAR_TOGGLED_COOKIE_NAME } from "@/components/resizable/constants";
 import FixedLogo from "./shared_chat_search/FixedLogo";
 import { SetDefaultModelModal } from "./modal/SetDefaultModelModal";
 import { DeleteEntityModal } from "../../components/modals/DeleteEntityModal";
@@ -116,7 +115,6 @@ import Logo from "../../../public/logo-brand.png";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { StarterMessage as StarterMessageType } from "../admin/assistants/interfaces";
 import { Skeleton } from "@/components/ui/skeleton";
-import ResizableSection from "@/components/resizable/ResizableSection";
 import { AnimatePresence, motion } from "framer-motion";
 import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -1845,7 +1843,7 @@ export function ChatPage({
 
                     {liveAssistant && (
                       <div className="relative z-top-bar shrink-0">
-                        <div className="flex w-full items-start p-4 lg:px-0 2xl:px-4 justify-between">
+                        <div className="flex w-full items-start p-4 lg:px-0 3xl:px-4 justify-between">
                           <div className="flex lg:hidden items-center gap-2">
                             <Button
                               variant="ghost"
@@ -1875,15 +1873,15 @@ export function ChatPage({
                             {retrievalEnabled && (
                               <CustomTooltip
                                 trigger={
-                                  <div onClick={toggleSidebar}>
+                                  <Button variant='ghost' size='icon' onClick={toggleSidebar}>
                                     {showDocSidebar ? (
                                       <PanelRightClose size={24} />
                                     ) : (
                                       <PanelLeftClose size={24} />
                                     )}
-                                  </div>
+                                  </Button>
                                 }
-                                asChild
+                                
                               >
                                 {showDocSidebar ? "Hide Docs" : "Show Docs"}
                               </CustomTooltip>
@@ -2393,7 +2391,7 @@ export function ChatPage({
                     </div>
                   </div>
                   {retrievalEnabled ? (
-                    <>
+                    <div>
                       <AnimatePresence>
                         {showDocSidebar && (
                           <motion.div
@@ -2417,7 +2415,7 @@ export function ChatPage({
 
                       <div
                         ref={sidebarElementRef}
-                        className={`fixed 2xl:relative top-0 right-0 z-overlay bg-background  flex-none overflow-y-hidden h-full ${
+                        className={`fixed 2xl:relative top-0 right-0 z-overlay bg-background  flex-none h-full ${
                           showDocSidebar ? "translate-x-0" : "translate-x-full"
                         }`}
                         style={{
@@ -2426,12 +2424,6 @@ export function ChatPage({
                             : 0,
                         }}
                       >
-                        <ResizableSection
-                          updateSidebarWidth={updateSidebarWidth}
-                          intialWidth={usedSidebarWidth}
-                          minWidth={350}
-                          maxWidth={maxDocumentSidebarWidth || undefined}
-                        >
                           <DocumentSidebar
                             initialWidth={showDocSidebar ? usedSidebarWidth : 0}
                             ref={innerSidebarElementRef}
@@ -2446,9 +2438,8 @@ export function ChatPage({
                             showDocSidebar={showDocSidebar}
                             isWide={isWide}
                           />
-                        </ResizableSection>
                       </div>
-                    </>
+                    </div>
                   ) : // Another option is to use a div with the width set to the initial width, so that the
                   // chat section appears in the same place as before
                   // <div style={documentSidebarInitialWidth ? {width: documentSidebarInitialWidth} : {}}></div>

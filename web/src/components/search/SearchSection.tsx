@@ -26,7 +26,6 @@ import { SettingsContext } from "../settings/SettingsProvider";
 import { ChatSession, SearchSession } from "@/app/chat/interfaces";
 import FunctionalHeader from "../chat_search/Header";
 import { useSidebarVisibility } from "../chat_search/hooks";
-import { SIDEBAR_TOGGLED_COOKIE_NAME } from "../resizable/constants";
 import { AGENTIC_SEARCH_TYPE_COOKIE_NAME } from "@/lib/constants";
 import Cookies from "js-cookie";
 import FixedLogo from "@/app/chat/shared_chat_search/FixedLogo";

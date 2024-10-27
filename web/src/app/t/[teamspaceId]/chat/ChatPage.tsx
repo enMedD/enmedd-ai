@@ -63,7 +63,6 @@ import { ChatPopup } from "./ChatPopup";
 
 import FunctionalHeader from "@/components/chat_search/Header";
 import { useSidebarVisibility } from "@/components/chat_search/hooks";
-import { SIDEBAR_TOGGLED_COOKIE_NAME } from "@/components/resizable/constants";
 import { SetDefaultModelModal } from "./modal/SetDefaultModelModal";
 import { MinimalMarkdown } from "@/components/chat_search/MinimalMarkdown";
 import ExceptionTraceModal from "@/components/modals/ExceptionTraceModal";
@@ -88,7 +87,6 @@ import Logo from "../../../../../public/logo-brand.png";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { StarterMessage as StarterMessageType } from "../admin/assistants/interfaces";
 import { Skeleton } from "@/components/ui/skeleton";
-import ResizableSection from "@/components/resizable/ResizableSection";
 import { AnimatePresence, motion } from "framer-motion";
 import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -2426,12 +2424,6 @@ export function ChatPage({
                             : 0,
                         }}
                       >
-                        <ResizableSection
-                          updateSidebarWidth={updateSidebarWidth}
-                          intialWidth={usedSidebarWidth}
-                          minWidth={350}
-                          maxWidth={maxDocumentSidebarWidth || undefined}
-                        >
                           <DocumentSidebar
                             initialWidth={showDocSidebar ? usedSidebarWidth : 0}
                             ref={innerSidebarElementRef}
@@ -2446,7 +2438,6 @@ export function ChatPage({
                             showDocSidebar={showDocSidebar}
                             isWide={isWide}
                           />
-                        </ResizableSection>
                       </div>
                     </>
                   ) : // Another option is to use a div with the width set to the initial width, so that the
