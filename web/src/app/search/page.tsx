@@ -186,7 +186,7 @@ export default async function Home() {
       Only used in the EE version of the app. */}
         <ChatPopup />
         <InstantSSRAutoRefresh />
-        <div className="pt-20 lg:pt-14 lg:px-14 container min-h-screen overflow-y-auto">
+        <div className="pt-20 lg:pt-14 lg:px-14 container min-h-screen overflow-y-auto overflow-x-hidden">
           <SearchProvider
             value={{
               querySessions,
