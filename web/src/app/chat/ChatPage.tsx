@@ -1872,6 +1872,7 @@ export function ChatPage({
 
                             {retrievalEnabled && (
                               <CustomTooltip
+                                asChild
                                 trigger={
                                   <Button
                                     onClick={toggleSidebar}

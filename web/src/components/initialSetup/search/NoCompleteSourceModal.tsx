@@ -47,7 +47,7 @@ export function NoCompleteSourcesModal({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="fixed z-notification top-5 right-0 md:right-5 mx-5 md:mx-0 md:w-96"
+          className="z-notification top-5 right-0 md:right-5 mx-5 md:mx-0 md:w-96"
           initial={{ y: -100 }}
           animate={{ y: 0 }}
           exit={{ y: "-100%" }}

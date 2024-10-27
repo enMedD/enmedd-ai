@@ -515,7 +515,7 @@ export function ChatInputBar({
             <div className="flex items-center justify-between py-4 overflow-hidden border-t border-border-light">
               <div className="flex w-auto items-center">
                 <Popover>
-                  <PopoverTrigger>
+                  <PopoverTrigger asChild>
                     <Button variant="ghost" className="mr-2 border">
                       <Cpu size={16} />
                       {selectedAssistant
