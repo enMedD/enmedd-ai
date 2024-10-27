@@ -9,20 +9,20 @@ import { setUserDefaultModel } from "@/lib/users/UserSettings";
 import { useRouter } from "next/navigation";
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { useUser } from "@/components/user/UserProvider";
+import { useToast } from "@/hooks/use-toast";
 
 export function SetDefaultModelModal({
-  setPopup,
   llmProviders,
   onClose,
   setLlmOverride,
   defaultModel,
 }: {
-  setPopup: (popupSpec: PopupSpec | null) => void;
   llmProviders: LLMProviderDescriptor[];
   setLlmOverride: Dispatch<SetStateAction<LlmOverride>>;
   onClose: () => void;
   defaultModel: string | null;
 }) {
+  const { toast } = useToast()
   const { refreshUser } = useUser();
   const containerRef = useRef<HTMLDivElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
@@ -102,9 +102,10 @@ export function SetDefaultModelModal({
         if (defaultModel) {
           setLlmOverride(destructureValue(defaultModel));
         }
-        setPopup({
-          message: "Default model updated successfully",
-          type: "success",
+        toast({
+          title: "Default Model Updated",
+          description: "The default model has been successfully updated.",
+          variant: "success",
         });
         refreshUser();
         router.refresh();
@@ -112,9 +113,10 @@ export function SetDefaultModelModal({
         throw new Error("Failed to update default model");
       }
     } catch (error) {
-      setPopup({
-        message: "Failed to update default model",
-        type: "error",
+      toast({
+        title: "Update Failed",
+        description: "There was an issue updating the default model. Please try again.",
+        variant: "destructive",
       });
     }
   };

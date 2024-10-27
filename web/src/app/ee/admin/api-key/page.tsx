@@ -88,8 +88,7 @@ function NewApiKeyModal({
 }
 
 function Main() {
-  const { popup, setPopup } = usePopup();
-
+  const { toast } = useToast();
   const {
     data: apiKeys,
     isLoading,
@@ -244,9 +243,10 @@ function Main() {
                         setKeyIsGenerating(false);
                         if (!response.ok) {
                           const errorMsg = await response.text();
-                          setPopup({
-                            type: "error",
-                            message: `Failed to regenerate API Key: ${errorMsg}`,
+                          toast({
+                            title: "Regeneration Failed",
+                            description: `Failed to regenerate API Key: ${errorMsg}`,
+                            variant: "destructive",
                           });
                           return;
                         }
@@ -265,9 +265,10 @@ function Main() {
                         const response = await deleteApiKey(apiKey.api_key_id);
                         if (!response.ok) {
                           const errorMsg = await response.text();
-                          setPopup({
-                            type: "error",
-                            message: `Failed to delete API Key: ${errorMsg}`,
+                          toast({
+                            title: "Deletion Failed",
+                            description: `Failed to delete API Key: ${errorMsg}`,
+                            variant: "destructive",
                           });
                           return;
                         }

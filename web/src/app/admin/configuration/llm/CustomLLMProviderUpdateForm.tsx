@@ -20,10 +20,10 @@ import {
 import { useState } from "react";
 import { useSWRConfig } from "swr";
 import { FullLLMProvider } from "./interfaces";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import * as Yup from "yup";
 import isEqual from "lodash/isEqual";
 import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
+import { useToast } from "@/hooks/use-toast";
 
 function customConfigProcessing(customConfigsList: [string, string][]) {
   const customConfig: { [key: string]: string } = {};
@@ -37,15 +37,14 @@ export function CustomLLMProviderUpdateForm({
   onClose,
   existingLlmProvider,
   shouldMarkAsDefault,
-  setPopup,
   hideSuccess,
 }: {
   onClose: () => void;
   existingLlmProvider?: FullLLMProvider;
   shouldMarkAsDefault?: boolean;
-  setPopup?: (popup: PopupSpec) => void;
   hideSuccess?: boolean;
 }) {
+  const { toast } = useToast()
   const { mutate } = useSWRConfig();
 
   const [isTesting, setIsTesting] = useState(false);
@@ -98,14 +97,11 @@ export function CustomLLMProviderUpdateForm({
 
         if (values.model_names.length === 0) {
           const fullErrorMsg = "At least one model name is required";
-          if (setPopup) {
-            setPopup({
-              type: "error",
-              message: fullErrorMsg,
-            });
-          } else {
-            alert(fullErrorMsg);
-          }
+          toast({
+            title: "Input Error",
+            description: fullErrorMsg,
+            variant: "destructive",
+          });
           setSubmitting(false);
           return;
         }
@@ -149,14 +145,11 @@ export function CustomLLMProviderUpdateForm({
           const fullErrorMsg = existingLlmProvider
             ? `Failed to update provider: ${errorMsg}`
             : `Failed to enable provider: ${errorMsg}`;
-          if (setPopup) {
-            setPopup({
-              type: "error",
-              message: fullErrorMsg,
+            toast({
+              title: "Update Error",
+              description: fullErrorMsg,
+              variant: "destructive",
             });
-          } else {
-            alert(fullErrorMsg);
-          }
           return;
         }
 
@@ -171,14 +164,11 @@ export function CustomLLMProviderUpdateForm({
           if (!setDefaultResponse.ok) {
             const errorMsg = (await setDefaultResponse.json()).detail;
             const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
-            if (setPopup) {
-              setPopup({
-                type: "error",
-                message: fullErrorMsg,
-              });
-            } else {
-              alert(fullErrorMsg);
-            }
+            toast({
+              title: "Default Provider Error",
+              description: fullErrorMsg,
+              variant: "destructive",
+            });
             return;
           }
         }
@@ -189,14 +179,13 @@ export function CustomLLMProviderUpdateForm({
         const successMsg = existingLlmProvider
           ? "Provider updated successfully!"
           : "Provider enabled successfully!";
-        if (!hideSuccess && setPopup) {
-          setPopup({
-            type: "success",
-            message: successMsg,
-          });
-        } else {
-          alert(successMsg);
-        }
+          if (!hideSuccess) {
+            toast({
+              title: "Success",
+              description: successMsg,
+              variant: "success", 
+            });
+          }
 
         setSubmitting(false);
       }}

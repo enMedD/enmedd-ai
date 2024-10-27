@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { useToast } from "@/hooks/use-toast";
 
 const CategoryBubble = ({
   name,
@@ -65,16 +66,15 @@ const NUM_RESULTS_PER_PAGE = 10;
 export const PromptLibraryTable = ({
   promptLibrary,
   refresh,
-  setPopup,
   handleEdit,
   isPublic,
 }: {
   promptLibrary: InputPrompt[];
   refresh: () => void;
-  setPopup: (popup: PopupSpec | null) => void;
   handleEdit: (promptId: number) => void;
   isPublic: boolean;
 }) => {
+  const { toast } = useToast()
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
@@ -122,7 +122,12 @@ export const PromptLibraryTable = ({
       }
     );
     if (!response.ok) {
-      setPopup({ message: "Failed to delete input prompt", type: "error" });
+      const errorMsg = await response.text();
+      toast({
+        title: "Delete Failed",
+        description: `Error: ${errorMsg}`,
+        variant: "destructive",
+      });
     }
     refresh();
   };

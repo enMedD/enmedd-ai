@@ -299,8 +299,6 @@ export function ChatPage({
   // are run twice on initial load during development
   const submitOnLoadPerformed = useRef<boolean>(false);
 
-  const { popup, setPopup } = usePopup();
-
   // fetch messages for the chat session
   const [isFetchingChatMessages, setIsFetchingChatMessages] = useState(
     existingChatSessionId !== null
@@ -1785,7 +1783,6 @@ export function ChatPage({
       {showApiKeyModal && !shouldShowWelcomeModal ? (
         <ApiKeyModal
           hide={() => setShowApiKeyModal(false)}
-          setPopup={setPopup}
         />
       ) : (
         noAssistants && <NoAssistantModal isAdmin={isAdmin} />
@@ -1793,8 +1790,6 @@ export function ChatPage({
 
       {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
       Only used in the EE version of the app. */}
-      {popup}
-
       <ChatPopup />
 
       <div className="relative flex overflow-x-hidden bg-background default h-full">
@@ -1815,7 +1810,6 @@ export function ChatPage({
         <div ref={masterFlexboxRef} className="flex w-full overflow-x-hidden">
           {settingsToggled && (
             <SetDefaultModelModal
-              setPopup={setPopup}
               setLlmOverride={llmOverrideManager.setGlobalDefault}
               defaultModel={user?.preferences.default_model!}
               llmProviders={llmProviders}
@@ -2146,20 +2140,20 @@ export function ChatPage({
                                     currentSessionChatState == "input"
                                       ? (newQuery) => {
                                           if (!previousMessage) {
-                                            setPopup({
-                                              type: "error",
-                                              message:
-                                                "Cannot edit query of first message - please refresh the page and try again.",
+                                            toast({
+                                              title: "Edit Error",
+                                              description: "Cannot edit query of the first message - please refresh the page and try again.",
+                                              variant: "destructive",
                                             });
                                             return;
                                           }
                                           if (
                                             previousMessage.messageId === null
                                           ) {
-                                            setPopup({
-                                              type: "error",
-                                              message:
-                                                "Cannot edit query of a pending message - please wait a few seconds and try again.",
+                                            toast({
+                                              title: "Edit Error",
+                                              description: "Cannot edit the query of a pending message - please wait a few seconds and try again.",
+                                              variant: "destructive",
                                             });
                                             return;
                                           }
@@ -2216,10 +2210,10 @@ export function ChatPage({
                                           currentAlternativeAssistant,
                                       });
                                     } else {
-                                      setPopup({
-                                        type: "error",
-                                        message:
-                                          "Failed to force search - please refresh the page and try again.",
+                                      toast({
+                                        title: "Force Search Error",
+                                        description: "Failed to force search - please refresh the page and try again.",
+                                        variant: "destructive",
                                       });
                                     }
                                   }}

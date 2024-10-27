@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Text, Title } from "@tremor/react";
+import { Card, Text, Title } from "@tremor/react";
 
 import {
   CloudEmbeddingProvider,
@@ -17,9 +17,9 @@ import { HoverPopup } from "@/components/HoverPopup";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { CustomEmbeddingModelForm } from "@/components/embedding/CustomEmbeddingModelForm";
 import { deleteSearchSettings } from "./utils";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { DeleteEntityModal } from "@/components/modals/DeleteEntityModal";
 import { AdvancedSearchConfiguration } from "../interfaces";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CloudEmbeddingPage({
   currentModel,
@@ -416,32 +416,40 @@ export function CloudModelCard({
     React.SetStateAction<CloudEmbeddingProvider | null>
   >;
 }) {
-  const { popup, setPopup } = usePopup();
+  const { toast } = useToast();
   const [showDeleteModel, setShowDeleteModel] = useState(false);
   const enabled =
     model.model_name === currentModel.model_name &&
     model.provider_type?.toLowerCase() ==
       currentModel.provider_type?.toLowerCase();
 
-  const deleteModel = async () => {
-    if (!model.id) {
-      setPopup({ message: "Model cannot be deleted", type: "error" });
-      return;
-    }
-
-    const response = await deleteSearchSettings(model.id);
-
-    if (response.ok) {
-      setPopup({ message: "Model deleted successfully", type: "success" });
-      setShowDeleteModel(false);
-    } else {
-      setPopup({
-        message:
-          "Failed to delete model. Ensure you are not attempting to delete a curently active model.",
-        type: "error",
-      });
-    }
-  };
+      const deleteModel = async () => {
+        if (!model.id) {
+          toast({
+            title: "Deletion Error",
+            description: "Model cannot be deleted",
+            variant: "destructive",
+          });
+          return;
+        }
+      
+        const response = await deleteSearchSettings(model.id);
+      
+        if (response.ok) {
+          toast({
+            title: "Success",
+            description: "Model deleted successfully",
+            variant: "success",
+          });
+          setShowDeleteModel(false);
+        } else {
+          toast({
+            title: "Deletion Failed",
+            description: "Failed to delete model. Ensure you are not attempting to delete a currently active model.",
+            variant: "destructive",
+          });
+        }
+      };
 
   return (
     <div
@@ -451,7 +459,6 @@ export function CloudModelCard({
           : "border-gray-300 hover:border-blue-300 hover:shadow-sm"
       } ${!provider.configured && "opacity-80 hover:opacity-100"}`}
     >
-      {popup}
       {showDeleteModel && (
         <DeleteEntityModal
           entityName={model.model_name}

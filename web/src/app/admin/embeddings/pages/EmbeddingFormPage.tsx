@@ -1,5 +1,4 @@
 "use client";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 
 import { EmbeddingModelSelection } from "../EmbeddingModelSelectionForm";
@@ -24,10 +23,11 @@ import {
 import RerankingDetailsForm from "../RerankingFormPage";
 import { useEmbeddingFormContext } from "@/context/EmbeddingContext";
 import { Modal } from "@/components/Modal";
+import { useToast } from "@/hooks/use-toast";
 
 export default function EmbeddingForm() {
+  const { toast } = useToast();
   const { formStep, nextFormStep, prevFormStep } = useEmbeddingFormContext();
-  const { popup, setPopup } = usePopup();
 
   const [advancedEmbeddingDetails, setAdvancedEmbeddingDetails] =
     useState<AdvancedSearchConfiguration>({
@@ -172,14 +172,19 @@ export default function EmbeddingForm() {
 
     const response = await updateSearchSettings(values);
     if (response.ok) {
-      setPopup({
-        message: "Updated search settings succesffuly",
-        type: "success",
+      toast({
+        title: "Success",
+        description: "Updated search settings successfully",
+        variant: "success",
       });
       mutate("/api/search-settings/get-current-search-settings");
       return true;
     } else {
-      setPopup({ message: "Failed to update search settings", type: "error" });
+      toast({
+        title: "Error",
+        description: "Failed to update search settings",
+        variant: "destructive",
+      });
       return false;
     }
   };
@@ -227,18 +232,22 @@ export default function EmbeddingForm() {
     );
 
     if (response.ok) {
-      setPopup({
-        message: "Changed provider successfully. Redirecting to embedding page",
-        type: "success",
+      toast({
+        title: "Provider Change Successful",
+        description: "You have successfully changed the provider. Redirecting to the embedding page...",
+        variant: "success",
       });
       mutate("/api/search-settings/get-secondary-search-settings");
       setTimeout(() => {
         window.open("/admin/configuration/search", "_self");
       }, 2000);
     } else {
-      setPopup({ message: "Failed to update embedding model", type: "error" });
-
-      alert(`Failed to update embedding model - ${await response.text()}`);
+      const errorMsg = await response.text();
+      toast({
+        title: "Update Failed",
+        description: `Could not update the embedding model: ${errorMsg}`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -295,8 +304,6 @@ export default function EmbeddingForm() {
 
   return (
     <div className="mx-auto mb-8 w-full">
-      {popup}
-
       <div className="mb-4">
         <HealthCheckBanner />
       </div>

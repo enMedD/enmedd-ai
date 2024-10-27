@@ -103,7 +103,6 @@ export function ReIndexButton({
   isDeleting: boolean;
 }) {
   const [reIndexPopupVisible, setReIndexPopupVisible] = useState(false);
-  const { popup, setPopup } = usePopup();
   return (
     <>
       {reIndexPopupVisible && (
@@ -114,7 +113,6 @@ export function ReIndexButton({
           hide={() => setReIndexPopupVisible(false)}
         />
       )}
-      {popup}
       {isDeleting || isDisabled ? (
         <CustomTooltip
           trigger={

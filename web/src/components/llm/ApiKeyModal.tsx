@@ -4,14 +4,11 @@ import { ApiKeyForm } from "./ApiKeyForm";
 import { Modal } from "../Modal";
 import { useRouter } from "next/navigation";
 import { useProviderStatus } from "../chat_search/ProviderContext";
-import { PopupSpec } from "../admin/connectors/Popup";
 
 export const ApiKeyModal = ({
   hide,
-  setPopup,
 }: {
   hide: () => void;
-  setPopup: (popup: PopupSpec) => void;
 }) => {
   const router = useRouter();
 
@@ -44,7 +41,6 @@ export const ApiKeyModal = ({
         </div>
 
         <ApiKeyForm
-          setPopup={setPopup}
           onSuccess={() => {
             router.refresh();
             refreshProviderInfo();

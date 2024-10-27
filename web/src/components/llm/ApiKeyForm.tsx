@@ -1,4 +1,3 @@
-import { PopupSpec } from "../admin/connectors/Popup";
 import { useState } from "react";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@tremor/react";
 import { WellKnownLLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
@@ -8,12 +7,10 @@ import { CustomLLMProviderUpdateForm } from "@/app/admin/configuration/llm/Custo
 export const ApiKeyForm = ({
   onSuccess,
   providerOptions,
-  setPopup,
   hideSuccess,
 }: {
   onSuccess: () => void;
   providerOptions: WellKnownLLMProviderDescriptor[];
-  setPopup: (popup: PopupSpec) => void;
   hideSuccess?: boolean;
 }) => {
   const defaultProvider = providerOptions[0]?.name;
@@ -57,7 +54,6 @@ export const ApiKeyForm = ({
                   llmProviderDescriptor={provider}
                   onClose={() => onSuccess()}
                   shouldMarkAsDefault
-                  setPopup={setPopup}
                   hideSuccess={hideSuccess}
                 />
               </TabPanel>
@@ -67,7 +63,6 @@ export const ApiKeyForm = ({
             <CustomLLMProviderUpdateForm
               onClose={() => onSuccess()}
               shouldMarkAsDefault
-              setPopup={setPopup}
               hideSuccess={hideSuccess}
             />
           </TabPanel>
