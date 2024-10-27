@@ -25,6 +25,10 @@
   div {
     overflow-y: hidden;
   }
+
+  code {
+    border: none;
+  }
 }
 
 pre[class*="language-"] {

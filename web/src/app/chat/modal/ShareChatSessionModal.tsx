@@ -76,7 +76,10 @@ export function ShareChatSessionModal({
         ) : (
           <CustomTooltip
             trigger={
-              <div onClick={() => setIsShareModalOpen(true)}>
+              <div
+                className="cursor-pointer focus-visible:ring-light p-2 rounded-xs"
+                onClick={() => setIsShareModalOpen(true)}
+              >
                 <Share size={20} />
               </div>
             }
