@@ -140,12 +140,20 @@ export const TeamspaceMember = ({
           {teamspace.users.length > 0 ? (
             <div className="pt-8 flex flex-wrap -space-x-3">
               {teamspace.users.slice(0, 8).map((teamspace) => (
-                <div
+                <CustomTooltip
+                  variant="white"
                   key={teamspace.id}
-                  className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase`}
+                  trigger={
+                    <div
+                      key={teamspace.id}
+                      className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase border-[1px] border-white`}
+                    >
+                      {teamspace.full_name!.charAt(0)}
+                    </div>
+                  }
                 >
-                  {teamspace.full_name!.charAt(0)}
-                </div>
+                  {teamspace.full_name}
+                </CustomTooltip>
               ))}
               {teamspace.users.length > 8 && (
                 <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
