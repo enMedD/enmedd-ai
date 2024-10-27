@@ -40,6 +40,7 @@ export function CustomTooltip({
   delayDuration = 300,
   style,
   asChild,
+  variant = "primary",
 }: {
   children: React.ReactNode;
   trigger: string | React.ReactNode;
@@ -48,6 +49,7 @@ export function CustomTooltip({
   delayDuration?: number;
   style?: string;
   asChild?: boolean;
+  variant?: "destructive" | "secondary" | "primary";
 }) {
   return (
     <TooltipProvider>
@@ -56,7 +58,7 @@ export function CustomTooltip({
         <TooltipContent
           align={align}
           side={side}
-          className={`!z-modal ${style} bg-primary border-none text-inverted`}
+          className={`!z-modal ${style} bg-${variant} border-none text-inverted`}
         >
           {children}
         </TooltipContent>

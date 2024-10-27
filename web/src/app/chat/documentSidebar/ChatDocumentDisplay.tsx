@@ -97,9 +97,11 @@ export function ChatDocumentDisplay({
             )}
           </div>
         </div>
-        {(document.updated_at || document.metadata) && (
-          <DocumentMetadataBlock document={document} />
-        )}
+        <div>
+          <div className="mt-1">
+            <DocumentMetadataBlock document={document} />
+          </div>
+        </div>
 
         <div className="break-words whitespace-normal pt-2">
           {buildDocumentSummaryDisplay(

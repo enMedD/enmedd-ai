@@ -10,6 +10,7 @@ import {
   EmbeddingModelDescriptor,
   EmbeddingProvider,
   LITELLM_CLOUD_PROVIDER,
+  AZURE_CLOUD_PROVIDER,
 } from "../../../../components/embedding/interfaces";
 import { EmbeddingDetails } from "../EmbeddingModelSelectionForm";
 import { FiExternalLink, FiInfo, FiTrash } from "react-icons/fi";
