@@ -1878,16 +1878,17 @@ export function ChatPage({
                             {retrievalEnabled && (
                               <CustomTooltip
                                 trigger={
-                                  <div
-                                    className="cursor-pointer focus-visible:ring-light p-2 rounded-xs"
+                                  <Button
                                     onClick={toggleSidebar}
+                                    variant="ghost"
+                                    size="icon"
                                   >
                                     {showDocSidebar ? (
                                       <PanelRightClose size={24} />
                                     ) : (
                                       <PanelLeftClose size={24} />
                                     )}
-                                  </div>
+                                  </Button>
                                 }
                                 asChild
                               >
