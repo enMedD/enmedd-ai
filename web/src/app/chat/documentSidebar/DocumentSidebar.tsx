@@ -131,7 +131,7 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
                 <div className="p-6">
                   <p>
                     When you run ask a question, the retrieved documents will
-                    show up here!
+                    show up here
                   </p>
                 </div>
               )

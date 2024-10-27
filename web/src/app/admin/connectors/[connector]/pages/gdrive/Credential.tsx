@@ -356,7 +356,7 @@ export const DriveOAuthSection = ({
             }
             await adminDeleteCredential(existingCredential.id);
             setPopup({
-              message: "Successfully revoked access to Google Drive!",
+              message: "Successfully revoked access to Google Drive",
               type: "success",
             });
             refreshCredentials();

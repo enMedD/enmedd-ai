@@ -200,7 +200,7 @@ export function IndexingAttemptsTable({ ccPair }: { ccPair: CCPairFullInfo }) {
         color="blue"
       >
         Index attempts are scheduled in the background, and may take some time
-        to appear. Try refreshing the page in ~30 seconds!
+        to appear. Try refreshing the page in ~30 seconds.
       </Callout>
     );
   }

@@ -79,7 +79,7 @@ function NewApiKeyModal({
         </div>
         {isCopyClicked && (
           <p className="pt-1 text-xs font-medium text-success">
-            API Key copied!
+            API Key copied
           </p>
         )}
       </div>

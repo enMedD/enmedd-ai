@@ -76,7 +76,7 @@ export const submitGoogleSite = async (
     }
     setPopup({
       type: "success",
-      message: "Successfully created Google Site connector!",
+      message: "Successfully created Google Site connector",
     });
     return true;
   };
