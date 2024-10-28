@@ -7,8 +7,8 @@ import {
   LightBulbIcon,
   LightSettingsIcon,
 } from "../icons/icons";
-import { CustomTooltip } from "../tooltip/CustomTooltip";
 import { useToast } from "@/hooks/use-toast";
+import { CustomTooltip } from "../CustomTooltip";
 
 type DocumentFeedbackType = "endorse" | "reject" | "hide" | "unhide";
 
@@ -116,21 +116,31 @@ export const DocumentFeedbackBlock = ({
 }: DocumentFeedbackBlockProps) => {
   return (
     <div className="flex items-center gap-x-2">
-      <CustomTooltip showTick line content="Good response">
-        <DocumentFeedback
-          documentId={documentId}
-          messageId={messageId}
-          documentRank={documentRank}
-          feedbackType="endorse"
-        />
+      <CustomTooltip
+        trigger={
+          <DocumentFeedback
+            documentId={documentId}
+            messageId={messageId}
+            documentRank={documentRank}
+            feedbackType="endorse"
+          />
+        }
+        asChild
+      >
+        Good Response
       </CustomTooltip>
-      <CustomTooltip showTick line content="Bad response">
-        <DocumentFeedback
-          documentId={documentId}
-          messageId={messageId}
-          documentRank={documentRank}
-          feedbackType="reject"
-        />
+      <CustomTooltip
+        trigger={
+          <DocumentFeedback
+            documentId={documentId}
+            messageId={messageId}
+            documentRank={documentRank}
+            feedbackType="reject"
+          />
+        }
+        asChild
+      >
+        Bad Response
       </CustomTooltip>
     </div>
   );

@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
-import { ModalWrapper } from "@/components/modals/ModalWrapper";
 import { Text } from "@tremor/react";
 import { getDisplayNameForModel, LlmOverride } from "@/lib/hooks";
 import { LLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
@@ -138,7 +137,7 @@ export function SetDefaultModelModal({
         <Text className="mb-4">
           Choose a Large Language Model (LLM) to serve as the default for
           assistants that don&apos;t have a default model assigned.
-          {defaultModel == null && "  No default model has been selected!"}
+          {defaultModel == null && "  No default model has been selected"}
         </Text>
         <div
           className="w-full max-h-96 overflow-y-auto flex text-sm flex-col border rounded-md"

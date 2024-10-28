@@ -110,6 +110,7 @@ class Teamspace(BaseModel):
             ],
             is_up_to_date=teamspace_model.is_up_to_date,
             is_up_for_deletion=teamspace_model.is_up_for_deletion,
+            is_custom_logo=teamspace_model.is_custom_logo,
             workspace=[
                 MinimalWorkspaceSnapshot(
                     id=workspace.id, workspace_name=workspace.workspace_name
