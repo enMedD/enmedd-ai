@@ -267,7 +267,7 @@ def list_all_users(
                     company_email=user.company_email,
                     company_name=user.company_name,
                     vat=user.vat,
-                    is_custom_profile=user.is_custom_profile,
+                    profile=user.profile,
                 )
                 for user, role in users_with_roles
                 if not is_api_key_email_address(user.email)
@@ -310,7 +310,7 @@ def list_all_users(
                     company_email=user.company_email,
                     company_name=user.company_name,
                     vat=user.vat,
-                    is_custom_profile=user.is_custom_profile,
+                    profile=user.profile,
                 )
                 for user in users_with_roles
             ],
@@ -332,7 +332,7 @@ def list_all_users(
                 company_email=user.company_email,
                 company_name=user.company_name,
                 vat=user.vat,
-                is_custom_profile=user.is_custom_profile,
+                profile=user.profile,
             )
             for user in users_with_roles
         ][accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE],
@@ -508,9 +508,7 @@ def list_all_users_basic_info(
 ) -> list[MinimalUserSnapshot]:
     users = list_users(db_session)
     return [
-        MinimalUserSnapshot(
-            id=user.id, email=user.email, is_custom_profile=user.is_custom_profile
-        )
+        MinimalUserSnapshot(id=user.id, email=user.email, profile=user.profile)
         for user in users
     ]
 
@@ -562,7 +560,7 @@ def fetch_profile(
     current_user: User = Depends(current_user),
 ) -> Response:
     try:
-        file_path = f"{current_user.id}/{_PROFILE_FILENAME}"
+        file_path = f"{current_user.id}{_PROFILE_FILENAME}"
 
         file_store = get_default_file_store(db_session)
         file_io = file_store.read_file(file_path, mode="b")
@@ -578,13 +576,13 @@ def remove_profile(
     current_user: User = Depends(current_user),  # Get the current user
 ) -> dict:
     try:
-        file_name = f"{current_user.id}/{_PROFILE_FILENAME}"
+        file_name = f"{current_user.id}{_PROFILE_FILENAME}"
 
         file_store = get_default_file_store(db_session)
 
         file_store.delete_file(file_name)
 
-        current_user.is_custom_profile = False
+        current_user.profile = None
         db_session.merge(current_user)
         db_session.commit()
 
