@@ -28,7 +28,7 @@ export const PromptSection = ({
   centering?: boolean;
   isPublic: boolean;
 }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const [newPrompt, setNewPrompt] = useState(false);
   const [newPromptId, setNewPromptId] = useState<number | null>(null);
 
@@ -44,7 +44,7 @@ export const PromptSection = ({
     });
 
     if (!response.ok) {
-      const errorMsg = await response.text(); 
+      const errorMsg = await response.text();
       toast({
         title: "Input Prompt Creation Failed",
         description: `Error: ${errorMsg}`,
@@ -71,13 +71,13 @@ export const PromptSection = ({
       });
 
       if (!response.ok) {
-        const errorMsg = await response.text(); 
+        const errorMsg = await response.text();
         toast({
           title: "Prompt Update Failed",
           description: `Error: ${errorMsg}`,
           variant: "destructive",
         });
-        return; 
+        return;
       }
 
       setNewPromptId(null);
@@ -106,7 +106,7 @@ export const PromptSection = ({
 
   const handleEdit = (promptId: number) => {
     setNewPromptId(promptId);
-    console.log(promptId)
+    console.log(promptId);
   };
 
   return (
@@ -130,7 +130,7 @@ export const PromptSection = ({
       <div className={centering ? "max-w-sm mx-auto" : ""}>
         <Text className="my-auto mb-2">
           Create prompts that can be accessed with the <i>`/`</i> shortcut in
-          enMedD AI Chat.{" "}
+          Vanguard AI Chat.{" "}
           {isPublic
             ? "Prompts created here will be accessible to all users."
             : "Prompts created here will be available only to you."}

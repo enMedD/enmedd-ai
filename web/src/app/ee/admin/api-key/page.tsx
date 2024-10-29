@@ -33,7 +33,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const API_KEY_TEXT = `
-API Keys allow you to access enMedD AI APIs programmatically. Click the button below to generate a new API Key.
+API Keys allow you to access Vanguard AI APIs programmatically. Click the button below to generate a new API Key.
 `;
 
 function NewApiKeyModal({
@@ -72,7 +72,6 @@ function NewApiKeyModal({
                 {isCopyClicked ? <Check size="16" /> : <Copy size="16" />}
               </Button>
             }
-            
           >
             {isCopyClicked ? "Copied" : "Copy"}
           </CustomTooltip>
@@ -209,8 +208,10 @@ function Main() {
                           onClick={() => handleEdit(apiKey)}
                         >
                           <Pencil size={16} className="shrink-0" />
-                         
-                            <p className="w-full truncate mr-5">{apiKey.api_key_name || <i>null</i>}</p>
+
+                          <p className="w-full truncate mr-5">
+                            {apiKey.api_key_name || <i>null</i>}
+                          </p>
                         </div>
                       }
                       asChild

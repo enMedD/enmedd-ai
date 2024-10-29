@@ -26,7 +26,7 @@ export function AssistantGalleryCard({
   user: User | null;
   selectedAssistant: boolean;
 }) {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const router = useRouter();
   return (
     <div
@@ -134,7 +134,7 @@ export function AssistantGalleryCard({
 
       <p className="text-sm mt-2">{assistant.description}</p>
       <p className="text-subtle text-sm my-2">
-        Author: {assistant.owner?.email || "enMedD AI"}
+        Author: {assistant.owner?.email || "Vanguard AI"}
       </p>
       {assistant.tools.length > 0 && (
         <AssistantTools list assistant={assistant} />

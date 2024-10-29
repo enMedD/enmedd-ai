@@ -64,8 +64,8 @@ function Main() {
           <div className="space-y-4">
             <p className="text-text-600">
               Unstructured extracts and transforms complex data from formats
-              like .pdf, .docx, .png, .pptx, etc. into clean text for enMedD AI
-              to ingest. Provide an API key to enable Unstructured document
+              like .pdf, .docx, .png, .pptx, etc. into clean text for Vanguard
+              AI to ingest. Provide an API key to enable Unstructured document
               processing.
               <br />
               <br /> <strong>Note:</strong> this will send documents to
@@ -122,13 +122,14 @@ function Main() {
 function Page() {
   return (
     <div className="w-full h-full overflow-y-auto">
-    <div className="container mx-auto">
-      <AdminPageTitle
-        title="Document Processing"
-        icon={<DocumentIcon2 size={32} className="my-auto" />}
-      />
-      <Main />
-    </div></div>
+      <div className="container mx-auto">
+        <AdminPageTitle
+          title="Document Processing"
+          icon={<DocumentIcon2 size={32} className="my-auto" />}
+        />
+        <Main />
+      </div>
+    </div>
   );
 }
 

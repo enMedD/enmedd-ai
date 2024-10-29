@@ -1,7 +1,7 @@
 "use client";
 
 import { UserSettingsButton } from "@/components/UserSettingsButton";
-import ArnoldAi from "../../../public/arnold_ai.png";
+import ArnoldAi from "../../../public/logo-brand.png";
 import { Separator } from "@/components/ui/separator";
 import { User } from "@/lib/types";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -54,7 +54,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
         <div className="flex flex-col items-center h-full overflow-y-auto">
           <Image
             src={ArnoldAi}
-            alt="ArnoldAi Logo"
+            alt="Vanguard AI Logo"
             width={40}
             height={40}
             className="rounded-regular shrink-0"
@@ -73,7 +73,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             >
               {workspaces?.workspace_name
                 ? workspaces.workspace_name
-                : "enMedD AI"}
+                : "Vanguard AI"}
             </CustomTooltip>
           </div>
           <Separator className="mt-4" />

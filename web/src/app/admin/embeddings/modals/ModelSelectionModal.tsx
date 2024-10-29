@@ -1,7 +1,5 @@
 import { Text, Callout } from "@tremor/react";
-import {
-  HostedEmbeddingModel,
-} from "../../../../components/embedding/interfaces";
+import { HostedEmbeddingModel } from "../../../../components/embedding/interfaces";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +8,7 @@ export function ModelSelectionConfirmationModal({
   isCustom,
   onConfirm,
   onCancel,
-  showTentativeOpenProvider
+  showTentativeOpenProvider,
 }: {
   selectedModel: HostedEmbeddingModel;
   isCustom: boolean;
@@ -33,14 +31,14 @@ export function ModelSelectionConfirmationModal({
           </Text>
           <Text className="text-lg mb-2">
             We will re-index all your documents in the background so you will be
-            able to continue to use enMedD AI as normal with the old model in
+            able to continue to use Vanguard AI as normal with the old model in
             the meantime. Depending on how many documents you have indexed, this
             may take a while.
           </Text>
           <Text className="text-lg mb-2">
             <i>NOTE:</i> this re-indexing process will consume more resources
             than normal. If you are self-hosting, we recommend that you allocate
-            at least 16GB of RAM to enMedD AI during this process.
+            at least 16GB of RAM to Vanguard AI during this process.
           </Text>
 
           {isCustom && (

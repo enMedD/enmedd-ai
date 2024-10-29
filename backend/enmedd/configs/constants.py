@@ -28,9 +28,9 @@ SIZE = (200, 200)
 
 # Messages
 DISABLED_GEN_AI_MSG = (
-    "Your System Admin has disabled the Generative AI functionalities of enMedD AI.\n"
+    "Your System Admin has disabled the Generative AI functionalities of Vanguard AI.\n"
     "Please contact them if you wish to have this enabled.\n"
-    "You can still use enMedD AI as a search engine."
+    "You can still use Vanguard AI as a search engine."
 )
 
 # Postgres connection constants for application_name

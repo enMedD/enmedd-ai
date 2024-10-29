@@ -198,9 +198,11 @@ export const GmailJsonUploadSection = ({
                     method: "DELETE",
                   }
                 );
-            
+
                 if (response.ok) {
-                  mutate("/api/manage/admin/connector/gmail/service-account-key");
+                  mutate(
+                    "/api/manage/admin/connector/gmail/service-account-key"
+                  );
                   toast({
                     title: "Success",
                     description: "Successfully deleted service account key",
@@ -250,7 +252,7 @@ export const GmailJsonUploadSection = ({
                 method: "DELETE",
               }
             );
-        
+
             if (response.ok) {
               mutate("/api/manage/admin/connector/gmail/app-credential");
               toast({
@@ -342,12 +344,13 @@ export const GmailOAuthSection = ({
             if (connectorExists) {
               toast({
                 title: "Error",
-                description: "Cannot revoke access to Gmail while any connector is still set up. Please delete all connectors, then try again.",
+                description:
+                  "Cannot revoke access to Gmail while any connector is still set up. Please delete all connectors, then try again.",
                 variant: "destructive",
               });
               return;
             }
-            
+
             await adminDeleteCredential(existingCredential.id);
             toast({
               title: "Success",
@@ -367,9 +370,9 @@ export const GmailOAuthSection = ({
     return (
       <div>
         <p className="mb-2 text-sm">
-          When using a Gmail Service Account, you can either have enMedD AI act
-          as the service account itself OR you can specify an account for the
-          service account to impersonate.
+          When using a Gmail Service Account, you can either have Vanguard AI
+          act as the service account itself OR you can specify an account for
+          the service account to impersonate.
           <br />
           <br />
           If you want to use the service account itself, leave the{" "}
@@ -388,7 +391,7 @@ export const GmailOAuthSection = ({
             })}
             onSubmit={async (values, formikHelpers) => {
               formikHelpers.setSubmitting(true);
-            
+
               const response = await fetch(
                 "/api/manage/admin/connector/gmail/service-account-credential",
                 {
@@ -401,11 +404,12 @@ export const GmailOAuthSection = ({
                   }),
                 }
               );
-            
+
               if (response.ok) {
                 toast({
                   title: "Success",
-                  description: "Successfully created service account credential",
+                  description:
+                    "Successfully created service account credential",
                   variant: "success",
                 });
               } else {
@@ -416,7 +420,7 @@ export const GmailOAuthSection = ({
                   variant: "destructive",
                 });
               }
-            
+
               refreshCredentials();
             }}
           >
@@ -425,7 +429,7 @@ export const GmailOAuthSection = ({
                 <TextFormField
                   name="gmail_delegated_user"
                   label="[Optional] User email to impersonate:"
-                  subtext="If left blank, enMedD AI will use the service account itself."
+                  subtext="If left blank, Vanguard AI will use the service account itself."
                   optional
                 />
                 <div className="flex">
