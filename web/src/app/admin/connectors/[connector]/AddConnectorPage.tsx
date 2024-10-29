@@ -282,7 +282,18 @@ export default function AddConnector({
             name
           );
           if (response) {
+            toast({
+              title: "Google Site Submitted",
+              description: "Your Google site has been successfully submitted!",
+              variant: "success", 
+            });
             onSuccess();
+          } else {
+            toast({
+              title: "Error",
+              description: response,
+              variant: "destructive",
+            });
           }
           return;
         }
@@ -296,8 +307,20 @@ export default function AddConnector({
             access_type == "public",
             groups
           );
+          console.log(response);
           if (response) {
             onSuccess();
+            toast({
+              title: "Success",
+              description: "Successfully uploaded files!",
+              variant: "success",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: response,
+              variant: "destructive",
+            });
           }
           return;
         }
