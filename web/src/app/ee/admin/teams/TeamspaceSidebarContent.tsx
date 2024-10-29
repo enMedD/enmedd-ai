@@ -64,9 +64,9 @@ export const TeamspaceSidebarContent = ({
             {teamspace.name}
           </h1>
           {/* TODO: Replace with the owner */}
-          {/* <span className="text-center text-primary pt-1 font-medium text-sm">
-            @mrquilbot
-          </span> */}
+          <span className="text-center text-primary pt-1 font-medium text-sm">
+            {teamspace.creator.email}
+          </span>
           <span className="text-center pt-4 font-bold text-sm flex items-center gap-1">
             <Shield size={16} />
             {tokenRate
