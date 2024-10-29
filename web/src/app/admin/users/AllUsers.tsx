@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AddUserButton } from "./AddUserButton";
 import { User, UserStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { UserProfile } from "@/components/UserProfile";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -253,9 +254,7 @@ export const AllUsers = ({
                       <TableRow key={user.id}>
                         <TableCell>
                           <div className="flex gap-4">
-                            <div className="border rounded-full w-10 h-10 flex items-center justify-center">
-                              <UserIcon />
-                            </div>
+                            <UserProfile user={user} />
                             <div className="flex flex-col">
                               <span className="truncate max-w-44 font-medium">
                                 {user.full_name}

@@ -281,15 +281,26 @@ export function AssistantEditor({
             llm_model_provider_override: Yup.string().nullable(),
             starter_messages: Yup.array().of(
               Yup.object().shape({
-                name: Yup.string().required(
-                  "Each starter message must have a name"
-                ),
-                description: Yup.string().required(
-                  "Each starter message must have a description"
-                ),
-                message: Yup.string().required(
-                  "Each starter message must have a message"
-                ),
+                name: Yup.string().when("$isSubmitting", {
+                  is: true,
+                  then: (schema) =>
+                    schema.required("Each starter message must have a name"),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
+                description: Yup.string().when("$isSubmitting", {
+                  is: true,
+                  then: (schema) =>
+                    schema.required(
+                      "Each starter message must have a description"
+                    ),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
+                message: Yup.string().when("$isSubmitting", {
+                  is: true,
+                  then: (schema) =>
+                    schema.required("Each starter message must have a message"),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
               })
             ),
             search_start_date: Yup.date().nullable(),
@@ -376,7 +387,11 @@ export function AssistantEditor({
           const numChunks = searchToolEnabled ? values.num_chunks || 10 : 0;
 
           // don't set teamspace if marked as public
-          const groups = teamspaceId ? [Number(teamspaceId)] : (values.is_public ? [] : values.groups)
+          const groups = teamspaceId
+            ? [Number(teamspaceId)]
+            : values.is_public
+              ? []
+              : values.groups;
 
           let promptResponse;
           let assistantResponse;
@@ -1038,7 +1053,7 @@ export function AssistantEditor({
                   <div className="flex flex-col mb-6">
                     <div className="flex items-center gap-x-2">
                       <div className="block text-base font-medium">
-                        Starter Messages (Optional){" "}
+                        Starter Messages (Optional)
                       </div>
                     </div>
                     <FieldArray
