@@ -68,10 +68,12 @@ export const DeactivaterButton = ({
   user,
   deactivate,
   mutate,
+  role,
 }: {
   user: User;
   deactivate: boolean;
   mutate: () => void;
+  role: string;
 }) => {
   const { toast } = useToast();
   const { trigger, isMutating } = useSWRMutation(
@@ -107,19 +109,31 @@ export const DeactivaterButton = ({
   );
 };
 
-export const AllUsers = ({ q }: { q: string }) => {
+export const AllUsers = ({
+  q,
+  teamspaceId,
+}: {
+  q: string;
+  teamspaceId?: string | string[];
+}) => {
+  const { toast } = useToast();
   const [invitedPage, setInvitedPage] = useState(1);
   const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const userApiUrl = teamspaceId
+    ? `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}&teamspace_id=${teamspaceId}`
+    : `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}`;
+
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
-    `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}`,
+    userApiUrl,
     errorHandlingFetcher
   );
 
-  const { toast } = useToast();
-
   const { trigger: promoteTrigger } = useSWRMutation(
-    "/api/manage/promote-user-to-admin",
+    teamspaceId
+      ? `/api/manage/admin/teamspace/user-role/${teamspaceId}`
+      : "/api/manage/promote-user-to-admin",
     userMutationFetcher,
     {
       onSuccess: () => {
@@ -141,7 +155,9 @@ export const AllUsers = ({ q }: { q: string }) => {
   );
 
   const { trigger: demoteTrigger } = useSWRMutation(
-    "/api/manage/demote-admin-to-basic",
+    teamspaceId
+      ? `/api/manage/admin/teamspace/user-role/${teamspaceId}`
+      : "/api/manage/demote-admin-to-basic",
     userMutationFetcher,
     {
       onSuccess: () => {
@@ -195,9 +211,9 @@ export const AllUsers = ({ q }: { q: string }) => {
 
   const handleRoleChange = async (userEmail: string, newRole: string) => {
     if (newRole === "admin") {
-      await promoteTrigger({ user_email: userEmail });
+      await promoteTrigger({ user_email: userEmail, new_role: "admin" });
     } else {
-      await demoteTrigger({ user_email: userEmail });
+      await demoteTrigger({ user_email: userEmail, new_role: "basic" });
     }
   };
 
@@ -214,7 +230,6 @@ export const AllUsers = ({ q }: { q: string }) => {
         <ValidDomainsDisplay validDomains={validDomains} />
         <AddUserButton />
       </div>
-
       <div className="flex-1">
         {filteredUsers.length > 0 ? (
           <>
@@ -230,7 +245,7 @@ export const AllUsers = ({ q }: { q: string }) => {
                     <TableRow>
                       <TableHead>User</TableHead>
                       <TableHead>Role</TableHead>
-                      <TableHead></TableHead>
+                      {!teamspaceId && <TableHead></TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -269,15 +284,18 @@ export const AllUsers = ({ q }: { q: string }) => {
                             </SelectContent>
                           </Select>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end">
-                            <DeactivaterButton
-                              user={user}
-                              deactivate={user.status === UserStatus.live}
-                              mutate={mutate}
-                            />
-                          </div>
-                        </TableCell>
+                        {!teamspaceId && (
+                          <TableCell>
+                            <div className="flex justify-end">
+                              <DeactivaterButton
+                                user={user}
+                                deactivate={user.status === UserStatus.live}
+                                mutate={mutate}
+                                role={user.role}
+                              />
+                            </div>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
