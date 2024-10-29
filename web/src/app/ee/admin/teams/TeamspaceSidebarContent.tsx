@@ -37,22 +37,24 @@ export const TeamspaceSidebarContent = ({
     <>
       <div style={{ background: teamspace.gradient }} className="h-40 relative">
         <div className="absolute top-full -translate-y-1/2 left-1/2 -translate-x-1/2">
-{teamspace.is_custom_logo ? (
+          {teamspace.is_custom_logo ? (
+            <div className="rounded-md w-16 h-16 bg-background rounded-md overflow-hidden">
               <Image
                 src={`/api/teamspace/logo?teamspace_id=${teamspace.id}&t=${Date.now()}`}
                 alt="Teamspace Logo"
-                className="object-cover w-16 h-16 rounded-md shrink-0"
+                className="object-cover w-full h-full"
                 width={40}
                 height={40}
               />
-            ) : (
-              <span
-            style={{ background: teamspace.gradient }}
-            className="text-3xl uppercase font-bold min-w-16 min-h-16 flex items-center justify-center rounded-xl text-inverted border-[5px] border-inverted"
-          >
-            {teamspace.name.charAt(0)}
-          </span> 
-            )}
+            </div>
+          ) : (
+            <span
+              style={{ background: teamspace.gradient }}
+              className="text-3xl uppercase font-bold min-w-16 min-h-16 flex items-center justify-center rounded-xl text-inverted border-[5px] border-inverted"
+            >
+              {teamspace.name.charAt(0)}
+            </span>
+          )}
         </div>
       </div>
 
