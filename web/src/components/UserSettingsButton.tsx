@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { User as UserTypes } from "@/lib/types";
