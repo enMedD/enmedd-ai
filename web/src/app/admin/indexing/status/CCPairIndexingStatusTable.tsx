@@ -167,14 +167,14 @@ function ConnectorRow({
       case "in_progress":
         return (
           <Badge color="success">
-            <div className="w-3 h-3 rounded-full bg-background" />
+            <div className="w-3 h-3 rounded-full bg-yellow-200" />
             Indexing
           </Badge>
         );
       case "not_started":
         return (
           <Badge color="outline">
-            <div className="w-3 h-3 rounded-full bg-primary" />
+            <div className="w-3 h-3 rounded-full bg-sky-300" />
             Scheduled
           </Badge>
         );
