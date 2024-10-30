@@ -49,7 +49,7 @@ const config = {
           light: "#4B2525",
         },
         // TODO: make a proper palette for this that uses range
-        blue: {
+        brand: {
           50: "#EEDDDD",
           100: "#DDBBBB",
           200: "#BD7A7A",

@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-inverted hover:bg-blue-300 focus-visible:ring-primary",
+          "bg-primary text-inverted hover:bg-brand-300 focus-visible:ring-primary",
         destructive:
           "bg-destructive text-inverted hover:bg-destructive-foreground focus-visible:ring-destructive",
         outline:
-          "border border-blue-400 bg-background hover:bg-blue-200 hover:text-blue-600 focus-visible:ring-primary-400",
+          "border border-brand-400 bg-background hover:bg-brand-200 hover:text-brand-600 focus-visible:ring-primary-400",
         secondary:
           "bg-secondary text-inverted hover:bg-secondary-foreground focus-visible:ring-secondary",
         ghost:
