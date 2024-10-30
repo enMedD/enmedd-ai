@@ -192,6 +192,7 @@ export const ChatSidebar = ({
             folders={folders}
             openedFolders={openedFolders}
             toggleSideBar={toggleSideBar}
+            teamspaceId={teamspaceId}
           />
         </div>
 
