@@ -424,7 +424,7 @@ export default function EmbeddingForm() {
             </Card>
 
             <div
-              className={` mt-4 w-full grid md:grid-cols-3 gap-4 items-start`}
+              className={` mt-5 w-full grid md:grid-cols-3 gap-4 items-start`}
             >
               <div>
                 <Button

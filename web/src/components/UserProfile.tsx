@@ -1,5 +1,4 @@
 import { User } from "lucide-react";
-import Image from "next/image";
 import React from "react";
 import { User as UserTypes } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
@@ -57,7 +56,7 @@ export function UserProfile({
       onClick={onClick}
     >
       {user?.profile ? (
-        <Image
+        <img
           src={buildImgUrl(user.profile)}
           alt="User profile"
           className="w-full h-full object-cover rounded-full"

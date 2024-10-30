@@ -10,14 +10,12 @@ import { fetchSS } from "@/lib/utilsSS";
 import { CCPairBasicInfo, DocumentSet, Tag, User } from "@/lib/types";
 import { cookies } from "next/headers";
 import { SearchType } from "@/lib/search/interfaces";
-import { Assistant } from "../admin/assistants/interfaces";
 import {
   WelcomeModal,
   hasCompletedWelcomeFlowSS,
 } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
 import { unstable_noStore as noStore } from "next/cache";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
-import { assistantComparator } from "../admin/assistants/lib";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { ChatPopup } from "@/app/chat/ChatPopup";
@@ -39,6 +37,8 @@ import {
 import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
 import { SearchProvider } from "@/context/SearchContext";
+import { Assistant } from "@/app/admin/assistants/interfaces";
+import { assistantComparator } from "@/app/admin/assistants/lib";
 
 export default async function Home({
   params,
@@ -177,7 +177,7 @@ export default async function Home({
     : false;
 
   return (
-    <div className="h-full">
+    <div className="h-full overflow-y-auto">
       <HealthCheckBanner />
       <div className="relative flex h-full">
         <BarLayout user={user} BarComponent={SearchSidebar} />
@@ -190,22 +190,24 @@ export default async function Home({
       Only used in the EE version of the app. */}
         <ChatPopup />
         <InstantSSRAutoRefresh />
-        <div className="pt-20 lg:pt-14 lg:px-14 container min-h-screen overflow-y-auto overflow-x-hidden">
-          <SearchProvider
-            value={{
-              querySessions,
-              ccPairs,
-              documentSets,
-              assistants,
-              tags,
-              agenticSearchEnabled,
-              disabledAgentic: DISABLE_LLM_DOC_RELEVANCE,
-              shouldShowWelcomeModal,
-              shouldDisplayNoSources: shouldDisplayNoSourcesModal,
-            }}
-          >
-            <SearchSection defaultSearchType={searchTypeDefault} />
-          </SearchProvider>
+        <div className="w-full h-full overflow-hidden overflow-y-auto min-h-screen">
+          <div className="pt-20 lg:pt-14 lg:px-14 container">
+            <SearchProvider
+              value={{
+                querySessions,
+                ccPairs,
+                documentSets,
+                assistants,
+                tags,
+                agenticSearchEnabled,
+                disabledAgentic: DISABLE_LLM_DOC_RELEVANCE,
+                shouldShowWelcomeModal,
+                shouldDisplayNoSources: shouldDisplayNoSourcesModal,
+              }}
+            >
+              <SearchSection defaultSearchType={searchTypeDefault} />
+            </SearchProvider>
+          </div>
         </div>
       </div>
       <HelperFab />
