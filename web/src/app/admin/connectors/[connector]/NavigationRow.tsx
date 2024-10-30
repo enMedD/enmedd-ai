@@ -19,9 +19,9 @@ const NavigationRow = ({
   const { formStep, prevFormStep, nextFormStep } = useFormContext();
 
   return (
-    <div className="mt-5 w-full grid md:grid-cols-3 gap-4 items-start">
+    <div className="mt-5 md:w-full flex justify-between gap-4 items-start flex-col md:flex-row">
       {((formStep > 0 && !noCredentials) || (formStep > 1 && !noAdvanced)) && (
-        <div>
+        <div className="w-full">
           <Button
             onClick={prevFormStep}
             variant="outline"
@@ -34,7 +34,7 @@ const NavigationRow = ({
       )}
 
       {(formStep > 0 || noCredentials) && (
-        <div className="flex justify-center">
+        <div className="flex w-full">
           <Button
             disabled={!isValid}
             onClick={onSubmit}
@@ -47,7 +47,7 @@ const NavigationRow = ({
         </div>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end w-full">
         {formStep === 0 && (
           <Button
             disabled={!activatedCredential}
