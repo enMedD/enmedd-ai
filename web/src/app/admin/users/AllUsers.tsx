@@ -229,7 +229,7 @@ export const AllUsers = ({
       <div className="xl:w-2/5">
         <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
         <ValidDomainsDisplay validDomains={validDomains} />
-        <AddUserButton />
+        {!teamspaceId && <AddUserButton />}
       </div>
       <div className="flex-1">
         {filteredUsers.length > 0 ? (
