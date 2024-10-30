@@ -127,8 +127,8 @@ export function AssistantsTable({
                         <Link
                           href={
                             teamspaceId
-                              ? `/admin/assistants/${assistant.id}?u=${Date.now()}`
-                              : `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
+                              ? `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
+                              : `/admin/assistants/${assistant.id}?u=${Date.now()}`
                           }
                           className="flex items-center w-full gap-2 truncate"
                         >
@@ -226,6 +226,7 @@ export function AssistantsTable({
                             </Button>
                           }
                           asChild
+                          variant="destructive"
                         >
                           Delete
                         </CustomTooltip>

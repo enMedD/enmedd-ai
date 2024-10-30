@@ -155,7 +155,7 @@ function ConnectorRow({
       ConnectorCredentialPairStatus.PAUSED
     ) {
       return (
-        <Badge variant="warning">
+        <Badge variant="secondary">
           <div className="w-3 h-3 bg-default rounded-full" />
           Paused
         </Badge>
@@ -180,7 +180,7 @@ function ConnectorRow({
         );
       default:
         return (
-          <Badge color="success">
+          <Badge>
             <div className="w-3 h-3 rounded-full bg-background" />
             Active
           </Badge>
