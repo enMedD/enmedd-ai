@@ -281,15 +281,26 @@ export function AssistantEditor({
             llm_model_provider_override: Yup.string().nullable(),
             starter_messages: Yup.array().of(
               Yup.object().shape({
-                name: Yup.string().required(
-                  "Each starter message must have a name"
-                ),
-                description: Yup.string().required(
-                  "Each starter message must have a description"
-                ),
-                message: Yup.string().required(
-                  "Each starter message must have a message"
-                ),
+                name: Yup.string().when("$isSubmitting", {
+                  is: true,
+                  then: (schema) =>
+                    schema.required("Each starter message must have a name"),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
+                description: Yup.string().when("$isSubmitting", {
+                  is: true,
+                  then: (schema) =>
+                    schema.required(
+                      "Each starter message must have a description"
+                    ),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
+                message: Yup.string().when("$isSubmitting", {
+                  is: true,
+                  then: (schema) =>
+                    schema.required("Each starter message must have a message"),
+                  otherwise: (schema) => schema.notRequired(),
+                }),
               })
             ),
             search_start_date: Yup.date().nullable(),

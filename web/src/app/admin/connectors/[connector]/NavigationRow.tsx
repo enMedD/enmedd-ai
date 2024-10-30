@@ -32,7 +32,6 @@ const NavigationRow = ({
           </Button>
         </div>
       )}
-
       {(formStep > 0 || noCredentials) && (
         <div className="flex w-full">
           <Button
