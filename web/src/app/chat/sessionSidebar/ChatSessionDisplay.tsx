@@ -222,6 +222,7 @@ export function ChatSessionDisplay({
                       </div>
 
                       <CustomTooltip
+                        asChild
                         trigger={
                           <DeleteChatModal
                             open={openDeleteModal}
@@ -233,7 +234,7 @@ export function ChatSessionDisplay({
                               );
                               if (response.ok) {
                                 // go back to the main page
-                                router.refresh();
+                                router.push("/chat");
                                 setOpenDeleteModal(false);
                                 toast({
                                   title: "Chat session deleted",
