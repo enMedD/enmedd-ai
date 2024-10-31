@@ -25,7 +25,7 @@ def generate_password_reset_email(email: str, reset_url: str):
     If you did not request a password reset, please ignore this email or contact support if you have concerns.
 
     Best regards,
-    The AI Platform Team
+    The VanguardAI Team
     """
 
     return subject, body
@@ -45,24 +45,26 @@ def generate_user_verification_email(full_name: str, verify_url: str):
     If you did not request this email, please ignore it.
 
     Best regards,
-    The AI Platform Team
+    The VanguardAI Team
     """
 
     return subject, body
 
 
 def generate_2fa_email(full_name: str, code: str):
-    subject = "Two Factor Authentication Code"
+    subject = "VanguardAI Two-Factor Authentication (2FA) Code"
 
     body = f"""
-    Hi {full_name},
+    Dear {full_name},
 
     Your two factor authentication code is: {code}
 
-    If you did not request this email, please ignore it.
+    Please enter this code within the next 10 minutes to complete your sign-in.
+    For your security, do not share this code with anyone.
+    If you did not request this code, please contact our support team immediately.
 
     Best regards,
-    The AI Platform Team
+    The VanguardAI Team
     """
 
     return subject, body

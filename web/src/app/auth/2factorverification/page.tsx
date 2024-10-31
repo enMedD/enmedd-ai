@@ -175,7 +175,10 @@ const Page = () => {
                 </InputOTPGroup>
               </InputOTP>
 
-              <Button className="w-full max-w-[450px]" onClick={handleContinue}>
+              <Button
+                className="w-full max-w-[450px]"
+                onClick={() => handleContinue}
+              >
                 Continue
               </Button>
 
