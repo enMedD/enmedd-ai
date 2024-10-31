@@ -46,7 +46,7 @@ const Page = () => {
     };
   }, []);
 
-  const handleContinue = async () => {
+  const handleContinue = async (value: string) => {
     try {
       const response = await fetch("/api/users/verify-otp", {
         method: "POST",
@@ -102,8 +102,10 @@ const Page = () => {
 
   const handleInputChange = (newValue: string) => {
     setValue(newValue);
+    console.log("new value length ", newValue.length);
+    // console.log("value length ", value.length)
     if (newValue.length === 6) {
-      handleContinue();
+      handleContinue(newValue);
     }
   };
 
