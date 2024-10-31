@@ -897,7 +897,7 @@ export function ChatPage({
   useEffect(() => {
     adjustDocumentSidebarWidth(); // Adjust the width on initial render
     window.addEventListener("resize", adjustDocumentSidebarWidth); // Add resize event listener
-
+    refreshUser();
     return () => {
       window.removeEventListener("resize", adjustDocumentSidebarWidth); // Cleanup the event listener
     };
