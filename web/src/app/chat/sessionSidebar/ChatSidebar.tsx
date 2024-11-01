@@ -113,7 +113,7 @@ export const ChatSidebar = ({
             `}
         id="chat-sidebar"
       >
-        <div className="flex items-center gap-2 w-full relative justify-between px-4 pb-4">
+        <div className="flex items-center gap-2 w-full relative justify-center px-4 pb-4">
           <div className="flex">
             {workspaces && workspaces.workspace_name ? (
               <Image src={EnmeddLogo} alt="LogoBrand" height={40} />
@@ -122,14 +122,14 @@ export const ChatSidebar = ({
             )}
           </div>
 
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             onClick={toggleSideBar}
             className="lg:hidden"
           >
             <PanelLeftClose size={24} />
-          </Button>
+          </Button> */}
         </div>
 
         <div className="h-full overflow-y-auto">
