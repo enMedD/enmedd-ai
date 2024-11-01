@@ -10,7 +10,7 @@ export const DeleteChatModal = ({
   onSubmit,
   open,
   openDeleteModal,
-  onClose
+  onClose,
 }: {
   chatSessionName: string;
   onSubmit: () => void;
@@ -22,7 +22,10 @@ export const DeleteChatModal = ({
   return (
     <CustomModal
       trigger={
-        <div className="hover:bg-background-inverted/10 p-1 rounded" onClick={openDeleteModal}>
+        <div
+          className="hover:bg-background-inverted/10 p-1 rounded"
+          onClick={openDeleteModal}
+        >
           <Trash size={16} />
         </div>
       }
@@ -56,22 +59,22 @@ export const DeleteEntityModal = ({
   entityType,
   entityName,
   additionalDetails,
-  showDeleteModel
+  showDeleteModel,
 }: {
   entityType: string;
   entityName: string;
   onClose: () => void;
   onSubmit: () => void;
   additionalDetails?: string;
-  showDeleteModel?: boolean
+  showDeleteModel?: boolean;
 }) => {
   return (
-    <CustomModal 
+    <CustomModal
       onClose={onClose}
       title={`Delete ${entityType}?`}
       trigger={null}
       open={showDeleteModel}
-      >
+    >
       <>
         <div className="flex mb-4">
           <h2 className="my-auto text-2xl font-bold"></h2>

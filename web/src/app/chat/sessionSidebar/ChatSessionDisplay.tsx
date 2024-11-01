@@ -32,6 +32,7 @@ import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { WarningCircle } from "@phosphor-icons/react";
 import { DeleteChatModal } from "@/components/modals/DeleteEntityModal";
 import { useToast } from "@/hooks/use-toast";
+import { useChatContext } from "@/context/ChatContext";
 
 export function ChatSessionDisplay({
   chatSession,
@@ -58,6 +59,7 @@ export function ChatSessionDisplay({
   const settings = useContext(SettingsContext);
   const { toast } = useToast();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  let { refreshChatSessions } = useChatContext();
 
   useEffect(() => {
     if (skipGradient) {
@@ -138,6 +140,7 @@ export function ChatSessionDisplay({
                       }
                     }}
                     className="-my-px px-1 py-[1px] mr-2 w-full rounded"
+                    placeholder="Enter chat name"
                   />
                 ) : (
                   <p className="mr-3 break-all truncate">
@@ -234,7 +237,12 @@ export function ChatSessionDisplay({
                               );
                               if (response.ok) {
                                 // go back to the main page
-                                router.push("/chat");
+                                router.push(
+                                  teamspaceId
+                                    ? `/t/${teamspaceId}/chat`
+                                    : "/chat"
+                                );
+                                refreshChatSessions();
                                 setOpenDeleteModal(false);
                                 toast({
                                   title: "Chat session deleted",
