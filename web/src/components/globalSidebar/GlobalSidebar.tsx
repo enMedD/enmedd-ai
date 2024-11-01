@@ -91,6 +91,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
                 <TeamspaceModal
                   teamspace={user.groups}
                   defaultPage={defaultPage}
+                  teamspaceId={teamspaceId}
                 />
               )}
             </div>

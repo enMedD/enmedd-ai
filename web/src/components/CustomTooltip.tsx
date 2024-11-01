@@ -47,6 +47,7 @@ export function CustomTooltip({
   style,
   asChild,
   variant = "primary",
+  open
 }: {
   children: React.ReactNode;
   trigger: string | React.ReactNode;
@@ -56,12 +57,13 @@ export function CustomTooltip({
   style?: string;
   asChild?: boolean;
   variant?: keyof typeof TooltipVariants;
+  open?: boolean;
 }) {
   // Get the variant class based on the prop
   const classString = TooltipVariants[variant] || TooltipVariants.primary;
   return (
     <TooltipProvider>
-      <Tooltip delayDuration={delayDuration}>
+      <Tooltip delayDuration={delayDuration} open={open}>
         <TooltipTrigger asChild={asChild}>{trigger}</TooltipTrigger>
         <TooltipContent
           align={align}

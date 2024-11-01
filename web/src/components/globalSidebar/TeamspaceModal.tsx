@@ -13,11 +13,13 @@ import { buildImgUrl } from "@/app/chat/files/images/utils";
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
   defaultPage: string;
+  teamspaceId?: string | string[];
 }
 
 export const TeamspaceModal = ({
   teamspace,
   defaultPage,
+  teamspaceId,
 }: TeamspaceModalProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -60,7 +62,7 @@ export const TeamspaceModal = ({
         {teamspace.map((team) => (
           <Link
             key={team.id}
-            className="flex items-center gap-4 border rounded-md p-4 cursor-pointer"
+            className={`flex items-center gap-4 border rounded-md p-4 cursor-pointer ${Number(teamspaceId) === team.id ? "bg-secondary" : ""}`}
             href={`/t/${team.id}/${defaultPage}`}
           >
             {team.logo ? (

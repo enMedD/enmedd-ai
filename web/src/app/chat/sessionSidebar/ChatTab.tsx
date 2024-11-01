@@ -47,6 +47,7 @@ export function ChatTab({
       try {
         await removeChatFromFolder(parseInt(folderId, 10), chatSessionId);
         refreshChatSessions();
+        router.refresh();
       } catch (error) {
         toast({
           title: "Removal Failed",

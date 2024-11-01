@@ -118,7 +118,7 @@ export function Combobox({
               variant="outline"
               className="cursor-pointer hover:bg-blue-200"
             >
-              {selectedItem.label}
+              <p className="truncate w-full">{selectedItem.label}</p>
               <X className="my-auto ml-1 cursor-pointer" size={14} />
             </Badge>
           ))}

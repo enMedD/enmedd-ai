@@ -47,7 +47,7 @@ export function UserProfile({
 
   return (
     <div
-      className={`flex items-center justify-center rounded-full aspect-square ${textSize} font-medium text-inverted overflow-hidden`}
+      className={`flex items-center justify-center rounded-full aspect-square shrink-0 ${textSize} font-medium text-inverted overflow-hidden`}
       style={{
         width: size,
         height: size,
