@@ -202,7 +202,7 @@ export function ChatSessionDisplay({
                                 <Button
                                   variant="ghost"
                                   onClick={() => setIsRenamingChat(true)}
-                                  className="w-full hover:bg-primary hover:text-inverted"
+                                  className="w-full hover:bg-brand-500 hover:text-inverted"
                                 >
                                   <Pencil className="mr-2" size={16} />
                                   Rename

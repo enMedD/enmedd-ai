@@ -226,7 +226,7 @@ export const TeamspaceDocumentSet = ({
                   trigger={
                     <div
                       key={documentSet.id}
-                      className="bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase border-[1px] border-white"
+                      className="bg-brand-500 w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase border-[1px] border-white"
                     >
                       {documentSet.name!.charAt(0)}
                     </div>

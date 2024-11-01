@@ -33,8 +33,8 @@ export const TooltipGroup: React.FC<{ children: React.ReactNode }> = ({
 };
 
 const TooltipVariants = {
-  primary: "bg-primary text-inverted",
-  destructive: "bg-destructive text-inverted",
+  primary: "bg-brand-500 text-inverted",
+  destructive: "bg-destructive-500 text-inverted",
   white: "bg-white text-base",
 };
 

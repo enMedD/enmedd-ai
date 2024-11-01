@@ -146,7 +146,7 @@ function ConnectorRow({
     ) {
       return (
         <Badge variant="destructive">
-          <div className="w-3 h-3 rounded-full bg-destructive" />
+          <div className="w-3 h-3 rounded-full bg-destructive-500" />
           Deleting
         </Badge>
       );
