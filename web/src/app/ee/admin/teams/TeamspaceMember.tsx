@@ -146,7 +146,7 @@ export const TeamspaceMember = ({
                   trigger={
                     <div
                       key={user.id}
-                      className={`bg-primary w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase border-[1px] border-white ${user.email == teamspace.creator.email && "border-red-500"}`}
+                      className={`bg-brand-500 w-10 h-10 rounded-full flex items-center justify-center font-semibold text-inverted text-lg uppercase border-[1px] border-white ${user.email == teamspace.creator.email && "border-red-500"}`}
                     >
                       {user.full_name!.charAt(0)}
                     </div>

@@ -281,26 +281,15 @@ export function AssistantEditor({
             llm_model_provider_override: Yup.string().nullable(),
             starter_messages: Yup.array().of(
               Yup.object().shape({
-                name: Yup.string().when("$isSubmitting", {
-                  is: true,
-                  then: (schema) =>
-                    schema.required("Each starter message must have a name"),
-                  otherwise: (schema) => schema.notRequired(),
-                }),
-                description: Yup.string().when("$isSubmitting", {
-                  is: true,
-                  then: (schema) =>
-                    schema.required(
-                      "Each starter message must have a description"
-                    ),
-                  otherwise: (schema) => schema.notRequired(),
-                }),
-                message: Yup.string().when("$isSubmitting", {
-                  is: true,
-                  then: (schema) =>
-                    schema.required("Each starter message must have a message"),
-                  otherwise: (schema) => schema.notRequired(),
-                }),
+                name: Yup.string().required(
+                  "Each starter message must have a name"
+                ),
+                description: Yup.string().required(
+                  "Each starter message must have a description"
+                ),
+                message: Yup.string().required(
+                  "Each starter message must have a message"
+                ),
               })
             ),
             search_start_date: Yup.date().nullable(),
@@ -579,6 +568,7 @@ export function AssistantEditor({
                             setRemoveAssistantImage(false);
                           }}
                           variant="destructive"
+                          type="button"
                         >
                           <TrashIcon />
                           {removeAssistantImage
@@ -604,6 +594,7 @@ export function AssistantEditor({
                               setFieldValue("icon_shape", newShape.encodedGrid);
                               setFieldValue("icon_color", randomColor);
                             }}
+                            type="button"
                           >
                             <NewChatIcon />
                             Generate New Icon
@@ -619,6 +610,7 @@ export function AssistantEditor({
                               setRemoveAssistantImage(false);
                               setFieldValue("uploaded_image", null);
                             }}
+                            type="button"
                           >
                             <SwapIcon />
                             Revert to Previous Image
@@ -634,6 +626,7 @@ export function AssistantEditor({
                               setRemoveAssistantImage(true);
                             }}
                             variant="destructive"
+                            type="button"
                           >
                             <TrashIcon />
                             Remove Image
@@ -807,7 +800,7 @@ export function AssistantEditor({
                           <TooltipContent
                             side="top"
                             align="center"
-                            className={`!z-modal bg-primary border-none text-inverted`}
+                            className={`!z-modal bg-brand-500 border-none text-inverted`}
                           >
                             <p>
                               To use Image Generation, select GPT-4o or another
@@ -844,7 +837,7 @@ export function AssistantEditor({
                         </TooltipTrigger>
                         {ccPairs.length === 0 && (
                           <TooltipContent
-                            className={`!z-modal bg-primary border-none text-inverted`}
+                            className={`!z-modal bg-brand-500 border-none text-inverted`}
                           >
                             <p>
                               To use the Search Tool, you need to have at least
@@ -978,9 +971,9 @@ export function AssistantEditor({
                                     name="include_citations"
                                     label="Include Citations"
                                     subtext={`
-                                      If set, the response will include bracket citations ([1], [2], etc.) 
-                                      for each document used by the LLM to help inform the response. This is 
-                                      the same technique used by the default Assistants. In general, we recommend 
+                                      If set, the response will include bracket citations ([1], [2], etc.)
+                                      for each document used by the LLM to help inform the response. This is
+                                      the same technique used by the default Assistants. In general, we recommend
                                       to leave this enabled in order to increase trust in the LLM answer.`}
                                   />
                                 </div>
@@ -1089,6 +1082,16 @@ export function AssistantEditor({
                                             <Input
                                               name={`starter_messages[${index}].name`}
                                               autoComplete="off"
+                                              value={
+                                                values.starter_messages[index]
+                                                  .name
+                                              }
+                                              onChange={(e) =>
+                                                setFieldValue(
+                                                  `starter_messages[${index}].name`,
+                                                  e.target.value
+                                                )
+                                              }
                                             />
                                             <ErrorMessage
                                               name={`starter_messages[${index}].name`}
@@ -1109,6 +1112,16 @@ export function AssistantEditor({
                                             <Input
                                               name={`starter_messages.${index}.description`}
                                               autoComplete="off"
+                                              value={
+                                                values.starter_messages[index]
+                                                  .description
+                                              }
+                                              onChange={(e) =>
+                                                setFieldValue(
+                                                  `starter_messages[${index}].description`,
+                                                  e.target.value
+                                                )
+                                              }
                                             />
                                             <ErrorMessage
                                               name={`starter_messages[${index}].description`}
@@ -1131,6 +1144,16 @@ export function AssistantEditor({
                                               name={`starter_messages[${index}].message`}
                                               autoComplete="off"
                                               className="min-h-40"
+                                              value={
+                                                values.starter_messages[index]
+                                                  .message
+                                              }
+                                              onChange={(e) =>
+                                                setFieldValue(
+                                                  `starter_messages[${index}].message`,
+                                                  e.target.value
+                                                )
+                                              }
                                             />
                                             <ErrorMessage
                                               name={`starter_messages[${index}].message`}
@@ -1143,7 +1166,11 @@ export function AssistantEditor({
                                       <div className="my-auto">
                                         <CustomTooltip
                                           trigger={
-                                            <Button variant="ghost" size="icon">
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              type="button"
+                                            >
                                               <FiX
                                                 onClick={() =>
                                                   arrayHelpers.remove(index)
@@ -1151,6 +1178,7 @@ export function AssistantEditor({
                                               />
                                             </Button>
                                           }
+                                          variant="destructive"
                                         >
                                           Remove
                                         </CustomTooltip>

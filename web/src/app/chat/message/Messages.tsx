@@ -727,7 +727,7 @@ export const HumanMessage = ({
         <div className="">
           <div className="flex">
             <div className="mx-1">
-              <UserProfile user={user} size={34} textSize="text-base" />
+              <UserProfile user={user} size={40} />
             </div>
 
             <div className="my-auto ml-2 font-bold text-inverted-inverted">

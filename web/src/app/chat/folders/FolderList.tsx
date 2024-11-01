@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Folder } from "./interfaces";
 import { ChatSessionDisplay } from "../sessionSidebar/ChatSessionDisplay";
 import { BasicSelectable } from "@/components/BasicClickable";
@@ -23,6 +23,9 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Popover } from "@/components/popover/Popover";
+import { CustomModal } from "@/components/CustomModal";
+import { Button } from "@/components/ui/button";
+import { useChatContext } from "@/context/ChatContext";
 
 const FolderItem = ({
   folder,
@@ -42,6 +45,7 @@ const FolderItem = ({
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
+  let { refreshChatSessions } = useChatContext();
 
   const toggleFolderExpansion = () => {
     if (!isEditing) {
@@ -97,7 +101,6 @@ const FolderItem = ({
   };
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
-  const deleteConfirmRef = useRef<HTMLDivElement>(null);
 
   const handleDeleteClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -108,6 +111,7 @@ const FolderItem = ({
     event.stopPropagation();
     try {
       await deleteFolder(folder.folder_id);
+      await refreshChatSessions(); 
       router.refresh();
     } catch (error) {
       toast({
@@ -124,22 +128,6 @@ const FolderItem = ({
     setShowDeleteConfirm(false);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        deleteConfirmRef.current &&
-        !deleteConfirmRef.current.contains(event.target as Node)
-      ) {
-        setShowDeleteConfirm(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
@@ -151,7 +139,7 @@ const FolderItem = ({
     );
     try {
       await addChatToFolder(folder.folder_id, chatSessionId);
-      router.refresh(); // Refresh to show the updated folder contents
+      router.refresh();
     } catch (error) {
       toast({
         title: "Error",
@@ -173,7 +161,12 @@ const FolderItem = ({
         setIsDragOver(true);
       }}
       onDragLeave={() => setIsDragOver(false)}
-      onDrop={handleDrop}
+      onDrop={async (event) => {
+        setIsDragOver(false);
+        await handleDrop(event);
+        await refreshChatSessions(); 
+        router.refresh(); 
+      }}
       className={`transition duration-300 ease-in-out rounded-xs ${
         isDragOver ? "bg-hover" : ""
       }`}
@@ -216,47 +209,34 @@ const FolderItem = ({
                 </div>
               )}
               {isHovering && !isEditing && (
-                <Popover
-                  open={showDeleteConfirm}
-                  onOpenChange={setShowDeleteConfirm}
-                  content={
-                    <div
-                      onClick={handleDeleteClick}
-                      className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
-                    >
-                      <Trash size={16} />
-                    </div>
-                  }
-                  popover={
-                    <div
-                      ref={deleteConfirmRef}
-                      className="flex flex-col gap-2 p-2 bg-white"
-                    >
-                      <div className="text-sm">
-                        Are you sure you want to delete this folder?
+                <div className="flex ml-auto my-auto">
+                  <div
+                    onClick={handleEditFolderName}
+                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded"
+                  >
+                    <Pencil size={16} />
+                  </div>
+                  <CustomModal
+                    trigger={
+                      <div
+                        onClick={handleDeleteClick}
+                        className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
+                      >
+                        <Trash size={16} />
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={confirmDelete}
-                          className="bg-accent text-white p-1 rounded"
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={cancelDelete}
-                          className="bg-background-inverted/10 p-1 rounded"
-                        >
-                          No
-                        </button>
-                      </div>
+                    }
+                    onClose={() => setShowDeleteConfirm(false)}
+                    open={showDeleteConfirm}
+                    title="Are you sure you want to delete this folder?"
+                  >
+                    <div className="pt-10 flex gap-4 justify-center">
+                      <Button onClick={cancelDelete} variant="destructive">
+                        No
+                      </Button>
+                      <Button onClick={confirmDelete}>Yes</Button>
                     </div>
-                  }
-                  side="right"
-                  align="center"
-                  sideOffset={-10}
-                  alignOffset={-10}
-                  requiresContentPadding={false}
-                />
+                  </CustomModal>
+                </div>
               )}
 
               {isEditing && (

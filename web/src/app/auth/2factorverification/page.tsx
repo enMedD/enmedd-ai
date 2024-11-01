@@ -120,7 +120,7 @@ const Page = () => {
         <div className="w-full xl:w-1/2 h-full flex items-center justify-center mx-auto px-6 lg:px-14 3xl:px-0">
           <div className="w-full md:w-3/4 lg:w-1/2 xl:w-full 3xl:w-1/2 my-auto pb-14 md:pb-20">
             <div className="flex items-center justify-center">
-              <div className="bg-primary p-3 rounded-md">
+              <div className="bg-brand-500 p-3 rounded-md">
                 <ShieldEllipsis size={60} stroke="white" />
               </div>
             </div>

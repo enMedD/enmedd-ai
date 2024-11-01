@@ -47,6 +47,7 @@ export function ChatTab({
       try {
         await removeChatFromFolder(parseInt(folderId, 10), chatSessionId);
         refreshChatSessions();
+        router.refresh();
       } catch (error) {
         toast({
           title: "Removal Failed",
@@ -80,7 +81,12 @@ export function ChatTab({
           setIsDragOver(true);
         }}
         onDragLeave={() => setIsDragOver(false)}
-        onDrop={handleDropToRemoveFromFolder}
+        onDrop={async (event) => {
+          setIsDragOver(false);
+          await handleDropToRemoveFromFolder(event); 
+          await refreshChatSessions(); 
+          router.refresh();
+        }}
         className={`transition duration-300 ease-in-out ${
           isDragOver ? "bg-hover" : ""
         } rounded-xs`}
