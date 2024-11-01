@@ -25,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Popover } from "@/components/popover/Popover";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
+import { useChatContext } from "@/context/ChatContext";
 
 const FolderItem = ({
   folder,
@@ -44,6 +45,7 @@ const FolderItem = ({
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
+  let { refreshChatSessions } = useChatContext();
 
   const toggleFolderExpansion = () => {
     if (!isEditing) {
@@ -109,6 +111,7 @@ const FolderItem = ({
     event.stopPropagation();
     try {
       await deleteFolder(folder.folder_id);
+      await refreshChatSessions(); 
       router.refresh();
     } catch (error) {
       toast({
@@ -158,7 +161,12 @@ const FolderItem = ({
         setIsDragOver(true);
       }}
       onDragLeave={() => setIsDragOver(false)}
-      onDrop={handleDrop}
+      onDrop={async (event) => {
+        setIsDragOver(false);
+        await handleDrop(event);
+        await refreshChatSessions(); 
+        router.refresh(); 
+      }}
       className={`transition duration-300 ease-in-out rounded-xs ${
         isDragOver ? "bg-hover" : ""
       }`}
@@ -222,10 +230,10 @@ const FolderItem = ({
                     title="Are you sure you want to delete this folder?"
                   >
                     <div className="pt-10 flex gap-4 justify-center">
-                      <Button onClick={confirmDelete}>Yes</Button>
                       <Button onClick={cancelDelete} variant="destructive">
                         No
                       </Button>
+                      <Button onClick={confirmDelete}>Yes</Button>
                     </div>
                   </CustomModal>
                 </div>

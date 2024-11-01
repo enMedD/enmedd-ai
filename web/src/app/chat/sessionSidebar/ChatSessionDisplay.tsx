@@ -13,13 +13,7 @@ import Link from "next/link";
 
 import { ShareChatSessionModal } from "../modal/ShareChatSessionModal";
 import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
-import {
-  Ellipsis,
-  X,
-  Check,
-  Pencil,
-  MessageCircleMore,
-} from "lucide-react";
+import { Ellipsis, X, Check, Pencil, MessageCircleMore } from "lucide-react";
 import {
   Popover,
   PopoverContent,

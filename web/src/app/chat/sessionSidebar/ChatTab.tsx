@@ -81,7 +81,12 @@ export function ChatTab({
           setIsDragOver(true);
         }}
         onDragLeave={() => setIsDragOver(false)}
-        onDrop={handleDropToRemoveFromFolder}
+        onDrop={async (event) => {
+          setIsDragOver(false);
+          await handleDropToRemoveFromFolder(event); 
+          await refreshChatSessions(); 
+          router.refresh();
+        }}
         className={`transition duration-300 ease-in-out ${
           isDragOver ? "bg-hover" : ""
         } rounded-xs`}
