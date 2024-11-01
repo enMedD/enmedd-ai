@@ -55,16 +55,18 @@ def generate_2fa_email(full_name: str, code: str):
     subject = "VanguardAI Two-Factor Authentication (2FA) Code"
 
     body = f"""
-    Dear {full_name},
+    <html>
+    <body>
+        <p>Dear {full_name},</p>
+        <p>Your two-factor authentication code is: <strong>{code}</strong></p>
 
-    Your two factor authentication code is: {code}
-
-    Please enter this code within the next 10 minutes to complete your sign-in.
-    For your security, do not share this code with anyone.
-    If you did not request this code, please contact our support team immediately.
-
-    Best regards,
-    The VanguardAI Team
+        <p>Please enter this code within the next 10 minutes to complete your sign-in.
+        For your security, do not share this code with anyone.
+        If you did not request this code, please contact our support team immediately.</p>
+        <p>Best regards,</p>
+        <p>The VanguardAI Team</p>
+    </body>
+    </html>
     """
 
     return subject, body
@@ -110,7 +112,7 @@ def send_2fa_email(to_email: str, subject: str, body: str, mail_from: str = EMAI
     message["Subject"] = subject
     if mail_from:
         message["From"] = mail_from
-    message.attach(MIMEText(body, "plain"))
+    message.attach(MIMEText(body, "html"))
 
     # Send email
     try:
