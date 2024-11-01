@@ -48,6 +48,8 @@ import {
 } from "@/components/ui/popover";
 import { CustomModal } from "@/components/CustomModal";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { useRouter } from "next/navigation";
+import { useAssistants } from "@/context/AssistantsContext";
 
 const MAX_INPUT_HEIGHT = 200;
 
@@ -99,6 +101,8 @@ export function ChatInputBar({
   textAreaRef: React.RefObject<HTMLTextAreaElement>;
   chatSessionId?: number;
 }) {
+  const { refreshAssistants } = useAssistants();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     const textarea = textAreaRef.current;
@@ -552,6 +556,8 @@ export function ChatInputBar({
                     onSelect={(assistant) => {
                       setSelectedAssistant(assistant);
                       closeModal();
+                      refreshAssistants();
+                      router.refresh();
                     }}
                   />
                 </CustomModal>
