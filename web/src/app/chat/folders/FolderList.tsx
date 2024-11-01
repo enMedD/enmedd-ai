@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Popover } from "@/components/popover/Popover";
 
 const FolderItem = ({
   folder,
@@ -207,6 +208,7 @@ const FolderItem = ({
                   onKeyDown={handleKeyDown}
                   onBlur={() => saveFolderName(true)}
                   className="text-sm px-1 flex-1 min-w-0 -my-px mr-2"
+                  placeholder="Enter folder name"
                 />
               ) : (
                 <div className="break-all overflow-hidden whitespace-nowrap mr-3 text-ellipsis">
@@ -214,20 +216,47 @@ const FolderItem = ({
                 </div>
               )}
               {isHovering && !isEditing && (
-                <div className="flex ml-auto my-auto">
-                  <div
-                    onClick={handleEditFolderName}
-                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded"
-                  >
-                    <Pencil size={16} />
-                  </div>
-                  <div
-                    onClick={handleDeleteClick}
-                    className="hover:bg-background-inverted/10 p-1 -m-1 rounded ml-2"
-                  >
-                    <Trash size={16} />
-                  </div>
-                </div>
+                <Popover
+                  open={showDeleteConfirm}
+                  onOpenChange={setShowDeleteConfirm}
+                  content={
+                    <div
+                      onClick={handleDeleteClick}
+                      className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
+                    >
+                      <Trash size={16} />
+                    </div>
+                  }
+                  popover={
+                    <div
+                      ref={deleteConfirmRef}
+                      className="flex flex-col gap-2 p-2 bg-white"
+                    >
+                      <div className="text-sm">
+                        Are you sure you want to delete this folder?
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={confirmDelete}
+                          className="bg-accent text-white p-1 rounded"
+                        >
+                          Yes
+                        </button>
+                        <button
+                          onClick={cancelDelete}
+                          className="bg-background-inverted/10 p-1 rounded"
+                        >
+                          No
+                        </button>
+                      </div>
+                    </div>
+                  }
+                  side="right"
+                  align="center"
+                  sideOffset={-10}
+                  alignOffset={-10}
+                  requiresContentPadding={false}
+                />
               )}
 
               {isEditing && (

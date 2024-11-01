@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useChatContext } from "@/context/ChatContext";
 
 export function ChatTab({
   existingChats,
@@ -29,6 +30,7 @@ export function ChatTab({
   const router = useRouter();
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const { toast } = useToast();
+  let { refreshChatSessions } = useChatContext();
 
   const handleDropToRemoveFromFolder = async (
     event: React.DragEvent<HTMLDivElement>
@@ -44,7 +46,7 @@ export function ChatTab({
     if (folderId) {
       try {
         await removeChatFromFolder(parseInt(folderId, 10), chatSessionId);
-        router.refresh(); // Refresh the page to reflect the changes
+        refreshChatSessions();
       } catch (error) {
         toast({
           title: "Removal Failed",
