@@ -13,7 +13,6 @@ export async function fetchAssistantsSS(
 
   if (response.ok) {
     const data = await response.json();
-    console.log("ASSISTANT DATA: ", data);
     return [data as Assistant[], null];
   }
 

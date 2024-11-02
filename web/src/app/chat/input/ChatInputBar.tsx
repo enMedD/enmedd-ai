@@ -556,7 +556,6 @@ export function ChatInputBar({
                     onSelect={(assistant) => {
                       setSelectedAssistant(assistant);
                       closeModal();
-                      refreshAssistants();
                       router.refresh();
                     }}
                   />
