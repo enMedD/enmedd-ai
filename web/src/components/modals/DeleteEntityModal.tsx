@@ -34,18 +34,16 @@ export const DeleteChatModal = ({
       onClose={onClose}
     >
       <div>
-        <div className="pt-2">
-          <p className="mb-4">
-            Click below to confirm that you want to delete{" "}
-            <b>&quot;{chatSessionName.slice(0, 30)}&quot;</b>
-          </p>
-          <div className="flex">
-            <div className="mx-auto pt-2">
-              <Button variant="destructive" onClick={onSubmit}>
-                <Trash size={16} className="my-auto" />
-                Delete
-              </Button>
-            </div>
+        <p className="mb-4">
+          Click below to confirm that you want to delete{" "}
+          <b>&quot;{chatSessionName.slice(0, 30)}&quot;</b>
+        </p>
+        <div className="flex">
+          <div className="mx-auto pt-2">
+            <Button variant="destructive" onClick={onSubmit}>
+              <Trash size={16} className="my-auto" />
+              Delete
+            </Button>
           </div>
         </div>
       </div>

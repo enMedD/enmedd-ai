@@ -204,7 +204,7 @@ export default function SecurityTab({ user }: { user: UserTypes | null }) {
           <>
             <Button
               variant="outline"
-              className="border-destructive-foreground hover:bg-destructive-500-100"
+              className="border-destructive-foreground hover:bg-destructive-100"
               onClick={() => setIsEditing(!isEditing)}
             >
               Cancel

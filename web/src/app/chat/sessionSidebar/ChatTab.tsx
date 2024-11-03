@@ -30,17 +30,15 @@ export function ChatTab({
   const router = useRouter();
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const { toast } = useToast();
-  let { refreshChatSessions } = useChatContext();
+  const { refreshChatSessions } = useChatContext();
 
   const handleDropToRemoveFromFolder = async (
     event: React.DragEvent<HTMLDivElement>
   ) => {
     event.preventDefault();
-    setIsDragOver(false); // Reset drag over state on drop
-    const chatSessionId = parseInt(
-      event.dataTransfer.getData(CHAT_SESSION_ID_KEY),
-      10
-    );
+    setIsDragOver(false);
+
+    const chatSessionId = event.dataTransfer.getData(CHAT_SESSION_ID_KEY);
     const folderId = event.dataTransfer.getData(FOLDER_ID_KEY);
 
     if (folderId) {
@@ -81,12 +79,7 @@ export function ChatTab({
           setIsDragOver(true);
         }}
         onDragLeave={() => setIsDragOver(false)}
-        onDrop={async (event) => {
-          setIsDragOver(false);
-          await handleDropToRemoveFromFolder(event); 
-          await refreshChatSessions(); 
-          router.refresh();
-        }}
+        onDrop={handleDropToRemoveFromFolder}
         className={`transition duration-300 ease-in-out ${
           isDragOver ? "bg-hover" : ""
         } rounded-xs`}

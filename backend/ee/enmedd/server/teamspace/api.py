@@ -43,12 +43,28 @@ def get_teamspace_by_id(
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
-    db_teamspace = fetch_teamspace(db_session, teamspace_id)
-    if db_teamspace is None:
-        raise HTTPException(
-            status_code=404, detail=f"Teamspace with id '{teamspace_id}' not found"
-        )
-    return Teamspace.from_model(db_teamspace)
+    teamspace_model = (
+        db_session.query(TeamspaceModel)
+        .filter(TeamspaceModel.id == teamspace_id)
+        .first()
+    )
+
+    if teamspace_model is None:
+        raise HTTPException(status_code=404, detail="Teamspace not found")
+
+    user_roles = (
+        db_session.query(User__Teamspace)
+        .filter(User__Teamspace.teamspace_id == teamspace_id)
+        .all()
+    )
+
+    user_role_dict = {ur.user_id: ur.role for ur in user_roles}
+    for user in teamspace_model.users:
+        user.role = user_role_dict.get(user.id, UserRole.BASIC) 
+
+    teamspace_data = Teamspace.from_model(teamspace_model)
+
+    return teamspace_data
 
 
 @admin_router.get("/admin/teamspace")
@@ -56,14 +72,26 @@ def list_teamspaces(
     user: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[Teamspace]:
-    if user is None or user.role == UserRole.ADMIN:
-        teamspaces = fetch_teamspaces(db_session, only_up_to_date=False)
-    else:
-        teamspaces = fetch_teamspaces_for_user(
-            db_session=db_session,
-            user_id=user.id,
+    teamspaces = db_session.query(TeamspaceModel).all()
+
+    teamspace_list = []
+
+    for teamspace_model in teamspaces:
+        user_roles = (
+            db_session.query(User__Teamspace)
+            .filter(User__Teamspace.teamspace_id == teamspace_model.id)
+            .all()
         )
-    return [Teamspace.from_model(teamspace) for teamspace in teamspaces]
+
+        user_role_dict = {ur.user_id: ur.role for ur in user_roles}
+
+        for user in teamspace_model.users:
+            user.role = user_role_dict.get(user.id, UserRole.BASIC)
+
+        teamspace_data = Teamspace.from_model(teamspace_model)
+        teamspace_list.append(teamspace_data)
+
+    return teamspace_list
 
 
 @admin_router.post("/admin/teamspace")
@@ -173,12 +201,57 @@ def update_teamspace_user_role(
             status_code=404, detail="User-Teamspace relationship not found"
         )
 
-    user_teamspace.role = body.new_role
+    if (
+        user_teamspace.role == TeamspaceUserRole.ADMIN
+        and body.new_role != TeamspaceUserRole.ADMIN
+    ):
+        raise HTTPException(status_code=400, detail="Cannot demote another admin!")
 
+    user_teamspace.role = body.new_role
     db_session.commit()
 
     return {
         "message": f"User role updated to {body.new_role.value} for {body.user_email}"
+    }
+
+
+@admin_router.post("/admin/teamspace/user-add/{teamspace_id}")
+def add_teamspace_users(
+    teamspace_id: int,
+    emails: list[str],
+    _: User = Depends(current_teamspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    added_users = []
+    for email in emails:
+        user_to_add = get_user_by_email(email=email, db_session=db_session)
+        if not user_to_add:
+            raise HTTPException(
+                status_code=404, detail=f"User not found for email: {email}"
+            )
+
+        existing_record = (
+            db_session.query(User__Teamspace)
+            .filter_by(teamspace_id=teamspace_id, user_id=user_to_add.id)
+            .first()
+        )
+        if existing_record:
+            raise HTTPException(
+                status_code=400,
+                detail=f"User with email {email} is already in the teamspace",
+            )
+
+        new_user_teamspace = User__Teamspace(
+            teamspace_id=teamspace_id,
+            user_id=user_to_add.id,
+            role=TeamspaceUserRole.BASIC,
+        )
+        db_session.add(new_user_teamspace)
+        added_users.append(email)
+
+    db_session.commit()
+    return {
+        "message": f"Users added to teamspace: {', '.join(added_users)}",
     }
 
 

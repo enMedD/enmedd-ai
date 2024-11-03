@@ -206,9 +206,9 @@ function ConnectorRow({
           {ccPairsIndexingStatus.name}
         </CustomTooltip>
       </TableCell>
-      <TableCell>
+      {/* <TableCell>
         {timeAgo(ccPairsIndexingStatus?.last_success) || "-"}
-      </TableCell>
+      </TableCell> */}
       <TableCell>{getActivityBadge()}</TableCell>
       {isPaidEnterpriseFeaturesEnabled && (
         <TableCell>
@@ -444,7 +444,7 @@ export function CCPairIndexingStatusTable({
                 <TableHead className="w-[200px] xl:w-[350px]">
                   <div className="w-full">Name</div>
                 </TableHead>
-                <TableHead>Last Indexed</TableHead>
+                {/* <TableHead>Last Indexed</TableHead> */}
                 <TableHead>Activity</TableHead>
                 {isPaidEnterpriseFeaturesEnabled && (
                   <TableHead>Permissions</TableHead>
