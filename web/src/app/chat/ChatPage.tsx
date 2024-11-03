@@ -1853,7 +1853,7 @@ export function ChatPage({
 
                     {liveAssistant && (
                       <div className="relative z-top-bar shrink-0">
-                        <div className="flex w-full items-center p-4 lg:px-0 3xl:px-4 justify-between">
+                        <div className="flex w-full items-center p-4 lg:px-0 3xl:px-4 justify-between min-h-[72px]">
                           <div className="flex lg:hidden items-center gap-2">
                             <Button
                               variant="ghost"
@@ -1906,7 +1906,7 @@ export function ChatPage({
                     )}
 
                     <div
-                      className="w-full h-full flex flex-col overflow-x-hidden relative scroll-smooth flex-1"
+                      className="w-full h-full flex flex-col overflow-x-hidden relative scroll-smooth flex-1 pt-6 lg:pt-0"
                       ref={scrollableDivRef}
                     >
                       {/* ChatBanner is a custom banner that displays a admin-specified message at 

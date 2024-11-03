@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default:
           "bg-brand-500 text-inverted hover:bg-brand-300 focus-visible:ring-primary",
         destructive:
-          "bg-destructive-500 text-inverted hover:bg-destructive-500-100 focus-visible:ring-destructive",
+          "bg-destructive-500 text-inverted hover:bg-destructive-100 focus-visible:ring-destructive",
         outline:
           "border border-brand-400 bg-background hover:bg-brand-200 hover:text-brand-600 focus-visible:ring-primary-400",
         secondary:

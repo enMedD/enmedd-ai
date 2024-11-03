@@ -43,12 +43,28 @@ def get_teamspace_by_id(
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
-    db_teamspace = fetch_teamspace(db_session, teamspace_id)
-    if db_teamspace is None:
-        raise HTTPException(
-            status_code=404, detail=f"Teamspace with id '{teamspace_id}' not found"
-        )
-    return Teamspace.from_model(db_teamspace)
+    teamspace_model = (
+        db_session.query(TeamspaceModel)
+        .filter(TeamspaceModel.id == teamspace_id)
+        .first()
+    )
+
+    if teamspace_model is None:
+        raise HTTPException(status_code=404, detail="Teamspace not found")
+
+    user_roles = (
+        db_session.query(User__Teamspace)
+        .filter(User__Teamspace.teamspace_id == teamspace_id)
+        .all()
+    )
+
+    user_role_dict = {ur.user_id: ur.role for ur in user_roles}
+    for user in teamspace_model.users:
+        user.role = user_role_dict.get(user.id, UserRole.BASIC) 
+
+    teamspace_data = Teamspace.from_model(teamspace_model)
+
+    return teamspace_data
 
 
 @admin_router.get("/admin/teamspace")
@@ -56,14 +72,26 @@ def list_teamspaces(
     user: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[Teamspace]:
-    if user is None or user.role == UserRole.ADMIN:
-        teamspaces = fetch_teamspaces(db_session, only_up_to_date=False)
-    else:
-        teamspaces = fetch_teamspaces_for_user(
-            db_session=db_session,
-            user_id=user.id,
+    teamspaces = db_session.query(TeamspaceModel).all()
+
+    teamspace_list = []
+
+    for teamspace_model in teamspaces:
+        user_roles = (
+            db_session.query(User__Teamspace)
+            .filter(User__Teamspace.teamspace_id == teamspace_model.id)
+            .all()
         )
-    return [Teamspace.from_model(teamspace) for teamspace in teamspaces]
+
+        user_role_dict = {ur.user_id: ur.role for ur in user_roles}
+
+        for user in teamspace_model.users:
+            user.role = user_role_dict.get(user.id, UserRole.BASIC)
+
+        teamspace_data = Teamspace.from_model(teamspace_model)
+        teamspace_list.append(teamspace_data)
+
+    return teamspace_list
 
 
 @admin_router.post("/admin/teamspace")

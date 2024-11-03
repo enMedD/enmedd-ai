@@ -45,7 +45,7 @@ const FolderItem = ({
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
-  let { refreshChatSessions } = useChatContext();
+  const { refreshChatSessions } = useChatContext();
 
   const toggleFolderExpansion = () => {
     if (!isEditing) {
@@ -111,7 +111,7 @@ const FolderItem = ({
     event.stopPropagation();
     try {
       await deleteFolder(folder.folder_id);
-      await refreshChatSessions(); 
+      await refreshChatSessions();
       router.refresh();
     } catch (error) {
       toast({
@@ -133,12 +133,10 @@ const FolderItem = ({
   const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
-    const chatSessionId = parseInt(
-      event.dataTransfer.getData(CHAT_SESSION_ID_KEY),
-      10
-    );
+    const chatSessionId = event.dataTransfer.getData(CHAT_SESSION_ID_KEY);
     try {
       await addChatToFolder(folder.folder_id, chatSessionId);
+      refreshChatSessions();
       router.refresh();
     } catch (error) {
       toast({
@@ -161,12 +159,7 @@ const FolderItem = ({
         setIsDragOver(true);
       }}
       onDragLeave={() => setIsDragOver(false)}
-      onDrop={async (event) => {
-        setIsDragOver(false);
-        await handleDrop(event);
-        await refreshChatSessions(); 
-        router.refresh(); 
-      }}
+      onDrop={handleDrop}
       className={`transition duration-300 ease-in-out rounded-xs ${
         isDragOver ? "bg-hover" : ""
       }`}
@@ -216,26 +209,12 @@ const FolderItem = ({
                   >
                     <Pencil size={16} />
                   </div>
-                  <CustomModal
-                    trigger={
-                      <div
-                        onClick={handleDeleteClick}
-                        className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
-                      >
-                        <Trash size={16} />
-                      </div>
-                    }
-                    onClose={() => setShowDeleteConfirm(false)}
-                    open={showDeleteConfirm}
-                    title="Are you sure you want to delete this folder?"
+                  <div
+                    onClick={handleDeleteClick}
+                    className="hover:bg-black/10 p-1 -m-1 rounded ml-2"
                   >
-                    <div className="pt-10 flex gap-4 justify-center">
-                      <Button onClick={cancelDelete} variant="destructive">
-                        No
-                      </Button>
-                      <Button onClick={confirmDelete}>Yes</Button>
-                    </div>
-                  </CustomModal>
+                    <Trash size={16} />
+                  </div>
                 </div>
               )}
 
@@ -259,8 +238,23 @@ const FolderItem = ({
           </div>
         </div>
       </BasicSelectable>
+      {showDeleteConfirm && (
+        <CustomModal
+          trigger={null}
+          onClose={() => setShowDeleteConfirm(false)}
+          open={showDeleteConfirm}
+          title="Are you sure you want to delete this folder?"
+        >
+          <div className="pt-10 flex gap-4 justify-center">
+            <Button onClick={cancelDelete}>No</Button>
+            <Button onClick={confirmDelete} variant="destructive">
+              Yes
+            </Button>
+          </div>
+        </CustomModal>
+      )}
       {isExpanded && folders && (
-        <div className={"ml-2 pl-2 border-l border-border"}>
+        <div className={"ml-[23px] pl-2 border-l border-border"}>
           {folders.map((chatSession) => (
             <ChatSessionDisplay
               key={chatSession.id}
