@@ -12,7 +12,6 @@ import { buildImgUrl } from "@/app/chat/files/images/utils";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
-  selectedTeamspaceId?: number;
   assistants: Assistant[];
   ccPairs: ConnectorIndexingStatus<any, any>[];
   documentSets: DocumentSet[];
@@ -21,7 +20,6 @@ interface TeamspaceSidebarContentProps {
 
 export const TeamspaceSidebarContent = ({
   teamspace,
-  selectedTeamspaceId,
   assistants,
   ccPairs,
   documentSets,
@@ -79,7 +77,7 @@ export const TeamspaceSidebarContent = ({
         <div className="w-full flex flex-col gap-4 pt-14">
           <TeamspaceMember
             teamspace={teamspace}
-            selectedTeamspaceId={selectedTeamspaceId}
+            refreshTeamspaces={refreshTeamspaces}
           />
           <TeamspaceAssistant
             teamspace={teamspace}
