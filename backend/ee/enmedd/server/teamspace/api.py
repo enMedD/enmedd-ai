@@ -173,12 +173,57 @@ def update_teamspace_user_role(
             status_code=404, detail="User-Teamspace relationship not found"
         )
 
-    user_teamspace.role = body.new_role
+    if (
+        user_teamspace.role == TeamspaceUserRole.ADMIN
+        and body.new_role != TeamspaceUserRole.ADMIN
+    ):
+        raise HTTPException(status_code=400, detail="Cannot demote another admin!")
 
+    user_teamspace.role = body.new_role
     db_session.commit()
 
     return {
         "message": f"User role updated to {body.new_role.value} for {body.user_email}"
+    }
+
+
+@admin_router.post("/admin/teamspace/user-add/{teamspace_id}")
+def add_teamspace_users(
+    teamspace_id: int,
+    emails: list[str],
+    _: User = Depends(current_teamspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    added_users = []
+    for email in emails:
+        user_to_add = get_user_by_email(email=email, db_session=db_session)
+        if not user_to_add:
+            raise HTTPException(
+                status_code=404, detail=f"User not found for email: {email}"
+            )
+
+        existing_record = (
+            db_session.query(User__Teamspace)
+            .filter_by(teamspace_id=teamspace_id, user_id=user_to_add.id)
+            .first()
+        )
+        if existing_record:
+            raise HTTPException(
+                status_code=400,
+                detail=f"User with email {email} is already in the teamspace",
+            )
+
+        new_user_teamspace = User__Teamspace(
+            teamspace_id=teamspace_id,
+            user_id=user_to_add.id,
+            role=TeamspaceUserRole.BASIC,
+        )
+        db_session.add(new_user_teamspace)
+        added_users.append(email)
+
+    db_session.commit()
+    return {
+        "message": f"Users added to teamspace: {', '.join(added_users)}",
     }
 
 
