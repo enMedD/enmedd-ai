@@ -34,8 +34,8 @@ export function AssistantsTab({
   const { refreshUser } = useUser();
   const [_, llmName] = getFinalLLM(llmProviders, null, null);
   // TODO Final assitant tandaan mo
-  const { finalAssistants, refreshAssistants } = useAssistants();
-  const [assistant, setAssistants] = useState(finalAssistants);
+  const { assistants, refreshAssistants } = useAssistants();
+  const [assistant, setAssistants] = useState(assistants);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
