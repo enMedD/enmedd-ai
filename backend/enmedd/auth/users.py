@@ -290,8 +290,6 @@ def get_database_strategy(
     )
     return strategy
 
-    return strategy
-
 
 auth_backend = AuthenticationBackend(
     name="database",

@@ -301,6 +301,13 @@ export function ChatInputBar({
     }
   };
 
+  const handleSelectAssistant = async (assistant: Assistant) => {
+    setSelectedAssistant(assistant);
+    closeModal();
+    await refreshAssistants();
+    router.refresh();
+  };
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -553,11 +560,13 @@ export function ChatInputBar({
                   <AssistantsTab
                     llmProviders={llmProviders}
                     selectedAssistant={selectedAssistant}
-                    onSelect={(assistant) => {
-                      setSelectedAssistant(assistant);
-                      closeModal();
-                      router.refresh();
-                    }}
+                    // onSelect={(assistant) => {
+                    //   setSelectedAssistant(assistant);
+                    //   closeModal();
+                    //   refreshAssistants();
+                    //   router.refresh();
+                    // }}
+                    onSelect={handleSelectAssistant}
                   />
                 </CustomModal>
                 {/* <Popover>

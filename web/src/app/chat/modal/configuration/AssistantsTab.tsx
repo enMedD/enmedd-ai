@@ -34,8 +34,8 @@ export function AssistantsTab({
   const { refreshUser } = useUser();
   const [_, llmName] = getFinalLLM(llmProviders, null, null);
   // TODO Final assitant tandaan mo
-  const { assistants, refreshAssistants } = useAssistants();
-  const [shownAssistants, setAssistants] = useState(assistants);
+  const { finalAssistants, refreshAssistants } = useAssistants();
+  const [assistant, setAssistants] = useState(finalAssistants);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -48,13 +48,13 @@ export function AssistantsTab({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = shownAssistants.findIndex(
+      const oldIndex = assistant.findIndex(
         (item) => item.id.toString() === active.id
       );
-      const newIndex = shownAssistants.findIndex(
+      const newIndex = assistant.findIndex(
         (item) => item.id.toString() === over.id
       );
-      const updatedAssistants = arrayMove(shownAssistants, oldIndex, newIndex);
+      const updatedAssistants = arrayMove(assistant, oldIndex, newIndex);
 
       setAssistants(updatedAssistants);
       await updateUserAssistantList(updatedAssistants.map((a) => a.id));
@@ -72,11 +72,11 @@ export function AssistantsTab({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={shownAssistants.map((a) => a.id.toString())}
+          items={assistant.map((a) => a.id.toString())}
           strategy={verticalListSortingStrategy}
         >
           <div className="px-4 pb-2  max-h-[500px] my-3 grid grid-cols-1 gap-4">
-            {shownAssistants.map((assistant) => (
+            {assistant.map((assistant) => (
               <DraggableAssistantCard
                 key={assistant.id.toString()}
                 assistant={assistant}

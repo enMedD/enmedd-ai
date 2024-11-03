@@ -1467,10 +1467,11 @@ export function ChatPage({
   const onAssistantChange = (assistant: Assistant | null) => {
     if (assistant && assistant.id !== liveAssistant.id) {
       // Abort the ongoing stream if it exists
-      if (currentSessionChatState != "input") {
-        stopGenerating();
-        resetInputBar();
-      }
+      console.log("THIS IS BEEN CALLED");
+      // if (currentSessionChatState != "input") {
+      //   stopGenerating();
+      //   resetInputBar();
+      // }
 
       textAreaRef.current?.focus();
       router.push(buildChatUrl(searchParams, null, assistant.id));
