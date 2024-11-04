@@ -65,7 +65,6 @@ export function AssistantsTab({
 
   return (
     <div className="py-4 w-full overflow-y-auto">
-      {/* <h3 className="px-4 text-lg font-semibold">Change Assistant</h3> */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
