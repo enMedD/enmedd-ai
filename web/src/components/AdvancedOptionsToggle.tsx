@@ -15,6 +15,7 @@ export function AdvancedOptionsToggle({
       <button
         onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
         className="text-sm text-text-950 hover:text-text-500 pt-2 flex items-center gap-1 font-medium"
+        type="button"
       >
         {showAdvancedOptions ? (
           <ChevronDown size={16} />

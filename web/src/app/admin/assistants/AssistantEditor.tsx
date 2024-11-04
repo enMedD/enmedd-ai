@@ -393,8 +393,9 @@ export function AssistantEditor({
                 ? new Date(values.search_start_date)
                 : null,
               num_chunks: numChunks,
-              users:
-                user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              // users:
+              //   user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              users: undefined,
               groups,
               tool_ids: enabledTools,
               remove_image: removeAssistantImage,
@@ -407,13 +408,14 @@ export function AssistantEditor({
               search_start_date: values.search_start_date
                 ? new Date(values.search_start_date)
                 : null,
-              users:
-                user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              // users:
+              //   user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              users: undefined,
               groups,
               tool_ids: enabledTools,
             });
           }
-
+          
           let error = null;
           if (!promptResponse.ok) {
             error = await promptResponse.text();
