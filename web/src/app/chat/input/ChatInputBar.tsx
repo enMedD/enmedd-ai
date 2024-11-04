@@ -318,13 +318,6 @@ export function ChatInputBar({
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleSelectAssistant = async (assistant: Assistant) => {
-    setSelectedAssistant(assistant);
-    await refreshAssistants();
-    closeModal();
-    router.refresh();
-  };
-
   const divRef = useRef<HTMLDivElement>(null);
   const [isShowing, setIsShowing] = useState(false);
 
