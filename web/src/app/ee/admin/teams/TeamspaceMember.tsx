@@ -32,6 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/user/UserProvider";
 
+
 interface TeamspaceMemberProps {
   teamspace: Teamspace & { gradient: string };
   refreshTeamspaces: () => void;

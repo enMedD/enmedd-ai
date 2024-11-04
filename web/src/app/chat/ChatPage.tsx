@@ -1467,10 +1467,11 @@ export function ChatPage({
   const onAssistantChange = (assistant: Assistant | null) => {
     if (assistant && assistant.id !== liveAssistant.id) {
       // Abort the ongoing stream if it exists
-      if (currentSessionChatState != "input") {
-        stopGenerating();
-        resetInputBar();
-      }
+      console.log("THIS IS BEEN CALLED");
+      // if (currentSessionChatState != "input") {
+      //   stopGenerating();
+      //   resetInputBar();
+      // }
 
       textAreaRef.current?.focus();
       router.push(buildChatUrl(searchParams, null, assistant.id));
@@ -1543,7 +1544,6 @@ export function ChatPage({
   }
 
   const windowWidth = window.innerWidth;
-  const [isMobile, setIsMobile] = useState(windowWidth <= 1420);
   const [showDocSidebar, setShowDocSidebar] = useState(windowWidth >= 1420);
   const [isWide, setIsWide] = useState(windowWidth >= 1420);
 
@@ -2187,7 +2187,7 @@ export function ChatPage({
                                     isShowingRetrieved
                                   }
                                   handleShowRetrieved={(messageNumber) => {
-                                    if (isMobile) {
+                                    if (settings?.isMobile) {
                                       if (!isShowingRetrieved) {
                                         setSelectedMessageForDocDisplay(null);
                                       } else {
@@ -2242,7 +2242,7 @@ export function ChatPage({
                                       : !retrievalEnabled
                                   }
                                   handleToggleSideBar={() => {
-                                    if (isMobile) {
+                                    if (settings?.isMobile) {
                                       setShowDocSidebar(isShowingRetrieved);
                                     } else {
                                       !isShowingRetrieved
