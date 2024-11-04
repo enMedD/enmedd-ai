@@ -299,9 +299,9 @@ export const TeamspaceMember = ({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>
+                      {/* <TableHead>
                         <Checkbox />
-                      </TableHead>
+                      </TableHead> */}
                       <TableHead>Name</TableHead>
                       <TableHead>Email Address</TableHead>
                       {/* <TableHead>Workspace</TableHead> */}
@@ -311,9 +311,9 @@ export const TeamspaceMember = ({
                   <TableBody>
                     {filteredUsers.map((user) => (
                       <TableRow key={user.id}>
-                        <TableCell>
+                        {/* <TableCell>
                           <Checkbox />
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell className="flex items-center gap-2">
                           <UserProfile user={user} size={40} />
                           <div className="grid">

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ConnectorIndexingStatus, Teamspace } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 interface SimplifiedDataSource {
   id: number;
@@ -224,9 +225,17 @@ export const TeamspaceDataSource = ({
           {teamspace.cc_pairs.length > 0 ? (
             <div className="pt-8 flex flex-wrap gap-2">
               {teamspace.cc_pairs.slice(0, 8).map((teamspaceDataSource) => (
-                <Badge key={teamspaceDataSource.id}>
-                  <div className="truncate">{teamspaceDataSource.name}</div>
-                </Badge>
+                <CustomTooltip
+                  variant="white"
+                  key={teamspaceDataSource.id}
+                  trigger={
+                    <Badge key={teamspaceDataSource.id}>
+                      <div className="truncate">{teamspaceDataSource.name}</div>
+                    </Badge>
+                  }
+                >
+                  {teamspaceDataSource.name}
+                </CustomTooltip>
               ))}
               {teamspace.cc_pairs.length > 8 && (
                 <div className="bg-background w-10 h-full rounded-full flex items-center justify-center text-sm font-semibold">

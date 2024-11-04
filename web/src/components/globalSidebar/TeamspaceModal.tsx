@@ -56,7 +56,7 @@ export const TeamspaceModal = ({
       }
       onClose={() => setIsModalVisible(false)}
       open={isModalVisible}
-      title="Your Team Space"
+      title="Your Teamspace"
     >
       <div className="grid grid-cols-3 gap-4">
         {teamspace.map((team) => (
