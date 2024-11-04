@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FiPlusCircle,
   FiPlus,
@@ -40,7 +40,14 @@ import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { ChatState } from "../types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { CircleStop, Cpu, Filter, Paperclip, Send } from "lucide-react";
+import {
+  CirclePlus,
+  CircleStop,
+  Cpu,
+  Filter,
+  Paperclip,
+  Send,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -311,9 +318,82 @@ export function ChatInputBar({
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  const handleSelectAssistant = async (assistant: Assistant) => {
+    setSelectedAssistant(assistant);
+    await refreshAssistants();
+    closeModal();
+    router.refresh();
+  };
+
+  const divRef = useRef<HTMLDivElement>(null);
+  const [isShowing, setIsShowing] = useState(false);
+
+  const handleShowTools = () => {
+    setIsShowing(!isShowing);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (divRef.current && !divRef.current.contains(event.target as Node)) {
+      setIsShowing(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div id="enmedd-chat-input">
+      {isModalOpen && (
+        <CustomModal
+          title="Change Assistant"
+          open={isModalOpen}
+          onClose={closeModal}
+          trigger={null}
+        >
+          <AssistantsTab
+            llmProviders={llmProviders}
+            selectedAssistant={selectedAssistant}
+            onSelect={handleSelectAssistant}
+          />
+        </CustomModal>
+      )}
+
       <div className="flex justify-center items-center max-w-full mx-auto px-5 md:px-8 lg:px-5 2xl:px-0">
+        <div
+          ref={divRef}
+          className={`flex md:hidden items-center trasition-all ease-in-out duration-500 ${
+            isShowing ? "w-[150px]" : "w-10"
+          }`}
+        >
+          <CirclePlus
+            size={24}
+            className="mr-4 shrink-0"
+            onClick={handleShowTools}
+          />
+          <Cpu size={24} onClick={openModal} className="mr-4 shrink-0" />
+
+          <Paperclip
+            size={24}
+            className="mr-4 shrink-0"
+            onClick={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.multiple = true;
+              input.onchange = (event: any) => {
+                const files = Array.from(event?.target?.files || []) as File[];
+                if (files.length > 0) {
+                  handleFileUpload(files);
+                }
+              };
+              input.click();
+            }}
+          />
+        </div>
+
         <div className="relative w-full mx-auto shrink 2xl:w-searchbar 3xl:px-0">
           {showSuggestions && assistantTagOptions.length > 0 && (
             <div
@@ -393,6 +473,19 @@ export function ChatInputBar({
               </div>
             </div>
           )}
+
+          <Button
+            onClick={() => {
+              if (message) {
+                onSubmit();
+              }
+            }}
+            disabled={chatState != "input"}
+            className="absolute right-3.5 bottom-3 rounded-full w-8 h-8 md:hidden"
+            size="xs"
+          >
+            <Send size={16} />
+          </Button>
 
           <div>
             <SelectedFilterDisplay filterManager={filterManager} />
@@ -490,7 +583,11 @@ export function ChatInputBar({
               className={`
                 m-0
                 px-0
-                py-6
+                pr-10
+                md:pr-0
+                pb-3
+                pt-4
+                xl:py-6
                 text-base
                 w-full
                 shrink
@@ -538,84 +635,16 @@ export function ChatInputBar({
               }}
               suppressContentEditableWarning={true}
             />
-            <div className="flex items-center justify-between py-4 overflow-hidden border-t border-border-light">
+            <div className="hidden md:flex items-center justify-between py-4 overflow-hidden border-t border-border-light">
               <div className="flex w-auto items-center">
-                <CustomModal
-                  title="Change Assistant"
-                  open={isModalOpen}
-                  onClose={closeModal}
-                  trigger={
-                    <Button
-                      variant="ghost"
-                      className="mr-2 border"
-                      onClick={openModal}
-                    >
-                      <Cpu size={16} className="shrink-0" />
-                      {selectedAssistant
-                        ? selectedAssistant.name
-                        : "Assistants"}
-                    </Button>
-                  }
+                <Button
+                  variant="ghost"
+                  className="mr-2 border"
+                  onClick={openModal}
                 >
-                  <AssistantsTab
-                    llmProviders={llmProviders}
-                    selectedAssistant={selectedAssistant}
-                    // onSelect={(assistant) => {
-                    //   setSelectedAssistant(assistant);
-                    //   closeModal();
-                    //   refreshAssistants();
-                    //   router.refresh();
-                    // }}
-                    onSelect={handleSelectAssistant}
-                  />
-                </CustomModal>
-                {/* <Popover>
-                  <PopoverTrigger>
-                    <Button variant="ghost" className="mr-2 border">
-                      <Cpu size={16} className="shrink-0" />
-                      {selectedAssistant
-                        ? selectedAssistant.name
-                        : "Assistants"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <AssistantsTab
-                      llmProviders={llmProviders}
-                      selectedAssistant={selectedAssistant}
-                      onSelect={(assistant) => {
-                        setSelectedAssistant(assistant);
-                        close();
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover> */}
-
-                {/* <Popover>
-                  <PopoverTrigger>
-                    <Button variant='ghost' size='icon' className="mr-2">
-                      <CpuIconSkeleton size={16} className="shrink-0" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <LlmTab
-                      currentAssistant={
-                        alternativeAssistant || selectedAssistant
-                      }
-                      openModelSettings={openModelSettings}
-                      currentLlm={
-                        llmOverrideManager.llmOverride.modelName ||
-                        (selectedAssistant
-                          ? selectedAssistant.llm_model_version_override ||
-                            llmOverrideManager.globalDefault.modelName ||
-                            llmName
-                          : llmName)
-                      }
-                      close={close}
-                      llmOverrideManager={llmOverrideManager}
-                      chatSessionId={chatSessionId}
-                    />
-                  </PopoverContent>
-                </Popover> */}
+                  <Cpu size={16} className="shrink-0" />
+                  {selectedAssistant ? selectedAssistant.name : "Assistants"}
+                </Button>
 
                 <Button
                   onClick={() => {

@@ -393,8 +393,9 @@ export function AssistantEditor({
                 ? new Date(values.search_start_date)
                 : null,
               num_chunks: numChunks,
-              users:
-                user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              // users:
+              //   user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              users: undefined,
               groups,
               tool_ids: enabledTools,
               remove_image: removeAssistantImage,
@@ -407,13 +408,14 @@ export function AssistantEditor({
               search_start_date: values.search_start_date
                 ? new Date(values.search_start_date)
                 : null,
-              users:
-                user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              // users:
+              //   user && !checkUserIsNoAuthUser(user.id) ? [user.id] : undefined,
+              users: undefined,
               groups,
               tool_ids: enabledTools,
             });
           }
-
+          
           let error = null;
           if (!promptResponse.ok) {
             error = await promptResponse.text();
@@ -544,7 +546,7 @@ export function AssistantEditor({
                   }
                   popover={
                     <div className="bg-white text-text-800 flex flex-col gap-y-1 w-[300px] border border-border rounded-lg shadow-lg p-2">
-                      <label className="flex items-center block w-full px-4 py-2 text-left rounded cursor-pointer gap-x-2 hover:bg-background-100">
+                      <label className="flex items-center w-full px-4 py-2 text-left rounded cursor-pointer gap-x-2 hover:bg-background-100">
                         <CameraIcon />
                         Upload {values.uploaded_image && " New "} Photo
                         <input

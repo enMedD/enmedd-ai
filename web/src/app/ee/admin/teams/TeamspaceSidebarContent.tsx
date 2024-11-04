@@ -37,7 +37,7 @@ export const TeamspaceSidebarContent = ({
       <div style={{ background: teamspace.gradient }} className="h-40 relative">
         <div className="absolute top-full -translate-y-1/2 left-1/2 -translate-x-1/2">
           {teamspace.logo ? (
-            <div className="rounded-md w-16 h-16 bg-background rounded-md overflow-hidden">
+            <div className="rounded-md w-16 h-16 bg-background overflow-hidden">
               <img
                 src={buildImgUrl(teamspace.logo)}
                 alt="Teamspace Logo"

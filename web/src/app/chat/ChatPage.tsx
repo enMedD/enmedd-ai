@@ -708,7 +708,7 @@ export function ChatPage({
   useEffect(() => {
     if (messageHistory.length === 0 && chatSessionIdRef.current === null) {
       setSelectedAssistant(
-        finalAssistants.find(
+        availableAssistants.find(
           (assistant: Assistant) => assistant.id === defaultAssistantId
         )
       );
