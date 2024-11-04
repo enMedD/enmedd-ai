@@ -115,8 +115,6 @@ const Page = () => {
       <HealthCheckBanner />
 
       <div className="w-full h-full mx-auto flex flex-col justify-between overflow-y-auto">
-        <WelcomeTopBar />
-
         <div className="w-full xl:w-1/2 h-full flex items-center justify-center mx-auto px-6 lg:px-14 3xl:px-0">
           <div className="w-full md:w-3/4 lg:w-1/2 xl:w-full 3xl:w-1/2 my-auto pb-14 md:pb-20">
             <div className="flex items-center justify-center">
