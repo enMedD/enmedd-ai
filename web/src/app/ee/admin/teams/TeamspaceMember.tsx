@@ -30,6 +30,7 @@ import { SearchInput } from "@/components/SearchInput";
 import { UserProfile } from "@/components/UserProfile";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/components/user/UserProvider";
 
 interface TeamspaceMemberProps {
   teamspace: Teamspace & { gradient: string };
@@ -168,12 +169,17 @@ export const TeamspaceMember = ({
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isRemoveUserModalOpen, setIsRemoveUserModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-
   const [searchTerm, setSearchTerm] = useState("");
+  const { user } = useUser();
 
   const filteredUsers = teamspace.users.filter((user) =>
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const usersToDisplay = [
+    ...teamspace.users
+      .sort((a, b) => (a.id === user?.id ? -1 : b.id === user?.id ? 1 : 0))
+  ].slice(0, 8);
 
   const handleRemoveUser = async (userId: string) => {
     try {
@@ -241,7 +247,7 @@ export const TeamspaceMember = ({
 
             {teamspace.users.length > 0 ? (
               <div className="pt-8 flex flex-wrap -space-x-3">
-                {teamspace.users.slice(0, 8).map((user) => (
+                {usersToDisplay.map((user) => (
                   <CustomTooltip
                     variant="white"
                     key={user.id}
