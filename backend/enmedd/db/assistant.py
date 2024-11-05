@@ -254,12 +254,8 @@ def get_assistants(
     stmt = _add_user_filters(stmt=stmt, user=user, get_editable=get_editable)
 
     if teamspace_id is not None:
-        stmt = stmt.where(
-            Assistant.id.in_(
-                select(Assistant__Teamspace.assistant_id).where(
-                    Assistant__Teamspace.teamspace_id == teamspace_id
-                )
-            )
+        stmt = stmt.join(Assistant__Teamspace).where(
+            Assistant__Teamspace.teamspace_id == teamspace_id
         )
 
     if not include_default:

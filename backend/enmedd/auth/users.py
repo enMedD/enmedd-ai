@@ -55,6 +55,7 @@ from enmedd.db.auth import get_user_db
 from enmedd.db.engine import get_session
 from enmedd.db.engine import get_sqlalchemy_engine
 from enmedd.db.models import AccessToken
+from enmedd.db.models import Teamspace
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
