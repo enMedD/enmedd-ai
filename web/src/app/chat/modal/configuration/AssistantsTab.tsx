@@ -63,8 +63,6 @@ export function AssistantsTab({
     }
   }
 
-  console.log(assistant)
-
   return (
     <div className="py-4 w-full overflow-y-auto">
       <DndContext
