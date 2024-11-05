@@ -6,8 +6,6 @@ from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import fetch_teamspace
-from ee.enmedd.db.teamspace import fetch_teamspaces
-from ee.enmedd.db.teamspace import fetch_teamspaces_for_user
 from ee.enmedd.db.teamspace import insert_teamspace
 from ee.enmedd.db.teamspace import prepare_teamspace_for_deletion
 from ee.enmedd.db.teamspace import update_teamspace
@@ -60,7 +58,7 @@ def get_teamspace_by_id(
 
     user_role_dict = {ur.user_id: ur.role for ur in user_roles}
     for user in teamspace_model.users:
-        user.role = user_role_dict.get(user.id, UserRole.BASIC) 
+        user.role = user_role_dict.get(user.id, UserRole.BASIC)
 
     teamspace_data = Teamspace.from_model(teamspace_model)
 
@@ -252,6 +250,47 @@ def add_teamspace_users(
     db_session.commit()
     return {
         "message": f"Users added to teamspace: {', '.join(added_users)}",
+    }
+
+
+@admin_router.delete("/admin/teamspace/user-remove/{teamspace_id}")
+def remove_teamspace_users(
+    teamspace_id: int,
+    emails: list[str],
+    _: User = Depends(current_teamspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    removed_users = []
+    for email in emails:
+        user_to_remove = get_user_by_email(email=email, db_session=db_session)
+        if not user_to_remove:
+            raise HTTPException(
+                status_code=404, detail=f"User not found for email: {email}"
+            )
+
+        user_teamspace = (
+            db_session.query(User__Teamspace)
+            .filter_by(teamspace_id=teamspace_id, user_id=user_to_remove.id)
+            .first()
+        )
+        if not user_teamspace:
+            raise HTTPException(
+                status_code=404,
+                detail=f"User with email {email} not found in teamspace",
+            )
+
+        if user_teamspace.role == TeamspaceUserRole.ADMIN:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Cannot remove admin user with email: {email}",
+            )
+
+        db_session.delete(user_teamspace)
+        removed_users.append(email)
+
+    db_session.commit()
+    return {
+        "message": f"Users removed from teamspace: {', '.join(removed_users)}",
     }
 
 
