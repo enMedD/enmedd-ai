@@ -147,7 +147,7 @@ function ConnectorRow({
       ConnectorCredentialPairStatus.DELETING
     ) {
       return (
-        <Badge variant="destructive">
+        <Badge variant="deleting">
           <div className="w-3 h-3 rounded-full bg-destructive-500" />
           Deleting
         </Badge>
@@ -157,8 +157,8 @@ function ConnectorRow({
       ConnectorCredentialPairStatus.PAUSED
     ) {
       return (
-        <Badge variant="secondary">
-          <div className="w-3 h-3 bg-default rounded-full" />
+        <Badge variant="paused">
+          <div className="w-3 h-3 bg-background rounded-full" />
           Paused
         </Badge>
       );
@@ -168,21 +168,21 @@ function ConnectorRow({
     switch (ccPairsIndexingStatus.last_status) {
       case "in_progress":
         return (
-          <Badge color="success">
-            <div className="w-3 h-3 rounded-full bg-yellow-200" />
+          <Badge variant="indexing">
+            <div className="w-3 h-3 rounded-full bg-background" />
             Indexing
           </Badge>
         );
       case "not_started":
         return (
-          <Badge color="outline">
-            <div className="w-3 h-3 rounded-full bg-sky-300" />
+          <Badge variant="scheduled">
+            <div className="w-3 h-3 rounded-full bg-background" />
             Scheduled
           </Badge>
         );
       default:
         return (
-          <Badge>
+          <Badge variant="active">
             <div className="w-3 h-3 rounded-full bg-background" />
             Active
           </Badge>
