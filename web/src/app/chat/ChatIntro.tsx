@@ -20,9 +20,6 @@ export function ChatIntro({
   user?: User | null;
 }) {
   const availableSourceMetadata = getSourceMetadataForSources(availableSources);
-  useEffect(() => {
-    console.log("liveAssistant", liveAssistant);
-  }, []);
   return (
     <>
       <div className="flex 2xl:justify-center w-full my-auto md:py-20">
