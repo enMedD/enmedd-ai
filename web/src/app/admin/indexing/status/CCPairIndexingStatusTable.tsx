@@ -7,7 +7,7 @@ import {
   GroupedConnectorSummaries,
   ValidSources,
 } from "@/lib/types";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   FiChevronDown,
   FiChevronRight,
@@ -131,12 +131,17 @@ function ConnectorRow({
   invisible?: boolean;
   isEditable: boolean;
 }) {
+  const { teamspaceId } = useParams();
   const router = useRouter();
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
   const handleManageClick = (e: any) => {
     e.stopPropagation();
-    router.push(`/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`);
+    router.push(
+      teamspaceId
+        ? `/t/${teamspaceId}/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`
+        : `/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`
+    );
   };
 
   const getActivityBadge = () => {
@@ -192,7 +197,11 @@ function ConnectorRow({
     <TableRow
       className={`${invisible ? "invisible h-0 !-mb-10" : ""}`}
       onClick={() => {
-        router.push(`/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`);
+        router.push(
+          teamspaceId
+            ? `/t/${teamspaceId}/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`
+            : `/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`
+        );
       }}
     >
       <TableCell>

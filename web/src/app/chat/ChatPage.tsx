@@ -1474,7 +1474,12 @@ export function ChatPage({
       // }
 
       textAreaRef.current?.focus();
-      router.push(buildChatUrl(searchParams, null, assistant.id));
+      router.push(
+        teamspaceId
+          ? `/t/${teamspaceId}/${buildChatUrl(searchParams, null, assistant.id)}`
+          : buildChatUrl(searchParams, null, assistant.id)
+      );
+      // router.push(buildChatUrl(searchParams, null, assistant.id));
     }
   };
 

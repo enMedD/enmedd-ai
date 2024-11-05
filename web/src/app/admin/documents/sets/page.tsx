@@ -13,7 +13,7 @@ import { deleteDocumentSet } from "./lib";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { DeleteButton } from "@/components/DeleteButton";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Bookmark,
@@ -47,6 +47,7 @@ const EditRow = ({
   isEditable: boolean;
 }) => {
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   const [isSyncingTooltipOpen, setIsSyncingTooltipOpen] = useState(false);
 
@@ -65,7 +66,11 @@ const EditRow = ({
           className="flex items-center w-full gap-2 cursor-pointer"
           onClick={() => {
             if (documentSet.is_up_to_date) {
-              router.push(`/admin/documents/sets/${documentSet.id}`);
+              router.push(
+                teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/sets/${documentSet.id}`
+                  : `/admin/documents/sets/${documentSet.id}`
+              );
             }
           }}
         >
