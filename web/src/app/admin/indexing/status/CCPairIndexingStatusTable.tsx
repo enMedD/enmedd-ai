@@ -70,11 +70,6 @@ function SummaryRow({
       </TableCell>
 
       <TableCell className="gap-y-2">
-        <div className="text-gray-500">Total Connectors</div>
-        <div className="text-xl font-semibold">{summary.count}</div>
-      </TableCell>
-
-      <TableCell className="gap-y-2">
         <div className="text-gray-500">Active Connectors</div>
         <CustomTooltip
           trigger={
@@ -116,8 +111,10 @@ function SummaryRow({
           {summary.errors}
         </div>
       </TableCell>
-
-      <TableCell className="gap-y-2" />
+      <TableCell className="gap-y-2">
+        <div className="text-gray-500">Total Connectors</div>
+        <div className="text-xl font-semibold">{summary.count}</div>
+      </TableCell>
     </TableRow>
   );
 }
@@ -235,7 +232,7 @@ function ConnectorRow({
       <TableCell>{ccPairsIndexingStatus.docs_indexed}</TableCell>
       <TableCell>
         <IndexAttemptStatus
-          status={ccPairsIndexingStatus.last_finished_status || null}
+          status={ccPairsIndexingStatus.last_status || null}
           errorMsg={
             ccPairsIndexingStatus?.latest_index_attempt?.error_msg || null
           }
@@ -453,7 +450,9 @@ export function CCPairIndexingStatusTable({
                 <TableHead className="w-[200px] xl:w-[350px]">
                   <div className="w-full">Name</div>
                 </TableHead>
-                {/* <TableHead>Last Indexed</TableHead> */}
+                {/* <TableHead>
+                  Last Indexed
+                </TableHead> */}
                 <TableHead>Activity</TableHead>
                 {isPaidEnterpriseFeaturesEnabled && (
                   <TableHead>Permissions</TableHead>
