@@ -505,8 +505,11 @@ def get_valid_domains(
 def list_all_users_basic_info(
     _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    teamspace_id: Optional[int] = None,
+    include_teamspace_user: bool = True,
+    q: str = "",
 ) -> list[MinimalUserwithNameSnapshot]:
-    users = list_users(db_session)
+    users = list_users(db_session, q=q, teamspace_id=teamspace_id, include_teamspace_user=include_teamspace_user)
     return [
         MinimalUserwithNameSnapshot(
             id=user.id, full_name=user.full_name, email=user.email, profile=user.profile

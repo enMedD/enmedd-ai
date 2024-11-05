@@ -310,8 +310,8 @@ export function ChatInputBar({
 
   const handleSelectAssistant = async (assistant: Assistant) => {
     setSelectedAssistant(assistant);
-    closeModal();
     await refreshAssistants();
+    closeModal();
     router.refresh();
   };
 

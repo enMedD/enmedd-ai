@@ -29,6 +29,8 @@ import { AddUserButton } from "./AddUserButton";
 import { User, UserStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/UserProfile";
+import { useUser } from "@/components/user/UserProvider";
+import { useUsers } from "@/lib/hooks";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -121,14 +123,12 @@ export const AllUsers = ({
   const [invitedPage, setInvitedPage] = useState(1);
   const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const userApiUrl = teamspaceId
-    ? `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}&teamspace_id=${teamspaceId}`
-    : `/api/manage/users?q=${encodeURI(q)}&accepted_page=${acceptedPage - 1}&invited_page=${invitedPage - 1}`;
-
-  const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
-    userApiUrl,
-    errorHandlingFetcher
+  const { user } = useUser();
+  const { data, isLoading, error, refreshUsers } = useUsers(
+    q,
+    acceptedPage,
+    invitedPage,
+    teamspaceId
   );
 
   const { trigger: promoteTrigger } = useSWRMutation(
@@ -138,7 +138,7 @@ export const AllUsers = ({
     userMutationFetcher,
     {
       onSuccess: () => {
-        mutate();
+        refreshUsers();
         toast({
           title: "User Promotion Successful",
           description: "The user has been successfully promoted to admin.",
@@ -162,7 +162,7 @@ export const AllUsers = ({
     userMutationFetcher,
     {
       onSuccess: () => {
-        mutate();
+        refreshUsers();
         toast({
           title: "Demotion Successful",
           description:
@@ -218,18 +218,20 @@ export const AllUsers = ({
     }
   };
 
-  const filteredUsers = accepted.filter(
+  const filteredUsers = accepted
+  .filter(
     (user) =>
       user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  )
+  .sort((a) => (a.id === user?.id ? -1 : 1));
 
   return (
     <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
       <div className="xl:w-2/5">
         <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
         <ValidDomainsDisplay validDomains={validDomains} />
-        {!teamspaceId && <AddUserButton />}
+        <AddUserButton teamspaceId={teamspaceId} refreshUsers={refreshUsers} />
       </div>
       <div className="flex-1">
         {filteredUsers.length > 0 ? (
@@ -289,7 +291,7 @@ export const AllUsers = ({
                               <DeactivaterButton
                                 user={user}
                                 deactivate={user.status === UserStatus.live}
-                                mutate={mutate}
+                                mutate={refreshUsers}
                                 role={user.role}
                               />
                             </div>

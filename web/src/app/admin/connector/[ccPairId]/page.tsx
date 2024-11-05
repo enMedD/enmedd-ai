@@ -22,7 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckmarkIcon, EditIcon, XIcon } from "@/components/icons/icons";
 import { updateConnectorCredentialPairName } from "@/lib/connector";
 import DeletionErrorStatus from "./DeletionErrorStatus";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -50,6 +50,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
+  const { teamspaceId } = useParams();
 
   const finishConnectorDeletion = () => {
     toast({
@@ -58,7 +59,11 @@ function Main({ ccPairId }: { ccPairId: number }) {
       variant: "success",
     });
     setTimeout(() => {
-      router.push("/admin/indexing/status");
+      router.push(
+        teamspaceId
+          ? `/t/${teamspaceId}/admin/indexing/status`
+          : "/admin/indexing/status"
+      );
     }, 2000);
   };
 
