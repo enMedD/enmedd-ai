@@ -22,6 +22,7 @@ from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import Teamspace as TeamspaceModel
+from enmedd.db.models import Teamspace__ConnectorCredentialPair
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.models import UserRole
@@ -292,6 +293,30 @@ def remove_teamspace_users(
     return {
         "message": f"Users removed from teamspace: {', '.join(removed_users)}",
     }
+
+
+@admin_router.delete("/admin/teamspace/connector-remove/{teamspace_id}")
+def remove_teamspace_connector(
+    teamspace_id: int,
+    cc_pair_id: int,
+    _: User = Depends(current_teamspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    connector_pair = (
+        db_session.query(Teamspace__ConnectorCredentialPair)
+        .filter_by(teamspace_id=teamspace_id, cc_pair_id=cc_pair_id)
+        .first()
+    )
+
+    if not connector_pair:
+        raise HTTPException(
+            status_code=404, detail="Connector pair not found for the given teamspace."
+        )
+
+    db_session.delete(connector_pair)
+    db_session.commit()
+
+    return {"message": "Connector removed successfully"}
 
 
 @admin_router.put("/admin/teamspace/logo")
