@@ -136,7 +136,7 @@ const DocumentSetTable = ({
             <TableHeader className="h-12">
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Connectors</TableHead>
+                <TableHead>Data Sources</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Public</TableHead>
                 <TableHead>Delete</TableHead>

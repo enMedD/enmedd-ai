@@ -50,7 +50,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
   if (ccPairsError || !ccPairs) {
     return (
       <ErrorCallout
-        errorTitle="Failed to fetch Connectors"
+        errorTitle="Failed to fetch Data Sources"
         errorMsg={ccPairsError}
       />
     );

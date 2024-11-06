@@ -32,6 +32,8 @@ import {
   CpuIcon,
   FileSearch,
   FileText,
+  Blocks,
+  PlugZap,
 } from "lucide-react";
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
@@ -55,7 +57,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
               {
                 name: (
                   <div className="flex items-center gap-2">
-                    <NotebookIcon size={20} />
+                    <Blocks size={20} />
                     <div>Existing Data Sources</div>
                   </div>
                 ),
@@ -66,7 +68,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
               {
                 name: (
                   <div className="flex items-center gap-2">
-                    <ConnectorIcon size={20} />
+                    <PlugZap size={20} />
                     <div>Connect Data Sources</div>
                   </div>
                 ),
