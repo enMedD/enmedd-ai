@@ -96,7 +96,6 @@ def patch_assistant_display_priority(
     )
 
 
-# TODO this should be current teamspace admin user
 @admin_router.get("")
 def list_assistants_admin(
     user: User | None = Depends(current_teamspace_admin_user),
