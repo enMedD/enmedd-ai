@@ -45,7 +45,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
       <AdminSidebar
         collections={[
           {
-            name: "Connectors",
+            name: "Connections",
             items: [
               {
                 name: (
@@ -62,7 +62,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
                 name: (
                   <div className="flex items-center gap-2">
                     <ConnectorIcon size={20} />
-                    <div>Data Sources</div>
+                    <div>Connect Data Sources</div>
                   </div>
                 ),
                 link: teamspaceId

@@ -70,7 +70,7 @@ function SummaryRow({
       </TableCell>
 
       <TableCell className="gap-y-2">
-        <div className="text-gray-500">Active Connectors</div>
+        <div className="text-gray-500">Active Data Sources</div>
         <CustomTooltip
           trigger={
             <div className="flex items-center mt-1">
@@ -83,13 +83,13 @@ function SummaryRow({
             </div>
           }
         >
-          `${summary.active} out of ${summary.count} connectors are active`
+          {summary.active} out of {summary.count} data sources are active
         </CustomTooltip>
       </TableCell>
 
       {isPaidEnterpriseFeaturesEnabled && (
         <TableCell className="gap-y-2">
-          <div className="text-gray-500">Public Connectors</div>
+          <div className="text-gray-500">Public Data Sources</div>
           <p className="flex items-center mx-auto mt-1 text-xl font-semibold">
             {summary.public}/{summary.count}
           </p>
@@ -112,7 +112,7 @@ function SummaryRow({
         </div>
       </TableCell>
       <TableCell className="gap-y-2">
-        <div className="text-gray-500">Total Connectors</div>
+        <div className="text-gray-500">Total Data Sources</div>
         <div className="text-xl font-semibold">{summary.count}</div>
       </TableCell>
     </TableRow>
@@ -248,7 +248,7 @@ function ConnectorRow({
               />
             }
           >
-            Manage Connector
+            Manage Data Sources
           </CustomTooltip>
         )}
       </TableCell>
@@ -386,7 +386,7 @@ export function CCPairIndexingStatusTable({
             cc_pair_status: ConnectorCredentialPairStatus.ACTIVE,
             last_status: "success",
             connector: {
-              name: "Sample File Connector",
+              name: "Sample File Data Source",
               source: "file",
               input_type: "poll",
               connector_specific_config: {
@@ -427,7 +427,7 @@ export function CCPairIndexingStatusTable({
           <Input
             type="text"
             ref={searchInputRef}
-            placeholder="Search connectors..."
+            placeholder="Search data sources..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
