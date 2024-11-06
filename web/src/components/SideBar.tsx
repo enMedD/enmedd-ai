@@ -27,6 +27,11 @@ import {
   Activity,
   SearchIcon,
   Search,
+  UserIcon,
+  LibraryBigIcon,
+  CpuIcon,
+  FileSearch,
+  FileText,
 } from "lucide-react";
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
@@ -139,12 +144,9 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
                 ? [
                     {
                       name: (
-                        <div className="flex">
-                          <ClosedBookIcon
-                            className="text-icon-settings-sidebar"
-                            size={18}
-                          />
-                          <div className="ml-1">Prompt Library</div>
+                        <div className="flex items-center gap-2">
+                          <LibraryBigIcon className="my-auto" size={20} />
+                          <div>Prompt Library</div>
                         </div>
                       ),
                       link: "/admin/prompt-library",
@@ -162,12 +164,9 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
                   items: [
                     {
                       name: (
-                        <div className="flex">
-                          <CpuIconSkeleton
-                            className="text-icon-settings-sidebar"
-                            size={18}
-                          />
-                          <div className="ml-1">LLM</div>
+                        <div className="flex items-center gap-2">
+                          <CpuIcon className="my-auto" size={20} />
+                          <div>LLM</div>
                         </div>
                       ),
                       link: "/admin/configuration/llm",
@@ -175,18 +174,18 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
                     {
                       error: dynamicSettings?.settings.needs_reindexing,
                       name: (
-                        <div className="flex">
-                          <Search size={16} />
-                          <div className="ml-1">Search Settings</div>
+                        <div className="flex items-center gap-2">
+                          <FileSearch className="my-auto" size={20} />
+                          <div>Search Settings</div>
                         </div>
                       ),
                       link: "/admin/configuration/search",
                     },
                     {
                       name: (
-                        <div className="flex">
-                          <DocumentIcon2 className="text-icon-settings-sidebar" />
-                          <div className="ml-1">Document Processing</div>
+                        <div className="flex items-center gap-2">
+                          <FileText className="my-auto" size={20} />
+                          <div>Document Processing</div>
                         </div>
                       ),
                       link: "/admin/configuration/document-processing",
@@ -201,7 +200,7 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
               {
                 name: (
                   <div className="flex items-center gap-2">
-                    <UsersIcon size={20} />
+                    <UserIcon size={20} />
                     <div>Users</div>
                   </div>
                 ),
