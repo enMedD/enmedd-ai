@@ -10,11 +10,10 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
-import { UsersResponse } from "@/lib/users/interfaces";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { LoadingAnimation } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { User as UserIcon } from "lucide-react";
+import { Trash, } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,6 +30,8 @@ import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/UserProfile";
 import { useUser } from "@/components/user/UserProvider";
 import { useUsers } from "@/lib/hooks";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { CustomModal } from "@/components/CustomModal";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -123,6 +124,8 @@ export const AllUsers = ({
   const [invitedPage, setInvitedPage] = useState(1);
   const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const { user } = useUser();
   const { data, isLoading, error, refreshUsers } = useUsers(
     q,
@@ -180,6 +183,52 @@ export const AllUsers = ({
     }
   );
 
+  const deleteUser = async () => {
+    console.log("FFF");
+    if (!teamspaceId || !userToDelete) return;
+
+    try {
+      const response = await fetch(
+        `/api/manage/admin/teamspace/user-remove/${teamspaceId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([userToDelete]),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to delete user");
+      }
+
+      refreshUsers();
+      setIsDeleteModalOpen(false);
+      toast({
+        title: "User Removed",
+        description:
+          "The user has been successfully removed from the teamspace.",
+        variant: "success",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: "Error",
+          description: `Failed to remove the user: ${error.message}`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unknown error occurred while removing the user.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   const {
     data: validDomains,
     isLoading: isLoadingDomains,
@@ -219,95 +268,139 @@ export const AllUsers = ({
   };
 
   const filteredUsers = accepted
-  .filter(
-    (user) =>
-      user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-  .sort((a) => (a.id === user?.id ? -1 : 1));
+    .filter(
+      (user) =>
+        user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a) => (a.id === user?.id ? -1 : 1));
 
   return (
-    <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
-      <div className="xl:w-2/5">
-        <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
-        <ValidDomainsDisplay validDomains={validDomains} />
-        <AddUserButton teamspaceId={teamspaceId} refreshUsers={refreshUsers} />
-      </div>
-      <div className="flex-1">
-        {filteredUsers.length > 0 ? (
-          <>
-            <Input
-              placeholder="Search user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Card className="mt-4">
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Role</TableHead>
-                      {!teamspaceId && <TableHead></TableHead>}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div className="flex gap-4">
-                            <UserProfile user={user} />
-                            <div className="flex flex-col">
-                              <span className="truncate max-w-44 font-medium">
-                                {user.full_name}
-                              </span>
-                              <span className="text-sm text-subtle truncate max-w-44">
-                                {user.email}
-                              </span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            onValueChange={(value) =>
-                              handleRoleChange(user.email, value)
-                            }
-                            value={user.role}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue>
-                                {user.role === "admin" ? "Admin" : "User"}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">User</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        {!teamspaceId && (
+    <>
+      {isDeleteModalOpen && (
+        <CustomModal
+          trigger={null}
+          title="Are you sure you want to remove this user?"
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          description="You are about to remove this user on the teamspace."
+        >
+          <div className="flex justify-end w-full gap-2 pt-6 border-t">
+            <Button onClick={() => setIsDeleteModalOpen(false)} variant="ghost">
+              Cancel
+            </Button>
+            <Button onClick={deleteUser} variant="destructive">
+              Confirm
+            </Button>
+          </div>
+        </CustomModal>
+      )}
+
+      <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
+        <div className="xl:w-2/5">
+          <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
+          <ValidDomainsDisplay validDomains={validDomains} />
+          <AddUserButton
+            teamspaceId={teamspaceId}
+            refreshUsers={refreshUsers}
+          />
+        </div>
+        <div className="flex-1">
+          {filteredUsers.length > 0 ? (
+            <>
+              <Input
+                placeholder="Search user..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Card className="mt-4">
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUsers.map((user) => (
+                        <TableRow key={user.id}>
                           <TableCell>
-                            <div className="flex justify-end">
-                              <DeactivaterButton
-                                user={user}
-                                deactivate={user.status === UserStatus.live}
-                                mutate={refreshUsers}
-                                role={user.role}
-                              />
+                            <div className="flex gap-4">
+                              <UserProfile user={user} />
+                              <div className="flex flex-col">
+                                <span className="truncate max-w-44 font-medium">
+                                  {user.full_name}
+                                </span>
+                                <span className="text-sm text-subtle truncate max-w-44">
+                                  {user.email}
+                                </span>
+                              </div>
                             </div>
                           </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </>
-        ) : (
-          "No users."
-        )}
+                          <TableCell>
+                            <Select
+                              onValueChange={(value) =>
+                                handleRoleChange(user.email, value)
+                              }
+                              value={user.role}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue>
+                                  {user.role === "admin" ? "Admin" : "User"}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="user">User</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          {!teamspaceId ? (
+                            <TableCell>
+                              <div className="flex justify-end">
+                                <DeactivaterButton
+                                  user={user}
+                                  deactivate={user.status === UserStatus.live}
+                                  mutate={refreshUsers}
+                                  role={user.role}
+                                />
+                              </div>
+                            </TableCell>
+                          ) : (
+                            <TableCell>
+                              <CustomTooltip
+                                trigger={
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                      setIsDeleteModalOpen(true);
+                                      setUserToDelete(user.email);
+                                    }}
+                                  >
+                                    <Trash size={16} />
+                                  </Button>
+                                }
+                                variant="destructive"
+                              >
+                                Remove
+                              </CustomTooltip>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            "No users."
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

@@ -47,16 +47,14 @@ const DeleteArchiveModal = ({
   return (
     <CustomModal
       trigger={trigger}
-      title={`Are you sure you want to ${type} this Team Space?`}
+      title={`Are you sure you want to ${type.toLowerCase()} this Teamspace?`}
       onClose={onClose}
       open={open}
+      description={`You are about to ${type} this Team Space. Members will no longer have
+        access to it, and it will be removed from their sidebar`}
     >
-      <p className="pb-4">
-        You are about to {type} this Team Space. Members will no longer have
-        access to it, and it will be removed from their sidebar
-      </p>
       <div className="flex justify-end w-full gap-2 pt-6 border-t">
-        <Button onClick={onClose} variant="secondary">
+        <Button onClick={onClose} variant="ghost">
           Cancel
         </Button>
         <Button onClick={onConfirm} variant="destructive">
