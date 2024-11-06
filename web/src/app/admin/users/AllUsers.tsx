@@ -358,13 +358,16 @@ export const AllUsers = ({
                         </TableCell>
                         {!teamspaceId ? (
                           <TableCell>
-                            <div className="flex justify-end">
-                              <DeactivaterButton
-                                user={user}
-                                deactivate={user.status === UserStatus.live}
-                                mutate={refreshUsers}
-                                role={user.role}
-                              />
+                            <div className="flex gap-4">
+                              <UserProfile user={user} />
+                              <div className="flex flex-col">
+                                <span className="truncate max-w-44 font-medium">
+                                  {user.full_name}
+                                </span>
+                                <span className="text-sm text-subtle truncate max-w-44">
+                                  {user.email}
+                                </span>
+                              </div>
                             </div>
                           </TableCell>
                         ) : (
