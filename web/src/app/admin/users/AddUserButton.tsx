@@ -44,7 +44,9 @@ export const AddUserButton = ({
       onClose={() => setIsModalOpen(false)}
       open={isModalOpen}
       trigger={
-        <Button onClick={() => setIsModalOpen(true)}>Invite People</Button>
+        <Button onClick={() => setIsModalOpen(true)}>
+          {teamspaceId ? "Add People" : "Invite People"}
+        </Button>
       }
     >
       {teamspaceId ? (
