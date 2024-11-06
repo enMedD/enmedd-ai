@@ -104,33 +104,37 @@ export const BulkAddTeamspace = ({
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead></TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers?.map((user) => (
-                <TableRow key={user.email}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedEmails.includes(user.email)}
-                      onCheckedChange={() => handleCheckboxChange(user.email)}
-                    />
-                  </TableCell>
-                  <TableCell>{user.full_name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+      {filteredUsers && filteredUsers.length > 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead></TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers?.map((user) => (
+                  <TableRow key={user.email}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedEmails.includes(user.email)}
+                        onCheckedChange={() => handleCheckboxChange(user.email)}
+                      />
+                    </TableCell>
+                    <TableCell>{user.full_name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : (
+        <p className="flex items-center justify-center py-4">No user.</p>
+      )}
     </div>
   );
 };

@@ -156,7 +156,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
   return (
     <>
       <BackButton />
-      <div className="flex flex-col items-start w-full gap-4 pb-5 sm:flex-row lg:items-center">
+      <div className="flex flex-col items-start w-full gap-2 pb-5 sm:flex-row lg:items-center">
         <div className="my-auto mr-2">
           <SourceIcon iconSize={24} sourceType={ccPair.connector.source} />
         </div>

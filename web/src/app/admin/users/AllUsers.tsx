@@ -13,7 +13,7 @@ import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { LoadingAnimation } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Trash, } from "lucide-react";
+import { Trash } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -305,99 +305,97 @@ export const AllUsers = ({
             refreshUsers={refreshUsers}
           />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 space-y-4">
+          <Input
+            placeholder="Search user..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           {filteredUsers.length > 0 ? (
-            <>
-              <Input
-                placeholder="Search user..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Card className="mt-4">
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
+            <Card className="mt-4">
+              <CardContent className="p-0">
+                <Table className="">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <div className="flex gap-4">
+                            <UserProfile user={user} />
+                            <div className="flex flex-col">
+                              <span className="truncate max-w-44 font-medium">
+                                {user.full_name}
+                              </span>
+                              <span className="text-sm text-subtle truncate max-w-44">
+                                {user.email}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            onValueChange={(value) =>
+                              handleRoleChange(user.email, value)
+                            }
+                            value={user.role}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue>
+                                {user.role === "admin" ? "Admin" : "User"}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        {!teamspaceId ? (
                           <TableCell>
-                            <div className="flex gap-4">
-                              <UserProfile user={user} />
-                              <div className="flex flex-col">
-                                <span className="truncate max-w-44 font-medium">
-                                  {user.full_name}
-                                </span>
-                                <span className="text-sm text-subtle truncate max-w-44">
-                                  {user.email}
-                                </span>
-                              </div>
+                            <div className="flex justify-end">
+                              <DeactivaterButton
+                                user={user}
+                                deactivate={user.status === UserStatus.live}
+                                mutate={refreshUsers}
+                                role={user.role}
+                              />
                             </div>
                           </TableCell>
+                        ) : (
                           <TableCell>
-                            <Select
-                              onValueChange={(value) =>
-                                handleRoleChange(user.email, value)
+                            <CustomTooltip
+                              trigger={
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    setIsDeleteModalOpen(true);
+                                    setUserToDelete(user.email);
+                                  }}
+                                >
+                                  <Trash size={16} />
+                                </Button>
                               }
-                              value={user.role}
+                              variant="destructive"
                             >
-                              <SelectTrigger className="w-32">
-                                <SelectValue>
-                                  {user.role === "admin" ? "Admin" : "User"}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user">User</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
+                              Remove
+                            </CustomTooltip>
                           </TableCell>
-                          {!teamspaceId ? (
-                            <TableCell>
-                              <div className="flex justify-end">
-                                <DeactivaterButton
-                                  user={user}
-                                  deactivate={user.status === UserStatus.live}
-                                  mutate={refreshUsers}
-                                  role={user.role}
-                                />
-                              </div>
-                            </TableCell>
-                          ) : (
-                            <TableCell>
-                              <CustomTooltip
-                                trigger={
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                      setIsDeleteModalOpen(true);
-                                      setUserToDelete(user.email);
-                                    }}
-                                  >
-                                    <Trash size={16} />
-                                  </Button>
-                                }
-                                variant="destructive"
-                              >
-                                Remove
-                              </CustomTooltip>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           ) : (
-            "No users."
+            <p>No users.</p>
           )}
         </div>
       </div>

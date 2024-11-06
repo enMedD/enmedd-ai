@@ -6,6 +6,7 @@ import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { mutate } from "swr";
 

@@ -36,7 +36,7 @@ export function CustomModal({
       <DialogContent>
         <DialogHeader className="pb-8">
           <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          {description && <DialogDescription className="text-base">{description}</DialogDescription>}
         </DialogHeader>
 
         {children}
