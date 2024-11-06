@@ -257,6 +257,17 @@ export function AssistantEditor({
 
   const [isRequestSuccessful, setIsRequestSuccessful] = useState(false);
 
+  async function checkAssistantNameExists(name: string) {
+    const response = await fetch(`/api/assistant`);
+    const data = await response.json();
+
+    const assistantNameExists = data.some(
+      (assistant: Assistant) => assistant.name === name
+    );
+
+    return assistantNameExists;
+  }
+
   return (
     <div>
       <Formik
@@ -343,6 +354,19 @@ export function AssistantEditor({
             return;
           }
 
+          const assistantNameExists = await checkAssistantNameExists(
+            values.name
+          );
+          if (assistantNameExists) {
+            toast({
+              title: "Assistant Name Taken",
+              description: `"${values.name}" is already taken. Please choose a different name.`,
+              variant: "destructive",
+            });
+            formikHelpers.setSubmitting(false);
+            return;
+          }
+
           formikHelpers.setSubmitting(true);
           let enabledTools = Object.keys(values.enabled_tools_map)
             .map((toolId) => Number(toolId))
@@ -415,7 +439,7 @@ export function AssistantEditor({
               tool_ids: enabledTools,
             });
           }
-          
+
           let error = null;
           if (!promptResponse.ok) {
             error = await promptResponse.text();
