@@ -33,7 +33,6 @@ import { useUsers } from "@/lib/hooks";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { CustomModal } from "@/components/CustomModal";
 
-
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
     return (
