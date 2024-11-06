@@ -279,11 +279,47 @@ def mark_assistant_as_deleted(
     assistant_id: int,
     user: User | None,
     db_session: Session,
+    teamspace_id: int | None = None,
 ) -> None:
-    assistant = get_assistant_by_id(
-        assistant_id=assistant_id, user=user, db_session=db_session
-    )
-    assistant.deleted = True
+    if teamspace_id:
+        if user is None:
+            raise ValueError(
+                "User must be logged in to remove assistant from teamspace."
+            )
+
+        user_teamspace_stmt = (
+            select(User__Teamspace)
+            .where(User__Teamspace.user_id == user.id)
+            .where(User__Teamspace.teamspace_id == teamspace_id)
+            .where(User__Teamspace.role == UserRole.ADMIN)
+        )
+        user_teamspace_result = db_session.execute(
+            user_teamspace_stmt
+        ).scalar_one_or_none()
+
+        if user_teamspace_result is None:
+            raise PermissionError(
+                "User does not have admin rights in the specified teamspace."
+            )
+
+        db_session.execute(
+            delete(Assistant__Teamspace).where(
+                Assistant__Teamspace.assistant_id == assistant_id,
+                Assistant__Teamspace.teamspace_id == teamspace_id,
+            )
+        )
+    else:
+        db_session.execute(
+            delete(Assistant__Teamspace).where(
+                Assistant__Teamspace.assistant_id == assistant_id
+            )
+        )
+
+        assistant = get_assistant_by_id(
+            assistant_id=assistant_id, user=user, db_session=db_session
+        )
+        assistant.deleted = True
+
     db_session.commit()
 
 
