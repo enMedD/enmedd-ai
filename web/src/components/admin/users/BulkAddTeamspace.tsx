@@ -99,7 +99,9 @@ export const BulkAddTeamspace = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
-        <Button onClick={handleInvite}>Add</Button>
+        <Button disabled={selectedEmails.length <= 0} onClick={handleInvite}>
+          Add
+        </Button>
       </div>
 
       <Card>
