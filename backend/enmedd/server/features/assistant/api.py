@@ -204,7 +204,7 @@ def share_assistant(
 def delete_assistant(
     assistant_id: int,
     teamspace_id: Optional[int] = None,
-    user: User | None = Depends(current_user),
+    user: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     mark_assistant_as_deleted(
