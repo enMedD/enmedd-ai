@@ -36,6 +36,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { FiEdit2 } from "react-icons/fi";
 import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
+import { DeleteModal } from "@/components/DeleteModal";
 
 const numToDisplay = 50;
 
@@ -110,8 +111,11 @@ const DocumentSetTable = ({
   refresh,
   refreshEditable,
 }: DocumentFeedbackTableProps) => {
-  const [page, setPage] = useState(1);
   const { toast } = useToast();
+  const [page, setPage] = useState(1);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [documentSetToDelete, setDocumentSetToDelete] =
+    useState<DocumentSet | null>(null);
 
   // sort by name for consistent ordering
   documentSets.sort((a, b) => {
@@ -133,6 +137,34 @@ const DocumentSetTable = ({
 
   return (
     <div>
+      {isDeleteModalOpen && documentSetToDelete && (
+        <DeleteModal
+          title="Are you sure you want to delete this document set?"
+          description="This action will permanently schedule the selected document set for deletion. Please confirm if you want to proceed with this irreversible action."
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          onSuccess={async () => {
+            const response = await deleteDocumentSet(documentSetToDelete.id);
+            if (response.ok) {
+              toast({
+                title: "Deletion Scheduled",
+                description: `Document set "${documentSetToDelete.name}" scheduled for deletion.`,
+                variant: "success",
+              });
+              setIsDeleteModalOpen(false);
+            } else {
+              const errorMsg = (await response.json()).detail;
+              toast({
+                title: "Deletion Failed",
+                description: `Failed to schedule document set for deletion - ${errorMsg}`,
+                variant: "destructive",
+              });
+            }
+            refresh();
+            refreshEditable();
+          }}
+        />
+      )}
       <h3 className="pb-4">Existing Document Sets</h3>
       <Card>
         <CardContent className="p-0">
@@ -141,7 +173,7 @@ const DocumentSetTable = ({
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Data Sources</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Statuss</TableHead>
                 <TableHead>Public</TableHead>
                 <TableHead>Delete</TableHead>
               </TableRow>
@@ -217,26 +249,9 @@ const DocumentSetTable = ({
                       <TableCell>
                         {isEditable ? (
                           <DeleteButton
-                            onClick={async () => {
-                              const response = await deleteDocumentSet(
-                                documentSet.id
-                              );
-                              if (response.ok) {
-                                toast({
-                                  title: "Deletion Scheduled",
-                                  description: `Document set "${documentSet.name}" scheduled for deletion.`,
-                                  variant: "success",
-                                });
-                              } else {
-                                const errorMsg = (await response.json()).detail;
-                                toast({
-                                  title: "Deletion Failed",
-                                  description: `Failed to schedule document set for deletion - ${errorMsg}`,
-                                  variant: "destructive",
-                                });
-                              }
-                              refresh();
-                              refreshEditable();
+                            onClick={() => {
+                              setDocumentSetToDelete(documentSet);
+                              setIsDeleteModalOpen(true);
                             }}
                           />
                         ) : (

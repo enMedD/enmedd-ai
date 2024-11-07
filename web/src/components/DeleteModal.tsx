@@ -22,7 +22,7 @@ export function DeleteModal({
       open={open}
       description={description}
     >
-      <div className="flex justify-center items-center gap-2">
+      <div className="flex justify-end items-center gap-2">
         <Button onClick={onClose} variant="ghost">
           Cancel
         </Button>

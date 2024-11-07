@@ -277,7 +277,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
         <IndexingAttemptsTable ccPair={ccPair} />
       </div>
       <Divider />
-      <div className="flex mt-4">
+      <div className="flex mt-8">
         <div className="mx-auto">
           {ccPair.is_editable_for_current_user && (
             <DeletionButton ccPair={ccPair} />

@@ -5,15 +5,22 @@ import { CCPairFullInfo, ConnectorCredentialPairStatus } from "./types";
 import { deleteCCPair } from "@/lib/documentDeletion";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Trash } from "lucide-react";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { useState } from "react";
+import { DeleteModal } from "@/components/DeleteModal";
+import { useRouter } from "next/navigation";
 
-export function DeletionButton({ ccPair }: { ccPair: CCPairFullInfo }) {
+export function DeletionButton({
+  ccPair,
+  teamspaceId,
+}: {
+  ccPair: CCPairFullInfo;
+  teamspaceId?: string | string[];
+}) {
+  const router = useRouter();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const isDeleting =
     ccPair?.latest_deletion_attempt?.status === "PENDING" ||
     ccPair?.latest_deletion_attempt?.status === "STARTED";
@@ -30,15 +37,32 @@ export function DeletionButton({ ccPair }: { ccPair: CCPairFullInfo }) {
   }
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
+    <>
+      {isDeleteModalOpen && (
+        <DeleteModal
+          title="Are you sure you want to remove this data source?"
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          description="You are about to remove this data source."
+          onSuccess={() => {
+            deleteCCPair(ccPair.connector.id, ccPair.credential.id, () =>
+              mutate(buildCCPairInfoUrl(ccPair.id))
+            );
+            setIsDeleteModalOpen(false);
+            router.push(
+              teamspaceId
+                ? `/t/${teamspaceId}/admin/indexing/status`
+                : "/admin/indexing/status"
+            );
+          }}
+        />
+      )}
+      <CustomTooltip
+        trigger={
           <Button
-            onClick={() =>
-              deleteCCPair(ccPair.connector.id, ccPair.credential.id, () =>
-                mutate(buildCCPairInfoUrl(ccPair.id))
-              )
-            }
+            onClick={() => {
+              setIsDeleteModalOpen(true);
+            }}
             disabled={
               ccPair.status === ConnectorCredentialPairStatus.ACTIVE ||
               isDeleting
@@ -47,11 +71,11 @@ export function DeletionButton({ ccPair }: { ccPair: CCPairFullInfo }) {
           >
             <Trash size={16} /> Delete
           </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{tooltip}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        }
+        variant="destructive"
+      >
+        <p>{tooltip}</p>
+      </CustomTooltip>
+    </>
   );
 }

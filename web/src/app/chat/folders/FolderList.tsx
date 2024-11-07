@@ -112,6 +112,7 @@ const FolderItem = ({
     try {
       await deleteFolder(folder.folder_id);
       await refreshChatSessions();
+      setShowDeleteConfirm(false);
       router.refresh();
     } catch (error) {
       toast({

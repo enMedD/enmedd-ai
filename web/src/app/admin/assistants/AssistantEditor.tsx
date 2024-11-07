@@ -21,14 +21,12 @@ import {
   SelectorFormField,
   TextFormField,
 } from "@/components/admin/connectors/Field";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { getDisplayNameForModel } from "@/lib/hooks";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
 import { Option } from "@/components/Dropdown";
 import { addAssistantToList } from "@/lib/assistants/updateAssistantPreferences";
 import { checkLLMSupportsImageOutput, destructureValue } from "@/lib/llm/utils";
 import { ToolSnapshot } from "@/lib/tools/interfaces";
-import { checkUserIsNoAuthUser } from "@/lib/user";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -59,12 +57,6 @@ import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import {
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-  Tooltip,
-} from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -802,77 +794,67 @@ export function AssistantEditor({
 
                 <div className="flex flex-col pt-6 ml-1 gap-y-4">
                   {imageGenerationTool && (
-                    <TooltipProvider delayDuration={50}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`w-fit ${
-                              !currentLLMSupportsImageOutput
-                                ? "opacity-70 cursor-not-allowed"
-                                : ""
-                            }`}
-                          >
-                            <BooleanFormField
-                              name={`enabled_tools_map.${imageGenerationTool.id}`}
-                              label="Image Generation Tool"
-                              onChange={() => {
-                                toggleToolInValues(imageGenerationTool.id);
-                              }}
-                              disabled={!currentLLMSupportsImageOutput}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        {!currentLLMSupportsImageOutput && (
-                          <TooltipContent
-                            side="top"
-                            align="center"
-                            className={`!z-modal bg-brand-500 border-none text-inverted`}
-                          >
-                            <p>
-                              To use Image Generation, select GPT-4o or another
-                              image compatible model as the default model for
-                              this Assistant.
-                            </p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </TooltipProvider>
+                    <CustomTooltip
+                      trigger={
+                        <div
+                          className={`w-fit ${
+                            !currentLLMSupportsImageOutput
+                              ? "opacity-70 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          <BooleanFormField
+                            name={`enabled_tools_map.${imageGenerationTool.id}`}
+                            label="Image Generation Tool"
+                            onChange={() => {
+                              toggleToolInValues(imageGenerationTool.id);
+                            }}
+                            disabled={!currentLLMSupportsImageOutput}
+                          />
+                        </div>
+                      }
+                      asChild
+                    >
+                      {!currentLLMSupportsImageOutput && (
+                        <p>
+                          To use Image Generation, select GPT-4o or another
+                          image compatible model as the default model for this
+                          Assistant.
+                        </p>
+                      )}
+                    </CustomTooltip>
                   )}
 
                   {searchTool && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`w-fit ${
-                              ccPairs.length === 0
-                                ? "opacity-70 cursor-not-allowed"
-                                : ""
-                            }`}
-                          >
-                            <BooleanFormField
-                              name={`enabled_tools_map.${searchTool.id}`}
-                              label="Search Tool"
-                              onChange={() => {
-                                setFieldValue("num_chunks", null);
-                                toggleToolInValues(searchTool.id);
-                              }}
-                              disabled={ccPairs.length === 0}
-                            />
-                          </div>
-                        </TooltipTrigger>
-                        {ccPairs.length === 0 && (
-                          <TooltipContent
-                            className={`!z-modal bg-brand-500 border-none text-inverted`}
-                          >
-                            <p>
-                              To use the Search Tool, you need to have at least
-                              one Connector-Credential pair configured.
-                            </p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </TooltipProvider>
+                    <CustomTooltip
+                      trigger={
+                        <div
+                          className={`w-fit ${
+                            ccPairs.length === 0
+                              ? "opacity-70 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          <BooleanFormField
+                            name={`enabled_tools_map.${searchTool.id}`}
+                            label="Search Tool"
+                            onChange={() => {
+                              setFieldValue("num_chunks", null);
+                              toggleToolInValues(searchTool.id);
+                            }}
+                            disabled={ccPairs.length === 0}
+                          />
+                        </div>
+                      }
+                      asChild
+                    >
+                      {ccPairs.length === 0 && (
+                        <p>
+                          To use the Search Tool, you need to have at least one
+                          Connector-Credential pair configured.
+                        </p>
+                      )}
+                    </CustomTooltip>
                   )}
 
                   {ccPairs.length > 0 && searchTool && (

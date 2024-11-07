@@ -34,6 +34,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { deleteDocumentSet } from "@/app/admin/documents/sets/lib";
 import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
+import { DeleteModal } from "@/components/DeleteModal";
 
 const numToDisplay = 50;
 
@@ -106,8 +107,11 @@ const DocumentSetTable = ({
   refresh,
   refreshEditable,
 }: DocumentFeedbackTableProps) => {
-  const [page, setPage] = useState(1);
   const { toast } = useToast();
+  const [page, setPage] = useState(1);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [documentSetToDelete, setDocumentSetToDelete] =
+    useState<DocumentSet | null>(null);
 
   // sort by name for consistent ordering
   documentSets.sort((a, b) => {
@@ -129,6 +133,35 @@ const DocumentSetTable = ({
 
   return (
     <div>
+      {isDeleteModalOpen && documentSetToDelete && (
+        <DeleteModal
+          title="Are you sure you want to delete this document set?"
+          description="This action will remove the selected document set on this teamspace."
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          onSuccess={async () => {
+            const response = await deleteDocumentSet(documentSetToDelete.id);
+            if (response.ok) {
+              toast({
+                title: "Deletion Scheduled",
+                description: `Document set "${documentSetToDelete.name}" scheduled for deletion.`,
+                variant: "success",
+              });
+              setIsDeleteModalOpen(false);
+            } else {
+              const errorMsg = (await response.json()).detail;
+              toast({
+                title: "Deletion Failed",
+                description: `Failed to schedule document set for deletion - ${errorMsg}`,
+                variant: "destructive",
+              });
+            }
+            refresh();
+            refreshEditable();
+          }}
+        />
+      )}
+
       <h3 className="pb-4">Existing Document Sets</h3>
       <Card>
         <CardContent className="p-0">
@@ -213,26 +246,9 @@ const DocumentSetTable = ({
                       <TableCell>
                         {isEditable ? (
                           <DeleteButton
-                            onClick={async () => {
-                              const response = await deleteDocumentSet(
-                                documentSet.id
-                              );
-                              if (response.ok) {
-                                toast({
-                                  title: "Deletion Scheduled",
-                                  description: `Document set "${documentSet.name}" scheduled for deletion.`,
-                                  variant: "success",
-                                });
-                              } else {
-                                const errorMsg = (await response.json()).detail;
-                                toast({
-                                  title: "Deletion Failed",
-                                  description: `Failed to schedule document set for deletion - ${errorMsg}`,
-                                  variant: "destructive",
-                                });
-                              }
-                              refresh();
-                              refreshEditable();
+                            onClick={() => {
+                              setDocumentSetToDelete(documentSet);
+                              setIsDeleteModalOpen(true);
                             }}
                           />
                         ) : (
