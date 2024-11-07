@@ -59,21 +59,27 @@ const EditRow = ({
   return (
     <div className="relative w-full">
       {documentSet.is_up_to_date ? (
-        <div
-          className="flex items-center w-full gap-2 cursor-pointer"
-          onClick={() => {
-            if (documentSet.is_up_to_date) {
-              router.push(
-                teamspaceId
-                  ? `/t/${teamspaceId}/admin/documents/sets/${documentSet.id}`
-                  : `/admin/documents/sets/${documentSet.id}`
-              );
-            }
-          }}
+        <CustomTooltip
+          trigger={
+            <div
+              className="flex items-center w-full gap-2 cursor-pointer"
+              onClick={() => {
+                if (documentSet.is_up_to_date) {
+                  router.push(
+                    teamspaceId
+                      ? `/t/${teamspaceId}/admin/documents/sets/${documentSet.id}`
+                      : `/admin/documents/sets/${documentSet.id}`
+                  );
+                }
+              }}
+            >
+              <Pencil size={16} className="shrink-0" />
+              <p className="truncate">{documentSet.name}</p>
+            </div>
+          }
         >
-          <Pencil size={16} className="shrink-0" />
-          <p className="truncate">{documentSet.name}</p>
-        </div>
+          {documentSet.name}
+        </CustomTooltip>
       ) : (
         <CustomTooltip
           trigger={
