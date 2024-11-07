@@ -33,6 +33,7 @@ import { useUsers } from "@/lib/hooks";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { CustomModal } from "@/components/CustomModal";
 import { Badge } from "@/components/ui/badge";
+import { DeleteModal } from "@/components/DeleteModal";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -311,22 +312,13 @@ export const AllUsers = ({
   return (
     <>
       {isDeleteModalOpen && (
-        <CustomModal
-          trigger={null}
+        <DeleteModal
           title="Are you sure you want to remove this user?"
           onClose={() => setIsDeleteModalOpen(false)}
           open={isDeleteModalOpen}
           description="You are about to remove this user on the teamspace."
-        >
-          <div className="flex justify-end w-full gap-2 pt-6 border-t">
-            <Button onClick={() => setIsDeleteModalOpen(false)} variant="ghost">
-              Cancel
-            </Button>
-            <Button onClick={deleteUser} variant="destructive">
-              Confirm
-            </Button>
-          </div>
-        </CustomModal>
+          onSuccess={deleteUser}
+        />
       )}
 
       <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">

@@ -26,6 +26,7 @@ import { Popover } from "@/components/popover/Popover";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { useChatContext } from "@/context/ChatContext";
+import { DeleteModal } from "@/components/DeleteModal";
 
 const FolderItem = ({
   folder,
@@ -107,8 +108,7 @@ const FolderItem = ({
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
+  const confirmDelete = async () => {
     try {
       await deleteFolder(folder.folder_id);
       await refreshChatSessions();
@@ -121,11 +121,6 @@ const FolderItem = ({
         variant: "destructive",
       });
     }
-  };
-
-  const cancelDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    setShowDeleteConfirm(false);
   };
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -239,19 +234,13 @@ const FolderItem = ({
         </div>
       </BasicSelectable>
       {showDeleteConfirm && (
-        <CustomModal
-          trigger={null}
+        <DeleteModal
+          title="Are you sure you want to delete this folder?"
           onClose={() => setShowDeleteConfirm(false)}
           open={showDeleteConfirm}
-          title="Are you sure you want to delete this folder?"
-        >
-          <div className="pt-10 flex gap-4 justify-center">
-            <Button onClick={cancelDelete}>No</Button>
-            <Button onClick={confirmDelete} variant="destructive">
-              Yes
-            </Button>
-          </div>
-        </CustomModal>
+          description="You are about to remove this user on the teamspace."
+          onSuccess={confirmDelete}
+        />
       )}
       {isExpanded && folders && (
         <div className={"ml-[23px] pl-2 border-l border-border"}>
