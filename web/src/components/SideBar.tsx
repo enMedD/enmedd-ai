@@ -315,19 +315,6 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
                       ),
                       link: "/admin/settings",
                     },
-                    ...(dynamicSettings?.featureFlags.whitelabelling
-                      ? [
-                          {
-                            name: (
-                              <div className="flex items-center gap-2">
-                                <ImageIcon size={20} />
-                                <div>Whitelabeling</div>
-                              </div>
-                            ),
-                            link: "/admin/whitelabeling",
-                          },
-                        ]
-                      : []),
                   ]),
             ],
           },
