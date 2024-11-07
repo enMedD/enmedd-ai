@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +14,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTeamspaceUsers } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export const BulkAddTeamspace = ({
   teamspaceId,
@@ -26,6 +26,7 @@ export const BulkAddTeamspace = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
 
   const router = useRouter();
   const { toast } = useToast();
@@ -89,6 +90,27 @@ export const BulkAddTeamspace = ({
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleSelectAll = (isChecked: boolean | "indeterminate") => {
+    const checked = isChecked === true;
+    if (checked && filteredUsers) {
+      setSelectedEmails(filteredUsers.map((user) => user.email));
+    } else {
+      setSelectedEmails([]);
+    }
+    setIsAllSelected(checked);
+  };
+
+  useEffect(() => {
+    if (filteredUsers && filteredUsers.length > 0) {
+      const allSelected = filteredUsers.every((user) =>
+        selectedEmails.includes(user.email)
+      );
+      setIsAllSelected(allSelected);
+    } else {
+      setIsAllSelected(false);
+    }
+  }, [selectedEmails, filteredUsers]);
+
   return (
     <div>
       <div className="flex items-center mt-4 gap-x-2 w-full md:w-1/2 ml-auto mb-6">
@@ -110,7 +132,14 @@ export const BulkAddTeamspace = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead></TableHead>
+                  <TableHead>
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={(isChecked) =>
+                        handleSelectAll(!!isChecked)
+                      }
+                    />
+                  </TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                 </TableRow>

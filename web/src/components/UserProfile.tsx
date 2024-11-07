@@ -38,7 +38,7 @@ export function UserProfile({
   user,
   onClick,
   size = 40,
-  textSize = "text-xl",
+  textSize = "text-base",
 }: UserProfileProps) {
   const backgroundGradient =
     user && user.full_name

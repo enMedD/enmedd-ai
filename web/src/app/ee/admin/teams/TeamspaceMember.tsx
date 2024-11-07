@@ -14,7 +14,7 @@ import { Teamspace, User } from "@/lib/types";
 import { Crown, Minus, Pencil, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { SearchInput } from "@/components/SearchInput";
@@ -52,6 +52,7 @@ const MemberContent = ({
   const { toast } = useToast();
   const [isRemoveUserModalOpen, setIsRemoveUserModalOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
   const { refreshUsers } = useUsers();
 
   const handleCheckboxChange = (userEmail: string) => {
@@ -60,6 +61,22 @@ const MemberContent = ({
         ? prev.filter((email) => email !== userEmail)
         : [...prev, userEmail]
     );
+  };
+
+  useEffect(() => {
+    // Check if all users are selected
+    const allSelected =
+      filteredUsers?.every((user) => selectedUsers.includes(user.email)) ??
+      false;
+    setIsAllSelected(allSelected);
+  }, [selectedUsers, filteredUsers]);
+
+  const handleHeaderCheckboxChange = () => {
+    if (isAllSelected) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers!.map((user) => user.email));
+    }
   };
 
   const handleRemoveUser = async () => {
@@ -161,7 +178,10 @@ const MemberContent = ({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[50px]">
-                      <Checkbox />
+                      <Checkbox
+                        checked={isAllSelected}
+                        onCheckedChange={handleHeaderCheckboxChange}
+                      />
                     </TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Email Address</TableHead>
