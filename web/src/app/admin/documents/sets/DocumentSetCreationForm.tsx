@@ -168,7 +168,7 @@ export const DocumentSetCreationForm = ({
                 />
               </div>
 
-              {teamspaces && teamspaces.length > 0 && (
+              {teamspaces && teamspaces.length > 0 && !teamspaceId && (
                 <div>
                   <Divider />
                   <BooleanFormField
@@ -183,7 +183,7 @@ export const DocumentSetCreationForm = ({
                     }
                     alignTop
                   />
-                  {values.is_public && (
+                  {!values.is_public && (
                     <>
                       <h3 className="mb-1 text-sm">Teamspace with Access</h3>
                       <p className="mb-2 text-sm text-muted-foreground">
