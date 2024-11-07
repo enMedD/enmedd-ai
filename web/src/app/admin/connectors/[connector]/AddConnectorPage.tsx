@@ -233,7 +233,7 @@ export default function AddConnector({
       onSubmit={async (values) => {
         const {
           name,
-          groups,
+          // groups,
           access_type,
           pruneFreq,
           indexingStart,
@@ -241,6 +241,14 @@ export default function AddConnector({
           auto_sync_options,
           ...connector_specific_config
         } = values;
+
+        const groups = teamspaceId
+          ? [Number(teamspaceId)]
+          : values.is_public
+            ? []
+            : values.groups;
+
+        const isPublic = teamspaceId ? false : access_type === "public";
 
         // Apply transforms from connectors.ts configuration
         const transformedConnectorSpecificConfig = Object.entries(
@@ -279,7 +287,7 @@ export default function AddConnector({
             advancedConfiguration.refreshFreq,
             advancedConfiguration.pruneFreq,
             advancedConfiguration.indexingStart,
-            values.access_type == "public",
+            isPublic,
             name
           );
           if (response) {
@@ -305,7 +313,7 @@ export default function AddConnector({
             selectedFiles,
             setSelectedFiles,
             name,
-            access_type == "public",
+            isPublic,
             groups
           );
           console.log(response);
@@ -332,7 +340,7 @@ export default function AddConnector({
             input_type: isLoadState(connector) ? "load_state" : "poll", // single case
             name: name,
             source: connector,
-            is_public: access_type == "public",
+            is_public: isPublic,
             refresh_freq: advancedConfiguration.refreshFreq || null,
             prune_freq: advancedConfiguration.pruneFreq || null,
             indexing_start: advancedConfiguration.indexingStart || null,
@@ -340,7 +348,7 @@ export default function AddConnector({
           },
           undefined,
           credentialActivated ? false : true,
-          access_type == "public"
+          isPublic
         );
         // If no credential
         if (!credentialActivated) {

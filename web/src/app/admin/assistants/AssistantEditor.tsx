@@ -392,9 +392,10 @@ export function AssistantEditor({
           const numChunks = searchToolEnabled ? values.num_chunks || 10 : 0;
 
           // don't set teamspace if marked as public
+          const isPublic = teamspaceId ? false : values.is_public;
           const groups = teamspaceId
             ? [Number(teamspaceId)]
-            : values.is_public
+            : isPublic
               ? []
               : values.groups;
 
@@ -405,6 +406,7 @@ export function AssistantEditor({
               id: existingAssistant.id,
               existingPromptId: existingPrompt?.id,
               ...values,
+              is_public: isPublic,
               search_start_date: values.search_start_date
                 ? new Date(values.search_start_date)
                 : null,
@@ -419,6 +421,7 @@ export function AssistantEditor({
           } else {
             [promptResponse, assistantResponse] = await createAssistant({
               ...values,
+              is_public: isPublic,
               is_default_assistant: admin!,
               num_chunks: numChunks,
               search_start_date: values.search_start_date
