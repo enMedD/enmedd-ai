@@ -28,14 +28,12 @@ const DataSourceContent = ({
   filteredDataSources,
   isGlobal,
   onSelect,
-  hasDataSource,
 }: {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  filteredDataSources?: SimplifiedDataSource[];
+  filteredDataSources: SimplifiedDataSource[];
   isGlobal?: boolean;
   onSelect?: (dataSource: SimplifiedDataSource) => void;
-  hasDataSource?: boolean;
 }) => {
   return (
     <div className={isGlobal ? "cursor-pointer" : ""}>
@@ -52,7 +50,7 @@ const DataSourceContent = ({
         </div>
       </div>
 
-      {hasDataSource ? (
+      {filteredDataSources?.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {filteredDataSources?.map((dataSource) => (
             <div
@@ -263,7 +261,6 @@ export const TeamspaceDataSource = ({
           )}
           isGlobal={false}
           onSelect={handleSelectDataSource}
-          hasDataSource={tempCurrentDataSources.length > 0}
         />
         <DataSourceContent
           searchTerm={searchTermGlobal}
@@ -275,7 +272,6 @@ export const TeamspaceDataSource = ({
           )}
           isGlobal={true}
           onSelect={handleSelectDataSource}
-          hasDataSource={tempGlobalDataSources.length > 0}
         />
       </div>
 

@@ -4,6 +4,7 @@ import {
   MinimalUserwithNameSnapshot,
   Tag,
   Teamspace,
+  User,
 } from "@/lib/types";
 import useSWR, { mutate, useSWRConfig } from "swr";
 import { errorHandlingFetcher } from "./fetcher";
@@ -158,7 +159,7 @@ const USERS_URL = "/api/users";
 export const useTeamspaceUsers = (
   teamspaceId?: string | string[]
 ): {
-  data: MinimalUserwithNameSnapshot[] | undefined;
+  data: User[] | undefined;
   isLoading: boolean;
   error: string;
   refreshTeamspaceUsers: () => void;
@@ -168,7 +169,7 @@ export const useTeamspaceUsers = (
     include_teamspace_user: "false",
   });
 
-  const swrResponse = useSWR<MinimalUserwithNameSnapshot[]>(
+  const swrResponse = useSWR<User[]>(
     `${USERS_URL}?${queryParams}`,
     errorHandlingFetcher
   );

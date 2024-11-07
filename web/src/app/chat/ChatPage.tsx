@@ -2369,7 +2369,7 @@ export function ChatPage({
                           inputPrompts={userInputPrompts}
                           selectedDocuments={selectedDocuments}
                           // assistant stuff
-                          assistantOptions={finalAssistants}
+                          assistantOptions={availableAssistants}
                           selectedAssistant={liveAssistant}
                           setSelectedAssistant={onAssistantChange}
                           setAlternativeAssistant={setAlternativeAssistant}

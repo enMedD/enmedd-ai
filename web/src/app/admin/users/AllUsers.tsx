@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { LoadingAnimation } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { Trash, } from "lucide-react";
+import { Trash } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,7 +32,8 @@ import { useUser } from "@/components/user/UserProvider";
 import { useUsers } from "@/lib/hooks";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { CustomModal } from "@/components/CustomModal";
-
+import { Badge } from "@/components/ui/badge";
+import { DeleteModal } from "@/components/DeleteModal";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -127,6 +128,8 @@ export const AllUsers = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [teamspaceData, setTeamspaceData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { data, isLoading, error, refreshUsers } = useUsers(
     q,
@@ -134,6 +137,30 @@ export const AllUsers = ({
     invitedPage,
     teamspaceId
   );
+
+  useEffect(() => {
+    if (teamspaceId && !teamspaceData) {
+      const fetchTeamspaceData = async () => {
+        setLoading(true);
+        try {
+          const response = await fetch(
+            `/api/manage/admin/teamspace/${teamspaceId}`
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch teamspace");
+          }
+          const data = await response.json();
+          setTeamspaceData(data);
+        } catch (err) {
+          console.log("Error fetching teamspace", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTeamspaceData();
+    }
+  }, [teamspaceId, teamspaceData]);
 
   const { trigger: promoteTrigger } = useSWRMutation(
     teamspaceId
@@ -234,9 +261,11 @@ export const AllUsers = ({
     data: validDomains,
     isLoading: isLoadingDomains,
     error: domainsError,
-  } = useSWR<string[]>("/api/manage/admin/valid-domains", errorHandlingFetcher);
+  } = !teamspaceId
+    ? useSWR<string[]>("/api/manage/admin/valid-domains", errorHandlingFetcher)
+    : { data: [], isLoading: false, error: null };
 
-  if (isLoading) {
+  if (isLoading || isLoadingDomains || loading) {
     return <LoadingAnimation text="Loading" />;
   }
 
@@ -274,27 +303,22 @@ export const AllUsers = ({
         user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a) => (a.id === user?.id ? -1 : 1));
+    .sort((a, b) => {
+      if (a.email === teamspaceData?.creator?.email) return -1;
+      if (b.email === teamspaceData?.creator?.email) return 1;
+      return a.id === user?.id ? -1 : 1;
+    });
 
   return (
     <>
       {isDeleteModalOpen && (
-        <CustomModal
-          trigger={null}
+        <DeleteModal
           title="Are you sure you want to remove this user?"
           onClose={() => setIsDeleteModalOpen(false)}
           open={isDeleteModalOpen}
           description="You are about to remove this user on the teamspace."
-        >
-          <div className="flex justify-end w-full gap-2 pt-6 border-t">
-            <Button onClick={() => setIsDeleteModalOpen(false)} variant="ghost">
-              Cancel
-            </Button>
-            <Button onClick={deleteUser} variant="destructive">
-              Confirm
-            </Button>
-          </div>
-        </CustomModal>
+          onSuccess={deleteUser}
+        />
       )}
 
       <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
@@ -306,99 +330,107 @@ export const AllUsers = ({
             refreshUsers={refreshUsers}
           />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 space-y-4">
+          <Input
+            placeholder="Search user..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           {filteredUsers.length > 0 ? (
-            <>
-              <Input
-                placeholder="Search user..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Card className="mt-4">
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell>
-                            <div className="flex gap-4">
-                              <UserProfile user={user} />
-                              <div className="flex flex-col">
-                                <span className="truncate max-w-44 font-medium">
-                                  {user.full_name}
-                                </span>
-                                <span className="text-sm text-subtle truncate max-w-44">
-                                  {user.email}
-                                </span>
-                              </div>
+            <Card className="mt-4">
+              <CardContent className="p-0">
+                <Table className="">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((filteredUser) => (
+                      <TableRow key={filteredUser.id}>
+                        <TableCell>
+                          <div className="flex gap-4 items-center">
+                            <UserProfile user={filteredUser} />
+                            <div className="flex flex-col">
+                              <span className="truncate max-w-44 font-medium">
+                                {filteredUser.full_name}
+                              </span>
+                              <span className="text-sm text-subtle truncate max-w-44">
+                                {filteredUser.email}
+                              </span>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              onValueChange={(value) =>
-                                handleRoleChange(user.email, value)
-                              }
-                              value={user.role}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue>
-                                  {user.role === "admin" ? "Admin" : "User"}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user">User</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          {!teamspaceId ? (
+                            {filteredUser?.email ===
+                              teamspaceData?.creator?.email && (
+                              <Badge>Creator</Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            onValueChange={(value) =>
+                              handleRoleChange(filteredUser.email, value)
+                            }
+                            value={filteredUser.role}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue>
+                                {filteredUser.role === "admin"
+                                  ? "Admin"
+                                  : "User"}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        {filteredUser?.email !==
+                          teamspaceData?.creator?.email &&
+                          user?.email !== filteredUser.email && (
                             <TableCell>
-                              <div className="flex justify-end">
-                                <DeactivaterButton
-                                  user={user}
-                                  deactivate={user.status === UserStatus.live}
-                                  mutate={refreshUsers}
-                                  role={user.role}
-                                />
-                              </div>
-                            </TableCell>
-                          ) : (
-                            <TableCell>
-                              <CustomTooltip
-                                trigger={
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                      setIsDeleteModalOpen(true);
-                                      setUserToDelete(user.email);
-                                    }}
-                                  >
-                                    <Trash size={16} />
-                                  </Button>
-                                }
-                                variant="destructive"
-                              >
-                                Remove
-                              </CustomTooltip>
+                              {teamspaceId ? (
+                                <CustomTooltip
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => {
+                                        setIsDeleteModalOpen(true);
+                                        setUserToDelete(filteredUser.email);
+                                      }}
+                                    >
+                                      <Trash size={16} />
+                                    </Button>
+                                  }
+                                  variant="destructive"
+                                >
+                                  Remove
+                                </CustomTooltip>
+                              ) : (
+                                <div className="flex justify-end">
+                                  <DeactivaterButton
+                                    user={filteredUser}
+                                    deactivate={
+                                      filteredUser.status === UserStatus.live
+                                    }
+                                    mutate={refreshUsers}
+                                    role={filteredUser.role}
+                                  />
+                                </div>
+                              )}
                             </TableCell>
                           )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           ) : (
-            "No users."
+            <p>No users.</p>
           )}
         </div>
       </div>
