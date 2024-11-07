@@ -73,9 +73,20 @@ export function Combobox({
     }
   };
 
+  const handleDeselectAll = () => {
+    setSelectedItems([]);
+    if (onSelect) {
+      onSelect([]);
+    }
+    setOpen(false);
+  };
+
   const filteredItems = items?.filter(
     (item) => !selectedItems.some((selected) => selected.value === item.value)
   );
+
+  const allItemsSelected = selectedItems.length === items?.length;
+  const noItemsLeft = filteredItems && filteredItems.length === 0;
 
   return (
     <>
@@ -104,7 +115,16 @@ export function Combobox({
             <CommandList>
               <CommandEmpty>No items found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem onSelect={handleSelectAll}>Select All</CommandItem>
+                {!allItemsSelected && (
+                  <CommandItem onSelect={handleSelectAll}>
+                    Select All
+                  </CommandItem>
+                )}
+                {selectedItems.length > 0 && noItemsLeft && (
+                  <CommandItem onSelect={handleDeselectAll}>
+                    Deselect All
+                  </CommandItem>
+                )}
               </CommandGroup>
               <Separator />
               <CommandGroup>
