@@ -267,7 +267,7 @@ export async function updateAssistant(
 
 export function deleteAssistant(
   assistantId: number,
-  teamspaceId: string | string[] | undefined
+  teamspaceId?: string | string[] | undefined
 ) {
   return fetch(
     teamspaceId
