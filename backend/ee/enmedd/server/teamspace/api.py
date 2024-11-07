@@ -200,11 +200,11 @@ def update_teamspace_user_role(
             status_code=404, detail="User-Teamspace relationship not found"
         )
 
-    if (
-        user_teamspace.role == TeamspaceUserRole.ADMIN
-        and body.new_role != TeamspaceUserRole.ADMIN
-    ):
-        raise HTTPException(status_code=400, detail="Cannot demote another admin!")
+    # if (
+    #     user_teamspace.role == TeamspaceUserRole.ADMIN
+    #     and body.new_role != TeamspaceUserRole.ADMIN
+    # ):
+    #     raise HTTPException(status_code=400, detail="Cannot demote another admin!")
 
     user_teamspace.role = body.new_role
     db_session.commit()
@@ -258,10 +258,16 @@ def add_teamspace_users(
 def remove_teamspace_users(
     teamspace_id: int,
     emails: list[str],
-    _: User = Depends(current_teamspace_admin_user),
+    user: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
+    teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
+    if not teamspace:
+        raise HTTPException(status_code=404, detail="Teamspace not found")
+
+    is_creator = user.id == teamspace.creator_id
     removed_users = []
+
     for email in emails:
         user_to_remove = get_user_by_email(email=email, db_session=db_session)
         if not user_to_remove:
@@ -280,10 +286,10 @@ def remove_teamspace_users(
                 detail=f"User with email {email} not found in teamspace",
             )
 
-        if user_teamspace.role == TeamspaceUserRole.ADMIN:
+        if user_teamspace.role == TeamspaceUserRole.ADMIN and not is_creator:
             raise HTTPException(
                 status_code=403,
-                detail=f"Cannot remove admin user with email: {email}",
+                detail=f"Cannot remove admin with email: {email}",
             )
 
         db_session.delete(user_teamspace)
