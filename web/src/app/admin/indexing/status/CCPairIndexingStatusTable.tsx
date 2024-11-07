@@ -148,7 +148,7 @@ function ConnectorRow({
     ) {
       return (
         <Badge variant="deleting">
-          <div className="w-3 h-3 rounded-full bg-destructive-500" />
+          <div className="w-3 h-3 shrink-0 rounded-full bg-destructive-500" />
           Deleting
         </Badge>
       );
@@ -158,7 +158,7 @@ function ConnectorRow({
     ) {
       return (
         <Badge variant="paused">
-          <div className="w-3 h-3 bg-background rounded-full" />
+          <div className="w-3 h-3 shrink-0 bg-background rounded-full" />
           Paused
         </Badge>
       );
@@ -169,21 +169,21 @@ function ConnectorRow({
       case "in_progress":
         return (
           <Badge variant="indexing">
-            <div className="w-3 h-3 rounded-full bg-background" />
+            <div className="w-3 h-3 shrink-0 rounded-full bg-background" />
             Indexing
           </Badge>
         );
       case "not_started":
         return (
           <Badge variant="scheduled">
-            <div className="w-3 h-3 rounded-full bg-background" />
+            <div className="w-3 h-3 shrink-0 rounded-full bg-background" />
             Scheduled
           </Badge>
         );
       default:
         return (
           <Badge variant="active">
-            <div className="w-3 h-3 rounded-full bg-background" />
+            <div className="w-3 h-3 shrink-0 rounded-full bg-background" />
             Active
           </Badge>
         );
@@ -204,7 +204,7 @@ function ConnectorRow({
       <TableCell>
         <CustomTooltip
           trigger={
-            <p className="inline-block w-full truncate ellipsis">
+            <p className="w-full truncate ellipsis max-w-[480px]">
               {ccPairsIndexingStatus.name}
             </p>
           }
