@@ -99,6 +99,7 @@ interface DocumentFeedbackTableProps {
   refresh: () => void;
   refreshEditable: () => void;
   editableDocumentSets: DocumentSet[];
+  teamspaceId: string | string[];
 }
 
 const DocumentSetTable = ({
@@ -106,6 +107,7 @@ const DocumentSetTable = ({
   editableDocumentSets,
   refresh,
   refreshEditable,
+  teamspaceId,
 }: DocumentFeedbackTableProps) => {
   const { toast } = useToast();
   const [page, setPage] = useState(1);
@@ -135,12 +137,15 @@ const DocumentSetTable = ({
     <div>
       {isDeleteModalOpen && documentSetToDelete && (
         <DeleteModal
-          title="Are you sure you want to delete this document set?"
+          title="Are you sure you want to remove this document set?"
           description="This action will remove the selected document set on this teamspace."
           onClose={() => setIsDeleteModalOpen(false)}
           open={isDeleteModalOpen}
           onSuccess={async () => {
-            const response = await deleteDocumentSet(documentSetToDelete.id);
+            const response = await deleteDocumentSet(
+              documentSetToDelete.id,
+              teamspaceId
+            );
             if (response.ok) {
               toast({
                 title: "Deletion Scheduled",
@@ -340,6 +345,7 @@ const Main = () => {
             ccPairs={ccPairs}
             refresh={refreshDocumentSets}
             refreshEditable={refreshEditableDocumentSets}
+            teamspaceId={teamspaceId}
           />
         </>
       )}

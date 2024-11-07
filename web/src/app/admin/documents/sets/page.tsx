@@ -173,7 +173,7 @@ const DocumentSetTable = ({
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Data Sources</TableHead>
-                <TableHead>Statuss</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Public</TableHead>
                 <TableHead>Delete</TableHead>
               </TableRow>

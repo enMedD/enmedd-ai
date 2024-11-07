@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { CCPairFullInfo, ConnectorCredentialPairStatus } from "./types";
-import { deleteCCPair } from "@/lib/documentDeletion";
+import { deleteCCPair, removeCCPair } from "@/lib/documentDeletion";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
 import { Trash } from "lucide-react";
@@ -28,13 +28,15 @@ export function DeletionButton({
   let tooltip: string;
   if (ccPair.status !== ConnectorCredentialPairStatus.ACTIVE) {
     if (isDeleting) {
-      tooltip = "This connector is currently being deleted";
+      tooltip = `This connector is currently being ${teamspaceId ? "removed" : "deleted"}`;
     } else {
-      tooltip = "Click to delete";
+      tooltip = `Click to ${teamspaceId ? "remove" : "delete"}`;
     }
   } else {
-    tooltip = "You must pause the connector before deleting it";
+    tooltip = `You must pause the connector before ${teamspaceId ? "removing" : "deleting"} it`;
   }
+
+  console.log(ccPair);
 
   return (
     <>
@@ -45,9 +47,13 @@ export function DeletionButton({
           open={isDeleteModalOpen}
           description="You are about to remove this data source."
           onSuccess={() => {
-            deleteCCPair(ccPair.connector.id, ccPair.credential.id, () =>
-              mutate(buildCCPairInfoUrl(ccPair.id))
-            );
+            if (teamspaceId) {
+              removeCCPair(ccPair.id, teamspaceId);
+            } else {
+              deleteCCPair(ccPair.connector.id, ccPair.credential.id, () =>
+                mutate(buildCCPairInfoUrl(ccPair.id))
+              );
+            }
             setIsDeleteModalOpen(false);
             router.push(
               teamspaceId
@@ -69,7 +75,7 @@ export function DeletionButton({
             }
             variant="destructive"
           >
-            <Trash size={16} /> Delete
+            <Trash size={16} /> {teamspaceId ? "Remove" : "Delete"}
           </Button>
         }
         variant="destructive"

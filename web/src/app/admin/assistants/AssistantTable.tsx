@@ -106,24 +106,27 @@ export function AssistantsTable({
     <div>
       {isDeleteModalOpen && assistantToDelete && (
         <DeleteModal
-          title="Are you sure you want to delete this assistant?"
-          description="This action will permanently schedule the selected assistant for deletion. Please confirm if you want to proceed with this irreversible action."
+          title={`Are you sure you want to ${teamspaceId ? "remove" : "delete"} this assistant?`}
+          description={`This action will permanently schedule the selected assistant will ${teamspaceId ? "remove" : "deletion"}. Please confirm if you want to proceed with this irreversible action.`}
           onClose={() => setIsDeleteModalOpen(false)}
           open={isDeleteModalOpen}
           onSuccess={async () => {
-            const response = await deleteAssistant(assistantToDelete.id);
+            const response = await deleteAssistant(
+              assistantToDelete.id,
+              teamspaceId
+            );
             if (response.ok) {
               toast({
-                title: "Assistant deleted",
-                description: "The assistant has been successfully deleted.",
+                title: `Assistant ${teamspaceId ? "removed" : "deleted"}`,
+                description: `The assistant has been successfully ${teamspaceId ? "removed" : "deleted"}.`,
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
               router.refresh();
             } else {
               toast({
-                title: "Failed to delete assistant",
-                description: `There was an issue deleting the assistant. Details: ${await response.text()}`,
+                title: `Failed to ${teamspaceId ? "remove" : "delete"} assistant`,
+                description: `There was an issue ${teamspaceId ? "removing" : "deleting"} the assistant. Details: ${await response.text()}`,
                 variant: "destructive",
               });
             }

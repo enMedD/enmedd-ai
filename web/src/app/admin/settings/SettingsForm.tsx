@@ -63,17 +63,19 @@ function Selector({
 }) {
   return (
     <div className="mb-8">
-      {label && (
-        <ShadcnLabel
-          htmlFor={label}
-          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-        </ShadcnLabel>
-      )}
-      {subtext && <p className="text-sm text-muted-foreground">{subtext}</p>}
+      <div className="grid gap-1 pb-1.5">
+        {label && (
+          <ShadcnLabel
+            htmlFor={label}
+            className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {label}
+          </ShadcnLabel>
+        )}
+        {subtext && <p className="text-sm text-muted-foreground">{subtext}</p>}
+      </div>
 
-      <div className="mt-2 w-full max-w-96">
+      <div className="w-full max-w-96">
         <Select value={selected} onValueChange={onSelect}>
           <SelectTrigger className="flex text-sm bg-background px-3 py-1.5 rounded-regular border border-border cursor-pointer">
             <SelectValue
@@ -110,13 +112,15 @@ function IntegerInput({
 }) {
   return (
     <label className="flex flex-col text-sm mb-4">
-      <ShadcnLabel
-        htmlFor={label}
-        className="font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-        {label}
-      </ShadcnLabel>
-      <SubLabel>{sublabel}</SubLabel>
+      <div className="grid gap-1 pb-1.5">
+        <ShadcnLabel
+          htmlFor={label}
+          className="font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {label}
+        </ShadcnLabel>
+        <SubLabel>{sublabel}</SubLabel>
+      </div>
       <Input
         type="number"
         className="w-full max-w-xs"
