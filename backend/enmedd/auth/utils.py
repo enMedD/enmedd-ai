@@ -25,7 +25,7 @@ def generate_password_reset_email(email: str, reset_url: str):
     If you did not request a password reset, please ignore this email or contact support if you have concerns.
 
     Best regards,
-    The VanguardAI Team
+    The enMedD AI Team
     """
 
     return subject, body
@@ -45,14 +45,14 @@ def generate_user_verification_email(full_name: str, verify_url: str):
     If you did not request this email, please ignore it.
 
     Best regards,
-    The VanguardAI Team
+    The enMedD AI Team
     """
 
     return subject, body
 
 
 def generate_2fa_email(full_name: str, code: str):
-    subject = "VanguardAI Two-Factor Authentication (2FA) Code"
+    subject = "enMedD AI Two-Factor Authentication (2FA) Code"
 
     body = f"""
     <html>
@@ -64,7 +64,7 @@ def generate_2fa_email(full_name: str, code: str):
         For your security, do not share this code with anyone.
         If you did not request this code, please contact our support team immediately.</p>
         <p>Best regards,</p>
-        <p>The VanguardAI Team</p>
+        <p>The enMedD AI Team</p>
     </body>
     </html>
     """

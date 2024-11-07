@@ -69,12 +69,12 @@ if __name__ == "__main__":
         "--enmedd-url",
         type=str,
         default="http://localhost:80",
-        help="Vanguard AI URL, should point to Vanguard AI nginx.",
+        help="enMedD AI URL, should point to enMedD AI nginx.",
     )
     parser.add_argument(
         "--test-question",
         type=str,
-        default="What is Vanguard AI?",
+        default="What is enMedD AI?",
         help="Test question for new Chat Session.",
     )
 

@@ -31,10 +31,10 @@ export function ChatIntro({
               className="w-16 h-16 md:w-24 md:h-24"
             />
             <h1 className="text-[1.5rem] md:text-[2.5rem] font-semibold leading-[1.2] tracking-tighter text-dark-900 text-center">
-              {liveAssistant?.name || "Vanguard AI"}
+              {liveAssistant?.name || "enMedD AI"}
             </h1>
             <div className="flex items-center gap-2 text-subtle">
-              By {liveAssistant?.owner?.email || "Vanguard AI"}
+              By {liveAssistant?.owner?.email || "enMedD AI"}
             </div>
             <p className="text-center text-dark-900 w-full md:w-3/4 line-clamp">
               {liveAssistant?.description || ""}

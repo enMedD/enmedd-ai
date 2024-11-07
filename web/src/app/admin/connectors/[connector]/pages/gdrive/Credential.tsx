@@ -436,7 +436,7 @@ export const DriveOAuthSection = ({
               <TextFormField
                 name="google_drive_delegated_user"
                 label="[Optional] User email to impersonate:"
-                subtext="If left blank, Vanguard AI will use the service account itself."
+                subtext="If left blank, enMedD AI will use the service account itself."
                 optional
               />
               <div className="flex">

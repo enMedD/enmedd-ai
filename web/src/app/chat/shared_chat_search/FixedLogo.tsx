@@ -30,11 +30,11 @@ export default function FixedLogo() {
               <div>
                 <HeaderTitle>{enterpriseSettings.workspace_name}</HeaderTitle>
                 {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED && (
-                  <p className="text-xs text-subtle">Powered by Vanguard AI</p>
+                  <p className="text-xs text-subtle">Powered by enMedD AI</p>
                 )}
               </div>
             ) : (
-              <HeaderTitle>Vanguard AI</HeaderTitle>
+              <HeaderTitle>enMedD AI</HeaderTitle>
             )}
           </div>
         </div>

@@ -1,14 +1,14 @@
 instances: 
   - id: 0
-    instance_name: "Vanguard AI"
+    instance_name: "enMedD AI"
     subscription_plan: null
     owner_id: null
 
 workspaces:
   - id: 0 
     instance_id: 0
-    workspace_name: "Vanguard AI"
-    workspace_description: "Vanguard AI Workspace"
+    workspace_name: "enMedD AI"
+    workspace_description: "enMedD AI Workspace"
     use_custom_logo: false
     custom_logo: null
     custom_header_logo: null
