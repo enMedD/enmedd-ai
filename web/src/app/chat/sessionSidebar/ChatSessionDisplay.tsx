@@ -13,7 +13,7 @@ import Link from "next/link";
 
 import { ShareChatSessionModal } from "../modal/ShareChatSessionModal";
 import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
-import { Ellipsis, X, Check, Pencil, MessageCircleMore } from "lucide-react";
+import { Ellipsis, X, Check, Pencil, MessageCircleMore, Trash } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -23,9 +23,9 @@ import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { WarningCircle } from "@phosphor-icons/react";
-import { DeleteChatModal } from "@/components/modals/DeleteEntityModal";
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/context/ChatContext";
+import { DeleteModal } from "@/components/DeleteModal";
 
 export function ChatSessionDisplay({
   chatSession,
@@ -213,38 +213,52 @@ export function ChatSessionDisplay({
                         </div>
                       </div>
 
-                      <DeleteChatModal
-                        open={openDeleteModal}
-                        openDeleteModal={() => setOpenDeleteModal(true)}
-                        onClose={() => setOpenDeleteModal(false)}
-                        onSubmit={async () => {
-                          const response = await deleteChatSession(
-                            chatSession.id
-                          );
-                          if (response.ok) {
-                            // go back to the main page
-                            router.push(
-                              teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"
-                            );
-                            refreshChatSessions();
-                            setOpenDeleteModal(false);
-                            toast({
-                              title: "Chat session deleted",
-                              description:
-                                "The chat session has been successfully deleted.",
-                              variant: "success",
-                            });
-                          } else {
-                            toast({
-                              title: "Failed to delete chat session",
-                              description:
-                                "There was an issue deleting the chat session.",
-                              variant: "destructive",
-                            });
+                      <div
+                        className="hover:bg-background-inverted/10 p-1 rounded"
+                        onClick={() => setOpenDeleteModal(true)}
+                      >
+                        <Trash size={16} />
+                      </div>
+
+                      {openDeleteModal && (
+                        <DeleteModal
+                          title="Delete chat?"
+                          description={
+                            <>
+                              Click below to confirm that you want to delete{" "}
+                              <b>&quot;{chatSession.name.slice(0, 30)}&quot;</b>
+                            </>
                           }
-                        }}
-                        chatSessionName={chatSession.name}
-                      />
+                          onClose={() => setOpenDeleteModal(false)}
+                          open={openDeleteModal}
+                          onSuccess={async () => {
+                            const response = await deleteChatSession(
+                              chatSession.id
+                            );
+                            if (response.ok) {
+                              // go back to the main page
+                              router.push(
+                                teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"
+                              );
+                              refreshChatSessions();
+                              setOpenDeleteModal(false);
+                              toast({
+                                title: "Chat session deleted",
+                                description:
+                                  "The chat session has been successfully deleted.",
+                                variant: "success",
+                              });
+                            } else {
+                              toast({
+                                title: "Failed to delete chat session",
+                                description:
+                                  "There was an issue deleting the chat session.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        />
+                      )}
                     </div>
                   ))}
               </div>
