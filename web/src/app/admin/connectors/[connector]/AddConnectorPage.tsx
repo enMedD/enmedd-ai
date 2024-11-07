@@ -51,6 +51,7 @@ import { useRouter } from "next/navigation";
 import Stepper from "./Stepper";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
+import { Badge } from "@/components/ui/badge";
 
 const BASE_CONNECTOR_URL = "/api/manage/admin/connector";
 
@@ -391,9 +392,6 @@ export default function AddConnector({
       {(formikProps) => {
         return (
           <div className="w-full mx-auto pb-0">
-            <div className="mb-4">
-              <HealthCheckBanner />
-            </div>
             <Button
               onClick={() =>
                 router.push(
@@ -495,8 +493,12 @@ export default function AddConnector({
                       setSelectedFiles={setSelectedFiles}
                       selectedFiles={selectedFiles}
                     />
-                    <AccessTypeForm connector={connector} />
-                    <AccessTypeGroupSelector />
+                    {!teamspaceId && (
+                      <>
+                        <AccessTypeForm connector={connector} />
+                        <AccessTypeGroupSelector />
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               )}
