@@ -380,9 +380,9 @@ export const DriveOAuthSection = ({
     return (
       <div>
         <p className="mb-6 text-sm">
-          When using a Google Drive Service Account, you can either have enMedD
-          AI act as the service account itself OR you can specify an account for
-          the service account to impersonate.
+          When using a Google Drive Service Account, you can either have
+          Vanguard AI act as the service account itself OR you can specify an
+          account for the service account to impersonate.
           <br />
           <br />
           If you want to use the service account itself, leave the{" "}
@@ -436,7 +436,7 @@ export const DriveOAuthSection = ({
               <TextFormField
                 name="google_drive_delegated_user"
                 label="[Optional] User email to impersonate:"
-                subtext="If left blank, enMedD AI will use the service account itself."
+                subtext="If left blank, Vanguard AI will use the service account itself."
                 optional
               />
               <div className="flex">
