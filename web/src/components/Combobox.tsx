@@ -150,9 +150,9 @@ export function Combobox({
         <div className="flex flex-wrap gap-2 pt-2">
           {selectedItems.map((selectedItem) => (
             <CustomTooltip
+              key={selectedItem.value}
               trigger={
                 <Badge
-                  key={selectedItem.value}
                   onClick={() => handleRemove(selectedItem.value)}
                   variant="outline"
                   className="cursor-pointer hover:bg-blue-200"

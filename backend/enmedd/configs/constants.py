@@ -73,7 +73,7 @@ CELERY_PRIMARY_WORKER_LOCK_TIMEOUT = 120
 
 
 class DocumentSource(str, Enum):
-    # Special case, document passed in via enMedD APIs without specifying a source type
+    # Special case, document passed in via Vanguard APIs without specifying a source type
     INGESTION_API = "ingestion_api"
     WEB = "web"
     GOOGLE_DRIVE = "google_drive"

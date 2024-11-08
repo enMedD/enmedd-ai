@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: dynamicSettings?.workspaces?.workspace_name || "Vanguard AI",
     description:
       dynamicSettings?.workspaces?.workspace_description ||
-      "enMedD Conversational Health Platform",
+      "We let you find your way through EU export control, military defence standards, ITAR and more - all on your own",
     icons: {
       icon: logoLocation,
     },

@@ -1,5 +1,5 @@
 # This file is used to demonstrate how to use the backend APIs directly
-# In this case, the equivalent of asking a question in enMedD Chat in a new chat session
+# In this case, the equivalent of asking a question in Vanguard Chat in a new chat session
 import argparse
 import json
 import os

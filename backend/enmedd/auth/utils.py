@@ -7,6 +7,9 @@ from enmedd.configs.app_configs import SMTP_PASS
 from enmedd.configs.app_configs import SMTP_PORT
 from enmedd.configs.app_configs import SMTP_SERVER
 from enmedd.configs.app_configs import SMTP_USER
+from enmedd.utils.logger import setup_logger
+
+logger = setup_logger()
 
 
 def generate_password_reset_email(email: str, reset_url: str):
@@ -25,7 +28,7 @@ def generate_password_reset_email(email: str, reset_url: str):
     If you did not request a password reset, please ignore this email or contact support if you have concerns.
 
     Best regards,
-    The VanguardAI Team
+    The Vanguard AI Team
     """
 
     return subject, body
@@ -45,14 +48,14 @@ def generate_user_verification_email(full_name: str, verify_url: str):
     If you did not request this email, please ignore it.
 
     Best regards,
-    The VanguardAI Team
+    The Vanguard AI Team
     """
 
     return subject, body
 
 
 def generate_2fa_email(full_name: str, code: str):
-    subject = "VanguardAI Two-Factor Authentication (2FA) Code"
+    subject = "Vanguard AI Two-Factor Authentication (2FA) Code"
 
     body = f"""
     <html>
@@ -64,7 +67,7 @@ def generate_2fa_email(full_name: str, code: str):
         For your security, do not share this code with anyone.
         If you did not request this code, please contact our support team immediately.</p>
         <p>Best regards,</p>
-        <p>The VanguardAI Team</p>
+        <p>The Vanguard AI Team</p>
     </body>
     </html>
     """
@@ -134,6 +137,10 @@ def send_reset_password_email(
     smtp_server = SMTP_SERVER
     smtp_port = SMTP_PORT
 
+    logger.debug(
+        f"Sending using the following email configuration: {sender_email}, {sender_password}, {smtp_server}, {smtp_port}"
+    )
+    logger.info(f"Sending reset password email to {to_email}")
     # Create MIME message
     message = MIMEMultipart()
     message["To"] = to_email
