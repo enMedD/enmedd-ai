@@ -2,11 +2,15 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from utils.logger import setup_logger
+
 from enmedd.configs.app_configs import EMAIL_FROM
 from enmedd.configs.app_configs import SMTP_PASS
 from enmedd.configs.app_configs import SMTP_PORT
 from enmedd.configs.app_configs import SMTP_SERVER
 from enmedd.configs.app_configs import SMTP_USER
+
+logger = setup_logger()
 
 
 def generate_password_reset_email(email: str, reset_url: str):
@@ -134,6 +138,10 @@ def send_reset_password_email(
     smtp_server = SMTP_SERVER
     smtp_port = SMTP_PORT
 
+    logger.debug(
+        f"Sending using the following email configuration: {sender_email}, {sender_password}, {smtp_server}, {smtp_port}"
+    )
+    logger.info(f"Sending reset password email to {to_email}")
     # Create MIME message
     message = MIMEMultipart()
     message["To"] = to_email
