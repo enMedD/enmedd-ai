@@ -2,13 +2,12 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from utils.logger import setup_logger
-
 from enmedd.configs.app_configs import EMAIL_FROM
 from enmedd.configs.app_configs import SMTP_PASS
 from enmedd.configs.app_configs import SMTP_PORT
 from enmedd.configs.app_configs import SMTP_SERVER
 from enmedd.configs.app_configs import SMTP_USER
+from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
