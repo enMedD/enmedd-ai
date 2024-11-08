@@ -17,7 +17,6 @@ import { FiExternalLink, FiInfo, FiTrash } from "react-icons/fi";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { CustomEmbeddingModelForm } from "@/components/embedding/CustomEmbeddingModelForm";
 import { deleteSearchSettings } from "./utils";
-import { DeleteEntityModal } from "@/components/modals/DeleteEntityModal";
 import { AdvancedSearchConfiguration } from "../interfaces";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
