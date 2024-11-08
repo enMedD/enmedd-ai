@@ -1,55 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
 import { BasicClickable } from "../BasicClickable";
 import { FiTrash } from "react-icons/fi";
-import { ModalWrapper } from "./ModalWrapper";
 import { CustomModal } from "../CustomModal";
-
-export const DeleteChatModal = ({
-  chatSessionName,
-  onSubmit,
-  open,
-  openDeleteModal,
-  onClose,
-}: {
-  chatSessionName: string;
-  onSubmit: () => void;
-  additionalDetails?: string;
-  open?: boolean;
-  openDeleteModal?: () => void;
-  onClose?: () => void;
-}) => {
-  return (
-    <CustomModal
-      trigger={
-        <div
-          className="hover:bg-background-inverted/10 p-1 rounded"
-          onClick={openDeleteModal}
-        >
-          <Trash size={16} />
-        </div>
-      }
-      title="Delete chat?"
-      open={open}
-      onClose={onClose}
-    >
-      <div>
-        <p className="mb-4">
-          Click below to confirm that you want to delete{" "}
-          <b>&quot;{chatSessionName.slice(0, 30)}&quot;</b>
-        </p>
-        <div className="flex">
-          <div className="mx-auto pt-2">
-            <Button variant="destructive" onClick={onSubmit}>
-              <Trash size={16} className="my-auto" />
-              Delete
-            </Button>
-          </div>
-        </div>
-      </div>
-    </CustomModal>
-  );
-};
 
 export const DeleteEntityModal = ({
   onClose,
