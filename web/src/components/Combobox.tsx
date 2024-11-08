@@ -24,6 +24,7 @@ interface ComboboxProps {
   placeholder?: string;
   label?: string;
   selected?: string[];
+  isOnModal?: boolean;
 }
 
 export function Combobox({
@@ -32,6 +33,7 @@ export function Combobox({
   placeholder = "Select an item...",
   label = "Select item",
   selected = [],
+  isOnModal,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedItems, setSelectedItems] = React.useState<
@@ -90,7 +92,7 @@ export function Combobox({
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover modal={isOnModal} open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

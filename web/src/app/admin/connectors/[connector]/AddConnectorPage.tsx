@@ -213,17 +213,16 @@ export default function AddConnector({
   const onSuccess = () => {
     toast({
       title: "Data Source Created",
-      description: "Redirecting to Add Data Source page",
+      description:
+        "Successfully added data source. Redirecting to Add Data Source page",
       variant: "success",
     });
-    setTimeout(() => {
-      window.open(
-        teamspaceId
-          ? `/t/${teamspaceId}/admin/data-sources`
-          : "/admin/data-sources",
-        "_self"
-      );
-    }, 1000);
+    window.open(
+      teamspaceId
+        ? `/t/${teamspaceId}/admin/data-sources`
+        : "/admin/data-sources",
+      "_self"
+    );
   };
 
   return (
@@ -291,12 +290,12 @@ export default function AddConnector({
             name
           );
           if (response) {
+            onSuccess();
             toast({
               title: "Google Site Submitted",
               description: "Your Google site has been successfully submitted!",
               variant: "success",
             });
-            onSuccess();
           } else {
             toast({
               title: "Error",
@@ -316,7 +315,6 @@ export default function AddConnector({
             isPublic,
             groups
           );
-          console.log(response);
           if (response) {
             onSuccess();
             toast({

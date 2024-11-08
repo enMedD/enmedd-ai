@@ -29,6 +29,7 @@ export const Assistants: React.FC<AssistantsProps> = ({
         onSelect={handleSelect}
         placeholder="Select assistants"
         label="Select assistants"
+        isOnModal
       />
     </div>
   );
