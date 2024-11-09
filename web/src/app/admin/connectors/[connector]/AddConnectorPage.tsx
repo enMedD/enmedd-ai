@@ -8,7 +8,7 @@ import { buildSimilarCredentialInfoURL } from "@/app/admin/connector/[ccPairId]/
 import { useFormContext } from "@/context/FormContext";
 import { getSourceDisplayName } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deleteCredential, linkCredential } from "@/lib/credential";
 import { submitFiles } from "./pages/utils/files";
 import { submitGoogleSite } from "./pages/utils/google_site";
@@ -115,7 +115,7 @@ export default function AddConnector({
   teamspaceId,
 }: {
   connector: ConfigurableSources;
-  teamspaceId?: string | string[];
+  teamspaceId?: string;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -232,7 +232,7 @@ export default function AddConnector({
       onSubmit={async (values) => {
         const {
           name,
-          // groups,
+          groups,
           access_type,
           pruneFreq,
           indexingStart,
@@ -241,7 +241,7 @@ export default function AddConnector({
           ...connector_specific_config
         } = values;
 
-        const groups = teamspaceId
+        values.groups = teamspaceId
           ? [Number(teamspaceId)]
           : values.is_public
             ? []
@@ -287,6 +287,7 @@ export default function AddConnector({
             advancedConfiguration.pruneFreq,
             advancedConfiguration.indexingStart,
             isPublic,
+            groups,
             name
           );
           if (response) {
