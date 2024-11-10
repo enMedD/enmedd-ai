@@ -90,7 +90,6 @@ import FunctionalHeader from "@/components/chat_search/Header";
 import { useSidebarVisibility } from "@/components/chat_search/hooks";
 import FixedLogo from "./shared_chat_search/FixedLogo";
 import { SetDefaultModelModal } from "./modal/SetDefaultModelModal";
-import { DeleteEntityModal } from "../../components/modals/DeleteEntityModal";
 import { MinimalMarkdown } from "@/components/chat_search/MinimalMarkdown";
 import ExceptionTraceModal from "@/components/modals/ExceptionTraceModal";
 

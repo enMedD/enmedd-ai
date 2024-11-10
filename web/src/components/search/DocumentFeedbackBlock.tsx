@@ -56,7 +56,7 @@ const DocumentFeedback = ({
     icon = (
       <ChevronsUpIcon
         size={size}
-        className="my-auto flex flex-shrink-0 text-blue-400"
+        className="my-auto flex flex-shrink-0 text-brand-500"
       />
     );
   }
@@ -64,7 +64,7 @@ const DocumentFeedback = ({
     icon = (
       <ChevronsDownIcon
         size={size}
-        className="my-auto flex flex-shrink-0 text-blue-400"
+        className="my-auto flex flex-shrink-0 text-destructive-500"
       />
     );
   }
