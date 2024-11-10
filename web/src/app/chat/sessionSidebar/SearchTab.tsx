@@ -24,6 +24,9 @@ export function SearchTab({
             if (chatSessions.length > 0) {
               return (
                 <div key={dateRange} className={`pt-4`}>
+                  <div className="px-4 text-sm text-dark-900 flex pb-2 font-semibold">
+                    {dateRange}
+                  </div>
                   {chatSessions
                     .filter((chat) => chat.folder_id === null)
                     .map((chat) => {
