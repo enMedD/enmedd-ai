@@ -34,10 +34,11 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Unlock } from "lucide-react";
+import { Filter, Lock, Unlock } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import FilterButton from "./FilterButton";
 
 function SummaryRow({
   source,
@@ -423,18 +424,20 @@ export function CCPairIndexingStatusTable({
           }}
           isEditable={false}
         />
-        <div className="flex items-center mt-4 gap-x-2">
-          <Input
-            type="text"
-            ref={searchInputRef}
-            placeholder="Search data sources..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
+        <div className="w-full flex flex-col md:flex-row justify-between gap-2 mt-4">
+          <div className="w-full md:w-1/2 flex items-center gap-x-2">
+            <Input
+              type="text"
+              ref={searchInputRef}
+              placeholder="Search data sources..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FilterButton />
+          </div>
           <Button
             onClick={() => toggleSources()}
-            className="w-[110px]"
+            className="md:w-[110px]"
             variant="outline"
           >
             {!shouldExpand ? "Collapse All" : "Expand All"}

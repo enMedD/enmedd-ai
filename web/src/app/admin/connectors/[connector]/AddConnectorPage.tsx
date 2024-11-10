@@ -2,7 +2,6 @@
 
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR, { mutate } from "swr";
-import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { buildSimilarCredentialInfoURL } from "@/app/admin/connector/[ccPairId]/lib";
 import { useFormContext } from "@/context/FormContext";
@@ -51,7 +50,6 @@ import { useRouter } from "next/navigation";
 import Stepper from "./Stepper";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
-import { Badge } from "@/components/ui/badge";
 
 const BASE_CONNECTOR_URL = "/api/manage/admin/connector";
 
@@ -217,11 +215,10 @@ export default function AddConnector({
         "Successfully added data source. Redirecting to Add Data Source page",
       variant: "success",
     });
-    window.open(
+    router.push(
       teamspaceId
-        ? `/t/${teamspaceId}/admin/data-sources`
-        : "/admin/data-sources",
-      "_self"
+        ? `/t/${teamspaceId}/admin/indexing/status?message=connector-created`
+        : "/admin/indexing/status?message=connector-created"
     );
   };
 
@@ -455,7 +452,7 @@ export default function AddConnector({
                           </Button>
                         )}
 
-                        {/* NOTE: connector will never be google_drive, since the ternary above will 
+                        {/* NOTE: connector will never be google_drive, since the ternary above will
     prevent that, but still keeping this here for safety in case the above changes. */}
                         {(connector as ValidSources) !== "google_drive" &&
                           createConnectorToggle && (
