@@ -224,7 +224,7 @@ export default function AddConnector({
 
   return (
     <Formik
-      initialValues={createConnectorInitialValues(connector)}
+      initialValues={createConnectorInitialValues(connector, teamspaceId)}
       validationSchema={createConnectorValidationSchema(connector)}
       onSubmit={async (values) => {
         const {
