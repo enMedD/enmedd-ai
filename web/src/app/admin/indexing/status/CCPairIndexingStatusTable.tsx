@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { IndexAttemptStatus } from "@/components/Status";
-import { timeAgo } from "@/lib/time";
 import {
   ConnectorIndexingStatus,
   ConnectorSummary,
@@ -8,13 +7,6 @@ import {
   ValidSources,
 } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
-import {
-  FiChevronDown,
-  FiChevronRight,
-  FiSettings,
-  FiLock,
-  FiUnlock,
-} from "react-icons/fi";
 import { SourceIcon } from "@/components/SourceIcon";
 import { getSourceDisplayName } from "@/lib/sources";
 import { Warning } from "@phosphor-icons/react";
@@ -34,8 +26,13 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Filter, Lock, Unlock } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
+import {
+  ChevronDown,
+  ChevronRight,
+  Lock,
+  Settings,
+  Unlock,
+} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import FilterButton from "./FilterButton";
@@ -59,23 +56,19 @@ function SummaryRow({
       <TableCell className="gap-y-2">
         <div className="flex items-center text-xl font-semibold truncate ellipsis gap-x-2">
           <div className="cursor-pointer">
-            {isOpen ? (
-              <FiChevronDown size={20} />
-            ) : (
-              <FiChevronRight size={20} />
-            )}
+            {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
           </div>
           <SourceIcon iconSize={20} sourceType={source} />
           {getSourceDisplayName(source)}
         </div>
       </TableCell>
 
-      <TableCell className="gap-y-2">
+      <TableCell className="gap-y-2 truncate">
         <div className="text-gray-500">Active Data Sources</div>
         <CustomTooltip
           trigger={
             <div className="flex items-center mt-1">
-              <div className="w-full h-2 mr-2 bg-gray-200 rounded-full">
+              <div className="w-full h-2 mr-2 bg-gray-200 rounded-full shrink-0">
                 <Progress value={activePercentage} />
               </div>
               <span className="whitespace-nowrap">
@@ -243,9 +236,10 @@ function ConnectorRow({
         {isEditable && (
           <CustomTooltip
             trigger={
-              <FiSettings
+              <Settings
                 className="cursor-pointer"
                 onClick={handleManageClick}
+                size={16}
               />
             }
           >
@@ -462,7 +456,7 @@ export function CCPairIndexingStatusTable({
                 )}
                 <TableHead>Total Docs</TableHead>
                 <TableHead className="!w-[140px]">Last Status</TableHead>
-                <TableHead className="!w-[100px]"></TableHead>
+                <TableHead className="!w-[160px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
