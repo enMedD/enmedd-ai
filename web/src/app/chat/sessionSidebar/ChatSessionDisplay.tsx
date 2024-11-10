@@ -13,7 +13,14 @@ import Link from "next/link";
 
 import { ShareChatSessionModal } from "../modal/ShareChatSessionModal";
 import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
-import { Ellipsis, X, Check, Pencil, MessageCircleMore, Trash } from "lucide-react";
+import {
+  Ellipsis,
+  X,
+  Check,
+  Pencil,
+  MessageCircleMore,
+  Trash,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -26,6 +33,13 @@ import { WarningCircle } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/context/ChatContext";
 import { DeleteModal } from "@/components/DeleteModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function ChatSessionDisplay({
   chatSession,
@@ -180,36 +194,43 @@ export function ChatSessionDisplay({
                           </CustomTooltip>
                         )}
                         <div className={"-m-1"}>
-                          <Popover
+                          <DropdownMenu
                             onOpenChange={(open) => setIsPopoverOpen(open)}
                           >
-                            <PopoverTrigger asChild>
+                            <DropdownMenuTrigger
+                              className="focus:outline-none"
+                              asChild
+                            >
                               <div className="hover:bg-background-inverted/10 p-1 rounded flex items-center justify-center">
                                 <Ellipsis size={16} />
                               </div>
-                            </PopoverTrigger>
-                            <PopoverContent>
-                              <div className="flex flex-col w-full">
-                                {combinedSettings?.featureFlags.share_chat && (
-                                  <ShareChatSessionModal
-                                    chatSessionId={chatSession.id}
-                                    existingSharedStatus={
-                                      chatSession.shared_status
-                                    }
-                                    onPopover
-                                  />
-                                )}
-                                <Button
-                                  variant="ghost"
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuGroup>
+                                {/* {combinedSettings?.featureFlags.share_chat && ( */}
+                                  <DropdownMenuItem asChild>
+                                    <ShareChatSessionModal
+                                      chatSessionId={chatSession.id}
+                                      existingSharedStatus={
+                                        chatSession.shared_status
+                                      }
+                                      onPopover
+                                    />
+                                  </DropdownMenuItem>
+                                {/* )} */}
+
+                                <DropdownMenuItem
+                                  asChild
                                   onClick={() => setIsRenamingChat(true)}
-                                  className="w-full hover:bg-brand-500 hover:text-inverted"
                                 >
-                                  <Pencil className="mr-2" size={16} />
-                                  Rename
-                                </Button>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                                  <div>
+                                    <Pencil className="mr-2" size={16} />
+                                    <span>Rename</span>
+                                  </div>
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
 
