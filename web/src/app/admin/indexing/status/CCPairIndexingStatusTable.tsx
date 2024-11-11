@@ -599,9 +599,9 @@ export function CCPairIndexingStatusTable({
                         }
                       }
 
-                      if (statusFilter) {
-                        matchesStatus = status
-                          .last_status!.toLowerCase()
+                      if (statusFilter && status.last_status) {
+                        matchesStatus = status.last_status
+                          .toLowerCase()
                           .includes(statusFilter.toLowerCase());
                       }
 
