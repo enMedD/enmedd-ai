@@ -32,6 +32,7 @@ import {
   Lock,
   Settings,
   Unlock,
+  X,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -264,6 +265,12 @@ export function CCPairIndexingStatusTable({
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
+  const [activityFilter, setActivityFilter] = useState<string | null>(null);
+  const [permissionsFilter, setPermissionsFilter] = useState<string | null>(
+    null
+  );
+  const [docsFilter, setDocsFilter] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   useEffect(() => {
     if (searchInputRef.current) {
@@ -370,6 +377,22 @@ export function CCPairIndexingStatusTable({
     Object.values(connectorsToggled).filter(Boolean).length <
     sortedSources.length / 2;
 
+  const activityLabels: { [key: string]: string } = {
+    Active: "Active",
+    Pause: "Pause",
+    Deleting: "Deleting",
+    not_started: "Scheduled",
+    in_progress: "Indexing",
+  };
+
+  const statusLabels: { [key: string]: string } = {
+    success: "Success",
+    in_progress: "Scheduled",
+    not_started: "Not Started",
+    failed: "Failed",
+    completed_with_errors: "Completed with errors",
+  };
+
   return (
     <div className="-mt-20">
       <div>
@@ -418,24 +441,76 @@ export function CCPairIndexingStatusTable({
           }}
           isEditable={false}
         />
-        <div className="w-full flex flex-col md:flex-row justify-between gap-2 mt-4">
-          <div className="w-full md:w-1/2 flex items-center gap-x-2">
-            <Input
-              type="text"
-              ref={searchInputRef}
-              placeholder="Search data sources..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <FilterButton />
+        <div>
+          <div className="w-full flex flex-col md:flex-row justify-between gap-2 mt-4">
+            <div className="w-full md:w-1/2 flex items-center gap-x-2">
+              <Input
+                type="text"
+                ref={searchInputRef}
+                placeholder="Search data sources..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <FilterButton
+                setActivityFilter={setActivityFilter}
+                setPermissionsFilter={setPermissionsFilter}
+                setDocsFilter={setDocsFilter}
+                setStatusFilter={setStatusFilter}
+              />
+            </div>
+            <Button
+              onClick={() => toggleSources()}
+              className="md:w-[110px]"
+              variant="outline"
+            >
+              {!shouldExpand ? "Collapse All" : "Expand All"}
+            </Button>
           </div>
-          <Button
-            onClick={() => toggleSources()}
-            className="md:w-[110px]"
-            variant="outline"
-          >
-            {!shouldExpand ? "Collapse All" : "Expand All"}
-          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-2">
+          {activityFilter && (
+            <Badge>
+              {activityLabels[activityFilter] || activityFilter}
+              <X
+                size={14}
+                className="cursor-pointer"
+                onClick={() => setActivityFilter(null)}
+              />
+            </Badge>
+          )}
+          {permissionsFilter && (
+            <Badge>
+              {permissionsFilter}
+              <X
+                size={14}
+                className="cursor-pointer"
+                onClick={() => setPermissionsFilter(null)}
+              />
+            </Badge>
+          )}
+          {docsFilter !== null && (
+            <Badge>
+              {docsFilter}
+              {docsFilter > 0 && "+"}
+              <X
+                size={14}
+                className="cursor-pointer"
+                onClick={() => setDocsFilter(null)}
+              />
+            </Badge>
+          )}
+
+          {statusFilter && (
+            <Badge>
+              {statusLabels[statusFilter] || statusFilter}
+              <X
+                size={14}
+                className="cursor-pointer"
+                onClick={() => setStatusFilter(null)}
+              />
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -463,17 +538,87 @@ export function CCPairIndexingStatusTable({
               {sortedSources
                 .filter(
                   (source) =>
-                    source != "not_applicable" && source != "ingestion_api"
+                    source !== "not_applicable" && source !== "ingestion_api"
                 )
                 .map((source, ind) => {
                   const sourceMatches = source
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase());
                   const matchingConnectors = groupedStatuses[source].filter(
-                    (status) =>
-                      (status.name || "")
+                    (status) => {
+                      const nameMatches = (status.name || "")
                         .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
+                        .includes(searchTerm.toLowerCase());
+
+                      let matchesActivity = true;
+                      let matchesPermissions = true;
+                      let matchesDocs = true;
+                      let matchesStatus = true;
+
+                      if (activityFilter) {
+                        const statusToMatch =
+                          status.cc_pair_status.toLowerCase();
+
+                        if (statusToMatch === "active") {
+                          const lastStatusToMatch = status.last_status
+                            ? status.last_status.toLowerCase()
+                            : "";
+
+                          switch (lastStatusToMatch) {
+                            case "in_progress":
+                              matchesActivity =
+                                activityFilter.toLowerCase() === "in_progress";
+                              break;
+                            case "not_started":
+                              matchesActivity =
+                                activityFilter.toLowerCase() === "not_started";
+                              break;
+                            default:
+                              matchesActivity =
+                                activityFilter.toLowerCase() === "active";
+                              break;
+                          }
+                        } else {
+                          matchesActivity = statusToMatch.includes(
+                            activityFilter.toLowerCase()
+                          );
+                        }
+                      }
+
+                      if (permissionsFilter) {
+                        matchesPermissions = status.access_type
+                          .toLowerCase()
+                          .includes(permissionsFilter.toLowerCase());
+                      }
+
+                      // if (docsFilter !== null) {
+                      //   matchesDocs = status.docs_indexed >= docsFilter;
+                      // }
+                      if (docsFilter !== null) {
+                        if (docsFilter === 0) {
+                          // When docsFilter is 0, only show connectors with 0 documents
+                          matchesDocs = status.docs_indexed === 0;
+                        } else {
+                          // Otherwise, show connectors with docs indexed >= docsFilter
+                          matchesDocs = status.docs_indexed >= docsFilter;
+                        }
+                      }
+
+                      if (statusFilter) {
+                        matchesStatus = status
+                          .last_status!.toLowerCase()
+                          .includes(statusFilter.toLowerCase());
+                      }
+
+                      return (
+                        sourceMatches &&
+                        nameMatches &&
+                        matchesActivity &&
+                        matchesPermissions &&
+                        matchesDocs &&
+                        matchesStatus
+                      );
+                    }
                   );
                   if (sourceMatches || matchingConnectors.length > 0) {
                     return (
@@ -487,10 +632,7 @@ export function CCPairIndexingStatusTable({
 
                         {connectorsToggled[source] && (
                           <>
-                            {(sourceMatches
-                              ? groupedStatuses[source]
-                              : matchingConnectors
-                            ).map((ccPairsIndexingStatus) => (
+                            {matchingConnectors.map((ccPairsIndexingStatus) => (
                               <ConnectorRow
                                 key={ccPairsIndexingStatus.cc_pair_id}
                                 ccPairsIndexingStatus={ccPairsIndexingStatus}
