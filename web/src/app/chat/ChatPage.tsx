@@ -2259,6 +2259,8 @@ export function ChatPage({
                                         "width 0.3s ease-in-out";
                                     }
                                   }}
+                                  onSubmit={onFeedback}
+                                  currentFeedback={currentFeedback}
                                 />
                               </div>
                             );
