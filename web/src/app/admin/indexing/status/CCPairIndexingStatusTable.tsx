@@ -591,15 +591,10 @@ export function CCPairIndexingStatusTable({
                           .includes(permissionsFilter.toLowerCase());
                       }
 
-                      // if (docsFilter !== null) {
-                      //   matchesDocs = status.docs_indexed >= docsFilter;
-                      // }
                       if (docsFilter !== null) {
                         if (docsFilter === 0) {
-                          // When docsFilter is 0, only show connectors with 0 documents
                           matchesDocs = status.docs_indexed === 0;
                         } else {
-                          // Otherwise, show connectors with docs indexed >= docsFilter
                           matchesDocs = status.docs_indexed >= docsFilter;
                         }
                       }
@@ -611,8 +606,7 @@ export function CCPairIndexingStatusTable({
                       }
 
                       return (
-                        sourceMatches &&
-                        nameMatches &&
+                        (sourceMatches || nameMatches) &&
                         matchesActivity &&
                         matchesPermissions &&
                         matchesDocs &&
