@@ -1620,10 +1620,10 @@ class Teamspace__ConnectorCredentialPair(Base):
         default=True,
         primary_key=True,
     )
-
     cc_pair: Mapped[ConnectorCredentialPair] = relationship(
         "ConnectorCredentialPair",
     )
+    teamspace: Mapped["Teamspace"] = relationship("Teamspace", lazy="joined")
 
 
 class Assistant__Teamspace(Base):
