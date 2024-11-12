@@ -148,7 +148,7 @@ export function DocumentMetadataBlock({
               return (
                 <MetadataBadge
                   key={key}
-                  icon={<Tag size={12} />}
+                  icon={<Tag size={12} className="shrink-0" />}
                   value={`${key}=${value}`}
                 />
               );
@@ -242,11 +242,12 @@ export const DocumentDisplay = ({
                         (alternativeToggled) => !alternativeToggled
                       )
                     }
+                    className="flex items-center justify-center"
                   >
                     <CustomTooltip
                       trigger={
                         <LightBulbIcon
-                          className={`${alternativeToggled ? "text-green-600" : "text-blue-600"} my-auto ml-2 h-4 w-4 cursor-pointer`}
+                          className={`${alternativeToggled ? "text-green-600" : "text-blue-600"} my-auto h-4 w-4 cursor-pointer`}
                         />
                       }
                     >
