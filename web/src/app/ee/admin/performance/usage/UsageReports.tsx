@@ -132,9 +132,16 @@ function GenerateReportInput() {
   );
 }
 
-const USAGE_REPORT_URL = "/api/admin/usage-report";
+const USAGE_REPORT_URL = (teamspaceId?: string | string[]) =>
+  teamspaceId
+    ? `/api/admin/usage-report?teamspace_id=${teamspaceId}`
+    : "/api/admin/usage-report";
 
-function UsageReportsTable() {
+function UsageReportsTable({
+  teamspaceId,
+}: {
+  teamspaceId?: string | string[];
+}) {
   const [page, setPage] = useState(1);
   const NUM_IN_PAGE = 10;
 
@@ -142,7 +149,10 @@ function UsageReportsTable() {
     data: usageReportsMetadata,
     error: usageReportsError,
     isLoading: usageReportsIsLoading,
-  } = useSWR<UsageReport[]>(USAGE_REPORT_URL, errorHandlingFetcher);
+  } = useSWR<UsageReport[]>(
+    USAGE_REPORT_URL(teamspaceId),
+    errorHandlingFetcher
+  );
 
   const paginatedReports = usageReportsMetadata
     ? usageReportsMetadata
@@ -226,7 +236,11 @@ function UsageReportsTable() {
   );
 }
 
-export default function UsageReports() {
+export default function UsageReports({
+  teamspaceId,
+}: {
+  teamspaceId?: string | string[];
+}) {
   const [page, setPage] = useState(1);
   const NUM_IN_PAGE = 10;
 
@@ -234,7 +248,10 @@ export default function UsageReports() {
     data: usageReportsMetadata,
     error: usageReportsError,
     isLoading: usageReportsIsLoading,
-  } = useSWR<UsageReport[]>(USAGE_REPORT_URL, errorHandlingFetcher);
+  } = useSWR<UsageReport[]>(
+    USAGE_REPORT_URL(teamspaceId),
+    errorHandlingFetcher
+  );
 
   const paginatedReports = usageReportsMetadata
     ? usageReportsMetadata
@@ -252,7 +269,7 @@ export default function UsageReports() {
       <div>
         <GenerateReportInput />
         <div className="p-0">
-          <UsageReportsTable />
+          <UsageReportsTable teamspaceId={teamspaceId} />
         </div>
       </div>
 
