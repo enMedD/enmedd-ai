@@ -100,7 +100,7 @@ function GenerateReportInput() {
   lastYear.setFullYear(today.getFullYear() - 1);
 
   return (
-    <div className="flex gap-4 flex-col md:flex-row justify-between md:items-center">
+    <div className="flex gap-4 flex-col md:flex-row justify-between">
       <div>
         <div className="flex flex-col">
           <h3>Generate Usage Reports</h3>
@@ -167,7 +167,7 @@ function UsageReportsTable() {
           errorTitle="Something went wrong."
           errorMsg={(usageReportsError as Error).toString()}
         />
-      ) : (
+      ) : paginatedReports.length > 0 ? (
         <Card>
           <CardContent className="p-0">
             <Table>
@@ -219,6 +219,8 @@ function UsageReportsTable() {
             </Table>
           </CardContent>
         </Card>
+      ) : (
+        <p>There are no reports.</p>
       )}
     </div>
   );
