@@ -37,6 +37,7 @@ from enmedd.auth.noauth_user import set_no_auth_user_preferences
 from enmedd.auth.schemas import ChangePassword
 from enmedd.auth.schemas import UserRole
 from enmedd.auth.schemas import UserStatus
+from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
@@ -57,6 +58,7 @@ from enmedd.db.models import SamlAccount
 from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
+from enmedd.db.models import Workspace__Users
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
@@ -194,7 +196,7 @@ async def change_password(
 @router.patch("/manage/promote-user-to-admin")
 def promote_admin(
     user_email: UserByEmail,
-    _: User = Depends(current_workspace_admin_user),
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_promote = get_user_by_email(
@@ -209,9 +211,9 @@ def promote_admin(
 
 
 @router.patch("/manage/demote-admin-to-basic")
-async def demote_admin(
+def demote_admin(
     user_email: UserByEmail,
-    user: User = Depends(current_workspace_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_demote = get_user_by_email(
@@ -230,11 +232,66 @@ async def demote_admin(
     db_session.commit()
 
 
+@router.patch("/manage/promote-workspace-user-to-admin")
+def promote_workspace_admin(
+    user_email: UserByEmail,
+    _: User = Depends(current_workspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    user_to_promote = get_user_by_email(
+        email=user_email.user_email, db_session=db_session
+    )
+    if not user_to_promote:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    workspace_user = (
+        db_session.query(Workspace__Users)
+        .filter(Workspace__Users.user_id == user_to_promote.id)
+        .first()
+    )
+    if not workspace_user:
+        raise HTTPException(status_code=404, detail="User not part of any workspace")
+
+    workspace_user.role = UserRole.ADMIN
+    db_session.add(workspace_user)
+    db_session.commit()
+
+
+@router.patch("/manage/demote-workspace-admin-to-basic")
+def demote_workspace_admin(
+    user_email: UserByEmail,
+    user: User = Depends(current_workspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    user_to_demote = get_user_by_email(
+        email=user_email.user_email, db_session=db_session
+    )
+    if not user_to_demote:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    workspace_user = (
+        db_session.query(Workspace__Users)
+        .filter(Workspace__Users.user_id == user_to_demote.id)
+        .first()
+    )
+    if not workspace_user:
+        raise HTTPException(status_code=404, detail="User not part of any workspace")
+
+    if workspace_user.user_id == user.id:
+        raise HTTPException(
+            status_code=400, detail="Cannot demote yourself from admin role!"
+        )
+
+    workspace_user.role = UserRole.BASIC
+    db_session.add(workspace_user)
+    db_session.commit()
+
+
 @router.get("/manage/users")
 def list_all_users(
     q: str | None = None,
-    accepted_page: int | None = None,
-    invited_page: int | None = None,
+    accepted_page: int | None = 0,
+    invited_page: int | None = 0,
     teamspace_id: int | None = None,
     _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
@@ -242,105 +299,63 @@ def list_all_users(
     if not q:
         q = ""
 
-    users_with_roles = []
-
-    if teamspace_id is not None:
+    if teamspace_id:
         users_with_roles = (
             db_session.query(User, User__Teamspace.role)
             .join(User__Teamspace)
             .filter(User__Teamspace.teamspace_id == teamspace_id)
             .all()
         )
-
-        return AllUsersResponse(
-            accepted=[
-                FullUserSnapshot(
-                    id=user.id,
-                    email=user.email,
-                    role=role,
-                    status=UserStatus.LIVE
-                    if user.is_active
-                    else UserStatus.DEACTIVATED,
-                    full_name=user.full_name,
-                    billing_email_address=user.billing_email_address,
-                    company_billing=user.company_billing,
-                    company_email=user.company_email,
-                    company_name=user.company_name,
-                    vat=user.vat,
-                    profile=user.profile,
-                )
-                for user, role in users_with_roles
-                if not is_api_key_email_address(user.email)
-            ],
-            invited=[InvitedUserSnapshot(email=email) for email in get_invited_users()],
-            accepted_pages=1,
-            invited_pages=1,
-        )
     else:
-        users_with_roles = list_users(db_session, q=q)
+        users_with_roles = (
+            db_session.query(User, Workspace__Users.role)
+            .join(Workspace__Users, Workspace__Users.user_id == User.id)
+            .all()
+        )
 
-    users_with_roles = [
-        user for user in users_with_roles if not is_api_key_email_address(user.email)
+    accepted_users = [
+        FullUserSnapshot(
+            id=user.id,
+            email=user.email,
+            role=role,
+            status=UserStatus.LIVE if user.is_active else UserStatus.DEACTIVATED,
+            full_name=user.full_name,
+            billing_email_address=user.billing_email_address,
+            company_billing=user.company_billing,
+            company_email=user.company_email,
+            company_name=user.company_name,
+            vat=user.vat,
+            profile=user.profile,
+        )
+        for user, role in users_with_roles
+        if not is_api_key_email_address(user.email)
     ]
 
-    accepted_emails = {user.email for user in users_with_roles}
     invited_emails = get_invited_users()
-
     if q:
         invited_emails = [
             email for email in invited_emails if re.search(r"{}".format(q), email, re.I)
         ]
 
-    accepted_count = len(accepted_emails)
+    USERS_PAGE_SIZE = 10
+    accepted_count = len(accepted_users)
     invited_count = len(invited_emails)
 
-    if accepted_page is None or invited_page is None:
-        return AllUsersResponse(
-            accepted=[
-                FullUserSnapshot(
-                    id=user.id,
-                    email=user.email,
-                    role=user.role,
-                    status=UserStatus.LIVE
-                    if user.is_active
-                    else UserStatus.DEACTIVATED,
-                    full_name=user.full_name,
-                    billing_email_address=user.billing_email_address,
-                    company_billing=user.company_billing,
-                    company_email=user.company_email,
-                    company_name=user.company_name,
-                    vat=user.vat,
-                    profile=user.profile,
-                )
-                for user in users_with_roles
-            ],
-            invited=[InvitedUserSnapshot(email=email) for email in invited_emails],
-            accepted_pages=1,
-            invited_pages=1,
-        )
+    accepted_pages = (accepted_count + USERS_PAGE_SIZE - 1) // USERS_PAGE_SIZE
+    invited_pages = (invited_count + USERS_PAGE_SIZE - 1) // USERS_PAGE_SIZE
+
+    paginated_accepted = accepted_users[
+        accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE
+    ]
+    paginated_invited = invited_emails[
+        invited_page * USERS_PAGE_SIZE : (invited_page + 1) * USERS_PAGE_SIZE
+    ]
 
     return AllUsersResponse(
-        accepted=[
-            FullUserSnapshot(
-                id=user.id,
-                email=user.email,
-                role=user.role,
-                status=UserStatus.LIVE if user.is_active else UserStatus.DEACTIVATED,
-                full_name=user.full_name,
-                billing_email_address=user.billing_email_address,
-                company_billing=user.company_billing,
-                company_email=user.company_email,
-                company_name=user.company_name,
-                vat=user.vat,
-                profile=user.profile,
-            )
-            for user in users_with_roles
-        ][accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE],
-        invited=[InvitedUserSnapshot(email=email) for email in invited_emails][
-            invited_page * USERS_PAGE_SIZE : (invited_page + 1) * USERS_PAGE_SIZE
-        ],
-        accepted_pages=accepted_count // USERS_PAGE_SIZE + 1,
-        invited_pages=invited_count // USERS_PAGE_SIZE + 1,
+        accepted=paginated_accepted,
+        invited=[InvitedUserSnapshot(email=email) for email in paginated_invited],
+        accepted_pages=accepted_pages,
+        invited_pages=invited_pages,
     )
 
 
@@ -606,6 +621,7 @@ def remove_profile(
 def verify_user_logged_in(
     user: User | None = Depends(optional_user),
     teamspace_id: Optional[int] = None,
+    # workspace_id: Optional[int] = None,
     db_session: Session = Depends(get_session),
 ) -> UserInfo:
     # NOTE: this does not use `current_user` / `current_workspace_admin_user` because we don't want
@@ -645,6 +661,24 @@ def verify_user_logged_in(
             )
 
         role = user_teamspace.role
+    # elsif workspace_id:
+    else:
+        workspace_user = (
+            db_session.query(Workspace__Users)
+            .filter(
+                Workspace__Users.user_id == user.id,
+                Workspace__Users.workspace_id == 0,  # Temporary set to 0
+            )
+            .first()
+        )
+
+        if workspace_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Workspace or role not found",
+            )
+
+        role = workspace_user.role
 
     token_created_at = get_current_token_creation(user, db_session)
     user_info = UserInfo.from_model(
