@@ -129,6 +129,20 @@ h3 {
   animation: shimmerTransition 1.5s ease-out infinite;
 }
 
+.collapsible {
+  max-height: 300px;
+  transition:
+    max-height 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
+  opacity: 1;
+}
+
+.collapsible-closed {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
 /* Base styles for code blocks */
 .prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
   background-color: theme("colors.code-bg");
