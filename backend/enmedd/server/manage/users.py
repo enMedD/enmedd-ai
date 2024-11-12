@@ -37,9 +37,9 @@ from enmedd.auth.noauth_user import set_no_auth_user_preferences
 from enmedd.auth.schemas import ChangePassword
 from enmedd.auth.schemas import UserRole
 from enmedd.auth.schemas import UserStatus
-from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
+from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import optional_user
 from enmedd.auth.utils import generate_2fa_email
 from enmedd.auth.utils import send_2fa_email
@@ -168,7 +168,7 @@ async def change_password(
 # @router.patch("/manage/set-user-role")
 # def set_user_role(
 #     user_role_update_request: UserRoleUpdateRequest,
-#     current_user: User = Depends(current_admin_user),
+#     current_user: User = Depends(current_workspace_admin_user),
 #     db_session: Session = Depends(get_session),
 # ) -> None:
 #     user_to_update = get_user_by_email(
@@ -194,7 +194,7 @@ async def change_password(
 @router.patch("/manage/promote-user-to-admin")
 def promote_admin(
     user_email: UserByEmail,
-    _: User = Depends(current_admin_user),
+    _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_promote = get_user_by_email(
@@ -211,7 +211,7 @@ def promote_admin(
 @router.patch("/manage/demote-admin-to-basic")
 async def demote_admin(
     user_email: UserByEmail,
-    user: User = Depends(current_admin_user),
+    user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_demote = get_user_by_email(
@@ -347,7 +347,7 @@ def list_all_users(
 @router.put("/manage/admin/users")
 def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
-    current_user: User | None = Depends(current_admin_user),
+    current_user: User | None = Depends(current_workspace_admin_user),
 ) -> int:
     """emails are string validated. If any email fails validation, no emails are
     invited and an exception is raised."""
@@ -370,7 +370,7 @@ def bulk_invite_users(
 @router.patch("/manage/admin/remove-invited-user")
 def remove_invited_user(
     user_email: UserByEmail,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_workspace_admin_user),
 ) -> int:
     user_emails = get_invited_users()
     remaining_users = [user for user in user_emails if user != user_email.user_email]
@@ -380,7 +380,7 @@ def remove_invited_user(
 @router.patch("/manage/admin/deactivate-user")
 def deactivate_user(
     user_email: UserByEmail,
-    current_user: User | None = Depends(current_admin_user),
+    current_user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     if current_user is None:
@@ -409,7 +409,7 @@ def deactivate_user(
 @router.delete("/manage/admin/delete-user")
 async def delete_user(
     user_email: UserByEmail,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_delete = get_user_by_email(
@@ -474,7 +474,7 @@ async def delete_user(
 @router.patch("/manage/admin/activate-user")
 def activate_user(
     user_email: UserByEmail,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_activate = get_user_by_email(
@@ -493,7 +493,7 @@ def activate_user(
 
 @router.get("/manage/admin/valid-domains")
 def get_valid_domains(
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_workspace_admin_user),
 ) -> list[str]:
     return VALID_EMAIL_DOMAINS
 
@@ -509,7 +509,12 @@ def list_all_users_basic_info(
     include_teamspace_user: bool = True,
     q: str = "",
 ) -> list[MinimalUserwithNameSnapshot]:
-    users = list_users(db_session, q=q, teamspace_id=teamspace_id, include_teamspace_user=include_teamspace_user)
+    users = list_users(
+        db_session,
+        q=q,
+        teamspace_id=teamspace_id,
+        include_teamspace_user=include_teamspace_user,
+    )
     return [
         MinimalUserwithNameSnapshot(
             id=user.id, full_name=user.full_name, email=user.email, profile=user.profile
@@ -603,7 +608,7 @@ def verify_user_logged_in(
     teamspace_id: Optional[int] = None,
     db_session: Session = Depends(get_session),
 ) -> UserInfo:
-    # NOTE: this does not use `current_user` / `current_admin_user` because we don't want
+    # NOTE: this does not use `current_user` / `current_workspace_admin_user` because we don't want
     # to enforce user verification here - the frontend always wants to get the info about
     # the current user regardless of if they are currently verified
     if user is None:
