@@ -1,4 +1,4 @@
-"""Introduce Vanguard AI APIs
+"""Introduce Arnold AI APIs
 
 Revision ID: 15326fcec57e
 Revises: 77d07dffae64

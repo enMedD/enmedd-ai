@@ -54,7 +54,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
         <div className="flex flex-col items-center h-full overflow-y-auto">
           <Image
             src={ArnoldAi}
-            alt="Vanguard AI Logo"
+            alt="Arnold AI Logo"
             width={40}
             height={40}
             className="rounded-regular shrink-0"
@@ -73,7 +73,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             >
               {workspaces?.workspace_name
                 ? workspaces.workspace_name
-                : "Vanguard AI"}
+                : "Arnold AI"}
             </CustomTooltip>
           </div>
           <Separator className="mt-4" />

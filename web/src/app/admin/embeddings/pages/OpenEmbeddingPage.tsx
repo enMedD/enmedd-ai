@@ -56,9 +56,9 @@ export default function OpenEmbeddingPage({
         </a>
         .
         <br />
-        <b>NOTE:</b> not all models listed will work with Vanguard AI, since
-        some have unique interfaces or special requirements. If in doubt, reach
-        out to the Vanguard AI team.
+        <b>NOTE:</b> not all models listed will work with Arnold AI, since some
+        have unique interfaces or special requirements. If in doubt, reach out
+        to the Arnold AI team.
       </Text>
       {!configureModel && (
         <Button onClick={() => setConfigureModel(true)} className="mt-4">

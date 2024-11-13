@@ -6,8 +6,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Example Vanguard AI Widget",
-  description: "Example Vanguard AI Widget",
+  title: "Example Arnold AI Widget",
+  description: "Example Arnold AI Widget",
 };
 
 export default function RootLayout({

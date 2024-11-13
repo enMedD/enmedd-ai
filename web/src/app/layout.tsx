@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
       : buildClientUrl("/vanguard-ai.ico");
 
   return {
-    title: dynamicSettings?.workspaces?.workspace_name || "Vanguard AI",
+    title: dynamicSettings?.workspaces?.workspace_name || "Arnold AI",
     description:
       dynamicSettings?.workspaces?.workspace_description ||
       "We let you find your way through EU export control, military defence standards, ITAR and more - all on your own",
@@ -51,19 +51,19 @@ export default async function RootLayout({
     return (
       <html lang="en" className={`${fontSans.variable} font-sans`}>
         <Head>
-          <title>Settings Unavailable | Vanguard AI</title>
+          <title>Settings Unavailable | Arnold AI</title>
         </Head>
         <body className="bg-background text-default">
           <div className="flex flex-col items-center justify-center min-h-screen">
             <div className="mb-4 flex items-center max-w-[175px]">
-              <HeaderTitle>Vanguard AI</HeaderTitle>
+              <HeaderTitle>Arnold AI</HeaderTitle>
               <Logo height={40} width={40} />
             </div>
 
             <Card className="p-8 max-w-md">
               <h1 className="text-2xl font-bold mb-4 text-error">Error</h1>
               <p className="text-text-500">
-                Your Vanguard AI instance was not configured properly and your
+                Your Arnold AI instance was not configured properly and your
                 settings could not be loaded. This could be due to an admin
                 configuration issue or an incomplete setup.
               </p>

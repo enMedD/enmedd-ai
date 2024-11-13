@@ -8,7 +8,7 @@ services:
     command: >
       /bin/sh -c "alembic upgrade 5d12a446f5c0 &&
       alembic upgrade 17ca0f0827de &&
-      echo \"Starting Vanguard AI Api Server\" &&
+      echo \"Starting Arnold AI Api Server\" &&
       uvicorn enmedd.main:app --host 0.0.0.0 --port 8080"
     depends_on:
       - relational_db
