@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const logoLocation =
     dynamicSettings?.workspaces && dynamicSettings.workspaces.use_custom_logo
       ? "/api/workspace/logo"
-      : buildClientUrl("/enmedd-chp.ico");
+      : buildClientUrl("/arnold_ai.ico");
 
   return {
     title: dynamicSettings?.workspaces?.workspace_name || "Arnold AI",
