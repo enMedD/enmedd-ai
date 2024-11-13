@@ -175,10 +175,7 @@ export default function SearchAnswer({
 
       {!searchAnswerExpanded && searchAnswerOverflowing && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center w-full h-12 px-4 z-10">
-          <Button
-            onClick={() => setSearchAnswerExpanded(true)}
-            variant="ghost"
-          >
+          <Button onClick={() => setSearchAnswerExpanded(true)} variant="ghost">
             <ChevronsDown size={16} className="stroke-brand-500" />
           </Button>
         </div>

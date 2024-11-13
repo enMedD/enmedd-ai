@@ -64,7 +64,16 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             <CustomTooltip
               trigger={
                 <Link href={`/${defaultPage}`} className="flex items-center">
-                  <Logo />
+                  {workspaces?.use_custom_logo ? (
+                    <Logo />
+                  ) : (
+                    <Image
+                      src={ArnoldAi}
+                      alt="Arnold AI Logo"
+                      width={40}
+                      height={40}
+                    />
+                  )}
                 </Link>
               }
               side="right"

@@ -24,13 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const logoLocation =
     dynamicSettings?.workspaces && dynamicSettings.workspaces.use_custom_logo
       ? "/api/workspace/logo"
-      : buildClientUrl("/vanguard-ai.ico");
+      : buildClientUrl("/arnold_ai.ico");
 
   return {
     title: dynamicSettings?.workspaces?.workspace_name || "Arnold AI",
     description:
       dynamicSettings?.workspaces?.workspace_description ||
-      "We let you find your way through EU export control, military defence standards, ITAR and more - all on your own",
+      "Empowering Medical Devices with AI",
     icons: {
       icon: logoLocation,
     },
