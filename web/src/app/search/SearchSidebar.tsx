@@ -1,27 +1,17 @@
 "use client";
 
 import React from "react";
-import {
-  Search,
-  MessageCircleMore,
-  Headset,
-  PanelLeftClose,
-  Command,
-} from "lucide-react";
+import { Search, MessageCircleMore, Command } from "lucide-react";
 import { useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 import EnmeddLogo from "../../../public/logo-brand.png";
-import { HeaderTitle } from "@/components/header/Header";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED } from "@/lib/constants";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { Logo } from "@/components/Logo";
-import { SearchTab } from "../chat/sessionSidebar/SearchTab";
 import { useSearchContext } from "@/context/SearchContext";
 import { ChatSession } from "../chat/interfaces";
+import { PageTab } from "@/components/PageTab";
 
 export const SearchSidebar = ({
   isExpanded,
@@ -123,11 +113,12 @@ export const SearchSidebar = ({
               </>
             )}
             <Separator className="mt-4" />
-            <SearchTab
+            <PageTab
               existingChats={querySessions}
               currentChatId={currentSearchId}
               toggleSideBar={toggleSideBar}
               teamspaceId={teamspaceId}
+              isSearch
             />
           </div>
         </div>
