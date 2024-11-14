@@ -189,9 +189,9 @@ function Main({ ccPairId }: { ccPairId: number }) {
             onClick={() =>
               ccPair.is_editable_for_current_user && startEditing()
             }
-            className={`group flex ${ccPair.is_editable_for_current_user ? "cursor-pointer" : ""} text-3xl text-emphasis gap-x-2 items-center font-bold`}
+            className={`group flex w-full ${ccPair.is_editable_for_current_user ? "cursor-pointer" : ""} text-3xl text-emphasis gap-x-2 items-center font-bold`}
           >
-            {ccPair.name}
+            <p className="truncate w-3/4">{ccPair.name}</p>
             {ccPair.is_editable_for_current_user && (
               <EditIcon className="invisible group-hover:visible" />
             )}
