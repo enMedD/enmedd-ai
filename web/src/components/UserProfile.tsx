@@ -1,7 +1,7 @@
-import { User } from "lucide-react";
 import React from "react";
 import { User as UserTypes } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface UserProfileProps {
   user?: UserTypes | null;
@@ -34,30 +34,28 @@ export function UserProfile({
       : "linear-gradient(to right, #e2e2e2, #ffffff)";
 
   return (
-    <div
-      className={`flex items-center justify-center rounded-full aspect-square shrink-0 ${textSize} font-medium text-inverted overflow-hidden`}
+    <Avatar
+      onClick={onClick}
       style={{
         width: size,
         height: size,
-        background: backgroundGradient,
       }}
-      onClick={onClick}
     >
-      {user?.profile ? (
-        <img
+      {user && user.profile ? (
+        <AvatarImage
           src={buildImgUrl(user.profile)}
-          alt="User profile"
-          className="w-full h-full object-cover rounded-full"
-          width={size}
-          height={size}
+          alt={user.full_name || "User"}
         />
-      ) : user?.full_name ? (
-        <span className={`${textSize} font-semibold`}>
-          {getNameInitials(user.full_name)}
-        </span>
       ) : (
-        <User size={24} className="mx-auto" />
+        <AvatarFallback
+          className={`text-inverted font-medium ${textSize}`}
+          style={{
+            background: backgroundGradient,
+          }}
+        >
+          {user ? getNameInitials(user.full_name || "") : ""}
+        </AvatarFallback>
       )}
-    </div>
+    </Avatar>
   );
 }
