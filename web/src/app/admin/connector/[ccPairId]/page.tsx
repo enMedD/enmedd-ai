@@ -52,6 +52,10 @@ function Main({ ccPairId }: { ccPairId: number }) {
   const { toast } = useToast();
   const { teamspaceId } = useParams();
 
+  const navigateToDataSource = () => {
+    router.push("/admin/indexing/status"); 
+  };
+
   const finishConnectorDeletion = () => {
     toast({
       title: "Deletion Successful",
@@ -155,7 +159,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
   } = ccPair.connector;
   return (
     <>
-      <BackButton />
+      <BackButton behaviorOverride={navigateToDataSource} />
       <div className="flex flex-col items-start w-full gap-2 pb-5 sm:flex-row lg:items-center">
         <div className="my-auto mr-2">
           <SourceIcon iconSize={24} sourceType={ccPair.connector.source} />
