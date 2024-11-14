@@ -8,7 +8,11 @@ from enmedd.db.models import WorkspaceSettings
 from enmedd.server.settings.models import Settings
 
 
-def load_settings(db_session: Session, teamspace_id: Optional[int] = None) -> Settings:
+def load_settings(
+    db_session: Session,
+    workspace_id: Optional[int] = None,
+    teamspace_id: Optional[int] = None,
+) -> Settings:
     if teamspace_id:
         settings_record = (
             db_session.query(TeamspaceSettings)
@@ -24,7 +28,9 @@ def load_settings(db_session: Session, teamspace_id: Optional[int] = None) -> Se
                 maximum_chat_retention_days=settings_record.maximum_chat_retention_days,
             )
 
-    settings_record = db_session.query(WorkspaceSettings).first()
+    settings_record = (
+        db_session.query(WorkspaceSettings).filter_by(workspace_id=workspace_id).first()
+    )
     if settings_record:
         return Settings(
             chat_page_enabled=settings_record.chat_page_enabled,
@@ -33,6 +39,10 @@ def load_settings(db_session: Session, teamspace_id: Optional[int] = None) -> Se
             maximum_chat_retention_days=settings_record.maximum_chat_retention_days,
             num_indexing_workers=settings_record.num_indexing_workers,
             vespa_searcher_threads=settings_record.vespa_searcher_threads,
+            smtp_port=settings_record.smtp_port,
+            smtp_server=settings_record.smtp_server,
+            smtp_username=settings_record.smtp_username,
+            smtp_password=settings_record.smtp_password,
         )
 
     return Settings()
@@ -41,6 +51,7 @@ def load_settings(db_session: Session, teamspace_id: Optional[int] = None) -> Se
 def store_settings(
     settings: Settings,
     db_session: Session,
+    workspace_id: int,
     teamspace_id: Optional[int] = None,
 ) -> None:
     if teamspace_id:
@@ -50,8 +61,11 @@ def store_settings(
             .first()
         )
     else:
-        settings_record = db_session.query(WorkspaceSettings).first()
-
+        settings_record = (
+            db_session.query(WorkspaceSettings)
+            .filter_by(workspace_id=workspace_id)
+            .first()
+        )
     if settings_record:
         settings_record.chat_page_enabled = settings.chat_page_enabled
         settings_record.search_page_enabled = settings.search_page_enabled
@@ -78,7 +92,7 @@ def store_settings(
                 search_page_enabled=settings.search_page_enabled,
                 default_page=settings.default_page,
                 maximum_chat_retention_days=settings.maximum_chat_retention_days,
-                workspace_id=0,
+                workspace_id=workspace_id,
                 num_indexing_workers=settings.num_indexing_workers,
                 vespa_searcher_threads=settings.vespa_searcher_threads,
             )

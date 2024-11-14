@@ -1977,6 +1977,10 @@ class WorkspaceSettings(Base):
     vespa_searcher_threads: Mapped[int] = mapped_column(
         Integer, nullable=False, default=2
     )
+    smtp_server: Mapped[str | None] = mapped_column(Text, nullable=True)
+    smtp_port: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    smtp_username: Mapped[str | None] = mapped_column(Text, nullable=True)
+    smtp_password: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class TeamspaceSettings(Base):
