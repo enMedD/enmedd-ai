@@ -15,7 +15,7 @@ from ee.enmedd.server.teamspace.models import TeamspaceUpdate
 from ee.enmedd.server.teamspace.models import TeamspaceUpdateName
 from ee.enmedd.server.teamspace.models import TeamspaceUserRole
 from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
-from ee.enmedd.server.workspace.store import _LOGO_FILENAME
+from ee.enmedd.server.workspace.store import _TEAMSPACELOGO_FILENAME
 from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
@@ -342,7 +342,7 @@ def remove_teamspace_logo(
     _: User = Depends(current_teamspace_admin_user),
 ) -> None:
     try:
-        file_name = f"{teamspace_id}{_LOGO_FILENAME}"
+        file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 
         file_store = get_default_file_store(db_session)
         file_store.delete_file(file_name)
@@ -369,7 +369,7 @@ def fetch_teamspace_logo(
     db_session: Session = Depends(get_session),
 ) -> Response:
     try:
-        file_path = f"{teamspace_id}{_LOGO_FILENAME}"
+        file_path = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 
         file_store = get_default_file_store(db_session)
         file_io = file_store.read_file(file_path, mode="b")

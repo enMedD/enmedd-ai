@@ -183,7 +183,7 @@ export default function General() {
                   <SubLabel>Current Custom Logo: </SubLabel>
                 </div>
                 <img
-                  src={"/api/workspace/logo?u=" + Date.now()}
+                  src={"/api/workspace/logo?workspace_id=" + 0} //temporary id for workspace
                   alt="Logo"
                   style={{ objectFit: "contain" }}
                   className="w-32 h-32"
