@@ -191,6 +191,8 @@ def put_settings(
         workspace_description=settings.workspace_description,
         use_custom_logo=settings.use_custom_logo,
         custom_header_content=settings.custom_header_content,
+        brand_color=settings.brand_color,
+        secondary_color=settings.secondary_color,
     )
 
 

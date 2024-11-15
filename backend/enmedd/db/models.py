@@ -1919,6 +1919,8 @@ class Workspace(Base):
     custom_logo: Mapped[str | None] = mapped_column(Text, nullable=True)
     custom_header_logo: Mapped[str | None] = mapped_column(Text, nullable=True)
     custom_header_content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    brand_color: Mapped[str | None] = mapped_column(Text, nullable=True)
+    secondary_color: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     users: Mapped[list[User]] = relationship(
         "User", secondary=Workspace__Users.__table__, viewonly=True

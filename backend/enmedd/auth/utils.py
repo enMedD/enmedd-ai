@@ -111,11 +111,8 @@ def send_user_verification_email(
     to_email: str,
     subject: str,
     body: str,
+    smtp_credentials: dict,
 ) -> None:
-    smtp_credentials = get_smtp_credentials(
-        workspace_id=0, db_session=Session()
-    )  # Temporary workspace_id
-
     # Email configuration
     sender_email = smtp_credentials["smtp_user"] or SMTP_USER
     sender_password = smtp_credentials["smtp_password"] or SMTP_PASS
@@ -175,11 +172,8 @@ def send_reset_password_email(
     to_email: str,
     subject: str,
     body: str,
+    smtp_credentials: dict,
 ) -> None:
-    smtp_credentials = get_smtp_credentials(
-        workspace_id=0, db_session=Session()
-    )  # temporary value
-
     # Email configuration
     sender_email = smtp_credentials["smtp_user"] or SMTP_USER
     sender_password = smtp_credentials["smtp_password"] or SMTP_PASS
