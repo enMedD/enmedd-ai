@@ -43,6 +43,10 @@ class Settings(BaseModel):
     gpu_enabled: bool | None = None
     num_indexing_workers: int | None = None
     vespa_searcher_threads: int | None = None
+    smtp_server: Optional[str] = None
+    smtp_port: Optional[int] = None
+    smtp_username: Optional[str] = None
+    smtp_password: Optional[str] = None
 
     def check_validity(self) -> None:
         chat_page_enabled = self.chat_page_enabled
@@ -86,3 +90,10 @@ class TeamspaceSettings(BaseModel):
             default_page=settings_model.default_page,
             maximum_chat_retention_days=settings_model.maximum_chat_retention_days,
         )
+
+
+class SmtpUpdate(BaseModel):
+    smtp_server: Optional[str] = None
+    smtp_port: Optional[int] = None
+    smtp_username: Optional[str] = None
+    smtp_password: Optional[str] = None

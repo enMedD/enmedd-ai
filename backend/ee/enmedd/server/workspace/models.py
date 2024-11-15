@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Any
 from typing import Optional
 from uuid import UUID
 
@@ -42,6 +43,24 @@ class Workspaces(BaseModel):
 
     def check_validity(self) -> None:
         return
+
+
+class NavigationItem(BaseModel):
+    link: str
+    title: str
+    # Right now must be one of the FA icons
+    icon: str | None = None
+    # NOTE: SVG must not have a width / height specified
+    # This is the actual SVG as a string. Done this way to reduce
+    # complexity / having to store additional "logos" in Postgres
+    svg_logo: str | None = None
+
+    @classmethod
+    def model_validate(cls, *args: Any, **kwargs: Any) -> "NavigationItem":
+        instance = super().model_validate(*args, **kwargs)
+        if bool(instance.icon) == bool(instance.svg_logo):
+            raise ValueError("Exactly one of fa_icon or svg_logo must be specified")
+        return instance
 
 
 class WorkspaceCreate(BaseModel):
