@@ -112,7 +112,11 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
             </DropdownMenuItem>
           )}
           {showLogout && (
-            <DropdownMenuItem asChild onClick={handleLogout} className="focus:bg-destructive-500">
+            <DropdownMenuItem
+              asChild
+              onClick={handleLogout}
+              className="focus:bg-destructive-500"
+            >
               <div className="flex gap-2 items-center">
                 <LogOut size={16} strokeWidth={1.5} />
                 <span>Log out</span>

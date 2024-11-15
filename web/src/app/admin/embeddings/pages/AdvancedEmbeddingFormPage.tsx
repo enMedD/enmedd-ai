@@ -58,11 +58,9 @@ const AdvancedEmbeddingFormPage = forwardRef<
                   {values.multilingual_expansion.map(
                     (_: any, index: number) => (
                       <div key={index} className="w-full flex mb-4 gap-2">
-                        <Input
-                          name={`multilingual_expansion.${index}`}
-                        />
+                        <Input name={`multilingual_expansion.${index}`} />
                         <Button
-                        variant="destructive"
+                          variant="destructive"
                           onClick={() => remove(index)}
                           size="icon"
                         >
@@ -71,10 +69,7 @@ const AdvancedEmbeddingFormPage = forwardRef<
                       </div>
                     )
                   )}
-                  <Button
-                    onClick={() => push("")}
-                    className="mb-4"
-                  >
+                  <Button onClick={() => push("")} className="mb-4">
                     <FaPlus className="mr-2" />
                     Add Language
                   </Button>

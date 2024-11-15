@@ -154,7 +154,7 @@ const StandardAnswersTable = ({
   standardAnswerCategories: StandardAnswerCategory[];
   refresh: () => void;
 }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState<

@@ -51,7 +51,7 @@ export interface User {
   current_token_expiry_length?: number;
   oidc_expiry?: Date;
   groups?: MinimalTeamspaceSnapshot[];
-  profile?: string
+  profile?: string;
 }
 
 export interface MinimalUserSnapshot {

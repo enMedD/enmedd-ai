@@ -613,7 +613,9 @@ export function SelectorFormField({
         {label && (
           <ShadcnLabel className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed">
             {label}{" "}
-            {optional && <span className="ml-1 text-muted-foreground">(optional)</span>}
+            {optional && (
+              <span className="ml-1 text-muted-foreground">(optional)</span>
+            )}
           </ShadcnLabel>
         )}
         {subtext && <SubLabel>{subtext}</SubLabel>}

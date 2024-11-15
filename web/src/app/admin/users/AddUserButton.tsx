@@ -61,7 +61,11 @@ export const AddUserButton = ({
           <Label>
             Add the email addresses to import, separated by whitespaces.
           </Label>
-          <BulkAdd onSuccess={onSuccess} onFailure={onFailure} onClose={() => setIsModalOpen(false)} />
+          <BulkAdd
+            onSuccess={onSuccess}
+            onFailure={onFailure}
+            onClose={() => setIsModalOpen(false)}
+          />
         </div>
       )}
     </CustomModal>
