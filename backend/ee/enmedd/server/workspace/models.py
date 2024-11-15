@@ -22,6 +22,8 @@ class Workspaces(BaseModel):
     custom_logo: Optional[str] = None
     custom_header_logo: Optional[str] = None
     custom_header_content: Optional[str] = None
+    brand_color: Optional[str] = None
+    secondary_color: Optional[str] = None
     groups: Optional[list[Teamspace]] = None
 
     @classmethod
@@ -35,6 +37,8 @@ class Workspaces(BaseModel):
             custom_logo=workspace_model.custom_logo,
             custom_header_logo=workspace_model.custom_header_logo,
             custom_header_content=workspace_model.custom_header_content,
+            brand_color=workspace_model.brand_color,
+            secondary_color=workspace_model.secondary_color,
             groups=[
                 Teamspace.from_model(teamspace_model)
                 for teamspace_model in workspace_model.groups
@@ -70,6 +74,8 @@ class WorkspaceCreate(BaseModel):
     custom_logo: Optional[str] = None
     custom_header_logo: Optional[str] = None
     custom_header_content: Optional[str] = None
+    brand_color: Optional[str] = None
+    secondary_color: Optional[str] = None
     user_ids: list[UUID]
 
 
@@ -80,6 +86,8 @@ class WorkspaceUpdate(BaseModel):
     custom_logo: Optional[str] = None
     custom_header_logo: Optional[str] = None
     custom_header_content: Optional[str] = None
+    brand_color: Optional[str] = None
+    secondary_color: Optional[str] = None
     user_ids: Optional[list[UUID]] = None
 
 

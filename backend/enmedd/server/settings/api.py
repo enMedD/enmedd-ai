@@ -2,13 +2,13 @@ import smtplib
 from typing import cast
 from typing import Optional
 
-import bcrypt
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from ee.enmedd.utils.encryption import encrypt_password
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
@@ -184,12 +184,11 @@ def update_smtp_settings(
     if smtp_data.smtp_username:
         update_data["smtp_username"] = smtp_data.smtp_username
     if smtp_data.smtp_password:
-        # Hash the password before saving
-        hashed_password = bcrypt.hashpw(
-            smtp_data.smtp_password.encode(), bcrypt.gensalt()
-        )
-        update_data["smtp_password"] = hashed_password.decode()
+        # Encrypt the password before saving
+        encrypted_password = encrypt_password(smtp_data.smtp_password)
+        update_data["smtp_password"] = encrypted_password
 
+    # Verify SMTP credentials
     try:
         with smtplib.SMTP(smtp_data.smtp_server, smtp_data.smtp_port) as smtp:
             smtp.starttls()

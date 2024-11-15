@@ -29,6 +29,8 @@ def upgrade() -> None:
     op.add_column(
         "workspace_settings", sa.Column("smtp_password", sa.Text(), nullable=True)
     )
+    op.add_column("workspace", sa.Column("brand_color", sa.Text(), nullable=True))
+    op.add_column("workspace", sa.Column("secondary_color", sa.Text(), nullable=True))
     # ### end Alembic commands ###
 
 
@@ -38,4 +40,6 @@ def downgrade() -> None:
     op.drop_column("workspace_settings", "smtp_username")
     op.drop_column("workspace_settings", "smtp_port")
     op.drop_column("workspace_settings", "smtp_server")
+    op.drop_column("workspace", "secondary_color")
+    op.drop_column("workspace", "brand_color")
     # ### end Alembic commands ###

@@ -43,6 +43,7 @@ from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import optional_user
 from enmedd.auth.utils import generate_2fa_email
+from enmedd.auth.utils import get_smtp_credentials
 from enmedd.auth.utils import send_2fa_email
 from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
@@ -86,12 +87,15 @@ USERS_PAGE_SIZE = 10
 @router.patch("/users/generate-otp")
 async def generate_otp(
     current_user: User = Depends(current_user),
+    workspace_id: Optional[int] = 0,  # Temporary set to 0
     db: Session = Depends(get_session),
 ):
     otp_code = "".join(random.choices(string.digits, k=6))
 
+    smtp_credentials = get_smtp_credentials(workspace_id, db)
+
     subject, body = generate_2fa_email(current_user.full_name, otp_code)
-    send_2fa_email(current_user.email, subject, body)
+    send_2fa_email(current_user.email, subject, body, smtp_credentials)
 
     existing_otp = (
         db.query(TwofactorAuth).filter(TwofactorAuth.user_id == current_user.id).first()
@@ -363,6 +367,8 @@ def list_all_users(
 def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
     current_user: User | None = Depends(current_workspace_admin_user),
+    workspace_id: Optional[int] = 0,  # Temporary set to 0
+    db_session: Session = Depends(get_session),
 ) -> int:
     """emails are string validated. If any email fails validation, no emails are
     invited and an exception is raised."""
@@ -371,12 +377,14 @@ def bulk_invite_users(
             status_code=400, detail="Auth is disabled, cannot invite users"
         )
 
+    smtp_credentials = get_smtp_credentials(workspace_id, db_session)
+
     normalized_emails = []
     for email in emails:
         email_info = validate_email(email)
         signup_link = f"{WEB_DOMAIN}/auth/signup?email={email_info.email}"
         subject, body = generate_invite_email(signup_link)
-        send_invite_user_email(email, subject, body)
+        send_invite_user_email(email, subject, body, smtp_credentials)
         normalized_emails.append(email_info.normalized)
     all_emails = list(set(normalized_emails) | set(get_invited_users()))
     return write_invited_users(all_emails)
