@@ -117,7 +117,7 @@ def stream_answer_objects(
         user_id=user_id,
         assistant_id=query_req.assistant_id,
         one_shot=True,
-        teamspace_id=teamspace_id
+        teamspace_id=teamspace_id,
     )
 
     temporary_assistant: Assistant | None = None
@@ -331,7 +331,7 @@ def stream_search_answer(
     user: User | None,
     max_document_tokens: int | None,
     max_history_tokens: int | None,
-    teamspace_id: int | None = None
+    teamspace_id: int | None = None,
 ) -> Iterator[str]:
     with get_session_context_manager() as session:
         objects = stream_answer_objects(

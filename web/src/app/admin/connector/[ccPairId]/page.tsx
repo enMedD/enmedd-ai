@@ -53,7 +53,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
   const { teamspaceId } = useParams();
 
   const navigateToDataSource = () => {
-    router.push("/admin/indexing/status"); 
+    router.push("/admin/indexing/status");
   };
 
   const finishConnectorDeletion = () => {

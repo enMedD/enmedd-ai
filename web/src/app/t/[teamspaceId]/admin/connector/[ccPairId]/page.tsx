@@ -18,12 +18,18 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { CCPairFullInfo, ConnectorCredentialPairStatus } from "@/app/admin/connector/[ccPairId]/types";
+import {
+  CCPairFullInfo,
+  ConnectorCredentialPairStatus,
+} from "@/app/admin/connector/[ccPairId]/types";
 import { buildCCPairInfoUrl } from "@/app/admin/connector/[ccPairId]/lib";
 import { ReIndexButton } from "@/app/admin/connector/[ccPairId]/ReIndexButton";
 import { ModifyStatusButtonCluster } from "@/app/admin/connector/[ccPairId]/ModifyStatusButtonCluster";
 import DeletionErrorStatus from "@/app/admin/connector/[ccPairId]/DeletionErrorStatus";
-import { AdvancedConfigDisplay, ConfigDisplay } from "@/app/admin/connector/[ccPairId]/ConfigDisplay";
+import {
+  AdvancedConfigDisplay,
+  ConfigDisplay,
+} from "@/app/admin/connector/[ccPairId]/ConfigDisplay";
 import { IndexingAttemptsTable } from "@/app/admin/connector/[ccPairId]/IndexingAttemptsTable";
 import { DeletionButton } from "@/app/admin/connector/[ccPairId]/DeletionButton";
 

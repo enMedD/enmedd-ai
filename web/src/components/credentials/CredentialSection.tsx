@@ -37,7 +37,7 @@ export default function CredentialSection({
   sourceType: ValidSources;
   refresh: () => void;
 }) {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const makeShowCreateCredential = () => {
     setShowModifyCredential(false);
     setShowCreateCredential(true);
@@ -64,7 +64,8 @@ export default function CredentialSection({
 
     toast({
       title: "Swap Failed",
-      description: "There was an issue swapping the credential. Please try again.",
+      description:
+        "There was an issue swapping the credential. Please try again.",
       variant: "destructive",
     });
   };
@@ -145,10 +146,10 @@ export default function CredentialSection({
       </div>
       {showModifyCredential && (
         <CustomModal
-        onClose={closeModifyCredential}
+          onClose={closeModifyCredential}
           title="Update Credentials"
-      trigger={null}
-      open={showModifyCredential}
+          trigger={null}
+          open={showModifyCredential}
         >
           <ModifyCredential
             showCreate={() => {
@@ -172,10 +173,10 @@ export default function CredentialSection({
 
       {editingCredential && (
         <CustomModal
-        onClose={closeEditingCredential}
+          onClose={closeEditingCredential}
           title="Edit Credential"
-      trigger={null}
-      open={!!editingCredential}
+          trigger={null}
+          open={!!editingCredential}
         >
           <EditCredential
             onUpdate={onUpdateCredential}
@@ -187,10 +188,10 @@ export default function CredentialSection({
 
       {showCreateCredential && (
         <CustomModal
-        onClose={closeCreateCredential}
+          onClose={closeCreateCredential}
           title={`Create ${getSourceDisplayName(sourceType)} Credential`}
-      trigger={null}
-      open={showCreateCredential}
+          trigger={null}
+          open={showCreateCredential}
         >
           <CreateCredential
             sourceType={sourceType}
