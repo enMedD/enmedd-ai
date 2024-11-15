@@ -2,16 +2,16 @@
 
 import { GroupsIcon } from "@/components/icons/icons";
 import { GroupDisplay } from "./GroupDisplay";
-import { FiAlertCircle, FiChevronLeft } from "react-icons/fi";
 import { useSpecificTeamspace } from "./hook";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { useConnectorCredentialIndexingStatus, useUsers } from "@/lib/hooks";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { BackButton } from "@/components/BackButton";
 import { AdminPageTitle } from "@/components/admin/Title";
 
 const Page = ({ params }: { params: { teamId: string } }) => {
   const router = useRouter();
+  const { teamspaceId } = useParams();
 
   const {
     teamspace,
@@ -28,7 +28,7 @@ const Page = ({ params }: { params: { teamId: string } }) => {
     data: ccPairs,
     isLoading: isCCPairsLoading,
     error: ccPairsError,
-  } = useConnectorCredentialIndexingStatus();
+  } = useConnectorCredentialIndexingStatus(undefined, false, teamspaceId);
 
   if (teamspaceIsLoading || userIsLoading || isCCPairsLoading) {
     return (
@@ -51,24 +51,26 @@ const Page = ({ params }: { params: { teamId: string } }) => {
   }
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle
-        title={teamspace.name || "Unknown"}
-        icon={<GroupsIcon size={32} />}
-      />
-
-      {teamspace ? (
-        <GroupDisplay
-          users={users.accepted}
-          ccPairs={ccPairs}
-          teamspace={teamspace}
-          refreshTeamspace={refreshTeamspace}
+        <AdminPageTitle
+          title={teamspace.name || "Unknown"}
+          icon={<GroupsIcon size={32} />}
         />
-      ) : (
-        <div>Unable to fetch Teamspace :(</div>
-      )}
+
+        {teamspace ? (
+          <GroupDisplay
+            users={users.accepted}
+            ccPairs={ccPairs}
+            teamspace={teamspace}
+            refreshTeamspace={refreshTeamspace}
+          />
+        ) : (
+          <div>Unable to fetch Teamspace :(</div>
+        )}
+      </div>
     </div>
   );
 };

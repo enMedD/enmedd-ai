@@ -1,6 +1,7 @@
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
+  getCurrentTeamspaceUserSS,
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { fetchSS } from "@/lib/utilsSS";
@@ -13,15 +14,17 @@ import {
 } from "@/lib/types";
 import { ChatSession } from "@/app/chat/interfaces";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { FullEmbeddingModelResponse } from "@/app/admin/models/embedding/embeddingModels";
+import { InputPrompt } from "@/app/admin/prompt-library/interfaces";
+import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
 import { Settings } from "@/app/admin/settings/interfaces";
 import { fetchLLMProvidersSS } from "@/lib/llm/fetchLLMs";
-import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
+import { LLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
 import { Folder } from "@/app/chat/folders/interfaces";
 import { assistantComparator } from "@/app/admin/assistants/lib";
 import { cookies } from "next/headers";
-import { DOCUMENT_SIDEBAR_WIDTH_COOKIE_NAME } from "@/components/resizable/contants";
 import { hasCompletedWelcomeFlowSS } from "@/components/initialSetup/welcome/WelcomeModalWrapper";
+import { fetchAssistantsSS } from "../assistants/fetchAssistantsSS";
+import { checkLLMSupportsImageInput } from "../llm/utils";
 
 interface FetchChatDataResult {
   user: User | null;
@@ -37,22 +40,40 @@ interface FetchChatDataResult {
   defaultAssistantId?: number;
   finalDocumentSidebarInitialWidth?: number;
   shouldShowWelcomeModal: boolean;
+  userInputPrompts: InputPrompt[];
   shouldDisplaySourcesIncompleteModal: boolean;
+  hasAnyConnectors: boolean;
+  hasImageCompatibleModel: boolean;
 }
 
-export async function fetchChatData(searchParams: {
-  [key: string]: string;
-}): Promise<FetchChatDataResult | { redirect: string }> {
+export async function fetchChatData(
+  searchParams: { [key: string]: string },
+  teamspaceId?: string
+): Promise<FetchChatDataResult | { redirect: string }> {
   const tasks = [
     getAuthTypeMetadataSS(),
     getCurrentUserSS(),
-    fetchSS("/manage/indexing-status"),
-    fetchSS("/manage/document-set"),
-    fetchSS("/assistant?include_default=true"),
-    fetchSS("/chat/get-user-chat-sessions"),
+    fetchSS(
+      teamspaceId
+        ? `/manage/indexing-status?teamspace_id=${teamspaceId}`
+        : "/manage/indexing-status"
+    ),
+    fetchSS(
+      teamspaceId
+        ? `/manage/document-set?teamspace_id=${teamspaceId}`
+        : "/manage/document-set"
+    ),
+    teamspaceId ? fetchAssistantsSS(teamspaceId) : fetchAssistantsSS(),
+    fetchSS(
+      teamspaceId
+        ? `/chat/get-user-chat-sessions?teamspace_id=${teamspaceId}`
+        : "/chat/get-user-chat-sessions"
+    ),
     fetchSS("/query/valid-tags"),
     fetchLLMProvidersSS(),
-    fetchSS("/folder"),
+    fetchSS(teamspaceId ? `/folder?teamspace_id=${teamspaceId}` : "/folder"),
+    fetchSS("/input_prompt?include_public=true"),
+    teamspaceId ? getCurrentTeamspaceUserSS(teamspaceId) : null,
   ];
 
   let results: (
@@ -62,6 +83,7 @@ export async function fetchChatData(searchParams: {
     | FullEmbeddingModelResponse
     | Settings
     | LLMProviderDescriptor[]
+    | [Assistant[], string | null]
     | null
   )[] = [null, null, null, null, null, null, null, null, null, null];
   try {
@@ -71,14 +93,22 @@ export async function fetchChatData(searchParams: {
   }
 
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
-  const user = results[1] as User | null;
+  const user = teamspaceId
+    ? (results[10] as User | null)
+    : (results[1] as User | null);
   const ccPairsResponse = results[2] as Response | null;
   const documentSetsResponse = results[3] as Response | null;
-  const assistantsResponse = results[4] as Response | null;
+  const [rawAssistantsList, assistantsFetchError] = results[4] as [
+    Assistant[],
+    string | null,
+  ];
+
   const chatSessionsResponse = results[5] as Response | null;
+
   const tagsResponse = results[6] as Response | null;
   const llmProviders = (results[7] || []) as LLMProviderDescriptor[];
-  const foldersResponse = results[8] as Response | null; // Handle folders result
+  const foldersResponse = results[8] as Response | null;
+  const userInputPromptsResponse = results[9] as Response | null;
 
   const authDisabled = authTypeMetadata?.authType === "disabled";
   if (!authDisabled && !user) {
@@ -110,6 +140,7 @@ export async function fetchChatData(searchParams: {
       `Failed to fetch chat sessions - ${chatSessionsResponse?.text()}`
     );
   }
+
   // Larger ID -> created later
   chatSessions.sort((a, b) => (a.id > b.id ? -1 : 1));
 
@@ -122,11 +153,18 @@ export async function fetchChatData(searchParams: {
     );
   }
 
-  let assistants: Assistant[] = [];
-  if (assistantsResponse?.ok) {
-    assistants = await assistantsResponse.json();
+  let userInputPrompts: InputPrompt[] = [];
+  if (userInputPromptsResponse?.ok) {
+    userInputPrompts = await userInputPromptsResponse.json();
   } else {
-    console.log(`Failed to fetch assistants - ${assistantsResponse?.status}`);
+    console.log(
+      `Failed to fetch user input prompts - ${userInputPromptsResponse?.status}`
+    );
+  }
+
+  let assistants = rawAssistantsList;
+  if (assistantsFetchError) {
+    console.log(`Failed to fetch assistants - ${assistantsFetchError}`);
   }
   // remove those marked as hidden by an admin
   assistants = assistants.filter((assistant) => assistant.is_visible);
@@ -146,18 +184,13 @@ export async function fetchChatData(searchParams: {
     ? parseInt(defaultAssistantIdRaw)
     : undefined;
 
-  const documentSidebarCookieInitialWidth = cookies().get(
-    DOCUMENT_SIDEBAR_WIDTH_COOKIE_NAME
-  );
-  const finalDocumentSidebarInitialWidth = documentSidebarCookieInitialWidth
-    ? parseInt(documentSidebarCookieInitialWidth.value)
-    : undefined;
-
   const hasAnyConnectors = ccPairs.length > 0;
   const shouldShowWelcomeModal =
+    !llmProviders.length &&
     !hasCompletedWelcomeFlowSS() &&
     !hasAnyConnectors &&
     (!user || user.role === "admin");
+
   const shouldDisplaySourcesIncompleteModal =
     hasAnyConnectors &&
     !shouldShowWelcomeModal &&
@@ -169,6 +202,21 @@ export async function fetchChatData(searchParams: {
   // passthrough and don't do any retrieval
   if (!hasAnyConnectors) {
     assistants = assistants.filter((assistant) => assistant.num_chunks === 0);
+  }
+
+  const hasImageCompatibleModel = llmProviders.some(
+    (provider) =>
+      provider.provider === "openai" ||
+      provider.model_names.some((model) => checkLLMSupportsImageInput(model))
+  );
+
+  if (!hasImageCompatibleModel) {
+    assistants = assistants.filter(
+      (assistant) =>
+        !assistant.tools.some(
+          (tool) => tool.in_code_tool_id === "ImageGenerationTool"
+        )
+    );
   }
 
   let folders: Folder[] = [];
@@ -195,8 +243,10 @@ export async function fetchChatData(searchParams: {
     folders,
     openedFolders,
     defaultAssistantId,
-    finalDocumentSidebarInitialWidth,
     shouldShowWelcomeModal,
+    userInputPrompts,
     shouldDisplaySourcesIncompleteModal,
+    hasAnyConnectors,
+    hasImageCompatibleModel,
   };
 }

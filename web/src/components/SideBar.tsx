@@ -1,7 +1,12 @@
+"use client";
+
 import {
   BookmarkIcon,
+  ClosedBookIcon,
   ConnectorIcon,
+  CpuIconSkeleton,
   DatabaseIcon,
+  DocumentIcon2,
   GroupsIcon,
   KeyIcon,
   NotebookIcon,
@@ -20,39 +25,56 @@ import {
   Wrench,
   Image as ImageIcon,
   Activity,
+  SearchIcon,
+  Search,
+  UserIcon,
+  LibraryBigIcon,
+  CpuIcon,
+  FileSearch,
+  FileText,
+  Blocks,
+  PlugZap,
 } from "lucide-react";
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
-import { getCombinedSettings } from "./settings/lib";
+import { useParams } from "next/navigation";
 
-interface SideBarProps {}
+interface SideBarProps {
+  isTeamspace?: boolean;
+}
 
-export async function SideBar() {
-  const dynamicSettings = await getCombinedSettings({ forceRetrieval: true });
+export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
+  const dynamicSettings = useContext(SettingsContext);
+  const { teamspaceId } = useParams();
+
   return (
-    <div className="w-full h-full p-4 overflow-y-auto bg-background">
+    <div className="w-full h-full p-4 pb-14 overflow-y-auto bg-background">
       <AdminSidebar
         collections={[
           {
-            name: "Connectors",
+            name: "Connections",
             items: [
               {
                 name: (
                   <div className="flex items-center gap-2">
-                    <NotebookIcon size={20} />
+                    <Blocks size={20} />
                     <div>Existing Data Sources</div>
                   </div>
                 ),
-                link: "/admin/indexing/status",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/indexing/status`
+                  : `/admin/indexing/status`,
               },
               {
                 name: (
                   <div className="flex items-center gap-2">
-                    <ConnectorIcon size={20} />
-                    <div>Data Sources</div>
+                    <PlugZap size={20} />
+                    <div>Connect Data Sources</div>
                   </div>
                 ),
-                link: "/admin/data-sources",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/data-sources`
+                  : `/admin/data-sources`,
               },
             ],
           },
@@ -66,7 +88,9 @@ export async function SideBar() {
                     <div>Document Sets</div>
                   </div>
                 ),
-                link: "/admin/documents/sets",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/sets`
+                  : `/admin/documents/sets`,
               },
               {
                 name: (
@@ -75,7 +99,9 @@ export async function SideBar() {
                     <div>Explorer</div>
                   </div>
                 ),
-                link: "/admin/documents/explorer",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/explorer`
+                  : `/admin/documents/explorer`,
               },
               {
                 name: (
@@ -84,7 +110,9 @@ export async function SideBar() {
                     <div>Feedback</div>
                   </div>
                 ),
-                link: "/admin/documents/feedback",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/feedback`
+                  : `/admin/documents/feedback`,
               },
             ],
           },
@@ -98,7 +126,9 @@ export async function SideBar() {
                     <div>Assistants</div>
                   </div>
                 ),
-                link: "/admin/assistants",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/assistants`
+                  : `/admin/assistants`,
               },
               {
                 name: (
@@ -107,46 +137,81 @@ export async function SideBar() {
                     <div>Tools</div>
                   </div>
                 ),
-                link: "/admin/tools",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/tools`
+                  : `/admin/tools`,
               },
+
+              ...(!teamspaceId
+                ? [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <LibraryBigIcon className="my-auto" size={20} />
+                          <div>Prompt Library</div>
+                        </div>
+                      ),
+                      link: "/admin/prompt-library",
+                    },
+                  ]
+                : []),
+              // {
             ],
           },
-          {
-            name: "Model Configs",
-            items: [
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Cpu size={20} />
-                    <div>LLM</div>
-                  </div>
-                ),
-                link: "/admin/models/llm",
-              },
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Package size={20} />
-                    <div>Embedding</div>
-                  </div>
-                ),
-                link: "/admin/models/embedding",
-              },
-            ],
-          },
+
+          ...(!teamspaceId
+            ? [
+                {
+                  name: "Configuration",
+                  items: [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <CpuIcon className="my-auto" size={20} />
+                          <div>LLM</div>
+                        </div>
+                      ),
+                      link: "/admin/configuration/llm",
+                    },
+                    {
+                      error: dynamicSettings?.settings.needs_reindexing,
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <FileSearch className="my-auto" size={20} />
+                          <div>Search Settings</div>
+                        </div>
+                      ),
+                      link: "/admin/configuration/search",
+                    },
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <FileText className="my-auto" size={20} />
+                          <div>Document Processing</div>
+                        </div>
+                      ),
+                      link: "/admin/configuration/document-processing",
+                    },
+                  ],
+                },
+              ]
+            : []),
           {
             name: "User Management",
             items: [
               {
                 name: (
                   <div className="flex items-center gap-2">
-                    <UsersIcon size={20} />
+                    <UserIcon size={20} />
                     <div>Users</div>
                   </div>
                 ),
-                link: "/admin/users",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/users`
+                  : `/admin/users`,
               },
-              ...(SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED
+
+              ...(dynamicSettings?.featureFlags.multi_teamspace && !isTeamspace
                 ? [
                     {
                       name: (
@@ -157,6 +222,10 @@ export async function SideBar() {
                       ),
                       link: "/admin/teams",
                     },
+                  ]
+                : []),
+              ...(!isTeamspace
+                ? [
                     {
                       name: (
                         <div className="flex items-center gap-2">
@@ -166,17 +235,17 @@ export async function SideBar() {
                       ),
                       link: "/admin/api-key",
                     },
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <Shield size={20} />
+                          <div>Token Rate Limits</div>
+                        </div>
+                      ),
+                      link: "/admin/token-rate-limits",
+                    },
                   ]
                 : []),
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Shield size={20} />
-                    <div>Token Rate Limits</div>
-                  </div>
-                ),
-                link: "/admin/token-rate-limits",
-              },
             ],
           },
           {
@@ -189,9 +258,11 @@ export async function SideBar() {
                     <div>Usage Statistics</div>
                   </div>
                 ),
-                link: "/admin/performance/usage",
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/performance/usage`
+                  : `/admin/performance/usage`,
               },
-              ...(dynamicSettings.featureFlags.query_history
+              ...(dynamicSettings?.featureFlags.query_history
                 ? [
                     {
                       name: (
@@ -200,7 +271,9 @@ export async function SideBar() {
                           <div>Query History</div>
                         </div>
                       ),
-                      link: "/admin/performance/query-history",
+                      link: teamspaceId
+                        ? `/t/${teamspaceId}/admin/performance/query-history`
+                        : `/admin/performance/query-history`,
                     },
                   ]
                 : []),
@@ -218,32 +291,35 @@ export async function SideBar() {
           {
             name: "Settings",
             items: [
-              {
-                name: (
-                  <div className="flex items-center gap-2">
-                    <Settings size={20} />
-                    <div>Workspace Settings</div>
-                  </div>
-                ),
-                link: "/admin/settings",
-              },
-              ...(dynamicSettings.featureFlags.whitelabelling
+              ...(isTeamspace
                 ? [
                     {
                       name: (
                         <div className="flex items-center gap-2">
-                          <ImageIcon size={20} />
-                          <div>Whitelabeling</div>
+                          <Settings size={20} />
+                          <div>Teamspace Settings</div>
                         </div>
                       ),
-                      link: "/admin/whitelabeling",
+                      link: teamspaceId
+                        ? `/t/${teamspaceId}/admin/settings`
+                        : `/admin/settings`,
                     },
                   ]
-                : []),
+                : [
+                    {
+                      name: (
+                        <div className="flex items-center gap-2">
+                          <Settings size={20} />
+                          <div>Workspace Settings</div>
+                        </div>
+                      ),
+                      link: "/admin/settings",
+                    },
+                  ]),
             ],
           },
         ]}
       />
     </div>
   );
-}
+};

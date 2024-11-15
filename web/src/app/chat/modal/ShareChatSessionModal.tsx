@@ -1,16 +1,12 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Text } from "@tremor/react";
 import { ChatSessionSharedStatus } from "../interfaces";
 import { CopyButton } from "@/components/CopyButton";
-import { Copy } from "lucide-react";
+import { Copy, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { CustomModal } from "@/components/CustomModal";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { useToast } from "@/hooks/use-toast";
 
 function buildShareLink(chatSessionId: number) {
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
@@ -48,112 +44,169 @@ export function ShareChatSessionModal({
   chatSessionId,
   existingSharedStatus,
   onShare,
-  children,
+  onPopover,
 }: {
   chatSessionId: number;
   existingSharedStatus: ChatSessionSharedStatus;
   onShare?: (shared: boolean) => void;
-  children: React.ReactNode;
+  onPopover?: boolean;
 }) {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [linkGenerating, setLinkGenerating] = useState(false);
   const [shareLink, setShareLink] = useState<string>(
     existingSharedStatus === ChatSessionSharedStatus.Public
       ? buildShareLink(chatSessionId)
       : ""
   );
+  const { toast } = useToast();
 
   return (
-    <Dialog>
-      <DialogTrigger>{children}</DialogTrigger>
-
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Share link to Chat</DialogTitle>
-        </DialogHeader>
-
-        <div className="flex mt-2">
-          {shareLink ? (
-            <div>
-              <Text>
-                This chat session is currently shared. Anyone at your
-                organization can view the message history using the following
-                link:
-              </Text>
-
-              <div className="flex my-2">
-                <CopyButton content={shareLink} />
-                <a
-                  href={shareLink}
-                  target="_blank"
-                  className="underline text-link mt-1 ml-1 text-sm my-auto"
-                >
-                  {shareLink}
-                </a>
-              </div>
-
-              <Text className="mb-4">
-                Click the button below to make the chat private again.
-              </Text>
-
+    <CustomModal
+      title="Share link to Chat"
+      trigger={
+        onPopover ? (
+          <div
+            onClick={() => setIsShareModalOpen(true)}
+            className="relative flex cursor-pointer select-none items-center gap-1.5 rounded-sm px-3 py-2.5 text-sm outline-none transition-colors hover:bg-brand-500 hover:text-inverted data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+          >
+            <Share className="mr-2" size={16} />
+            Share
+          </div>
+        ) : (
+          <CustomTooltip
+            trigger={
               <Button
-                onClick={async () => {
-                  setLinkGenerating(true);
-
-                  const success = await deleteShareLink(chatSessionId);
-                  if (success) {
-                    setShareLink("");
-                    onShare && onShare(false);
-                  } else {
-                    alert("Failed to delete share link");
-                  }
-
-                  setLinkGenerating(false);
-                }}
-                variant="destructive"
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsShareModalOpen(true)}
               >
-                Delete Share Link
+                <Share size={20} />
               </Button>
-            </div>
-          ) : (
-            <div>
-              <div className="pb-6">
-                <span className="font-bold">Warning</span>
-                <p className="pt-2">
-                  Ensure that all content in the chat is safe to share with the
-                  whole organization. The content of the retrieved documents
-                  will not be visible, but the names of cited documents as well
-                  as the AI and human messages will be visible.
-                </p>
-              </div>
+            }
+          >
+            Share
+          </CustomTooltip>
+        )
+      }
+      onClose={() => setIsShareModalOpen(false)}
+      open={isShareModalOpen}
+    >
+      {shareLink ? (
+        <div>
+          <p>
+            This chat session is currently shared. Anyone at your organization
+            can view the message history using the following link:
+          </p>
 
-              <Button
-                onClick={async () => {
-                  setLinkGenerating(true);
+          <div className="flex py-2 items-center gap-2">
+            <CopyButton content={shareLink} />
+            <Link
+              href={shareLink}
+              target="_blank"
+              className="underline text-link text-sm"
+            >
+              {shareLink}
+            </Link>
+          </div>
 
-                  // NOTE: for "inescure" non-https setup, the `navigator.clipboard.writeText` may fail
-                  // as the browser may not allow the clipboard to be accessed.
-                  try {
-                    const shareLink = await generateShareLink(chatSessionId);
-                    if (!shareLink) {
-                      alert("Failed to generate share link");
-                    } else {
-                      setShareLink(shareLink);
-                      onShare && onShare(true);
-                      navigator.clipboard.writeText(shareLink);
-                    }
-                  } catch (e) {
-                    console.error(e);
-                  }
+          <p className="mb-4">
+            Click the button below to make the chat private again.
+          </p>
 
-                  setLinkGenerating(false);
-                }}
-              >
-                <Copy size={16} /> Generate and Copy Share Link
-              </Button>
-            </div>
-          )}
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setIsShareModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                setLinkGenerating(true);
+
+                const success = await deleteShareLink(chatSessionId);
+                if (success) {
+                  setShareLink("");
+                  onShare && onShare(false);
+                  toast({
+                    title: "Share link deleted",
+                    description:
+                      "The share link has been successfully deleted.",
+                    variant: "success",
+                  });
+                } else {
+                  toast({
+                    title: "Failed to delete share link",
+                    description: "There was an issue deleting the share link.",
+                    variant: "destructive",
+                  });
+                }
+
+                setLinkGenerating(false);
+              }}
+              variant="destructive"
+            >
+              Delete Share Link
+            </Button>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : (
+        <div>
+          <div className="pb-6">
+            <span className="font-bold">Warning</span>
+            <p className="pt-2">
+              Ensure that all content in the chat is safe to share with the
+              whole organization. The content of the retrieved documents will
+              not be visible, but the names of cited documents as well as the AI
+              and human messages will be visible.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setIsShareModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                setLinkGenerating(true);
+
+                // NOTE: for "inescure" non-https setup, the `navigator.clipboard.writeText` may fail
+                // as the browser may not allow the clipboard to be accessed.
+                try {
+                  const shareLink = await generateShareLink(chatSessionId);
+                  if (!shareLink) {
+                    toast({
+                      title: "Failed to generate share link",
+                      description:
+                        "There was an issue generating the share link.",
+                      variant: "destructive",
+                    });
+                  } else {
+                    setShareLink(shareLink);
+                    onShare && onShare(true);
+                    navigator.clipboard.writeText(shareLink);
+                    toast({
+                      title: "Share link generated and copied",
+                      description:
+                        "The share link has been successfully copied to the clipboard.",
+                      variant: "success",
+                    });
+                  }
+                } catch (e) {
+                  console.error(e);
+                  toast({
+                    title: "Error",
+                    description:
+                      "An unexpected error occurred while generating the share link.",
+                    variant: "destructive",
+                  });
+                }
+
+                setLinkGenerating(false);
+              }}
+            >
+              <Copy size={16} /> Generate and Copy Share Link
+            </Button>
+          </div>
+        </div>
+      )}
+    </CustomModal>
   );
 }

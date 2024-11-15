@@ -1,10 +1,17 @@
 import { Form, Formik } from "formik";
-import { TextFormField } from "@/components/admin/connectors/Field";
+import { PopupSpec } from "@/components/admin/connectors/Popup";
+import {
+  BooleanFormField,
+  TextFormField,
+} from "@/components/admin/connectors/Field";
 import { createApiKey, updateApiKey } from "./lib";
-import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/Modal";
+import { UserRole } from "@/lib/types";
+import { APIKey } from "./types";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
-interface ApiKeyFormProps {
+interface EnmeddApiKeyFormProps {
   onClose: () => void;
   onCreateApiKey: (apiKey: APIKey) => void;
   apiKey?: APIKey;
@@ -14,35 +21,44 @@ export const EnmeddApiKeyForm = ({
   onClose,
   onCreateApiKey,
   apiKey,
-}: ApiKeyFormProps) => {
+}: EnmeddApiKeyFormProps) => {
   const isUpdate = apiKey !== undefined;
   const { toast } = useToast();
 
   return (
     <div>
-      <h2 className="text-xl font-bold flex pb-6">
-        {isUpdate ? "Update API Key" : "Create a new API Key"}
-      </h2>
-
       <Formik
         initialValues={{
           name: apiKey?.api_key_name || "",
+          is_admin: apiKey?.api_key_role === "admin",
         }}
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
+
+          // Map the boolean to a UserRole string
+          const role: UserRole = values.is_admin
+            ? UserRole.ADMIN
+            : UserRole.BASIC;
+
+          // Prepare the payload with the UserRole
+          const payload = {
+            ...values,
+            role, // Assign the role directly as a UserRole type
+          };
+
           let response;
           if (isUpdate) {
-            response = await updateApiKey(apiKey.api_key_id, values);
+            response = await updateApiKey(apiKey.api_key_id, payload);
           } else {
-            response = await createApiKey(values);
+            response = await createApiKey(payload);
           }
           formikHelpers.setSubmitting(false);
           if (response.ok) {
             toast({
-              title: "Success",
+              title: "API Key Operation Successful",
               description: isUpdate
-                ? "Successfully updated API key!"
-                : "Successfully created API key!",
+                ? "API key updated successfully!"
+                : "API key created successfully!",
               variant: "success",
             });
             if (!isUpdate) {
@@ -53,10 +69,10 @@ export const EnmeddApiKeyForm = ({
             const responseJson = await response.json();
             const errorMsg = responseJson.detail || responseJson.message;
             toast({
-              title: "Error",
+              title: "API Key Operation Failed",
               description: isUpdate
-                ? `Error updating API key - ${errorMsg}`
-                : `Error creating API key - ${errorMsg}`,
+                ? `Error updating API key: ${errorMsg}`
+                : `Error creating API key: ${errorMsg}`,
               variant: "destructive",
             });
           }
@@ -64,24 +80,36 @@ export const EnmeddApiKeyForm = ({
       >
         {({ isSubmitting, values, setFieldValue }) => (
           <Form>
-            <p className="mb-4 text-lg">
+            <p>
               Choose a memorable name for your API key. This is optional and can
-              be added or changed later!
+              be added or changed later
             </p>
 
             <TextFormField
               name="name"
               label="Name (optional):"
               autoCompleteDisabled={true}
+              optional
             />
 
-            <div className="flex">
+            <BooleanFormField
+              alignTop
+              name="is_admin"
+              label="Is Admin?"
+              subtext="If set, this API key will have access to admin level server API's."
+            />
+
+            <div className="flex justify-end gap-2">
               <Button
-                type="submit"
+                type="button"
                 disabled={isSubmitting}
-                className="mx-auto w-64"
+                onClick={() => onClose()}
+                variant="ghost"
               >
-                {isUpdate ? "Update!" : "Create!"}
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isUpdate ? "Update" : "Create"}
               </Button>
             </div>
           </Form>

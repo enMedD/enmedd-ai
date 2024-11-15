@@ -7,8 +7,7 @@ from langchain_core.messages import AIMessage
 from langchain_core.messages import BaseMessage
 from requests import Timeout
 
-from enmedd.configs.model_configs import GEN_AI_API_ENDPOINT
-from enmedd.configs.model_configs import GEN_AI_MAX_OUTPUT_TOKENS
+from enmedd.configs.model_configs import GEN_AI_NUM_RESERVED_OUTPUT_TOKENS
 from enmedd.llm.interfaces import LLM
 from enmedd.llm.interfaces import ToolChoiceOptions
 from enmedd.llm.utils import convert_lm_input_to_basic_string
@@ -19,7 +18,7 @@ logger = setup_logger()
 
 
 class CustomModelServer(LLM):
-    """This class is to provide an example for how to use enMedD AI
+    """This class is to provide an example for how to use Arnold AI
     with any LLM, even servers with custom API definitions.
     To use with your own model server, simply implement the functions
     below to fit your model server expectation
@@ -37,12 +36,12 @@ class CustomModelServer(LLM):
         # Not used here but you probably want a model server that isn't completely open
         api_key: str | None,
         timeout: int,
-        endpoint: str | None = GEN_AI_API_ENDPOINT,
-        max_output_tokens: int = GEN_AI_MAX_OUTPUT_TOKENS,
+        endpoint: str,
+        max_output_tokens: int = GEN_AI_NUM_RESERVED_OUTPUT_TOKENS,
     ):
         if not endpoint:
             raise ValueError(
-                "Cannot point enMedD AI to a custom LLM server without providing the "
+                "Cannot point Arnold AI to a custom LLM server without providing the "
                 "endpoint for the model server."
             )
 
@@ -76,7 +75,7 @@ class CustomModelServer(LLM):
     def log_model_configs(self) -> None:
         logger.debug(f"Custom model at: {self._endpoint}")
 
-    def invoke(
+    def _invoke_implementation(
         self,
         prompt: LanguageModelInput,
         tools: list[dict] | None = None,
@@ -84,7 +83,7 @@ class CustomModelServer(LLM):
     ) -> BaseMessage:
         return self._execute(prompt)
 
-    def stream(
+    def _stream_implementation(
         self,
         prompt: LanguageModelInput,
         tools: list[dict] | None = None,

@@ -1,4 +1,4 @@
-import { getSourceMetadata } from "@/lib/sources";
+import { CustomTooltip } from "@/components/CustomTooltip";
 import {
   ConfluenceConfig,
   Connector,
@@ -6,8 +6,10 @@ import {
   GitlabConfig,
   GoogleDriveConfig,
   JiraConfig,
-} from "@/lib/types";
+} from "@/lib/connectors/connectors";
+import { getSourceMetadata } from "@/lib/sources";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 interface ConnectorTitleProps {
   connector: Connector<any>;
@@ -29,6 +31,7 @@ export const ConnectorTitle = ({
   showMetadata = true,
 }: ConnectorTitleProps) => {
   const sourceMetadata = getSourceMetadata(connector.source);
+  const { teamspaceId } = useParams();
 
   let additionalMetadata = new Map<string, string>();
   if (connector.source === "github") {
@@ -45,10 +48,16 @@ export const ConnectorTitle = ({
     );
   } else if (connector.source === "confluence") {
     const typedConnector = connector as Connector<ConfluenceConfig>;
-    additionalMetadata.set(
-      "Wiki URL",
-      typedConnector.connector_specific_config.wiki_page_url
-    );
+    const wikiUrl = typedConnector.connector_specific_config.is_cloud
+      ? `${typedConnector.connector_specific_config.wiki_base}/wiki/spaces/${typedConnector.connector_specific_config.space}`
+      : `${typedConnector.connector_specific_config.wiki_base}/spaces/${typedConnector.connector_specific_config.space}`;
+    additionalMetadata.set("Wiki URL", wikiUrl);
+    if (typedConnector.connector_specific_config.page_id) {
+      additionalMetadata.set(
+        "Page ID",
+        typedConnector.connector_specific_config.page_id
+      );
+    }
   } else if (connector.source === "jira") {
     const typedConnector = connector as Connector<JiraConfig>;
     additionalMetadata.set(
@@ -72,21 +81,30 @@ export const ConnectorTitle = ({
     }
   }
 
-  const mainSectionClassName = "flex w-fit";
+  const mainSectionClassName = "flex w-full";
+
   const mainDisplay = (
-    <>
-      {sourceMetadata.icon({ size: 14 })}
-      <div className="ml-1 my-auto">
-        {ccPairName || sourceMetadata.displayName}
-      </div>
-    </>
+    <CustomTooltip
+      trigger={
+        <div className="flex items-center gap-1 w-full">
+          {sourceMetadata.icon({ size: 14 })}
+          <div className="ml-1 my-auto w-full truncate">
+            {ccPairName || sourceMetadata.displayName}
+          </div>
+        </div>
+      }
+      asChild
+      align="start"
+    >
+      {ccPairName || sourceMetadata.displayName}
+    </CustomTooltip>
   );
   return (
-    <div className="my-auto">
+    <div className="my-auto w-full">
       {isLink ? (
         <Link
           className={mainSectionClassName}
-          href={`/admin/connector/${ccPairId}`}
+          href={`/t/${teamspaceId}/admin/connector/${ccPairId}`}
         >
           {mainDisplay}
         </Link>

@@ -23,11 +23,19 @@ export const useTimeRange = () => {
   });
 };
 
-export const useQueryAnalytics = (timeRange: DateRange) => {
-  const url = buildApiPath("/api/analytics/admin/query", {
-    start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
-    end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
-  });
+export const useQueryAnalytics = (
+  timeRange: DateRange,
+  teamspaceId?: string | string[]
+) => {
+  const url = buildApiPath(
+    teamspaceId
+      ? `/api/analytics/admin/query?teamspace_id=${teamspaceId}`
+      : "/api/analytics/admin/query",
+    {
+      start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
+      end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
+    }
+  );
   const swrResponse = useSWR<QueryAnalytics[]>(url, errorHandlingFetcher);
 
   return {
@@ -36,11 +44,19 @@ export const useQueryAnalytics = (timeRange: DateRange) => {
   };
 };
 
-export const useUserAnalytics = (timeRange: DateRange) => {
-  const url = buildApiPath("/api/analytics/admin/user", {
-    start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
-    end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
-  });
+export const useUserAnalytics = (
+  timeRange: DateRange,
+  teamspaceId?: string | string[]
+) => {
+  const url = buildApiPath(
+    teamspaceId
+      ? `/api/analytics/admin/user?teamspace_id=${teamspaceId}`
+      : "/api/analytics/admin/user",
+    {
+      start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
+      end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
+    }
+  );
   const swrResponse = useSWR<UserAnalytics[]>(url, errorHandlingFetcher);
 
   return {
@@ -49,16 +65,21 @@ export const useUserAnalytics = (timeRange: DateRange) => {
   };
 };
 
-export const useQueryHistory = () => {
+export const useQueryHistory = (teamspaceId?: string) => {
   const [selectedFeedbackType, setSelectedFeedbackType] =
     useState<Feedback | null>(null);
   const [timeRange, setTimeRange] = useTimeRange();
 
-  const url = buildApiPath("/api/admin/chat-session-history", {
+  // Ensure query parameters are separated correctly
+  const queryParams = {
+    teamspace_id: teamspaceId,
     feedback_type: selectedFeedbackType,
     start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
     end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
-  });
+  };
+
+  // Construct the URL with query parameters
+  const url = buildApiPath("/api/admin/chat-session-history", queryParams);
   const swrResponse = useSWR<ChatSessionMinimal[]>(url, errorHandlingFetcher);
 
   return {
@@ -72,13 +93,20 @@ export const useQueryHistory = () => {
   };
 };
 
-export function getDatesList(startDate: Date): string[] {
+export function getDatesList(startDate: Date, endDate: Date): string[] {
   const datesList: string[] = [];
-  const endDate = new Date(); // current date
+  const currentDate = new Date();
 
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = d.toISOString().split("T")[0]; // convert date object to 'YYYY-MM-DD' format
     datesList.push(dateStr);
+  }
+
+  if (endDate.toDateString() === currentDate.toDateString()) {
+    const todayStr = currentDate.toISOString().split("T")[0];
+    if (!datesList.includes(todayStr)) {
+      datesList.push(todayStr);
+    }
   }
 
   return datesList;

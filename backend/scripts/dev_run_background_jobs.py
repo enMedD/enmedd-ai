@@ -3,10 +3,6 @@ import os
 import subprocess
 import threading
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 def monitor_process(process_name: str, process: subprocess.Popen) -> None:
     assert process.stdout is not None
@@ -22,38 +18,89 @@ def monitor_process(process_name: str, process: subprocess.Popen) -> None:
 
 
 def run_jobs(exclude_indexing: bool) -> None:
-    cmd_worker = [
+    # command setup
+    cmd_worker_primary = [
         "celery",
         "-A",
-        "ee.enmedd.background.celery",
+        "ee.enmedd.background.celery.celery_app",
         "worker",
         "--pool=threads",
-        "--autoscale=3,10",
+        "--concurrency=6",
         "--loglevel=INFO",
-        "--concurrency=1",
+        "-n",
+        "primary@%n",
+        "-Q",
+        "celery",
+    ]
+
+    cmd_worker_light = [
+        "celery",
+        "-A",
+        "ee.enmedd.background.celery.celery_app",
+        "worker",
+        "--pool=threads",
+        "--concurrency=16",
+        "--loglevel=INFO",
+        "-n",
+        "light@%n",
+        "-Q",
+        "vespa_metadata_sync,connector_deletion",
+    ]
+
+    cmd_worker_heavy = [
+        "celery",
+        "-A",
+        "ee.enmedd.background.celery.celery_app",
+        "worker",
+        "--pool=threads",
+        "--concurrency=6",
+        "--loglevel=INFO",
+        "-n",
+        "heavy@%n",
+        "-Q",
+        "connector_pruning",
     ]
 
     cmd_beat = [
         "celery",
         "-A",
-        "ee.enmedd.background.celery",
+        "ee.enmedd.background.celery.celery_app",
         "beat",
         "--loglevel=INFO",
     ]
 
-    worker_process = subprocess.Popen(
-        cmd_worker, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    # spawn processes
+    worker_primary_process = subprocess.Popen(
+        cmd_worker_primary, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
     )
+
+    worker_light_process = subprocess.Popen(
+        cmd_worker_light, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
+
+    worker_heavy_process = subprocess.Popen(
+        cmd_worker_heavy, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
+
     beat_process = subprocess.Popen(
         cmd_beat, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
     )
 
-    worker_thread = threading.Thread(
-        target=monitor_process, args=("WORKER", worker_process)
+    # monitor threads
+    worker_primary_thread = threading.Thread(
+        target=monitor_process, args=("PRIMARY", worker_primary_process)
+    )
+    worker_light_thread = threading.Thread(
+        target=monitor_process, args=("LIGHT", worker_light_process)
+    )
+    worker_heavy_thread = threading.Thread(
+        target=monitor_process, args=("HEAVY", worker_heavy_process)
     )
     beat_thread = threading.Thread(target=monitor_process, args=("BEAT", beat_process))
 
-    worker_thread.start()
+    worker_primary_thread.start()
+    worker_light_thread.start()
+    worker_heavy_thread.start()
     beat_thread.start()
 
     if not exclude_indexing:
@@ -78,7 +125,7 @@ def run_jobs(exclude_indexing: bool) -> None:
     try:
         update_env = os.environ.copy()
         update_env["PYTHONPATH"] = "."
-        cmd_perm_sync = ["python", "ee.enmedd/background/permission_sync.py"]
+        cmd_perm_sync = ["python", "ee/enmedd/background/permission_sync.py"]
 
         indexing_process = subprocess.Popen(
             cmd_perm_sync,
@@ -96,7 +143,9 @@ def run_jobs(exclude_indexing: bool) -> None:
     except Exception:
         pass
 
-    worker_thread.join()
+    worker_primary_thread.join()
+    worker_light_thread.join()
+    worker_heavy_thread.join()
     beat_thread.join()
 
 

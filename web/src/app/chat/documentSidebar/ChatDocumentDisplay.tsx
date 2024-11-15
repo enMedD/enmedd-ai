@@ -7,13 +7,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Info, Radio } from "lucide-react";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { DocumentSelector } from "./DocumentSelector";
+import { InternetSearchIcon } from "@/components/InternetSearchIcon";
 
 interface DocumentDisplayProps {
   document: EnmeddDocument;
   queryEventId: number | null;
   isAIPick: boolean;
-  isSelected: boolean;
-  handleSelect: (documentId: string) => void;
   tokenLimitReached: boolean;
 }
 
@@ -21,18 +21,16 @@ export function ChatDocumentDisplay({
   document,
   queryEventId,
   isAIPick,
-  isSelected,
-  handleSelect,
   tokenLimitReached,
 }: DocumentDisplayProps) {
   // Consider reintroducing null scored docs in the future
   if (document.score === null) {
     return null;
   }
-
+  const isInternet = document.is_internet;
   const score = Math.abs(document.score) * 100;
   const badgeVariant =
-    score < 50 ? "destructive" : score < 90 ? "warning" : "success";
+    score < 50 ? "destructive" : score < 80 ? "warning" : "success";
 
   return (
     <div
@@ -40,7 +38,11 @@ export function ChatDocumentDisplay({
       className="flex items-start gap-2 w-full border border-border rounded-sm p-4"
     >
       <div className="pt-0.5">
-        <SourceIcon sourceType={document.source_type} iconSize={18} />
+        {isInternet ? (
+          <InternetSearchIcon url={document.link} />
+        ) : (
+          <SourceIcon sourceType={document.source_type} iconSize={18} />
+        )}
       </div>
       <div className="text-sm w-full truncate flex flex-col">
         <div>
@@ -74,21 +76,25 @@ export function ChatDocumentDisplay({
                     </CustomTooltip>
                   </div>
                 )}
-                <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
+                {!isInternet && (
+                  <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
+                )}
               </div>
             )}
           </div>
         </div>
-        {(document.updated_at || document.metadata) && (
-          <DocumentMetadataBlock document={document} />
-        )}
+        <div>
+          <div className="mt-1">
+            <DocumentMetadataBlock document={document} />
+          </div>
+        </div>
 
-        <p className="break-words whitespace-normal pt-2">
+        <div className="break-words whitespace-normal pt-2">
           {buildDocumentSummaryDisplay(
             document.match_highlights,
             document.blurb
           )}
-        </p>
+        </div>
       </div>
     </div>
   );

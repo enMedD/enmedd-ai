@@ -14,7 +14,7 @@ from enmedd.db.models import User__Teamspace
 def make_doc_set_private(
     document_set_id: int,
     user_ids: list[UUID] | None,
-    team_ids: list[int] | None,
+    group_ids: list[int] | None,
     db_session: Session,
 ) -> None:
     db_session.query(DocumentSet__User).filter(
@@ -30,11 +30,11 @@ def make_doc_set_private(
                 DocumentSet__User(document_set_id=document_set_id, user_id=user_uuid)
             )
 
-    if team_ids:
-        for team_id in team_ids:
+    if group_ids:
+        for group_id in group_ids:
             db_session.add(
                 DocumentSet__Teamspace(
-                    document_set_id=document_set_id, teamspace_id=team_id
+                    document_set_id=document_set_id, teamspace_id=group_id
                 )
             )
 
@@ -73,7 +73,7 @@ def fetch_document_sets(
         .all()
     )
 
-    # Document sets via groups
+    # Document sets via teamspace
     # First, find the teamspaces the user belongs to
     teamspaces = (
         db_session.query(Teamspace)
@@ -82,21 +82,21 @@ def fetch_document_sets(
         .all()
     )
 
-    group_document_sets = []
-    for group in teamspaces:
-        group_document_sets.extend(
+    teamspace_document_sets = []
+    for teams in teamspaces:
+        teamspace_document_sets.extend(
             db_session.query(DocumentSet)
             .join(
                 DocumentSet__Teamspace,
                 DocumentSet.id == DocumentSet__Teamspace.document_set_id,
             )
-            .filter(DocumentSet__Teamspace.teamspace_id == group.id)
+            .filter(DocumentSet__Teamspace.teamspace_id == teams.id)
             .all()
         )
 
     # Combine and deduplicate document sets from all sources
     all_document_sets = list(
-        set(public_document_sets + shared_document_sets + group_document_sets)
+        set(public_document_sets + shared_document_sets + teamspace_document_sets)
     )
 
     document_set_with_cc_pairs: list[

@@ -3,8 +3,8 @@ import { Badge } from "../ui/badge";
 
 export function DocumentUpdatedAtBadge({ updatedAt }: { updatedAt: string }) {
   return (
-    <Badge variant="secondary" className="pt-2">
-      {"Updated " + timeAgo(updatedAt)}
+    <Badge variant="secondary">
+      <p className="truncate w-full">{"Updated " + timeAgo(updatedAt)}</p>
     </Badge>
   );
 }

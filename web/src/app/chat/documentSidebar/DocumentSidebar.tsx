@@ -16,20 +16,21 @@ function SectionHeader({
   closeHeader?: () => void;
 }) {
   return (
-    <div
-      className={`w-full pt-3 flex text-lg font-medium items-end border-b border-border`}
-    >
-      <div className="flex justify-between w-full mt-auto items-center pb-3.5">
-        <p className="flex truncate text-dark-900">
-          {icon && <FileText size={24} className="my-auto mr-2" />}
-          {name}
-        </p>
-        {closeHeader && (
-          <Button onClick={() => closeHeader()} variant="ghost" size="icon">
-            <PanelRightClose size={24} />
-          </Button>
-        )}
-      </div>
+    <div className="flex justify-between w-full mt-auto items-center py-[22px] text-lg font-medium border-b border-border">
+      <p className="flex truncate text-dark-900">
+        {icon && <FileText size={22} className="my-auto mr-2" />}
+        {name}
+      </p>
+      {closeHeader && (
+        <Button
+          onClick={() => closeHeader()}
+          variant="ghost"
+          size="icon"
+          className="flex xl:hidden"
+        >
+          <PanelRightClose size={24} />
+        </Button>
+      )}
     </div>
   );
 }
@@ -38,7 +39,6 @@ interface DocumentSidebarProps {
   closeSidebar: () => void;
   selectedMessage: Message | null;
   selectedDocuments: EnmeddDocument[] | null;
-  toggleDocumentSelection: (document: EnmeddDocument) => void;
   clearSelectedDocuments: () => void;
   selectedDocumentTokens: number;
   maxTokens: number;
@@ -54,7 +54,6 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
       closeSidebar,
       selectedMessage,
       selectedDocuments,
-      toggleDocumentSelection,
       clearSelectedDocuments,
       selectedDocumentTokens,
       maxTokens,
@@ -66,9 +65,6 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
     ref: ForwardedRef<HTMLDivElement>
   ) => {
     const selectedMessageRetrievalType = selectedMessage?.retrievalType || null;
-
-    const selectedDocumentIds =
-      selectedDocuments?.map((document) => document.document_id) || [];
 
     const currentDocuments = selectedMessage?.documents || null;
     const dedupedDocuments = removeDuplicateDocs(currentDocuments || []);
@@ -88,7 +84,7 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
         <div className="flex flex-col flex-initial w-full h-screen overflow-y-hidden">
           <div
             className={`flex flex-col h-full ${
-              showDocSidebar
+              !showDocSidebar
                 ? "opacity-0 duration-100"
                 : "opacity-100 duration-500 delay-300"
             }`}
@@ -119,17 +115,6 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
                           document={document}
                           queryEventId={null}
                           isAIPick={false}
-                          isSelected={selectedDocumentIds.includes(
-                            document.document_id
-                          )}
-                          handleSelect={(documentId) => {
-                            toggleDocumentSelection(
-                              dedupedDocuments.find(
-                                (document) =>
-                                  document.document_id === documentId
-                              )!
-                            );
-                          }}
                           tokenLimitReached={tokenLimitReached}
                         />
                       </div>
@@ -146,7 +131,7 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
                 <div className="p-6">
                   <p>
                     When you run ask a question, the retrieved documents will
-                    show up here!
+                    show up here
                   </p>
                 </div>
               )

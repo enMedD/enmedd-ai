@@ -1,15 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { WorkSpaceSidebar } from "@/app/chat/sessionSidebar/WorkSpaceSidebar";
+import { GlobalSidebar } from "@/components/globalSidebar/GlobalSidebar";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/lib/types";
 import { useContext, useEffect, useState } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
+import { CustomTooltip } from "./CustomTooltip";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 interface SidebarProps {
   user?: User | null;
-  isSearch?: boolean;
   openSidebar?: boolean;
   toggleLeftSideBar?: () => void;
   children?: React.ReactNode;
@@ -17,7 +18,6 @@ interface SidebarProps {
 
 export function DynamicSidebar({
   user,
-  isSearch,
   openSidebar,
   toggleLeftSideBar,
   children,
@@ -25,11 +25,17 @@ export function DynamicSidebar({
   const [isExpanded, setIsExpanded] = useState(true);
   const [isLgScreen, setIsLgScreen] = useState(false);
 
-  const settings = useContext(SettingsContext);
-
   const toggleWidth = () => {
     setIsExpanded((prevState) => !prevState);
   };
+
+  useKeyboardShortcuts([
+    {
+      key: "l",
+      handler: toggleWidth,
+      ctrlKey: true,
+    },
+  ]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
@@ -77,20 +83,20 @@ export function DynamicSidebar({
       </AnimatePresence>
 
       <div
-        className={`fixed flex-none h-full z-overlay top-0 left-0 transition-[width] ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:!w-auto ${
-          openSidebar ? "w-[90vw] md:w-[75vw]" : "w-0"
-        } ${isSearch ? "xl:relative" : "lg:relative"}`}
+        className={`fixed flex-none h-full z-overlay top-0 left-0 transition-[width] ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:!w-auto lg:relative ${
+          openSidebar ? "w-[85vw] md:w-[75vw]" : "w-0"
+        }`}
       >
         <div className="h-full relative flex w-full">
-          <WorkSpaceSidebar openSidebar={openSidebar} user={user} />
+          <GlobalSidebar openSidebar={openSidebar} user={user} />
           {children && (
             <>
               <div
-                className={`bg-background h-full ease-in-out transition-[width] duration-500 w-full overflow-hidden lg:overflow-visible
+                className={`bg-background h-full ease-in-out transition-all duration-500 w-full overflow-hidden lg:overflow-visible border-border
           ${
             isExpanded
-              ? "lg:w-sidebar border-r border-border"
-              : "lg:w-0 border-none"
+              ? "lg:w-sidebar translate-x-0 border-r"
+              : "lg:w-0 -translate-x-full border-none"
           }`}
               >
                 <div
@@ -99,17 +105,25 @@ export function DynamicSidebar({
                   {children}
                 </div>
               </div>
-              <div className="h-full flex items-center justify-center">
-                <button
-                  onClick={toggleWidth}
-                  className="border rounded-r py-2 border-l-0 bg-background hidden lg:flex"
+              <div className="h-full flex items-center justify-center absolute left-full z-[-1]">
+                <CustomTooltip
+                  trigger={
+                    <button
+                      onClick={toggleWidth}
+                      className="border rounded-r py-2 border-l-0 bg-background hidden lg:flex"
+                    >
+                      {isExpanded ? (
+                        <ChevronLeft size={16} />
+                      ) : (
+                        <ChevronRight size={16} />
+                      )}
+                    </button>
+                  }
+                  asChild
+                  side="right"
                 >
-                  {isExpanded ? (
-                    <ChevronLeft size={16} />
-                  ) : (
-                    <ChevronRight size={16} />
-                  )}
-                </button>
+                  {isExpanded ? "Close" : "Open"}
+                </CustomTooltip>
               </div>
             </>
           )}

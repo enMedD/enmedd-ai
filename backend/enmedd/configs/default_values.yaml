@@ -7,9 +7,12 @@ instances:
 workspaces:
   - id: 0 
     instance_id: 0
-    workspace_name: "enMedD AI"
+    workspace_name: "Arnold AI"
+    workspace_description: "Arnold AI Workspace"
+    use_custom_logo: false
     custom_logo: null
     custom_header_logo: null
+    custom_header_content: null
 
 teamspaces:
   - id: 0

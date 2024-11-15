@@ -42,16 +42,16 @@ export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
       .then(() => {
         setModalIsOpen(false);
         toast({
-          title: "Success",
-          description: "Token rate limit created!",
+          title: "Token Rate Limit Created!",
+          description: "The token rate limit has been successfully created.",
           variant: "success",
         });
-        mutate(`/api/admin/token-rate-limits/user-group/${teamspaceId}`);
+        mutate(`/api/admin/token-rate-limits/teamspace/${teamspaceId}`);
       })
       .catch((error) => {
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Creation Failed",
+          description: `Unable to create token rate limit: ${error.message}. Please try again.`,
           variant: "destructive",
         });
       });
@@ -66,6 +66,7 @@ export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
       }
       onClose={() => setModalIsOpen(false)}
       open={modalIsOpen}
+      title="Create a Token Rate Limit"
     >
       <CreateRateLimitModal
         onSubmit={handleSubmit}
@@ -73,6 +74,7 @@ export const AddTokenRateLimitForm: React.FC<AddMemberFormProps> = ({
         forSpecificTeamspace={teamspaceId}
         isOpen={modalIsOpen}
         setIsOpen={setModalIsOpen}
+        onClose={() => setModalIsOpen(false)}
       />
     </CustomModal>
   );

@@ -52,7 +52,7 @@ class NotionSearchResponse:
     """Represents the response from the Notion Search API"""
 
     results: list[dict[str, Any]]
-    next_cursor: Optional[str]
+    next_cursor: Optional[str] = None
     has_more: bool = False
 
     def __init__(self, **kwargs: dict[str, Any]) -> None:
@@ -117,7 +117,7 @@ class NotionConnector(LoadConnector, PollConnector):
                 logger.error(
                     f"Unable to access block with ID '{block_id}'. "
                     f"This is likely due to the block not being shared "
-                    f"with the enMedD AI integration. Exact exception:\n\n{e}"
+                    f"with the Arnold AI integration. Exact exception:\n\n{e}"
                 )
                 return None
             logger.exception(f"Error fetching blocks - {res.json()}")
@@ -164,7 +164,7 @@ class NotionConnector(LoadConnector, PollConnector):
                 logger.error(
                     f"Unable to access database with ID '{database_id}'. "
                     f"This is likely due to the database not being shared "
-                    f"with the enMedD AI integration. Exact exception:\n{e}"
+                    f"with the Arnold AI integration. Exact exception:\n{e}"
                 )
                 return {"results": [], "next_cursor": None}
             logger.exception(f"Error fetching database - {res.json()}")
@@ -232,6 +232,14 @@ class NotionConnector(LoadConnector, PollConnector):
                     logger.warning(
                         f"Skipping unsupported block type '{result_type}' "
                         f"('{result_block_id}') for base block '{base_block_id}': "
+                    )
+                    continue
+
+                if result_type == "external_object_instance_page":
+                    logger.warning(
+                        f"Skipping 'external_object_instance_page' ('{result_block_id}') for base block '{base_block_id}': "
+                        f"Notion API does not currently support reading external blocks (as of 24/07/03) "
+                        f"(discussion: https://github.com/danswer-ai/danswer/issues/1761)"
                     )
                     continue
 
@@ -366,7 +374,7 @@ class NotionConnector(LoadConnector, PollConnector):
             compare_time = time.mktime(
                 time.strptime(page[filter_field], "%Y-%m-%dT%H:%M:%S.000Z")
             )
-            if compare_time <= end or compare_time > start:
+            if compare_time > start and compare_time <= end:
                 filtered_pages += [NotionPage(**page)]
         return filtered_pages
 

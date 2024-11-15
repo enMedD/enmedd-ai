@@ -1,31 +1,42 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Check, Copy } from "lucide-react";
+import { CustomTooltip } from "./CustomTooltip";
 
 export function CopyButton({
   content,
   onClick,
+  smallIcon,
 }: {
   content?: string;
   onClick?: () => void;
+  smallIcon?: boolean;
 }) {
-  const [copyClicked, setCopyClicked] = useState(false);
+  const [isCopyClicked, setIsCopyClicked] = useState(false);
 
   return (
-    <Button
-      onClick={() => {
-        if (content) {
-          navigator.clipboard.writeText(content.toString());
-        }
-        onClick && onClick();
+    <CustomTooltip
+      trigger={
+        <Button
+          onClick={() => {
+            if (content) {
+              navigator.clipboard.writeText(content.toString());
+            }
+            onClick && onClick();
 
-        setCopyClicked(true);
-        setTimeout(() => setCopyClicked(false), 3000);
-      }}
-      variant="ghost"
-      size="smallIcon"
+            setIsCopyClicked(true);
+            setTimeout(() => setIsCopyClicked(false), 3000);
+          }}
+          variant="ghost"
+          size={smallIcon ? "smallIcon" : "icon"}
+        >
+          {isCopyClicked ? <Check size={16} /> : <Copy size={16} />}
+        </Button>
+      }
+      side="bottom"
+      asChild
     >
-      {copyClicked ? <Check size={16} /> : <Copy size={16} />}
-    </Button>
+      {isCopyClicked ? "Copied" : "Copy"}
+    </CustomTooltip>
   );
 }

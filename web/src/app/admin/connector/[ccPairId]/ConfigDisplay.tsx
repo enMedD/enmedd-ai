@@ -40,6 +40,69 @@ function buildConfigEntries(
   return obj;
 }
 
+export function AdvancedConfigDisplay({
+  pruneFreq,
+  refreshFreq,
+  indexingStart,
+}: {
+  pruneFreq: number | null;
+  refreshFreq: number | null;
+  indexingStart: Date | null;
+}) {
+  const formatRefreshFrequency = (seconds: number | null): string => {
+    if (seconds === null) return "-";
+    const minutes = Math.round(seconds / 60);
+    return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
+  };
+  const formatPruneFrequency = (seconds: number | null): string => {
+    if (seconds === null) return "-";
+    const days = Math.round(seconds / (60 * 60 * 24));
+    return `${days} day${days !== 1 ? "s" : ""}`;
+  };
+
+  const formatDate = (date: Date | null): string => {
+    if (date === null) return "-";
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+  };
+
+  return (
+    <>
+      <h3 className="mt-8 mb-2">Advanced Configuration</h3>
+      <Card>
+        <CardContent>
+          <ul className="flex flex-col gap-4">
+            {pruneFreq && (
+              <li key={0} className="flex justify-between gap-10">
+                <span>Pruning Frequency</span>
+                <span>{formatPruneFrequency(pruneFreq)}</span>
+              </li>
+            )}
+            {refreshFreq && (
+              <li key={1} className="flex justify-between gap-10">
+                <span>Refresh Frequency</span>
+                <span>{formatRefreshFrequency(refreshFreq)}</span>
+              </li>
+            )}
+            {indexingStart && (
+              <li key={2} className="flex justify-between gap-10">
+                <span>Indexing Start</span>
+                <span>{formatDate(indexingStart)}</span>
+              </li>
+            )}
+          </ul>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
+
 export function ConfigDisplay({
   connectorSpecificConfig,
   sourceType,
@@ -56,17 +119,19 @@ export function ConfigDisplay({
 
   return (
     <>
-      <Title className="mb-2">Configuration</Title>
+      <h3 className="mt-12 mb-2">Configuration</h3>
       <Card>
         <CardContent>
-          <List>
+          <ul className="flex flex-col gap-4">
             {configEntries.map(([key, value]) => (
-              <ListItem key={key}>
-                <span>{key}</span>
-                <span>{convertObjectToString(value) || "-"}</span>
-              </ListItem>
+              <li key={key} className="flex justify-between gap-10">
+                <span>{key}:</span>
+                <span className="truncate">
+                  {convertObjectToString(value) || "-"}
+                </span>
+              </li>
             ))}
-          </List>
+          </ul>
         </CardContent>
       </Card>
     </>

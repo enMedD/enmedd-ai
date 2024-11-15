@@ -1,14 +1,16 @@
 "use client";
 
-import { Divider, Text } from "@tremor/react";
 import Link from "next/link";
 import { useContext, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Share2 } from "lucide-react";
 import { CustomModal } from "@/components/CustomModal";
+import { Divider } from "@/components/Divider";
+import { useParams } from "next/navigation";
 
 export function NoSourcesModal() {
+  const { teamspaceId } = useParams();
   const settings = useContext(SettingsContext);
   const [isHidden, setIsHidden] = useState(
     !settings?.settings.search_page_enabled ?? false
@@ -23,27 +25,33 @@ export function NoSourcesModal() {
       open={!isHidden}
       onClose={() => setIsHidden(true)}
       trigger={null}
+      title="🧐 No sources connected"
     >
-      <h2 className="text-2xl font-semibold pb-6">🧐 No sources connected</h2>
       <div>
-        <Text>
+        <p>
           Before using Search you&apos;ll need to connect at least one source.
           Without any connected knowledge sources, there isn&apos;t anything to
           search over.
-        </Text>
-        <Link href="/admin/data-sources">
+        </p>
+        <Link
+          href={
+            teamspaceId
+              ? `/t/${teamspaceId}/admin/data-sources`
+              : "/admin/data-sources"
+          }
+        >
           <Button className="mt-3">
             <Share2 size={16} /> Connect a Source!
           </Button>
         </Link>
         <Divider />
         <div>
-          <Text>
+          <p>
             Or, if you&apos;re looking for a pure ChatGPT-like experience
             without any organization specific knowledge, then you can head over
-            to the Chat page and start chatting with enMedD AI right away!
-          </Text>
-          <Link href="/chat">
+            to the Chat page and start chatting with Arnold AI right away!
+          </p>
+          <Link href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}>
             <Button className="mt-3">
               <MessageSquare size={16} /> Start Chatting!
             </Button>

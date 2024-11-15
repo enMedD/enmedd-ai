@@ -1,6 +1,14 @@
-import { useToast } from "@/hooks/use-toast";
+import { Lightbulb } from "@phosphor-icons/react/dist/ssr";
 import { PopupSpec } from "../admin/connectors/Popup";
-import { ChevronsDownIcon, ChevronsUpIcon } from "../icons/icons";
+import {
+  BookmarkIcon,
+  ChevronsDownIcon,
+  ChevronsUpIcon,
+  LightBulbIcon,
+  LightSettingsIcon,
+} from "../icons/icons";
+import { useToast } from "@/hooks/use-toast";
+import { CustomTooltip } from "../CustomTooltip";
 
 type DocumentFeedbackType = "endorse" | "reject" | "hide" | "unhide";
 
@@ -48,7 +56,7 @@ const DocumentFeedback = ({
     icon = (
       <ChevronsUpIcon
         size={size}
-        className="my-auto flex flex-shrink-0 text-blue-400"
+        className="my-auto flex flex-shrink-0 text-brand-500"
       />
     );
   }
@@ -56,7 +64,7 @@ const DocumentFeedback = ({
     icon = (
       <ChevronsDownIcon
         size={size}
-        className="my-auto flex flex-shrink-0 text-blue-400"
+        className="my-auto flex flex-shrink-0 text-destructive-500"
       />
     );
   }
@@ -76,13 +84,13 @@ const DocumentFeedback = ({
         );
         if (!errorMsg) {
           toast({
-            title: "Success",
+            title: "Feedback Submitted",
             description: "Thanks for your feedback!",
             variant: "success",
           });
         } else {
           toast({
-            title: "Error",
+            title: "Feedback Error",
             description: `Error giving feedback - ${errorMsg}`,
             variant: "destructive",
           });
@@ -107,21 +115,32 @@ export const DocumentFeedbackBlock = ({
   documentRank,
 }: DocumentFeedbackBlockProps) => {
   return (
-    <div className="flex">
-      <DocumentFeedback
-        documentId={documentId}
-        messageId={messageId}
-        documentRank={documentRank}
-        feedbackType="endorse"
-      />
-      <div className="ml-2">
-        <DocumentFeedback
-          documentId={documentId}
-          messageId={messageId}
-          documentRank={documentRank}
-          feedbackType="reject"
-        />
-      </div>
+    <div className="flex items-center gap-x-2">
+      <CustomTooltip
+        trigger={
+          <DocumentFeedback
+            documentId={documentId}
+            messageId={messageId}
+            documentRank={documentRank}
+            feedbackType="endorse"
+          />
+        }
+      >
+        Good Response
+      </CustomTooltip>
+      <CustomTooltip
+        trigger={
+          <DocumentFeedback
+            documentId={documentId}
+            messageId={messageId}
+            documentRank={documentRank}
+            feedbackType="reject"
+          />
+        }
+        variant="destructive"
+      >
+        Bad Response
+      </CustomTooltip>
     </div>
   );
 };

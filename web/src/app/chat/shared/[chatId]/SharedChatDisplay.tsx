@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Prism from "prismjs";
 import { humanReadableFormat } from "@/lib/time";
 import { BackendChatSession } from "../../interfaces";
 import {
@@ -8,16 +10,20 @@ import {
   processRawChatHistory,
 } from "../../lib";
 import { AIMessage, HumanMessage } from "../../message/Messages";
-import { Button, Callout, Divider } from "@tremor/react";
+import { Callout } from "@tremor/react";
 import { useRouter } from "next/navigation";
-import { useChatContext } from "@/context/ChatContext";
+import { Button } from "@/components/ui/button";
+import { Divider } from "@/components/Divider";
+import { Assistant } from "@/app/admin/assistants/interfaces";
+import { ThreeDotsLoader } from "@/components/Loading";
+import { User } from "@/lib/types";
+import { useUser } from "@/components/user/UserProvider";
 
-// TODO: replace the component name
 function BackToEnmeddButton() {
   const router = useRouter();
 
   return (
-    <div className="absolute bottom-4 w-full flex border-t border-border pt-4">
+    <div className="fixed bottom-0 w-full flex border-t border-border py-4 bg-background">
       <div className="mx-auto">
         <Button onClick={() => router.push("/chat")}>Back to Chat</Button>
       </div>
@@ -27,10 +33,18 @@ function BackToEnmeddButton() {
 
 export function SharedChatDisplay({
   chatSession,
+  availableAssistants,
 }: {
   chatSession: BackendChatSession | null;
+  availableAssistants: Assistant[] | null;
 }) {
-  let { availableAssistants } = useChatContext();
+  const [isReady, setIsReady] = useState(false);
+  const { user, isAdmin, isLoadingUser } = useUser();
+  useEffect(() => {
+    Prism.highlightAll();
+    setIsReady(true);
+  }, []);
+
   if (!chatSession) {
     return (
       <div className="min-h-full w-full">
@@ -45,7 +59,7 @@ export function SharedChatDisplay({
     );
   }
 
-  const currentAssistant = availableAssistants.find(
+  const currentAssistant = availableAssistants?.find(
     (assistant) => assistant.id === chatSession.assistant_id
   );
 
@@ -54,48 +68,49 @@ export function SharedChatDisplay({
   );
 
   return (
-    <div className="w-full overflow-hidden">
-      <div className="flex max-h-full overflow-hidden pb-[72px]">
-        <div className="flex w-full overflow-hidden overflow-y-scroll">
-          <div className="mx-auto">
-            <div className="px-5 pt-8">
-              <h1 className="text-3xl text-strong font-bold">
-                {chatSession.description ||
-                  `Chat ${chatSession.chat_session_id}`}
-              </h1>
-              <p className="">
-                {humanReadableFormat(chatSession.time_created)}
-              </p>
-
-              <Divider />
-            </div>
-
-            <div className="pb-16">
-              {messages.map((message) => {
-                if (message.type === "user") {
-                  return (
-                    <HumanMessage
-                      key={message.messageId}
-                      content={message.message}
-                    />
-                  );
-                } else {
-                  return (
-                    <AIMessage
-                      currentAssistant={currentAssistant!}
-                      key={message.messageId}
-                      messageId={message.messageId}
-                      content={message.message}
-                      assistantName={chatSession.assistant_name}
-                      citedDocuments={getCitedDocumentsFromMessage(message)}
-                      isComplete
-                    />
-                  );
-                }
-              })}
-            </div>
-          </div>
+    <div className="w-full overflow-y-auto">
+      <div className="container">
+        <div>
+          <h1 className="text-2xl xl:text-3xl text-strong font-bold">
+            {chatSession.description || `Chat ${chatSession.chat_session_id}`}
+          </h1>
+          <p className="pt-2">
+            {humanReadableFormat(chatSession.time_created)}
+          </p>
+          <Divider />
         </div>
+
+        {isReady ? (
+          <div className="pb-16">
+            {messages.map((message) => {
+              if (message.type === "user") {
+                return (
+                  <HumanMessage
+                    user={user}
+                    key={message.messageId}
+                    content={message.message}
+                  />
+                );
+              } else {
+                return (
+                  <AIMessage
+                    currentAssistant={currentAssistant!}
+                    key={message.messageId}
+                    messageId={message.messageId}
+                    content={message.message}
+                    assistantName={chatSession.assistant_name}
+                    citedDocuments={getCitedDocumentsFromMessage(message)}
+                    isComplete
+                  />
+                );
+              }
+            })}
+          </div>
+        ) : (
+          <div className="pt-10">
+            <ThreeDotsLoader />
+          </div>
+        )}
       </div>
 
       <BackToEnmeddButton />

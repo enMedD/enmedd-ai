@@ -9,12 +9,13 @@ import {
 import { redirect } from "next/navigation";
 import { SignInButton } from "./SignInButton";
 import { LogInForms } from "./LoginForms";
-import { Card, Title, Text } from "@tremor/react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
 import { LoginText } from "./LoginText";
 import Image from "next/image";
-import LoginImage from "../../../../public/login_page_img.webp";
+import LoginImage from "../../../../public/login_image.webp";
+import DefaultUserChart from "../../../../public/default-user-chart.png";
+import { WelcomeTopBar } from "@/components/TopBar";
+import { getSecondsUntilExpiration } from "@/lib/time";
 
 const Page = async ({
   searchParams,
@@ -43,7 +44,12 @@ const Page = async ({
   }
 
   // if user is already logged in, take them to the main app page
-  if (currentUser && currentUser.is_active) {
+  const secondsTillExpiration = getSecondsUntilExpiration(currentUser);
+  if (
+    currentUser &&
+    currentUser.is_active &&
+    (secondsTillExpiration === null || secondsTillExpiration > 0)
+  ) {
     if (authTypeMetadata?.requiresVerification && !currentUser.is_verified) {
       return redirect("/auth/waiting-on-verification");
     }
@@ -66,43 +72,53 @@ const Page = async ({
   }
 
   return (
-    <main className="flex justify-center">
-      <div className="absolute w-full top-10x">
-        <HealthCheckBanner />
-      </div>
-      <div className="flex items-center justify-center lg:justify-between w-full min-h-screen px-6 md:w-2/3 md:px-0 gap-10">
-        <div>
-          {authUrl && authTypeMetadata && (
-            <>
-              <LoginText />
-              <SignInButton
-                authorizeUrl={authUrl}
-                authType={authTypeMetadata?.authType}
-              />
-            </>
-          )}
-          {authTypeMetadata?.authType === "basic" && (
-            <div className="lg:w-96">
-              <LoginText />
-              <div className="my-6">
-                <LogInForms />
-              </div>
-              <div className="flex">
-                <Text className="mt-4">
-                  Don&apos;t have an account?{" "}
-                  <Link href="/auth/signup" className="font-medium text-link">
-                    Create an account
-                  </Link>
-                </Text>
-              </div>
+    <main className="relative h-full">
+      <HealthCheckBanner />
+
+      <div className="w-screen flex h-full">
+        <div className="w-full xl:w-1/2 h-full mx-auto flex flex-col justify-between  overflow-y-auto">
+          <WelcomeTopBar />
+
+          <div className="w-full h-full flex items-center justify-center px-6 lg:px-14 3xl:px-0">
+            <div className="w-full md:w-3/4 lg:w-1/2 xl:w-full 3xl:w-1/2 my-auto pb-14 md:pb-20">
+              {authUrl && authTypeMetadata && (
+                <>
+                  <LoginText />
+                  <SignInButton
+                    authorizeUrl={authUrl}
+                    authType={authTypeMetadata?.authType}
+                  />
+                </>
+              )}
+              {authTypeMetadata?.authType === "basic" && (
+                <>
+                  <LoginText />
+                  <div className="pt-8 w-full">
+                    <LogInForms />
+                  </div>
+                  <p className="pt-8 text-center text-sm">
+                    Don&apos;t have an account?{" "}
+                    <Link
+                      href="/auth/signup"
+                      className="text-sm font-medium text-link hover:underline"
+                    >
+                      Create an account
+                    </Link>
+                  </p>
+                </>
+              )}
             </div>
-          )}
+          </div>
+
+          <div className="w-full h-14 md:h-20"></div>
         </div>
-        <Image
-          src={LoginImage}
-          alt="LoginImage"
-          className="hidden w-1/2 h-auto lg:flex"
-        />
+        <div className="w-1/2 h-full relative overflow-hidden hidden xl:flex">
+          <Image
+            src={LoginImage}
+            alt="login-image"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
     </main>
   );

@@ -1,18 +1,21 @@
-import smtplib
 import uuid
 from collections.abc import AsyncGenerator
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from datetime import datetime
+from datetime import timezone
 from typing import Optional
 from typing import Tuple
 
+from email_validator import EmailNotValidError
+from email_validator import validate_email
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Request
 from fastapi import Response
 from fastapi import status
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import BaseUserManager
+from fastapi_users import exceptions
 from fastapi_users import FastAPIUsers
 from fastapi_users import models
 from fastapi_users import schemas
@@ -24,20 +27,21 @@ from fastapi_users.authentication.strategy.db import AccessTokenDatabase
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
 from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from enmedd.auth.invited_users import get_invited_users
 from enmedd.auth.schemas import UserCreate
 from enmedd.auth.schemas import UserRole
+from enmedd.auth.utils import generate_password_reset_email
+from enmedd.auth.utils import generate_user_verification_email
+from enmedd.auth.utils import send_reset_password_email
+from enmedd.auth.utils import send_user_verification_email
 from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import DISABLE_AUTH
-from enmedd.configs.app_configs import EMAIL_FROM
 from enmedd.configs.app_configs import REQUIRE_EMAIL_VERIFICATION
 from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
-from enmedd.configs.app_configs import SMTP_PASS
-from enmedd.configs.app_configs import SMTP_PORT
-from enmedd.configs.app_configs import SMTP_SERVER
-from enmedd.configs.app_configs import SMTP_USER
+from enmedd.configs.app_configs import TRACK_EXTERNAL_IDP_EXPIRY
 from enmedd.configs.app_configs import USER_AUTH_SECRET
 from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
 from enmedd.configs.app_configs import WEB_DOMAIN
@@ -50,17 +54,27 @@ from enmedd.db.auth import get_default_admin_user_emails
 from enmedd.db.auth import get_user_count
 from enmedd.db.auth import get_user_db
 from enmedd.db.engine import get_session
+from enmedd.db.engine import get_sqlalchemy_engine
 from enmedd.db.models import AccessToken
+from enmedd.db.models import Teamspace
 from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
+from enmedd.db.models import Workspace__Users
+from enmedd.db.users import get_user_by_email
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.telemetry import optional_telemetry
 from enmedd.utils.telemetry import RecordType
-from enmedd.utils.variable_functionality import (
-    fetch_versioned_implementation,
-)
-
+from enmedd.utils.variable_functionality import fetch_versioned_implementation
 
 logger = setup_logger()
+
+
+def is_user_admin(user: User | None) -> bool:
+    if AUTH_TYPE == AuthType.DISABLED:
+        return True
+    if user and user.role == UserRole.ADMIN:
+        return True
+    return False
 
 
 def verify_auth_setting() -> None:
@@ -69,13 +83,12 @@ def verify_auth_setting() -> None:
             "User must choose a valid user authentication method: "
             "disabled, basic, or google_oauth"
         )
-    logger.info(f"Using Auth Type: {AUTH_TYPE.value}")
+    logger.notice(f"Using Auth Type: {AUTH_TYPE.value}")
 
 
 def get_display_email(email: str | None, space_less: bool = False) -> str:
     if email and email.endswith(API_KEY_DUMMY_EMAIL_DOMAIN):
         name = email.split("@")[0]
-        # TODO: change env variable name
         if name == API_KEY_PREFIX + UNNAMED_KEY_PLACEHOLDER:
             return "Unnamed API Key"
 
@@ -93,10 +106,36 @@ def user_needs_to_be_verified() -> bool:
     return AUTH_TYPE != AuthType.BASIC or REQUIRE_EMAIL_VERIFICATION
 
 
-def verify_email_in_whitelist(email: str) -> None:
+def verify_email_is_invited(email: str) -> None:
     whitelist = get_invited_users()
-    if (whitelist and email not in whitelist) or not email:
-        raise PermissionError("User not on allowed user whitelist")
+    if not whitelist:
+        return
+
+    if not email:
+        raise PermissionError("Email must be specified")
+
+    email_info = validate_email(email)  # can raise EmailNotValidError
+
+    for email_whitelist in whitelist:
+        try:
+            # normalized emails are now being inserted into the db
+            # we can remove this normalization on read after some time has passed
+            email_info_whitelist = validate_email(email_whitelist)
+        except EmailNotValidError:
+            continue
+
+        # oddly, normalization does not include lowercasing the user part of the
+        # email address ... which we want to allow
+        if email_info.normalized.lower() == email_info_whitelist.normalized.lower():
+            return
+
+    raise PermissionError("User not on allowed user whitelist")
+
+
+def verify_email_in_whitelist(email: str) -> None:
+    with Session(get_sqlalchemy_engine()) as db_session:
+        if not get_user_by_email(email, db_session):
+            verify_email_is_invited(email)
 
 
 def verify_email_domain(email: str) -> None:
@@ -114,30 +153,6 @@ def verify_email_domain(email: str) -> None:
             )
 
 
-def send_user_verification_email(
-    user_email: str,
-    token: str,
-    mail_from: str = EMAIL_FROM,
-) -> None:
-    msg = MIMEMultipart()
-    msg["Subject"] = "enMedD AI Email Verification"
-    msg["To"] = user_email
-    if mail_from:
-        msg["From"] = mail_from
-
-    link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
-
-    body = MIMEText(f"Click the following link to verify your email address: {link}")
-    msg.attach(body)
-
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
-        s.starttls()
-        # If credentials fails with gmail, check (You need an app password, not just the basic email password)
-        # https://support.google.com/accounts/answer/185833?sjid=8512343437447396151-NA
-        s.login(SMTP_USER, SMTP_PASS)
-        s.send_message(msg)
-
-
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = USER_AUTH_SECRET
     verification_token_secret = USER_AUTH_SECRET
@@ -147,8 +162,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user_create: schemas.UC | UserCreate,
         safe: bool = False,
         request: Optional[Request] = None,
-    ) -> models.UP:
-        verify_email_in_whitelist(user_create.email)
+    ) -> User:
+        verify_email_is_invited(user_create.email)
         verify_email_domain(user_create.email)
         if hasattr(user_create, "role"):
             user_count = await get_user_count()
@@ -156,7 +171,30 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
                 user_create.role = UserRole.ADMIN
             else:
                 user_create.role = UserRole.BASIC
-        return await super().create(user_create, safe=safe, request=request)  # type: ignore
+        user = None
+        try:
+            user = await super().create(user_create, safe=safe, request=request)  # type: ignore
+        except exceptions.UserAlreadyExists:
+            user = await self.get_by_email(user_create.email)
+            # Handle case where user has used product outside of web and is now creating an account through web
+            raise exceptions.UserAlreadyExists()
+
+        if user:
+            await self.add_user_to_workspace(user.id, user_create.role)
+
+        return user
+
+    async def add_user_to_workspace(self, user_id: uuid.UUID, role: UserRole) -> None:
+        with Session(get_sqlalchemy_engine()) as db_session:
+            workspace = (
+                db_session.query(Workspace__Users).filter_by(user_id=user_id).first()
+            )
+            if not workspace:
+                # temporary setting workspace_id to 0
+                db_session.add(
+                    Workspace__Users(workspace_id=0, user_id=user_id, role=role)
+                )
+                db_session.commit()
 
     async def oauth_callback(
         self: "BaseUserManager[models.UOAP, models.ID]",
@@ -174,7 +212,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         verify_email_in_whitelist(account_email)
         verify_email_domain(account_email)
 
-        return await super().oauth_callback(  # type: ignore
+        user = await super().oauth_callback(  # type: ignore
             oauth_name=oauth_name,
             access_token=access_token,
             account_id=account_id,
@@ -186,10 +224,23 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             is_verified_by_default=is_verified_by_default,
         )
 
+        # NOTE: Most IdPs have very short expiry times, and we don't want to force the user to
+        # re-authenticate that frequently, so by default this is disabled
+        if expires_at and TRACK_EXTERNAL_IDP_EXPIRY:
+            oidc_expiry = datetime.fromtimestamp(expires_at, tz=timezone.utc)
+            await self.user_db.update(user, update_dict={"oidc_expiry": oidc_expiry})
+
+        # this is needed if an organization goes from `TRACK_EXTERNAL_IDP_EXPIRY=true` to `false`
+        # otherwise, the oidc expiry will always be old, and the user will never be able to login
+        if user.oidc_expiry and not TRACK_EXTERNAL_IDP_EXPIRY:
+            await self.user_db.update(user, update_dict={"oidc_expiry": None})
+
+        return user
+
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
     ) -> None:
-        logger.info(f"User {user.id} has registered.")
+        logger.notice(f"User {user.id} has registered.")
         optional_telemetry(
             record_type=RecordType.SIGN_UP,
             data={"action": "create"},
@@ -199,18 +250,43 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ) -> None:
-        logger.info(f"User {user.id} has forgot their password. Reset token: {token}")
+        logger.notice(f"User {user.id} has forgot their password. Reset token: {token}")
+
+        reset_url = f"{WEB_DOMAIN}/auth/reset-password?token={token}"
+        subject, body = generate_password_reset_email(user.email, reset_url)
+        send_reset_password_email(user.email, subject, body)
 
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ) -> None:
         verify_email_domain(user.email)
 
-        logger.info(
+        logger.notice(
             f"Verification requested for user {user.id}. Verification token: {token}"
         )
+        link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
+        subject, body = generate_user_verification_email(user.full_name, link)
+        send_user_verification_email(user.email, subject, body)
 
-        send_user_verification_email(user.email, token)
+    async def authenticate(
+        self, credentials: OAuth2PasswordRequestForm
+    ) -> Optional[User]:
+        try:
+            user = await self.get_by_email(credentials.username)
+        except exceptions.UserNotExists:
+            self.password_helper.hash(credentials.password)
+            return None
+
+        verified, updated_password_hash = self.password_helper.verify_and_update(
+            credentials.password, user.hashed_password
+        )
+        if not verified:
+            return None
+
+        if updated_password_hash is not None:
+            await self.user_db.update(user, {"hashed_password": updated_password_hash})
+
+        return user
 
 
 async def get_user_manager(
@@ -228,9 +304,10 @@ cookie_transport = CookieTransport(
 def get_database_strategy(
     access_token_db: AccessTokenDatabase[AccessToken] = Depends(get_access_token_db),
 ) -> DatabaseStrategy:
-    return DatabaseStrategy(
+    strategy = DatabaseStrategy(
         access_token_db, lifetime_seconds=SESSION_EXPIRE_TIME_SECONDS  # type: ignore
     )
+    return strategy
 
 
 auth_backend = AuthenticationBackend(
@@ -312,6 +389,7 @@ async def optional_user(
 async def double_check_user(
     user: User | None,
     optional: bool = DISABLE_AUTH,
+    include_expired: bool = False,
 ) -> User | None:
     if optional:
         return None
@@ -328,7 +406,23 @@ async def double_check_user(
             detail="Access denied. User is not verified.",
         )
 
+    if (
+        user.oidc_expiry
+        and user.oidc_expiry < datetime.now(timezone.utc)
+        and not include_expired
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. User's OIDC token has expired.",
+        )
+
     return user
+
+
+async def current_user_with_expired_token(
+    user: User | None = Depends(optional_user),
+) -> User | None:
+    return await double_check_user(user, include_expired=True)
 
 
 async def current_user(
@@ -344,6 +438,81 @@ async def current_admin_user(user: User | None = Depends(current_user)) -> User 
     if not user or not hasattr(user, "role") or user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied. User is not an admin.",
+            detail="Access denied. User must be an admin to perform this action.",
         )
+
     return user
+
+
+async def current_workspace_admin_user(
+    workspace_id: Optional[int] = 0,  # Temporary setting workspace_id to 0
+    user: User = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> User | None:
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authenticated"
+        )
+
+    try:
+        workspace = (
+            db_session.query(Workspace__Users)
+            .filter(
+                Workspace__Users.workspace_id == workspace_id,
+                Workspace__Users.user_id == user.id,
+                Workspace__Users.role == UserRole.ADMIN,
+            )
+            .one_or_none()
+        )
+
+        if workspace is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User does not have admin rights for this workspace",
+            )
+        user.role = UserRole.ADMIN
+        return user
+
+    except NoResultFound:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Workspace not found"
+        )
+
+
+async def current_teamspace_admin_user(
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> User:
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. User is not authenticated.",
+        )
+
+    if teamspace_id is None:
+        return await current_workspace_admin_user(user=user, db_session=db_session)
+
+    user_teamspace = (
+        db_session.query(User__Teamspace)
+        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+        .first()
+    )
+
+    if user_teamspace and user_teamspace.role == UserRole.ADMIN:
+        user.role = UserRole.ADMIN
+        return user
+
+    teamspace = (
+        db_session.query(Teamspace)
+        .filter_by(id=teamspace_id, creator_id=user.id)
+        .first()
+    )
+
+    if teamspace:
+        return user
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access denied. User is neither an admin nor the creator of this teamspace.",
+    )

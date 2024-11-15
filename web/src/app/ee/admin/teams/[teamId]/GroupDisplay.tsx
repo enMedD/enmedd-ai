@@ -7,7 +7,6 @@ import { updateTeamspace } from "./lib";
 import { LoadingAnimation } from "@/components/Loading";
 import { ConnectorIndexingStatus, User, Teamspace } from "@/lib/types";
 import { AddConnectorForm } from "./AddConnectorForm";
-import { Divider, Text } from "@tremor/react";
 import { DeleteButton } from "@/components/DeleteButton";
 import { Bubble } from "@/components/Bubble";
 import { BookmarkIcon, RobotIcon } from "@/components/icons/icons";
@@ -47,8 +46,8 @@ export const GroupDisplay = ({
 
   return (
     <div>
-      <div className="text-sm mb-3 flex">
-        <Text className="mr-1">Status:</Text>{" "}
+      <div className="text-sm flex">
+        <p className="mr-1">Status:</p>{" "}
         {teamspace.is_up_to_date ? (
           <Badge variant="success">Up to date!</Badge>
         ) : (
@@ -58,13 +57,11 @@ export const GroupDisplay = ({
         )}
       </div>
 
-      <Divider />
+      {/*  <div className="pt-2" /> */}
 
-      <div className="flex w-full">
-        <h2 className="text-xl font-bold">Users</h2>
-      </div>
+      <h2 className="text-xl font-bold pt-8">Users</h2>
 
-      <div className="mt-2">
+      <div className="pt-4">
         {teamspace.users.length > 0 ? (
           <Card>
             <CardContent className="p-0">
@@ -104,9 +101,9 @@ export const GroupDisplay = ({
                                 );
                                 if (response.ok) {
                                   toast({
-                                    title: "Success",
+                                    title: "User Removed Successfully!",
                                     description:
-                                      "Successfully removed user from group",
+                                      "The user has been successfully removed from the teams.",
                                     variant: "success",
                                   });
                                 } else {
@@ -114,8 +111,8 @@ export const GroupDisplay = ({
                                   const errorMsg =
                                     responseJson.detail || responseJson.message;
                                   toast({
-                                    title: "Error",
-                                    description: `Error removing user from group - ${errorMsg}`,
+                                    title: "Removal Failed",
+                                    description: `Unable to remove user from the teams: ${errorMsg}. Please try again.`,
                                     variant: "destructive",
                                   });
                                 }
@@ -132,14 +129,14 @@ export const GroupDisplay = ({
             </CardContent>
           </Card>
         ) : (
-          <div className="text-sm">No users in this group...</div>
+          <div className="text-sm">No users in this teamspace...</div>
         )}
       </div>
 
       <CustomModal
         trigger={
           <Button
-            className="mt-3"
+            className="mt-4"
             onClick={() => setAddMemberFormVisible(true)}
             disabled={!teamspace.is_up_to_date}
           >
@@ -148,6 +145,7 @@ export const GroupDisplay = ({
         }
         onClose={() => setAddMemberFormVisible(false)}
         open={addMemberFormVisible}
+        title="Add New User"
       >
         <AddMemberForm
           users={users}
@@ -159,19 +157,19 @@ export const GroupDisplay = ({
         />
       </CustomModal>
 
-      <Divider />
+      {/*  <div className="pt-2" /> */}
 
-      <h2 className="text-xl font-bold mt-8">Connectors</h2>
-      <div className="mt-2">
+      <h2 className="text-xl font-bold pt-8">Data Sources</h2>
+      <div className="mt-4">
         {teamspace.cc_pairs.length > 0 ? (
           <Card>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Connector</TableHead>
+                    <TableHead>Data Source</TableHead>
                     <TableHead className="ml-auto flex">
-                      <span className="m-auto mr-0">Remove Connector</span>
+                      <span className="m-auto mr-0">Remove Data Source</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -206,9 +204,9 @@ export const GroupDisplay = ({
                                 );
                                 if (response.ok) {
                                   toast({
-                                    title: "Success",
+                                    title: "Connector Removed Successfully!",
                                     description:
-                                      "Successfully removed connector from group",
+                                      "The connector has been successfully removed from the teamspace.",
                                     variant: "success",
                                   });
                                 } else {
@@ -216,8 +214,8 @@ export const GroupDisplay = ({
                                   const errorMsg =
                                     responseJson.detail || responseJson.message;
                                   toast({
-                                    title: "Error",
-                                    description: `Error removing connector from group - ${errorMsg}`,
+                                    title: "Removal Failed",
+                                    description: `Unable to remove connector from the teamspace: ${errorMsg}. Please try again.`,
                                     variant: "destructive",
                                   });
                                 }
@@ -234,22 +232,23 @@ export const GroupDisplay = ({
             </CardContent>
           </Card>
         ) : (
-          <div className="text-sm">No connectors in this group...</div>
+          <div className="text-sm">No data sources in this teamspace...</div>
         )}
       </div>
 
       <CustomModal
         trigger={
           <Button
-            className="mt-3"
+            className="mt-4"
             onClick={() => setAddConnectorFormVisible(true)}
             disabled={!teamspace.is_up_to_date}
           >
-            Add Connectors
+            Add Data Sources
           </Button>
         }
         onClose={() => setAddConnectorFormVisible(false)}
         open={addConnectorFormVisible}
+        title="Add New Connector"
       >
         <AddConnectorForm
           ccPairs={ccPairs}
@@ -261,9 +260,9 @@ export const GroupDisplay = ({
         />
       </CustomModal>
 
-      <Divider />
+      {/*  <div className="pt-2" /> */}
 
-      <h2 className="text-xl font-bold mt-8 mb-2">Document Sets</h2>
+      <h2 className="text-xl font-bold mb-2 pt-8">Document Sets</h2>
 
       <div>
         {teamspace.document_sets.length > 0 ? (
@@ -273,7 +272,7 @@ export const GroupDisplay = ({
                 <Bubble isSelected key={documentSet.id}>
                   <div className="flex">
                     <BookmarkIcon />
-                    <Text className="ml-1">{documentSet.name}</Text>
+                    <p className="ml-1 text-sm">{documentSet.name}</p>
                   </div>
                 </Bubble>
               );
@@ -281,14 +280,14 @@ export const GroupDisplay = ({
           </div>
         ) : (
           <>
-            <Text>No document sets in this group...</Text>
+            <p className="text-sm">No document sets in this teamspace...</p>
           </>
         )}
       </div>
 
-      <Divider />
+      {/*  <div className="pt-2" /> */}
 
-      <h2 className="text-xl font-bold mt-8 mb-2">Assistants</h2>
+      <h2 className="text-xl font-bold pt-8 mb-2">Assistants</h2>
 
       <div>
         {teamspace.document_sets.length > 0 ? (
@@ -298,7 +297,7 @@ export const GroupDisplay = ({
                 <Bubble isSelected key={assistant.id}>
                   <div className="flex">
                     <RobotIcon />
-                    <Text className="ml-1">{assistant.name}</Text>
+                    <p className="ml-1 text-sm">{assistant.name}</p>
                   </div>
                 </Bubble>
               );
@@ -306,14 +305,14 @@ export const GroupDisplay = ({
           </div>
         ) : (
           <>
-            <Text>No Assistants in this group...</Text>
+            <p className="text-sm">No Assistants in this teamspace...</p>
           </>
         )}
       </div>
 
-      <Divider />
+      {/*  <div className="pt-2" /> */}
 
-      <h2 className="text-xl font-bold mt-8 mb-2">Token Rate Limits</h2>
+      <h2 className="text-xl font-bold pt-8 mb-2">Token Rate Limits</h2>
 
       <GenericTokenRateLimitTable
         fetchUrl={`/api/admin/token-rate-limits/teamspace/${teamspace.id}`}

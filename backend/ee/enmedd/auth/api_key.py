@@ -1,11 +1,13 @@
 import secrets
 import uuid
+from typing import Optional
 
 from fastapi import Request
 from passlib.hash import sha256_crypt
 from pydantic import BaseModel
 
 from ee.enmedd.configs.app_configs import API_KEY_HASH_ROUNDS
+from enmedd.auth.schemas import UserRole
 
 
 _API_KEY_HEADER_NAME = "Authorization"
@@ -17,8 +19,9 @@ _API_KEY_LEN = 192
 class ApiKeyDescriptor(BaseModel):
     api_key_id: int
     api_key_display: str
-    api_key: str | None = None  # only present on initial creation
-    api_key_name: str | None = None
+    api_key: Optional[str] = None  # only present on initial creation
+    api_key_name: Optional[str] = None
+    api_key_role: UserRole
 
     user_id: uuid.UUID
 

@@ -2,45 +2,67 @@
 
 import { Assistant } from "./interfaces";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { DraggableTable } from "@/components/table/DraggableTable";
 import { deleteAssistant, assistantComparator } from "./lib";
-import { TrashIcon } from "@/components/icons/icons";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { useUser } from "@/components/user/UserProvider";
+import Link from "next/link";
+import { DeleteModal } from "@/components/DeleteModal";
 
 function AssistantTypeDisplay({ assistant }: { assistant: Assistant }) {
-  if (assistant.default_assistant) {
-    return <p>Built-In</p>;
+  if (assistant.builtin_assistant) {
+    return <p className="whitespace-nowrap">Built-In</p>;
   }
 
   if (assistant.is_public) {
     return <p>Global</p>;
   }
 
-  return <p>Assistantl {assistant.owner && <>({assistant.owner.email})</>}</p>;
+  return <p>Private {assistant.owner && <>({assistant.owner.email})</>}</p>;
 }
 
-export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
+export function AssistantsTable({
+  allAssistants,
+  editableAssistants,
+  teamspaceId,
+}: {
+  allAssistants: Assistant[];
+  editableAssistants: Assistant[];
+  teamspaceId?: string | string[];
+}) {
   const router = useRouter();
   const { toast } = useToast();
-
-  const availableAssistantIds = new Set(
-    assistants.map((assistant) => assistant.id.toString())
+  const { isLoadingUser, isAdmin } = useUser();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [assistantToDelete, setAssistantToDelete] = useState<Assistant | null>(
+    null
   );
-  const sortedAssistants = [...assistants];
-  sortedAssistants.sort(assistantComparator);
+
+  const editableAssistantIds = useMemo(() => {
+    return new Set(editableAssistants.map((p) => p.id.toString()));
+  }, [editableAssistants]);
+
+  const sortedAssistants = useMemo(() => {
+    const editable = editableAssistants.sort(assistantComparator);
+    const nonEditable = allAssistants
+      .filter((p) => !editableAssistantIds.has(p.id.toString()))
+      .sort(assistantComparator);
+    return [...editable, ...nonEditable];
+  }, [allAssistants, editableAssistantIds, editableAssistants]);
 
   const [finalAssistants, setFinalAssistants] = useState<string[]>(
     sortedAssistants.map((assistant) => assistant.id.toString())
   );
   const finalAssistantValues = finalAssistants
-    .filter((id) => availableAssistantIds.has(id))
+    .filter((id) => new Set(allAssistants.map((p) => p.id.toString())).has(id))
     .map((id) => {
       return sortedAssistants.find(
         (assistant) => assistant.id.toString() === id
@@ -68,17 +90,51 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
     });
     if (!response.ok) {
       toast({
-        title: "Error",
-        description: `Failed to update assistant order - ${await response.text()}`,
+        title: "Failed to Update Assistant Order",
+        description: `There was an issue updating the assistant order. Details: ${await response.text()}`,
         variant: "destructive",
       });
       router.refresh();
     }
   };
 
+  if (isLoadingUser) {
+    return <></>;
+  }
+
   return (
     <div>
-      <p className="pb-6">
+      {isDeleteModalOpen && assistantToDelete && (
+        <DeleteModal
+          title={`Are you sure you want to ${teamspaceId ? "remove" : "delete"} this assistant?`}
+          description={`This action will permanently schedule the selected assistant will ${teamspaceId ? "remove" : "deletion"}. Please confirm if you want to proceed with this irreversible action.`}
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          onSuccess={async () => {
+            const response = await deleteAssistant(
+              assistantToDelete.id,
+              teamspaceId
+            );
+            if (response.ok) {
+              toast({
+                title: `Assistant ${teamspaceId ? "removed" : "deleted"}`,
+                description: `The assistant has been successfully ${teamspaceId ? "removed" : "deleted"}.`,
+                variant: "success",
+              });
+              setIsDeleteModalOpen(false);
+              router.refresh();
+            } else {
+              toast({
+                title: `Failed to ${teamspaceId ? "remove" : "delete"} assistant`,
+                description: `There was an issue ${teamspaceId ? "removing" : "deleting"} the assistant. Details: ${await response.text()}`,
+                variant: "destructive",
+              });
+            }
+          }}
+        />
+      )}
+
+      <p className="pb-4 text-sm">
         Assistants will be displayed as options on the Chat / Search interfaces
         in the order they are displayed below. Assistants marked as hidden will
         not be displayed.
@@ -88,33 +144,42 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
         <CardContent className="p-0">
           <DraggableTable
             headers={["Name", "Description", "Type", "Is Visible", "Delete"]}
+            isAdmin={isAdmin}
             rows={finalAssistantValues.map((assistant) => {
               return {
                 id: assistant.id.toString(),
                 cells: [
-                  <div key="name" className="flex gap-2 items-center">
-                    {!assistant.default_assistant && (
-                      <Button variant="ghost" size="icon">
-                        <Pencil
-                          size={16}
-                          onClick={() =>
-                            router.push(
-                              `/admin/assistants/${
-                                assistant.id
-                              }?u=${Date.now()}`
-                            )
+                  <CustomTooltip
+                    key="name"
+                    trigger={
+                      assistant.builtin_assistant ? (
+                        <div className="flex items-center w-full gap-2 truncate">
+                          <p className="font-medium truncate text break-none">
+                            {assistant.name}
+                          </p>
+                        </div>
+                      ) : (
+                        <Link
+                          href={
+                            teamspaceId
+                              ? `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
+                              : `/admin/assistants/${assistant.id}?u=${Date.now()}`
                           }
-                        />
-                      </Button>
-                    )}
-                    <p className="text font-medium whitespace-normal break-none">
-                      {assistant.name}
-                    </p>
-                  </div>,
-                  <p
-                    key="description"
-                    className="whitespace-normal break-all max-w-2xl"
+                          className="flex items-center w-full gap-2 truncate"
+                        >
+                          <Pencil size={16} className="shrink-0" />
+                          <p className="font-medium truncate text break-none">
+                            {assistant.name}
+                          </p>
+                        </Link>
+                      )
+                    }
+                    align="start"
+                    asChild
                   >
+                    {assistant.name}
+                  </CustomTooltip>,
+                  <p key="description" className="max-w-2xl whitespace-normal">
                     {assistant.description}
                   </p>,
                   <AssistantTypeDisplay
@@ -137,17 +202,23 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
                         }
                       );
                       if (response.ok) {
+                        toast({
+                          title: "Visibility Updated",
+                          description: `The visibility of "${assistant.name}" has been successfully updated.`,
+                          variant: "success",
+                        });
+
                         router.refresh();
                       } else {
                         toast({
-                          title: "Error",
-                          description: `Failed to update assistant - ${await response.text()}`,
+                          title: "Failed to Update Assistant Visibility",
+                          description: `Unable to update visibility for "${assistant.name}". Details: ${await response.text()}`,
                           variant: "destructive",
                         });
                       }
                     }}
                     variant="outline"
-                    className="py-1.5 px-3 w-[84px] cursor-pointer hover:opacity-80 gap-1.5"
+                    className="py-1.5 px-3 w-[84px] cursor-pointer hover:bg-opacity-80 gap-1.5"
                   >
                     {!assistant.is_visible ? (
                       <div className="text-error">Hidden</div>
@@ -159,25 +230,25 @@ export function AssistantsTable({ assistants }: { assistants: Assistant[] }) {
                   </Badge>,
                   <div key="edit" className="flex">
                     <div className="mx-auto my-auto">
-                      {!assistant.default_assistant ? (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={async () => {
-                            const response = await deleteAssistant(
-                              assistant.id
-                            );
-                            if (response.ok) {
-                              router.refresh();
-                            } else {
-                              alert(
-                                `Failed to delete assistant - ${await response.text()}`
-                              );
-                            }
-                          }}
+                      {!assistant.builtin_assistant ? (
+                        <CustomTooltip
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setAssistantToDelete(assistant);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash size={16} />
+                            </Button>
+                          }
+                          asChild
+                          variant="destructive"
                         >
-                          <TrashIcon />
-                        </Button>
+                          Delete
+                        </CustomTooltip>
                       ) : (
                         "-"
                       )}

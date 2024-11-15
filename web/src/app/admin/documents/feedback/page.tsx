@@ -49,7 +49,7 @@ const Main = () => {
   return (
     <div className="space-y-24">
       <div>
-        <h3 className="pb-5 font-semibold">Most Liked Documents</h3>
+        <h3 className="pb-4">Most Liked Documents</h3>
         <DocumentFeedbackTable
           documents={mostLikedDocuments}
           refresh={refresh}
@@ -57,7 +57,7 @@ const Main = () => {
       </div>
 
       <div>
-        <h3 className=" pb-5 font-semibold">Most Disliked Documents</h3>
+        <h3 className=" pb-4">Most Disliked Documents</h3>
         <DocumentFeedbackTable
           documents={mostDislikedDocuments}
           refresh={refresh}
@@ -69,13 +69,15 @@ const Main = () => {
 
 const Page = () => {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        icon={<ThumbsUpIcon size={32} />}
-        title="Document Feedback"
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          icon={<ThumbsUpIcon size={32} />}
+          title="Document Feedback"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 };

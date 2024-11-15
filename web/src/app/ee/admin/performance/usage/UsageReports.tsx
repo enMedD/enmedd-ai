@@ -23,6 +23,7 @@ import {
 import { CustomDatePicker } from "@/components/CustomDatePicker";
 import { DateRange } from "react-day-picker";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 const predefinedRanges = [
   { value: "7d", label: "Last 7 days" },
@@ -99,10 +100,10 @@ function GenerateReportInput() {
   lastYear.setFullYear(today.getFullYear() - 1);
 
   return (
-    <div className="flex gap-4 flex-col md:flex-row justify-between md:items-center">
+    <div className="flex gap-4 flex-col md:flex-row justify-between">
       <div>
         <div className="flex flex-col">
-          <h3 className="font-semibold">Generate Usage Reports</h3>
+          <h3>Generate Usage Reports</h3>
           <span className="text-subtle text-sm">
             Generate usage statistics for users in the workspace.
           </span>
@@ -131,9 +132,16 @@ function GenerateReportInput() {
   );
 }
 
-const USAGE_REPORT_URL = "/api/admin/usage-report";
+const USAGE_REPORT_URL = (teamspaceId?: string | string[]) =>
+  teamspaceId
+    ? `/api/admin/usage-report?teamspace_id=${teamspaceId}`
+    : "/api/admin/usage-report";
 
-function UsageReportsTable() {
+function UsageReportsTable({
+  teamspaceId,
+}: {
+  teamspaceId?: string | string[];
+}) {
   const [page, setPage] = useState(1);
   const NUM_IN_PAGE = 10;
 
@@ -141,7 +149,10 @@ function UsageReportsTable() {
     data: usageReportsMetadata,
     error: usageReportsError,
     isLoading: usageReportsIsLoading,
-  } = useSWR<UsageReport[]>(USAGE_REPORT_URL, errorHandlingFetcher);
+  } = useSWR<UsageReport[]>(
+    USAGE_REPORT_URL(teamspaceId),
+    errorHandlingFetcher
+  );
 
   const paginatedReports = usageReportsMetadata
     ? usageReportsMetadata
@@ -156,7 +167,7 @@ function UsageReportsTable() {
 
   return (
     <div>
-      <h3 className="font-semibold pt-8 p-4">Previous Reports</h3>
+      <h3 className="pt-8 pb-4">Previous Reports</h3>
       {usageReportsIsLoading ? (
         <div className="flex justify-center w-full">
           <ThreeDotsLoader />
@@ -166,7 +177,7 @@ function UsageReportsTable() {
           errorTitle="Something went wrong."
           errorMsg={(usageReportsError as Error).toString()}
         />
-      ) : (
+      ) : paginatedReports.length > 0 ? (
         <Card>
           <CardContent className="p-0">
             <Table>
@@ -200,9 +211,16 @@ function UsageReportsTable() {
                     </TableCell>
                     <TableCell>
                       <Link href={`/api/admin/usage-report/${r.report_name}`}>
-                        <Button variant="ghost" size="icon">
-                          <Download size={16} />
-                        </Button>
+                        <CustomTooltip
+                          trigger={
+                            <Button variant="ghost" size="icon">
+                              <Download size={16} />
+                            </Button>
+                          }
+                          asChild
+                        >
+                          Download
+                        </CustomTooltip>
                       </Link>
                     </TableCell>
                   </TableRow>
@@ -211,12 +229,18 @@ function UsageReportsTable() {
             </Table>
           </CardContent>
         </Card>
+      ) : (
+        <p>There are no reports.</p>
       )}
     </div>
   );
 }
 
-export default function UsageReports() {
+export default function UsageReports({
+  teamspaceId,
+}: {
+  teamspaceId?: string | string[];
+}) {
   const [page, setPage] = useState(1);
   const NUM_IN_PAGE = 10;
 
@@ -224,7 +248,10 @@ export default function UsageReports() {
     data: usageReportsMetadata,
     error: usageReportsError,
     isLoading: usageReportsIsLoading,
-  } = useSWR<UsageReport[]>(USAGE_REPORT_URL, errorHandlingFetcher);
+  } = useSWR<UsageReport[]>(
+    USAGE_REPORT_URL(teamspaceId),
+    errorHandlingFetcher
+  );
 
   const paginatedReports = usageReportsMetadata
     ? usageReportsMetadata
@@ -238,23 +265,15 @@ export default function UsageReports() {
     : 0;
 
   return (
-    <div>
-      {/* <Card>
-        <CardHeader className="border-b">
-          <GenerateReportInput />
-        </CardHeader>
-        <CardContent className="p-0">
-          <UsageReportsTable />
-        </CardContent>
-      </Card> */}
+    <div className="space-y-12">
       <div>
         <GenerateReportInput />
         <div className="p-0">
-          <UsageReportsTable />
+          <UsageReportsTable teamspaceId={teamspaceId} />
         </div>
       </div>
 
-      <div className="pt-6 flex">
+      <div className="flex">
         <div className="mx-auto">
           <PageSelector
             totalPages={totalPages}

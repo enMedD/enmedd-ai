@@ -36,22 +36,27 @@ const PromoterButton = ({
 }) => {
   const { trigger, isMutating } = useSWRMutation(
     promote
-      ? "/api/manage/promote-user-to-admin"
-      : "/api/manage/demote-admin-to-basic",
+      ? "/api/manage/promote-workspace-user-to-admin"
+      : "/api/manage/demote-workspace-admin-to-basic",
     userMutationFetcher,
     { onSuccess, onError }
   );
   return (
     <Button
-      onClick={() => trigger({ user_email: user.email })}
+      onClick={() =>
+        trigger({
+          user_email: user.email,
+        })
+      }
       disabled={isMutating}
+      variant={promote ? "default" : "outline"}
     >
       {promote ? "Promote" : "Demote"} to {promote ? "Admin" : "Basic"} User
     </Button>
   );
 };
 
-const DeactivaterButton = ({
+export const DeactivaterButton = ({
   user,
   deactivate,
   mutate,
@@ -70,15 +75,15 @@ const DeactivaterButton = ({
       onSuccess: () => {
         mutate();
         toast({
-          title: "Success",
-          description: `User ${deactivate ? "deactivated" : "activated"}!`,
+          title: "User Status Updated Successfully!",
+          description: `User has been ${deactivate ? "deactivated" : "activated"}.`,
           variant: "success",
         });
       },
       onError: (errorMsg) =>
         toast({
-          title: "Error",
-          description: errorMsg,
+          title: "Operation Failed",
+          description: `Unable to ${deactivate ? "deactivate" : "activate"} the user: ${errorMsg}. Please try again.`,
           variant: "destructive",
         }),
     }
@@ -87,7 +92,7 @@ const DeactivaterButton = ({
     <Button
       onClick={() => trigger({ user_email: user.email })}
       disabled={isMutating}
-      variant="outline"
+      variant="destructive"
     >
       {deactivate ? "Deactivate" : "Activate"}
     </Button>
@@ -107,14 +112,14 @@ const SignedUpUserTable = ({
   const onSuccess = (message: string) => {
     mutate();
     toast({
-      title: "Success",
+      title: "Operation Successful!",
       description: message,
       variant: "success",
     });
   };
   const onError = (message: string) => {
     toast({
-      title: "Error",
+      title: "Operation Failed",
       description: message,
       variant: "destructive",
     });
@@ -133,7 +138,7 @@ const SignedUpUserTable = ({
   };
 
   return (
-    <HidableSection sectionTitle="Current Users" defaultOpen>
+    <HidableSection sectionTitle="Current Users">
       <>
         {totalPages > 1 ? (
           <CenteredPageSelector

@@ -28,33 +28,6 @@ export interface Option<T> {
 
 export type StringOrNumberOption = Option<string | number>;
 
-function StandardDropdownOption<T>({
-  index,
-  option,
-  handleSelect,
-}: {
-  index: number;
-  option: Option<T>;
-  handleSelect: (option: Option<T>) => void;
-}) {
-  return (
-    <button
-      onClick={() => handleSelect(option)}
-      className={`w-full text-left block px-4 py-2.5 text-sm hover:bg-gray-800 ${
-        index !== 0 ? " border-t-2 border-gray-600" : ""
-      }`}
-      role="menuitem"
-    >
-      <p className="font-medium">{option.name}</p>
-      {option.description && (
-        <div>
-          <p className="text-xs text-gray-300">{option.description}</p>
-        </div>
-      )}
-    </button>
-  );
-}
-
 export function SearchMultiSelectDropdown({
   options,
   onSelect,
@@ -116,7 +89,7 @@ export function SearchMultiSelectDropdown({
           />
           <button
             type="button"
-            className="absolute top-0 right-0 text-sm h-full px-2 border-border"
+            className="absolute top-0 right-0 h-full px-2 text-sm border-border"
             onClick={() => setIsOpen(!isOpen)}
           >
             <ChevronDownIcon className="my-auto" />
@@ -126,7 +99,7 @@ export function SearchMultiSelectDropdown({
 
       <DropdownMenuContent
         align="start"
-        className="w-full max-h-80 overflow-y-auto overscroll-contain"
+        className="w-full overflow-y-auto max-h-80 overscroll-contain"
         style={{ minWidth: dropdownRef.current?.offsetWidth }}
       >
         {filteredOptions.length ? (
@@ -187,7 +160,7 @@ export const CustomDropdown = ({
   }, []);
 
   return (
-    <div className="relative inline-block text-left w-full" ref={dropdownRef}>
+    <div className="relative inline-block w-full text-left" ref={dropdownRef}>
       <div onClick={() => setIsOpen(!isOpen)}>{children}</div>
 
       {isOpen && (
@@ -213,7 +186,7 @@ export function DefaultDropdownElement({
   includeCheckbox = false,
 }: {
   name: string | JSX.Element;
-  icon?: React.FC<{ size?: number; className?: string }>;
+  icon?: JSX.Element;
   description?: string;
   onSelect?: () => void;
   isSelected?: boolean;
@@ -244,15 +217,16 @@ export function DefaultDropdownElement({
               className="mr-2"
               checked={isSelected}
               onChange={() => null}
+              title="Select an option"
             />
           )}
-          {icon && icon({ size: 16, className: "mr-2 my-auto" })}
+          {icon && icon}
           {name}
         </div>
         {description && <div className="text-xs">{description}</div>}
       </div>
       {isSelected && (
-        <div className="ml-auto mr-1 my-auto">
+        <div className="my-auto ml-auto mr-1">
           <Check size={16} />
         </div>
       )}

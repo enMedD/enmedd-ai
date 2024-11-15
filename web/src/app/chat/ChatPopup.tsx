@@ -17,17 +17,17 @@ export function ChatPopup() {
     setCompletedFlow(
       localStorage.getItem(ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED) === "true"
     );
-  });
+  }, []);
 
   const settings = useContext(SettingsContext);
-  if (!settings?.enterpriseSettings?.custom_popup_content || completedFlow) {
+  if (!settings?.workspaces?.custom_header_content || completedFlow) {
     return null;
   }
 
-  let popupTitle = settings.enterpriseSettings.custom_popup_header;
+  let popupTitle = settings.workspaces.custom_header_logo;
   if (!popupTitle) {
     popupTitle = `Welcome to ${
-      settings.enterpriseSettings.application_name || "enMedD AI"
+      settings.workspaces.workspace_name || "Arnold AI"
     }!`;
   }
 
@@ -49,7 +49,7 @@ export function ChatPopup() {
           }}
           remarkPlugins={[remarkGfm]}
         >
-          {settings.enterpriseSettings.custom_popup_content}
+          {settings.workspaces.custom_header_content}
         </ReactMarkdown>
 
         <div className="flex w-full">

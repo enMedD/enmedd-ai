@@ -6,8 +6,8 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_user
+from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.db.tools import create_tool
@@ -15,6 +15,8 @@ from enmedd.db.tools import delete_tool
 from enmedd.db.tools import get_tool_by_id
 from enmedd.db.tools import get_tools
 from enmedd.db.tools import update_tool
+from enmedd.server.features.tool.models import CustomToolCreate
+from enmedd.server.features.tool.models import CustomToolUpdate
 from enmedd.server.features.tool.models import ToolSnapshot
 from enmedd.tools.custom.openapi_parsing import MethodSpec
 from enmedd.tools.custom.openapi_parsing import openapi_to_method_specs
@@ -22,18 +24,6 @@ from enmedd.tools.custom.openapi_parsing import validate_openapi_schema
 
 router = APIRouter(prefix="/tool")
 admin_router = APIRouter(prefix="/admin/tool")
-
-
-class CustomToolCreate(BaseModel):
-    name: str
-    description: str | None
-    definition: dict[str, Any]
-
-
-class CustomToolUpdate(BaseModel):
-    name: str | None
-    description: str | None
-    definition: dict[str, Any] | None
 
 
 def _validate_tool_definition(definition: dict[str, Any]) -> None:
@@ -47,13 +37,14 @@ def _validate_tool_definition(definition: dict[str, Any]) -> None:
 def create_custom_tool(
     tool_data: CustomToolCreate,
     db_session: Session = Depends(get_session),
-    user: User | None = Depends(current_admin_user),
+    user: User | None = Depends(current_workspace_admin_user),
 ) -> ToolSnapshot:
     _validate_tool_definition(tool_data.definition)
     tool = create_tool(
         name=tool_data.name,
         description=tool_data.description,
         openapi_schema=tool_data.definition,
+        custom_headers=tool_data.custom_headers,
         user_id=user.id if user else None,
         db_session=db_session,
     )
@@ -65,7 +56,7 @@ def update_custom_tool(
     tool_id: int,
     tool_data: CustomToolUpdate,
     db_session: Session = Depends(get_session),
-    user: User | None = Depends(current_admin_user),
+    user: User | None = Depends(current_workspace_admin_user),
 ) -> ToolSnapshot:
     if tool_data.definition:
         _validate_tool_definition(tool_data.definition)
@@ -74,6 +65,7 @@ def update_custom_tool(
         name=tool_data.name,
         description=tool_data.description,
         openapi_schema=tool_data.definition,
+        custom_headers=tool_data.custom_headers,
         user_id=user.id if user else None,
         db_session=db_session,
     )
@@ -84,7 +76,7 @@ def update_custom_tool(
 def delete_custom_tool(
     tool_id: int,
     db_session: Session = Depends(get_session),
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_workspace_admin_user),
 ) -> None:
     try:
         delete_tool(tool_id, db_session)
@@ -106,7 +98,7 @@ class ValidateToolResponse(BaseModel):
 @admin_router.post("/custom/validate")
 def validate_tool(
     tool_data: ValidateToolRequest,
-    _: User | None = Depends(current_admin_user),
+    _: User | None = Depends(current_workspace_admin_user),
 ) -> ValidateToolResponse:
     _validate_tool_definition(tool_data.definition)
     method_specs = openapi_to_method_specs(tool_data.definition)

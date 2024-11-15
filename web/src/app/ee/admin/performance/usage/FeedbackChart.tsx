@@ -1,5 +1,3 @@
-"use client";
-
 import { getDatesList, useQueryAnalytics } from "../lib";
 import { ThreeDotsLoader } from "@/components/Loading";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -15,12 +13,27 @@ import {
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { SubLabel } from "@/components/admin/connectors/Field";
 
-export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
+import config from "../../../../../../tailwind-themes/tailwind.config";
+const colors = config.theme.extend.colors;
+
+const normalizeToUTC = (date: Date) => {
+  return new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
+};
+
+export function FeedbackChart({
+  timeRange,
+  teamspaceId,
+}: {
+  timeRange: DateRange;
+  teamspaceId?: string | string[];
+}) {
   const {
     data: queryAnalyticsData,
     isLoading: isQueryAnalyticsLoading,
     error: queryAnalyticsError,
-  } = useQueryAnalytics(timeRange);
+  } = useQueryAnalytics(timeRange, teamspaceId);
 
   let chart;
   if (isQueryAnalyticsLoading) {
@@ -36,8 +49,11 @@ export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
       </div>
     );
   } else {
-    const initialDate = timeRange.from || new Date(queryAnalyticsData[0].date);
-    const dateRange = getDatesList(initialDate);
+    const initialDate = normalizeToUTC(
+      timeRange.from || new Date(queryAnalyticsData[0].date)
+    );
+    const endDate = normalizeToUTC(timeRange.to || new Date());
+    const dateRange = getDatesList(initialDate, endDate);
 
     const data = dateRange.map((dateStr) => {
       const queryAnalyticsForDate = queryAnalyticsData.find(
@@ -53,18 +69,18 @@ export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
     const chartConfig = {
       "Positive Feedback": {
         label: "Positive Feedback",
-        color: "#2039f3",
+        color: colors.brand[500], 
       },
       "Negative Feedback": {
         label: "Negative Feedback",
-        color: "#60a5fa",
+        color: colors.brand[300], 
       },
     } satisfies ChartConfig;
 
     chart = (
       <ChartContainer
         config={chartConfig}
-        className="aspect-auto h-[250px] w-full"
+        className="aspect-auto h-full w-full"
       >
         <AreaChart data={data}>
           <ChartLegend content={<ChartLegendContent />} />
@@ -125,17 +141,15 @@ export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
           />
           <Area
             dataKey="Positive Feedback"
-            type="natural"
+            type="monotoneX"
             fill="url(#fillPositive)"
             stroke={chartConfig["Positive Feedback"].color}
-            stackId="a"
           />
           <Area
             dataKey="Negative Feedback"
-            type="natural"
+            type="monotoneX"
             fill="url(#fillNegative)"
             stroke={chartConfig["Negative Feedback"].color}
-            stackId="a"
           />
         </AreaChart>
       </ChartContainer>
@@ -143,14 +157,14 @@ export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
   }
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader className="border-b">
         <div className="flex flex-col">
-          <h3 className="font-semibold">Feedback</h3>
+          <h3>Feedback</h3>
           <SubLabel>Thumbs Up / Thumbs Down over time</SubLabel>
         </div>
       </CardHeader>
-      <CardContent>{chart}</CardContent>
+      <CardContent className="flex-grow h-[250px]">{chart}</CardContent>
     </Card>
   );
 }

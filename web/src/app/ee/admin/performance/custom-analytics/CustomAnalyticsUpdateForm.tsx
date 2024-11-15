@@ -27,7 +27,7 @@ export function CustomAnalyticsUpdateForm() {
           e.preventDefault();
 
           const response = await fetch(
-            "/api/admin/enterprise-settings/custom-analytics-script",
+            "/api/admin/workspace/custom-analytics-script",
             {
               method: "PUT",
               headers: {
@@ -41,15 +41,16 @@ export function CustomAnalyticsUpdateForm() {
           );
           if (response.ok) {
             toast({
-              title: "Success",
-              description: "Custom analytics script updated successfully!",
+              title: "Update Successful",
+              description:
+                "Custom analytics script has been updated successfully",
               variant: "success",
             });
           } else {
             const errorMsg = (await response.json()).detail;
             toast({
-              title: "Error",
-              description: `Failed to update custom analytics script: "${errorMsg}"`,
+              title: "Update Failed",
+              description: `Unable to update the custom analytics script: "${errorMsg}". Please try again.`,
               variant: "destructive",
             });
           }
@@ -90,7 +91,7 @@ export function CustomAnalyticsUpdateForm() {
             For security reasons, you must provide a secret key to update this
             script. This should be the value of the{" "}
             <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable set when
-            initially setting up enMedD AI.
+            initially setting up Arnold AI.
           </>
         </SubLabel>
         <input

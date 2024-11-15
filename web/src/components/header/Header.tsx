@@ -4,16 +4,14 @@ import { User } from "@/lib/types";
 import Link from "next/link";
 import React, { useContext } from "react";
 
-import { FiMenu, FiMessageSquare, FiSearch } from "react-icons/fi";
 import { HeaderWrapper } from "./HeaderWrapper";
 import { SettingsContext } from "../settings/SettingsProvider";
-import { UserDropdown } from "../UserDropdown";
 import Logo from "../../../public/logo-brand.png";
 import { NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED } from "@/lib/constants";
-import { ConnectorIcon, NotebookIcon } from "../icons/icons";
-import { AdminSidebar } from "../admin/connectors/AdminSidebar";
 import { SideBar } from "../SideBar";
 import Image from "next/image";
+import { MessageSquare, Search } from "lucide-react";
+import { useParams } from "next/navigation";
 
 export function HeaderTitle({ children }: { children: JSX.Element | string }) {
   return <h1 className="flex text-2xl font-bold text-strong">{children}</h1>;
@@ -24,12 +22,13 @@ interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
+  const { teamspaceId } = useParams();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
   }
   const settings = combinedSettings.settings;
-  const enterpriseSettings = combinedSettings.enterpriseSettings;
+  const workspaces = combinedSettings.workspaces;
 
   return (
     <HeaderWrapper>
@@ -38,23 +37,27 @@ export function Header({ user }: HeaderProps) {
         <Link
           className="flex flex-col py-3"
           href={
-            settings && settings.default_page === "chat" ? "/chat" : "/search"
+            settings && settings.default_page === "chat"
+              ? teamspaceId
+                ? `/t/${teamspaceId}/chat`
+                : "/chat"
+              : teamspaceId
+                ? `/t/${teamspaceId}/search`
+                : "/search"
           }
         >
           <div className="flex my-auto">
             <div className="my-auto mr-1">
-              {/* TODO: Remove Enterprise Settings */}
+              {/* TODO: Remove workspaces */}
               <Image src={Logo} alt="Logo" className="w-28" />
             </div>
             <div className="my-auto">
-              {enterpriseSettings && enterpriseSettings.application_name ? (
+              {workspaces && workspaces.workspace_name ? (
                 <div>
-                  <HeaderTitle>
-                    {enterpriseSettings.application_name}
-                  </HeaderTitle>
+                  <HeaderTitle>{workspaces.workspace_name}</HeaderTitle>
                   {!NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_ENMEDD_POWERED && (
                     <p className="text-xs text-subtle -mt-1.5">
-                      Powered by enMedD AI
+                      Powered by Arnold AI
                     </p>
                   )}
                 </div>
@@ -64,41 +67,35 @@ export function Header({ user }: HeaderProps) {
             </div>
           </div>
         </Link>
-        {/* <HeaderTitle>enMedD AI</HeaderTitle> */}
+        {/* <HeaderTitle>Arnold AI</HeaderTitle> */}
         {(!settings ||
           (settings.search_page_enabled && settings.chat_page_enabled)) && (
           <>
             <Link
-              href="/search"
+              href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
               className={"ml-6 h-full  flex-col hover:bg-hover lg:flex hidden"}
             >
               <div className="flex w-24 my-auto">
                 <div className={"mx-auto flex text-strong px-2"}>
-                  <FiSearch className="my-auto mr-1" />
+                  <Search className="my-auto mr-1" />
                   <h1 className="flex my-auto text-sm font-bold">Search</h1>
                 </div>
               </div>
             </Link>
 
             <Link
-              href="/chat"
+              href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
               className="flex-col hidden h-full hover:bg-hover lg:flex"
             >
               <div className="flex w-24 my-auto">
                 <div className="flex px-2 mx-auto text-strong">
-                  <FiMessageSquare className="my-auto mr-1" />
+                  <MessageSquare className="my-auto mr-1" />
                   <h1 className="flex my-auto text-sm font-bold">Chat</h1>
                 </div>
               </div>
             </Link>
           </>
         )}
-
-        <div className="flex flex-col h-full ml-auto">
-          <div className="my-auto">
-            <UserDropdown user={user} hideChatAndSearch />
-          </div>
-        </div>
       </div>
     </HeaderWrapper>
   );

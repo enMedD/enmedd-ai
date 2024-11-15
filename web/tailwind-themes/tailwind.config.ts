@@ -10,55 +10,107 @@ const config = {
   ],
   prefix: "",
   theme: {
-    container: {
-      center: true,
-      /* padding: "2rem", */
-      screens: {
-        "2xl": "1400px",
-      },
-    },
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)"],
       },
+      fontWeight: {
+        description: "375",
+        "token-bold": "bold",
+      },
+      fontStyle: {
+        "token-italic": "italic",
+      },
+      fontSize: {
+        "code-sm": "small",
+      },
       colors: {
+        // code styling
+        "code-bg": "var(--black)",
+        "code-text": "var(--code-text)",
+        "token-comment": "var(--token-comment)",
+        "token-punctuation": "var(--token-punctuation)",
+        "token-property": "var(--token-property)",
+        "token-selector": "var(--token-selector)",
+        "token-atrule": "var(--token-atrule)",
+        "token-function": "var(--token-function)",
+        "token-regex": "var(--token-regex)",
+        "token-attr-name": "var(--token-attr-name)",
+        "non-selectable": "var(--non-selectable)",
+
         input: "hsl(var(--input))",
         "input-colored": "#8DBAFF",
         ring: "hsl(var(--ring))",
         foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "#2039f3",
-          foreground: "#b8d7ff",
-          300: "#D7EAFF",
-          light: "#F1F5F9",
+        // TODO: make a proper palette for this that uses range
+        brand: {
+          50: "#F7DCFF",
+          100: "#EEB3FE",
+          200: "#DD67FE",
+          300: "#CC1BFD",
+          400: "#A302D0",
+          500: "#670182",
+          600: "#53016A",
+          700: "#3C014C",
+          800: "#280033",
+          900: "#140019",
+          950: "#0C000F",
         },
         secondary: {
-          DEFAULT: "var(--secondary)",
-          foreground: "hsl(var(--secondary-foreground))",
+          50: "#FDF5FF",
+          100: "#FCF0FF",
+          200: "#F8E1FF",
+          300: "#F5D2FE",
+          400: "#F1C3FE",
+          500: "#EEB3FE",
+          600: "#DA5EFD",
+          700: "#C708FC",
+          800: "#8702AB",
+          900: "#430156",
+          950: "#200128",
         },
         destructive: {
-          DEFAULT: "var(--destructive)",
-          foreground: "var(--destructive-foreground)",
+          50: "",
+          100: "var(--destructive-foreground)",
+          200: "",
+          300: "",
+          400: "",
+          500: "var(--destructive)",
+          600: "",
+          700: "",
+          800: "",
+          900: "",
+          950: "",
         },
         warning: {
-          DEFAULT: "var(--warning)",
-          foreground: "var(--warning-foreground)",
+          50: "",
+          100: "var(--warning-foreground)",
+          200: "",
+          300: "",
+          400: "",
+          500: "var(--warning)",
+          600: "",
+          700: "",
+          800: "",
+          900: "",
+          950: "",
         },
         success: {
-          DEFAULT: "var(--success)",
-          foreground: "var(--success-foreground)",
+          50: "",
+          100: "var(--success-foreground)",
+          200: "",
+          300: "",
+          400: "",
+          500: "var(--success)",
+          600: "",
+          700: "",
+          800: "",
+          900: "",
+          950: "",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
         },
 
         // background
@@ -82,7 +134,7 @@ const config = {
         emphasis: "#374151", // gray-700
         error: "#ef4444", // red-500
         alert: "#f59e0b", // amber-600
-        accent: "#6671d0",
+        accent: "#4B2525",
 
         // borders
         border: "#e5e7eb", // gray-200

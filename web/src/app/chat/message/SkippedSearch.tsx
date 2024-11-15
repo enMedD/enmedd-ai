@@ -27,9 +27,9 @@ export function SkippedSearch({
   handleForceSearch: () => void;
 }) {
   return (
-    <div className="flex text-sm py-1 items-center">
-      <Book className="my-auto mr-2 min-w-3.5 min-h-3.5" size={14} />
-      <div className="my-2 cursor-default">
+    <div className="flex text-sm items-center">
+      <Book className="my-auto mr-2 shrink-0" size={14} />
+      <div className="cursor-default">
         The AI decided this query didn&apos;t need a search
       </div>
 

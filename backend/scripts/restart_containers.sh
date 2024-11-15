@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # Usage of the script with optional volume arguments
-# ./restart_containers.sh [vespa_volume] [postgres_volume]
+# ./restart_containers.sh [vespa_volume] [postgres_volume] [redis_volume]
 
 VESPA_VOLUME=${1:-""}  # Default is empty if not provided
 POSTGRES_VOLUME=${2:-""}  # Default is empty if not provided
+REDIS_VOLUME=${3:-""}  # Default is empty if not provided
 
 # Stop and remove the existing containers
 echo "Stopping and removing existing containers..."
-docker stop enmedd_postgres enmedd_vespa
-docker rm enmedd_postgres enmedd_vespa
+docker stop enmedd_postgres enmedd_vespa enmedd_redis
+docker rm enmedd_postgres enmedd_vespa enmedd_redis
 
 # Start the PostgreSQL container with optional volume
 echo "Starting PostgreSQL container..."
@@ -25,6 +26,22 @@ if [[ -n "$VESPA_VOLUME" ]]; then
     docker run --detach --name enmedd_vespa --hostname vespa-container --publish 8081:8081 --publish 19071:19071 -v $VESPA_VOLUME:/opt/vespa/var vespaengine/vespa:8
 else
     docker run --detach --name enmedd_vespa --hostname vespa-container --publish 8081:8081 --publish 19071:19071 vespaengine/vespa:8
+fi
+
+# Start the Redis container with optional volume
+echo "Starting Redis container..."
+if [[ -n "$REDIS_VOLUME" ]]; then
+    docker run --detach --name enmedd_redis --publish 6379:6379 -v $REDIS_VOLUME:/data redis
+else
+    docker run --detach --name enmedd_redis --publish 6379:6379 redis
+fi
+
+# Start the Redis container with optional volume
+echo "Starting Redis container..."
+if [[ -n "$REDIS_VOLUME" ]]; then
+    docker run --detach --name enmedd_redis --publish 6379:6379 -v $REDIS_VOLUME:/data redis
+else
+    docker run --detach --name enmedd_redis --publish 6379:6379 redis
 fi
 
 # Ensure alembic runs in the correct directory

@@ -1,10 +1,21 @@
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 
 interface CustomModalProps {
   children: React.ReactNode;
   trigger: string | React.ReactNode;
   onClose?: () => void;
   open?: boolean;
+  title: string | React.ReactNode;
+  description?: string | React.ReactNode;
+  className?: string;
+  headerClassName?: string;
 }
 
 export function CustomModal({
@@ -12,6 +23,10 @@ export function CustomModal({
   trigger,
   onClose,
   open,
+  title,
+  description,
+  className,
+  headerClassName,
 }: CustomModalProps) {
   const handleClose = () => {
     if (onClose) {
@@ -22,7 +37,18 @@ export function CustomModal({
   return (
     <Dialog open={open} onOpenChange={(open) => !open && handleClose()}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent>{children}</DialogContent>
+      <DialogContent className={className}>
+        <DialogHeader className={`pb-8 ${headerClassName}`}>
+          <DialogTitle>{title}</DialogTitle>
+          {description && (
+            <DialogDescription className="text-base">
+              {description}
+            </DialogDescription>
+          )}
+        </DialogHeader>
+
+        {children}
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,146 +1,150 @@
 import { useChatContext } from "@/context/ChatContext";
-import { LlmOverride, LlmOverrideManager } from "@/lib/hooks";
-import React, { useCallback, useRef, useState } from "react";
+import { getDisplayNameForModel, LlmOverrideManager } from "@/lib/hooks";
+import React, { forwardRef, useCallback, useState } from "react";
 import { debounce } from "lodash";
-import { DefaultDropdown } from "@/components/Dropdown";
 import { Text } from "@tremor/react";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { destructureValue, getFinalLLM, structureValue } from "@/lib/llm/utils";
-import { updateModelOverrideForChatSession } from "../../lib";
-import { Slider } from "@/components/ui/slider";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  checkLLMSupportsImageInput,
+  destructureValue,
+  structureValue,
+} from "@/lib/llm/utils";
+import { updateModelOverrideForChatSession } from "../../lib";
+import { GearIcon } from "@/components/icons/icons";
+import { LlmList } from "@/components/llm/LLMList";
+import { checkAssistantRequiresImageGeneration } from "@/app/admin/assistants/lib";
+import { CustomModal } from "@/components/CustomModal";
+import { Thermometer } from "lucide-react";
 
-export function LlmTab({
-  llmOverrideManager,
-  currentAssistant,
-  chatSessionId,
-}: {
+interface LlmTabProps {
   llmOverrideManager: LlmOverrideManager;
-  currentAssistant: Assistant;
+  currentLlm: string;
+  openModelSettings: () => void;
   chatSessionId?: number;
-}) {
-  const { llmProviders } = useChatContext();
-  const { llmOverride, setLlmOverride, temperature, setTemperature } =
-    llmOverrideManager;
+  close: () => void;
+  currentAssistant: Assistant;
+}
 
-  const [localTemperature, setLocalTemperature] = useState<number>(
-    temperature || 0
-  );
+export const LlmTab = forwardRef<HTMLDivElement, LlmTabProps>(
+  (
+    {
+      llmOverrideManager,
+      chatSessionId,
+      currentLlm,
+      close,
+      openModelSettings,
+      currentAssistant,
+    },
+    ref
+  ) => {
+    const requiresImageGeneration =
+      checkAssistantRequiresImageGeneration(currentAssistant);
 
-  const debouncedSetTemperature = useCallback(
-    debounce((value) => {
-      setTemperature(value);
-    }, 300),
-    []
-  );
+    const { llmProviders } = useChatContext();
+    const { setLlmOverride, temperature, setTemperature } = llmOverrideManager;
+    const [isTemperatureExpanded, setIsTemperatureExpanded] = useState(false);
+    const [localTemperature, setLocalTemperature] = useState<number>(
+      temperature || 0
+    );
 
-  const handleTemperatureChange = (value: number) => {
-    setLocalTemperature(value);
-    debouncedSetTemperature(value);
-  };
+    const debouncedSetTemperature = useCallback(
+      (value: number) => {
+        const debouncedFunction = debounce((value: number) => {
+          setTemperature(value);
+        }, 300);
+        return debouncedFunction(value);
+      },
+      [setTemperature]
+    );
 
-  const [_, defaultLlmName] = getFinalLLM(llmProviders, currentAssistant, null);
+    const handleTemperatureChange = (value: number) => {
+      setLocalTemperature(value);
+      debouncedSetTemperature(value);
+    };
 
-  const llmOptions: { name: string; value: string }[] = [];
-  llmProviders.forEach((llmProvider) => {
-    llmProvider.model_names.forEach((modelName) => {
-      llmOptions.push({
-        name: modelName,
-        value: structureValue(
-          llmProvider.name,
-          llmProvider.provider,
-          modelName
-        ),
-      });
-    });
-  });
-
-  return (
-    <div>
-      <label className="block text-sm font-semibold pb-2 text-dark-900">
-        Choose Model
-      </label>
-      <Text className="pb-1">
-        Override the default model for the{" "}
-        <b className="font-medium">{currentAssistant.name}</b> assistant. The
-        override will apply only for this chat session.
-      </Text>
-      <Text className="pb-5 pt-3">
-        Default Model: <i className="font-medium">{defaultLlmName}</i>.
-      </Text>
-
-      <div className="xl:w-96">
-        <Select
-          value={
-            llmOverride.name && llmOverride.provider && llmOverride.modelName
-              ? structureValue(
-                  llmOverride.name,
-                  llmOverride.provider,
-                  llmOverride.modelName
-                )
-              : undefined
-          }
-          onValueChange={(value) => {
-            setLlmOverride(destructureValue(value as string));
+    return (
+      <div className="w-full">
+        <div className="flex w-full justify-between content-center mb-2 gap-x-2">
+          <label className="block text-sm font-medium">Choose Model</label>
+          <button
+            onClick={() => {
+              close();
+              openModelSettings();
+            }}
+          >
+            <GearIcon />
+          </button>
+        </div>
+        <LlmList
+          requiresImageGeneration={requiresImageGeneration}
+          llmProviders={llmProviders}
+          currentLlm={currentLlm}
+          onSelect={(value: string | null) => {
+            if (value == null) {
+              return;
+            }
+            setLlmOverride(destructureValue(value));
             if (chatSessionId) {
               updateModelOverrideForChatSession(chatSessionId, value as string);
             }
+            close();
           }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select an option...">
-              {llmOverride.modelName}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="z-modal">
-            {llmOptions.map((option, index) => (
-              <SelectItem key={index} value={option.value}>
-                {option.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <label className="block text-dark-900 text-sm font-semibold pb-2 pt-6">
-        Temperature
-      </label>
-
-      <Text className="mb-8">
-        Adjust the temperature of the LLM. Higher temperature will make the LLM
-        generate more creative and diverse responses, while lower temperature
-        will make the LLM generate more conservative and focused responses.
-      </Text>
-
-      <div className="relative w-full">
-        <Slider
-          onValueChange={(value) => handleTemperatureChange(value[0])}
-          min={0}
-          max={2}
-          step={0.01}
-          value={[localTemperature]}
-          className="slider"
         />
-        <div
-          className="absolute text-sm"
-          style={{
-            left: `${(localTemperature || 0) * 50}%`,
-            transform: `translateX(-${Math.min(
-              Math.max((localTemperature || 0) * 50, 10),
-              90
-            )}%)`,
-            top: "-2rem",
-          }}
-        >
-          {localTemperature}
+
+        <div className="mt-4">
+          <button
+            className="flex items-center text-sm font-medium transition-colors duration-200"
+            onClick={() => setIsTemperatureExpanded(!isTemperatureExpanded)}
+          >
+            <Thermometer />
+        Temperature
+          </button>
+
+          {isTemperatureExpanded && (
+            <CustomModal
+            onClose={() => setIsTemperatureExpanded(false)}
+            title="Adjust the temperature of the LLM."
+            trigger={null}
+            open={isTemperatureExpanded}
+            >
+              <Text className="mt-2 mb-8">
+                Higher temperatures will make
+                the LLM generate more creative and diverse responses, while
+                lower temperature will make the LLM generate more conservative
+                and focused responses.
+              </Text>
+
+              <div className="relative w-full">
+                <input
+                  type="range"
+                  onChange={(e) =>
+                    handleTemperatureChange(parseFloat(e.target.value))
+                  }
+                  className="w-full p-2 border border-border rounded-md"
+                  min="0"
+                  max="2"
+                  step="0.01"
+                  value={localTemperature}
+                />
+                <div
+                  className="absolute text-sm"
+                  style={{
+                    left: `${(localTemperature || 0) * 50}%`,
+                    transform: `translateX(-${Math.min(
+                      Math.max((localTemperature || 0) * 50, 10),
+                      90
+                    )}%)`,
+                    top: "-1.5rem",
+                  }}
+                >
+                  {localTemperature}
+                </div>
+              </div>
+            </CustomModal>
+          )}
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+LlmTab.displayName = "LlmTab";

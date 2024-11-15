@@ -1,8 +1,8 @@
 import { AdminPageTitle } from "@/components/admin/Title";
 import { CUSTOM_ANALYTICS_ENABLED } from "@/lib/constants";
 import { Callout, Text } from "@tremor/react";
-import { FiBarChart2 } from "react-icons/fi";
 import { CustomAnalyticsUpdateForm } from "./CustomAnalyticsUpdateForm";
+import { BarChart2 } from "lucide-react";
 
 function Main() {
   if (!CUSTOM_ANALYTICS_ENABLED) {
@@ -11,7 +11,7 @@ function Main() {
         <div className="mt-4">
           <Callout title="Custom Analytics is not enabled." color="red">
             To set up custom analytics scripts, please work with the team who
-            setup enMedD AI in your organization to set the{" "}
+            setup Arnold AI in your organization to set the{" "}
             <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable.
           </Callout>
         </div>
@@ -22,7 +22,7 @@ function Main() {
   return (
     <div>
       <Text className="mb-8">
-        This allows you to bring your own analytics tool to enMedD AI! Copy the
+        This allows you to bring your own analytics tool to Arnold AI. Copy the
         Web snippet from your analytics provider into the box below, and
         we&apos;ll start sending usage events.
       </Text>
@@ -34,13 +34,15 @@ function Main() {
 
 export default function Page() {
   return (
-    <main className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        title="Custom Analytics"
-        icon={<FiBarChart2 size={32} />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="Custom Analytics"
+          icon={<BarChart2 size={32} />}
+        />
 
-      <Main />
-    </main>
+        <div />
+      </div>
+    </div>
   );
 }

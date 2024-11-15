@@ -2,18 +2,10 @@
 
 import { useState } from "react";
 import { FeedbackType } from "../types";
-import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 
 const predefinedPositiveFeedbackOptions =
   process.env.NEXT_PUBLIC_POSITIVE_PREDEFINED_FEEDBACK_OPTIONS?.split(",") ||
@@ -27,17 +19,23 @@ const predefinedNegativeFeedbackOptions =
 
 interface FeedbackModalProps {
   feedbackType: FeedbackType;
-  onClose: () => void;
-  onSubmit: (feedbackDetails: {
-    message: string;
-    predefinedFeedback?: string;
-  }) => void;
+  onClose?: () => void;
+  onSubmit?: (
+    messageId: number,
+    feedbackType: FeedbackType,
+    feedbackDetails: string,
+    predefinedFeedback: string | undefined
+  ) => Promise<void>;
+  onModalClose: () => void;
+  currentFeedback?: [FeedbackType, number] | null;
 }
 
 export const FeedbackModal = ({
   feedbackType,
   onClose,
   onSubmit,
+  onModalClose,
+  currentFeedback,
 }: FeedbackModalProps) => {
   const [message, setMessage] = useState("");
   const [predefinedFeedback, setPredefinedFeedback] = useState<
@@ -48,46 +46,45 @@ export const FeedbackModal = ({
     setPredefinedFeedback(feedback);
   };
 
-  const handleSubmit = () => {
-    onSubmit({ message, predefinedFeedback });
-    onClose();
-  };
-
   const predefinedFeedbackOptions =
     feedbackType === "like"
       ? predefinedPositiveFeedbackOptions
       : predefinedNegativeFeedbackOptions;
 
-  return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl">
-        <DialogHeader>
-          <DialogTitle className="flex text-2xl font-bold ">
-            <div className="my-auto mr-1">
-              {feedbackType === "like" ? (
-                <FiThumbsUp className="my-auto mr-2 text-green-500" />
-              ) : (
-                <FiThumbsDown className="my-auto mr-2 text-red-600" />
-              )}
-            </div>
-            Provide additional feedback
-          </DialogTitle>
-        </DialogHeader>
+  const handleSubmit = () => {
+    if (onSubmit && currentFeedback) {
+      onSubmit(
+        currentFeedback[1],
+        currentFeedback[0],
+        message,
+        predefinedFeedback
+      );
+      setMessage("");
+      setPredefinedFeedback(undefined);
+      onModalClose();
+      if (onClose) {
+        onClose();
+      }
+    }
+  };
 
-        <Textarea
-          autoFocus
-          role="textarea"
-          aria-multiline
-          placeholder={
-            feedbackType === "like"
-              ? "(Optional) What did you like about this response?"
-              : "(Optional) What was the issue with the response? How could it be improved?"
-          }
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="min-h-40"
-        />
-        <RadioGroup className="">
+  return (
+    <div className="space-y-4">
+      <Textarea
+        autoFocus
+        role="textarea"
+        aria-multiline
+        placeholder={
+          feedbackType === "like"
+            ? "(Optional) What did you like about this response?"
+            : "(Optional) What was the issue with the response? How could it be improved?"
+        }
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="min-h-40"
+      />
+      {predefinedFeedbackOptions && (
+        <RadioGroup>
           {predefinedFeedbackOptions.map((feedback, index) => (
             <div
               key={index}
@@ -99,12 +96,14 @@ export const FeedbackModal = ({
             </div>
           ))}
         </RadioGroup>
-        <DialogFooter>
-          <Button className="mx-auto" onClick={handleSubmit}>
-            Submit feedback
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      )}
+
+      <div className="w-full flex justify-end gap-2">
+        <Button onClick={onModalClose} variant="ghost">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit}>Submit feedback</Button>
+      </div>
+    </div>
   );
 };

@@ -1,5 +1,9 @@
+import asyncio
 import io
 import uuid
+from collections.abc import Callable
+from collections.abc import Generator
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -44,8 +48,9 @@ from enmedd.llm.answering.prompts.citations_prompt import (
 )
 from enmedd.llm.exceptions import GenAIDisabledException
 from enmedd.llm.factory import get_default_llms
+from enmedd.llm.factory import get_llms_for_assistant
 from enmedd.llm.headers import get_litellm_additional_request_headers
-from enmedd.llm.utils import get_default_llm_tokenizer
+from enmedd.natural_language_processing.utils import get_tokenizer
 from enmedd.secondary_llm_flows.chat_session_naming import (
     get_renamed_conversation_name,
 )
@@ -74,6 +79,7 @@ router = APIRouter(prefix="/chat")
 
 @router.get("/get-user-chat-sessions")
 def get_user_chat_sessions(
+    teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> ChatSessionsResponse:
@@ -81,11 +87,16 @@ def get_user_chat_sessions(
 
     try:
         chat_sessions = get_chat_sessions_by_user(
-            user_id=user_id, deleted=False, db_session=db_session
+            user_id=user_id,
+            teamspace_id=teamspace_id,
+            deleted=False,
+            db_session=db_session,
         )
 
     except ValueError:
-        raise ValueError("Chat session does not exist or has been deleted")
+        raise HTTPException(
+            status_code=404, detail="Chat session does not exist or has been deleted"
+        )
 
     return ChatSessionsResponse(
         sessions=[
@@ -128,7 +139,6 @@ def get_chat_session(
     db_session: Session = Depends(get_session),
 ) -> ChatSessionDetailResponse:
     user_id = user.id if user is not None else None
-
     try:
         chat_session = get_chat_session_by_id(
             chat_session_id=session_id,
@@ -161,7 +171,7 @@ def get_chat_session(
         chat_session_id=session_id,
         description=chat_session.description,
         assistant_id=chat_session.assistant_id,
-        assistant_name=chat_session.assistant.name,
+        assistant_name=chat_session.assistant.name if chat_session.assistant else None,
         current_alternate_model=chat_session.current_alternate_model,
         messages=[
             translate_db_message_to_chat_message_detail(
@@ -179,6 +189,7 @@ def create_new_chat_session(
     chat_session_creation_request: ChatSessionCreationRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    teamspace_id: Optional[int] = None,
 ) -> CreateChatSessionID:
     user_id = user.id if user is not None else None
     try:
@@ -188,6 +199,7 @@ def create_new_chat_session(
             or "",  # Leave the naming till later to prevent delay
             user_id=user_id,
             assistant_id=chat_session_creation_request.assistant_id,
+            teamspace_id=teamspace_id,
         )
     except Exception as e:
         logger.exception(e)
@@ -206,8 +218,6 @@ def rename_chat_session(
     name = rename_req.name
     chat_session_id = rename_req.chat_session_id
     user_id = user.id if user is not None else None
-
-    logger.info(f"Received rename request for chat session: {chat_session_id}")
 
     if name:
         update_chat_session(
@@ -268,7 +278,30 @@ def delete_chat_session_by_id(
     db_session: Session = Depends(get_session),
 ) -> None:
     user_id = user.id if user is not None else None
-    delete_chat_session(user_id, session_id, db_session)
+    try:
+        delete_chat_session(user_id, session_id, db_session)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+async def is_disconnected(request: Request) -> Callable[[], bool]:
+    main_loop = asyncio.get_event_loop()
+
+    def is_disconnected_sync() -> bool:
+        future = asyncio.run_coroutine_threadsafe(request.is_disconnected(), main_loop)
+        try:
+            return not future.result(timeout=0.01)
+        except asyncio.TimeoutError:
+            logger.error("Asyncio timed out")
+            return True
+        except Exception as e:
+            error_msg = str(e)
+            logger.critical(
+                f"An unexpected error occured with the disconnect check coroutine: {error_msg}"
+            )
+            return True
+
+    return is_disconnected_sync
 
 
 @router.post("/send-message")
@@ -277,13 +310,13 @@ def handle_new_chat_message(
     request: Request,
     user: User | None = Depends(current_user),
     _: None = Depends(check_token_rate_limits),
+    is_disconnected_func: Callable[[], bool] = Depends(is_disconnected),
 ) -> StreamingResponse:
     """This endpoint is both used for all the following purposes:
     - Sending a new message in the session
     - Regenerating a message in the session (just send the same one again)
     - Editing a message (similar to regenerating but sending a different message)
     - Kicking off a seeded chat session (set `use_existing_user_message`)
-
     To avoid extra overhead/latency, this assumes (and checks) that previous messages on the path
     have already been set as latest"""
     logger.debug(f"Received new chat message: {chat_message_req.message}")
@@ -295,16 +328,26 @@ def handle_new_chat_message(
     ):
         raise HTTPException(status_code=400, detail="Empty chat message is invalid")
 
-    packets = stream_chat_message(
-        new_msg_req=chat_message_req,
-        user=user,
-        use_existing_user_message=chat_message_req.use_existing_user_message,
-        litellm_additional_headers=get_litellm_additional_request_headers(
-            request.headers
-        ),
-    )
+    import json
 
-    return StreamingResponse(packets, media_type="application/json")
+    def stream_generator() -> Generator[str, None, None]:
+        try:
+            for packet in stream_chat_message(
+                new_msg_req=chat_message_req,
+                user=user,
+                use_existing_user_message=chat_message_req.use_existing_user_message,
+                litellm_additional_headers=get_litellm_additional_request_headers(
+                    request.headers
+                ),
+                is_connected=is_disconnected_func,
+            ):
+                yield json.dumps(packet) if isinstance(packet, dict) else packet
+
+        except Exception as e:
+            logger.exception(f"Error in chat message streaming: {e}")
+            yield json.dumps({"error": str(e)})
+
+    return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
 
 @router.put("/set-message-as-latest")
@@ -443,6 +486,14 @@ def seed_chat(
         root_message = get_or_create_root_message(
             chat_session_id=new_chat_session.id, db_session=db_session
         )
+        llm, fast_llm = get_llms_for_assistant(assistant=new_chat_session.assistant)
+
+        tokenizer = get_tokenizer(
+            model_name=llm.config.model_name,
+            provider_type=llm.config.model_provider,
+        )
+        token_count = len(tokenizer.encode(chat_seed_request.message))
+
         create_new_chat_message(
             chat_session_id=new_chat_session.id,
             parent_message=root_message,
@@ -453,9 +504,7 @@ def seed_chat(
                 else None
             ),
             message=chat_seed_request.message,
-            token_count=len(
-                get_default_llm_tokenizer().encode(chat_seed_request.message)
-            ),
+            token_count=token_count,
             message_type=MessageType.USER,
             db_session=db_session,
         )
@@ -484,6 +533,7 @@ def upload_files_for_chat(
         "text/tab-separated-values",
         "application/json",
         "application/xml",
+        "text/xml",
         "application/x-yaml",
     }
     document_content_types = {
@@ -547,7 +597,10 @@ def upload_files_for_chat(
         # if the file is a doc, extract text and store that so we don't need
         # to re-extract it every time we send a message
         if file_type == ChatFileType.DOC:
-            extracted_text = extract_file_text(file_name=file.filename, file=file.file)
+            extracted_text = extract_file_text(
+                file=file.file,
+                file_name=file.filename or "",
+            )
             text_file_id = str(uuid.uuid4())
             file_store.save_file(
                 file_name=text_file_id,

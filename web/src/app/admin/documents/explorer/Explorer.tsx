@@ -14,12 +14,13 @@ import { HorizontalFilters } from "@/components/search/filtering/Filters";
 import { useFilters } from "@/lib/hooks";
 import { buildFilters } from "@/lib/search/utils";
 import { DocumentUpdatedAtBadge } from "@/components/search/DocumentUpdatedAtBadge";
-import { Connector, DocumentSet } from "@/lib/types";
+import { DocumentSet } from "@/lib/types";
 import { SourceIcon } from "@/components/SourceIcon";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { Connector } from "@/lib/connectors/connectors";
 
 const DocumentDisplay = ({
   document,
@@ -54,7 +55,7 @@ const DocumentDisplay = ({
       <div className="flex items-center flex-wrap pt-2 text-xs gap-x-2">
         <Badge
           variant="outline"
-          className="px-3 gap-1.5 max-h-[30px] cursor-pointer hover:opacity-80"
+          className="px-3 gap-1.5 max-h-[30px] cursor-pointer hover:bg-opacity-80"
         >
           <p className="my-auto mr-1">Boost:</p>
           <ScoreSection
@@ -66,24 +67,29 @@ const DocumentDisplay = ({
         </Badge>
         <Badge
           onClick={async () => {
+            const newHiddenStatus = !document.hidden;
             const response = await updateHiddenStatus(
               document.document_id,
               !document.hidden
             );
             if (response.ok) {
+              toast({
+                title: "Status Updated",
+                description: `Document is now ${newHiddenStatus ? "Hidden" : "Visible"}.`,
+                variant: "success",
+              });
+
               refresh();
             } else {
               toast({
-                title: "Error",
-                description: `Failed to update document - ${getErrorMsg(
-                  response
-                )}}`,
+                title: "Update Failed",
+                description: `Unable to update document status - ${getErrorMsg(response)}`,
                 variant: "destructive",
               });
             }
           }}
           variant="outline"
-          className="py-1.5 px-3 gap-1.5 cursor-pointer hover:opacity-80"
+          className="py-1.5 px-3 gap-1.5 cursor-pointer hover:bg-opacity-80"
         >
           <div className="my-auto">
             {document.hidden ? (
@@ -176,7 +182,11 @@ export function Explorer({
               setQuery(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
+              if (
+                event.key === "Enter" &&
+                !event.shiftKey &&
+                !(event.nativeEvent as any).isComposing
+              ) {
                 onSearch(query);
                 event.preventDefault();
               }
@@ -207,10 +217,10 @@ export function Explorer({
         </div>
       )}
       {!query && (
-        <div className="flex mt-3 ">
-          Search for a document above to modify it&apos;s boost or hide it from
+        <p className="flex text-emphasis mt-3">
+          Search for a document above to modify its boost or hide it from
           searches.
-        </div>
+        </p>
       )}
     </div>
   );

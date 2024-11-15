@@ -1,9 +1,6 @@
-import { EmphasizedClickable } from "@/components/BasicClickable";
-import { HoverPopup } from "@/components/HoverPopup";
-import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { X, Check, Pencil } from "lucide-react";
+import { X, Check, Pencil, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
 
@@ -11,25 +8,34 @@ export function ShowHideDocsButton({
   messageId,
   isCurrentlyShowingRetrieved,
   handleShowRetrieved,
+  handleToggleSideBar,
 }: {
   messageId: number | null;
   isCurrentlyShowingRetrieved: boolean;
   handleShowRetrieved: (messageId: number | null) => void;
+  handleToggleSideBar?: () => void;
 }) {
   return (
     <div
       className="ml-auto my-auto"
       onClick={() => handleShowRetrieved(messageId)}
     >
-      {isCurrentlyShowingRetrieved ? (
-        <Button size="xs" variant="outline">
-          <div className="w-24 text-xs">Hide Docs</div>
-        </Button>
-      ) : (
-        <Button size="xs" variant="outline">
-          <div className="w-24 text-xs">Show Docs</div>
-        </Button>
-      )}
+      {(() => {
+        const buttonLabel = isCurrentlyShowingRetrieved
+          ? "Hide Docs"
+          : "Show Docs";
+
+        return (
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={handleToggleSideBar}
+            className="w-24"
+          >
+            {buttonLabel}
+          </Button>
+        );
+      })()}
     </div>
   );
 }
@@ -37,17 +43,19 @@ export function ShowHideDocsButton({
 export function SearchSummary({
   query,
   hasDocs,
+  finished,
   messageId,
-  isCurrentlyShowingRetrieved,
   handleShowRetrieved,
   handleSearchQueryEdit,
+  handleToggleSideBar,
 }: {
+  finished: boolean;
   query: string;
   hasDocs: boolean;
   messageId: number | null;
-  isCurrentlyShowingRetrieved: boolean;
   handleShowRetrieved: (messageId: number | null) => void;
   handleSearchQueryEdit?: (query: string) => void;
+  handleToggleSideBar?: () => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [finalQuery, setFinalQuery] = useState(query);
@@ -87,12 +95,12 @@ export function SearchSummary({
   const searchingForDisplay = (
     <div
       className={`flex items-center py-1 rounded ${
-        isOverflowed && "cursor-default"
+        isOverflowed ? "cursor-default" : ""
       }`}
     >
-      <Search size={16} className="min-w-4 min-h-4 mr-2" />
+      <Search size={16} className="shrink-0 mr-2" />
       <div className="line-clamp-1 break-all px-0.5" ref={searchingForRef}>
-        Searching for: <i>{finalQuery}</i>
+        {finished ? "Searched" : "Searching"} for: <i> {finalQuery}</i>
       </div>
     </div>
   );
@@ -151,12 +159,12 @@ export function SearchSummary({
   ) : null;
 
   return (
-    <div className="flex">
+    <div className="flex pt-4">
       {isEditing ? (
         editInput
       ) : (
         <>
-          <div className="text-sm my-2">
+          <div className="text-sm">
             {isOverflowed ? (
               <CustomTooltip trigger={searchingForDisplay} align="start">
                 <div className="w-full max-w-96 lg:max-w-screen-md max-h-40 overflow-auto">
@@ -170,23 +178,23 @@ export function SearchSummary({
           </div>
           {handleSearchQueryEdit && (
             <div className="my-auto mx-2">
-              <Button
-                variant="ghost"
-                size="smallIcon"
-                onClick={() => setIsEditing(true)}
+              <CustomTooltip
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="smallIcon"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Pencil size={16} />
+                  </Button>
+                }
+                asChild
               >
-                <Pencil size={16} />
-              </Button>
+                Edit
+              </CustomTooltip>
             </div>
           )}
         </>
-      )}
-      {hasDocs && (
-        <ShowHideDocsButton
-          messageId={messageId}
-          isCurrentlyShowingRetrieved={isCurrentlyShowingRetrieved}
-          handleShowRetrieved={handleShowRetrieved}
-        />
       )}
     </div>
   );

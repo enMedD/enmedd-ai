@@ -7,7 +7,6 @@ import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { TrashIcon } from "@/components/icons/icons";
 import { deleteTeamspace } from "./lib";
 import { useRouter } from "next/navigation";
-import { FiEdit2, FiUser } from "react-icons/fi";
 import { User, Teamspace } from "@/lib/types";
 import Link from "next/link";
 import { DeleteButton } from "@/components/DeleteButton";
@@ -22,15 +21,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Pen } from "lucide-react";
+import { Pencil, User as UserIcon } from "lucide-react";
 
 const MAX_USERS_TO_DISPLAY = 6;
 
 const SimpleUserDisplay = ({ user }: { user: User }) => {
   return (
     <div className="flex my-0.5">
-      <FiUser className="mr-2 my-auto" /> {user.email}
+      <UserIcon className="mr-2 my-auto" /> {user.email}
     </div>
   );
 };
@@ -65,7 +63,7 @@ export const TeamspacesTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Connectors</TableHead>
+              <TableHead>Data Sources</TableHead>
               <TableHead>Users</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Delete</TableHead>
@@ -76,14 +74,21 @@ export const TeamspacesTable = ({
               .filter((teamspace) => !teamspace.is_up_for_deletion)
               .map((teamspace) => {
                 return (
-                  <TableRow key={teamspace.id}>
+                  <TableRow
+                    key={teamspace.id}
+                    onClick={() => router.push(`/admin/teams/${teamspace.id}`)}
+                    className="cursor-pointer"
+                  >
                     <TableCell>
-                      <Link href={`/admin/teams/${teamspace.id}`}>
-                        <Button variant="ghost">
-                          <Pen size={16} />
-                          <p className="text font-medium">{teamspace.name}</p>
-                        </Button>
-                      </Link>
+                      <div className="flex items-center gap-2 my-auto">
+                        <div className="p-4">
+                          <Pencil size={16} />
+                        </div>
+                        <p className="whitespace-normal break-all max-w-3xl font-medium">
+                          {teamspace.name}
+                        </p>
+                      </div>
+                      {/*  </Link> */}
                     </TableCell>
                     <TableCell>
                       {teamspace.cc_pairs.length > 0 ? (
@@ -147,8 +152,10 @@ export const TeamspacesTable = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      {!teamspace.is_up_to_date ? (
-                        <Badge variant="success">Up to date!</Badge>
+                      {teamspace.is_up_to_date ? (
+                        <Badge variant="success" className="whitespace-nowrap">
+                          Up to date!
+                        </Badge>
                       ) : (
                         <Badge variant="outline" className="w-20">
                           <LoadingAnimation text="Syncing" />
@@ -162,15 +169,15 @@ export const TeamspacesTable = ({
                           const response = await deleteTeamspace(teamspace.id);
                           if (response.ok) {
                             toast({
-                              title: "Success",
-                              description: `Teamspace "${teamspace.name}" deleted`,
+                              title: "Teamspace Deleted!",
+                              description: `Successfully deleted the teamspace: "${teamspace.name}".`,
                               variant: "success",
                             });
                           } else {
                             const errorMsg = (await response.json()).detail;
                             toast({
-                              title: "Error",
-                              description: `Failed to delete Teamspace - ${errorMsg}`,
+                              title: "Deletion Error",
+                              description: `Failed to delete the teamspace: ${errorMsg}. Please try again.`,
                               variant: "destructive",
                             });
                           }

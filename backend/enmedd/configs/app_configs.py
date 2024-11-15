@@ -35,7 +35,7 @@ DISABLE_GENERATIVE_AI = os.environ.get("DISABLE_GENERATIVE_AI", "").lower() == "
 # Web Configs
 #####
 # WEB_DOMAIN is used to set the redirect_uri after login flows
-# NOTE: if you are having problems accessing the enMedD AI web UI locally (especially
+# NOTE: if you are having problems accessing the Arnold AI web UI locally (especially
 # on Windows, try  setting this to `http://127.0.0.1:3000` instead and see if that
 # fixes it)
 WEB_DOMAIN = os.environ.get("WEB_DOMAIN") or "http://localhost:3000"
@@ -49,7 +49,7 @@ DISABLE_AUTH = AUTH_TYPE == AuthType.DISABLED
 
 # Encryption key secret is used to encrypt connector credentials, api keys, and other sensitive
 # information. This provides an extra layer of security on top of Postgres access controls
-# and is available in enMedD AI EE
+# and is available in Arnold AI EE
 ENCRYPTION_KEY_SECRET = os.environ.get("ENCRYPTION_KEY_SECRET") or ""
 
 # Turn off mask if admin users should see full credentials for data connectors.
@@ -63,8 +63,8 @@ SESSION_EXPIRE_TIME_SECONDS = int(
 )  # 7 days
 
 # set `VALID_EMAIL_DOMAINS` to a comma seperated list of domains in order to
-# restrict access to enMedD AI to only users with emails from those domains.
-# E.g. `VALID_EMAIL_DOMAINS=example.com,example.org` will restrict enMedD AI
+# restrict access to Arnold AI to only users with emails from those domains.
+# E.g. `VALID_EMAIL_DOMAINS=example.com,example.org` will restrict Arnold AI
 # signups to users with either an @example.com or an @example.org email.
 # NOTE: maintaining `VALID_EMAIL_DOMAIN` to keep backwards compatibility
 _VALID_EMAIL_DOMAIN = os.environ.get("VALID_EMAIL_DOMAIN", "")
@@ -97,6 +97,14 @@ SMTP_USER = os.environ.get("SMTP_USER", "your-email@gmail.com")
 SMTP_PASS = os.environ.get("SMTP_PASS", "your-gmail-password")
 EMAIL_FROM = os.environ.get("EMAIL_FROM") or SMTP_USER
 
+# If set, Arnold AI will listen to the `expires_at` returned by the identity
+# provider (e.g. Okta, Google, etc.) and force the user to re-authenticate
+# after this time has elapsed. Disabled since by default many auth providers
+# have very short expiry times (e.g. 1 hour) which provide a poor user experience
+TRACK_EXTERNAL_IDP_EXPIRY = (
+    os.environ.get("TRACK_EXTERNAL_IDP_EXPIRY", "").lower() == "true"
+)
+
 
 #####
 # DB Configs
@@ -123,6 +131,7 @@ try:
 except ValueError:
     INDEX_BATCH_SIZE = 16
 
+
 # Below are intended to match the env variables names used by the official postgres docker image
 # https://hub.docker.com/_/postgres
 POSTGRES_USER = os.environ.get("POSTGRES_USER") or "postgres"
@@ -134,6 +143,61 @@ POSTGRES_HOST = os.environ.get("POSTGRES_HOST") or "localhost"
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT") or "5432"
 POSTGRES_DB = os.environ.get("POSTGRES_DB") or "postgres"
 
+POSTGRES_API_SERVER_POOL_SIZE = int(
+    os.environ.get("POSTGRES_API_SERVER_POOL_SIZE") or 40
+)
+POSTGRES_API_SERVER_POOL_OVERFLOW = int(
+    os.environ.get("POSTGRES_API_SERVER_POOL_OVERFLOW") or 10
+)
+
+# defaults to False
+POSTGRES_POOL_PRE_PING = os.environ.get("POSTGRES_POOL_PRE_PING", "").lower() == "true"
+
+# recycle timeout in seconds
+POSTGRES_POOL_RECYCLE_DEFAULT = 60 * 20  # 20 minutes
+try:
+    POSTGRES_POOL_RECYCLE = int(
+        os.environ.get("POSTGRES_POOL_RECYCLE", POSTGRES_POOL_RECYCLE_DEFAULT)
+    )
+except ValueError:
+    POSTGRES_POOL_RECYCLE = POSTGRES_POOL_RECYCLE_DEFAULT
+
+REDIS_SSL = os.getenv("REDIS_SSL", "").lower() == "true"
+REDIS_HOST = os.environ.get("REDIS_HOST") or "localhost"
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD") or ""
+
+# Used for general redis things
+REDIS_DB_NUMBER = int(os.environ.get("REDIS_DB_NUMBER", 0))
+
+# Used by celery as broker and backend
+REDIS_DB_NUMBER_CELERY_RESULT_BACKEND = int(
+    os.environ.get("REDIS_DB_NUMBER_CELERY_RESULT_BACKEND", 14)
+)
+REDIS_DB_NUMBER_CELERY = int(os.environ.get("REDIS_DB_NUMBER_CELERY", 15))  # broker
+
+# will propagate to both our redis client as well as celery's redis client
+REDIS_HEALTH_CHECK_INTERVAL = int(os.environ.get("REDIS_HEALTH_CHECK_INTERVAL", 60))
+
+# our redis client only, not celery's
+REDIS_POOL_MAX_CONNECTIONS = int(os.environ.get("REDIS_POOL_MAX_CONNECTIONS", 128))
+
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-backend-settings
+# should be one of "required", "optional", or "none"
+REDIS_SSL_CERT_REQS = os.getenv("REDIS_SSL_CERT_REQS", "none")
+REDIS_SSL_CA_CERTS = os.getenv("REDIS_SSL_CA_CERTS", None)
+
+CELERY_RESULT_EXPIRES = int(os.environ.get("CELERY_RESULT_EXPIRES", 86400))  # seconds
+
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#broker-pool-limit
+# Setting to None may help when there is a proxy in the way closing idle connections
+CELERY_BROKER_POOL_LIMIT_DEFAULT = 10
+try:
+    CELERY_BROKER_POOL_LIMIT = int(
+        os.environ.get("CELERY_BROKER_POOL_LIMIT", CELERY_BROKER_POOL_LIMIT_DEFAULT)
+    )
+except ValueError:
+    CELERY_BROKER_POOL_LIMIT = CELERY_BROKER_POOL_LIMIT_DEFAULT
 
 #####
 # Connector Configs
@@ -141,7 +205,7 @@ POSTGRES_DB = os.environ.get("POSTGRES_DB") or "postgres"
 POLL_CONNECTOR_OFFSET = 30  # Minutes overlap between poll windows
 
 # If this is empty, all connectors are enabled, this is an option for security heavy orgs where
-# only very select connectors are enabled and admins cannot add other connector types
+# only very Select data sources are enabled and admins cannot add other connector types
 ENABLED_CONNECTOR_TYPES = os.environ.get("ENABLED_CONNECTOR_TYPES") or ""
 
 # Some calls to get information on expert users are quite costly especially with rate limiting
@@ -184,14 +248,24 @@ CONFLUENCE_CONNECTOR_LABELS_TO_SKIP = [
 ]
 
 # Avoid to get archived pages
-CONFLUENCE_CONNECTOR_INDEX_ONLY_ACTIVE_PAGES = (
-    os.environ.get("CONFLUENCE_CONNECTOR_INDEX_ONLY_ACTIVE_PAGES", "").lower() == "true"
+CONFLUENCE_CONNECTOR_INDEX_ARCHIVED_PAGES = (
+    os.environ.get("CONFLUENCE_CONNECTOR_INDEX_ARCHIVED_PAGES", "").lower() == "true"
 )
 
-# Save pages labels as enMedD metadata tags
+# Save pages labels as Arnold AI metadata tags
 # The reason to skip this would be to reduce the number of calls to Confluence due to rate limit concerns
 CONFLUENCE_CONNECTOR_SKIP_LABEL_INDEXING = (
     os.environ.get("CONFLUENCE_CONNECTOR_SKIP_LABEL_INDEXING", "").lower() == "true"
+)
+
+# Attachments exceeding this size will not be retrieved (in bytes)
+CONFLUENCE_CONNECTOR_ATTACHMENT_SIZE_THRESHOLD = int(
+    os.environ.get("CONFLUENCE_CONNECTOR_ATTACHMENT_SIZE_THRESHOLD", 10 * 1024 * 1024)
+)
+# Attachments with more chars than this will not be indexed. This is to prevent extremely
+# large files from freezing indexing. 200,000 is ~100 google doc pages.
+CONFLUENCE_CONNECTOR_ATTACHMENT_CHAR_COUNT_THRESHOLD = int(
+    os.environ.get("CONFLUENCE_CONNECTOR_ATTACHMENT_CHAR_COUNT_THRESHOLD", 200_000)
 )
 
 JIRA_CONNECTOR_LABELS_TO_SKIP = [
@@ -199,6 +273,10 @@ JIRA_CONNECTOR_LABELS_TO_SKIP = [
     for ignored_tag in os.environ.get("JIRA_CONNECTOR_LABELS_TO_SKIP", "").split(",")
     if ignored_tag
 ]
+# Maximum size for Jira tickets in bytes (default: 100KB)
+JIRA_CONNECTOR_MAX_TICKET_SIZE = int(
+    os.environ.get("JIRA_CONNECTOR_MAX_TICKET_SIZE", 100 * 1024)
+)
 
 GONG_CONNECTOR_START_TIME = os.environ.get("GONG_CONNECTOR_START_TIME")
 
@@ -215,16 +293,22 @@ EXPERIMENTAL_CHECKPOINTING_ENABLED = (
     os.environ.get("EXPERIMENTAL_CHECKPOINTING_ENABLED", "").lower() == "true"
 )
 
+PRUNING_DISABLED = -1
 DEFAULT_PRUNING_FREQ = 60 * 60 * 24  # Once a day
 
-PREVENT_SIMULTANEOUS_PRUNING = (
-    os.environ.get("PREVENT_SIMULTANEOUS_PRUNING", "").lower() == "true"
+ALLOW_SIMULTANEOUS_PRUNING = (
+    os.environ.get("ALLOW_SIMULTANEOUS_PRUNING", "").lower() == "true"
 )
 
-# This is the maxiumum rate at which documents are queried for a pruning job. 0 disables the limitation.
+# This is the maximum rate at which documents are queried for a pruning job. 0 disables the limitation.
 MAX_PRUNING_DOCUMENT_RETRIEVAL_PER_MINUTE = int(
     os.environ.get("MAX_PRUNING_DOCUMENT_RETRIEVAL_PER_MINUTE", 0)
 )
+
+# comma delimited list of zendesk article labels to skip indexing for
+ZENDESK_CONNECTOR_SKIP_ARTICLE_LABELS = os.environ.get(
+    "ZENDESK_CONNECTOR_SKIP_ARTICLE_LABELS", ""
+).split(",")
 
 
 #####
@@ -246,32 +330,56 @@ DISABLE_INDEX_UPDATE_ON_SWAP = (
 # fairly large amount of memory in order to increase substantially, since
 # each worker loads the embedding models into memory.
 NUM_INDEXING_WORKERS = int(os.environ.get("NUM_INDEXING_WORKERS") or 1)
-CHUNK_OVERLAP = 0
+NUM_SECONDARY_INDEXING_WORKERS = int(
+    os.environ.get("NUM_SECONDARY_INDEXING_WORKERS") or NUM_INDEXING_WORKERS
+)
 # More accurate results at the expense of indexing speed and index size (stores additional 4 MINI_CHUNK vectors)
-ENABLE_MINI_CHUNK = os.environ.get("ENABLE_MINI_CHUNK", "").lower() == "true"
+ENABLE_MULTIPASS_INDEXING = (
+    os.environ.get("ENABLE_MULTIPASS_INDEXING", "").lower() == "true"
+)
 # Finer grained chunking for more detail retention
 # Slightly larger since the sentence aware split is a max cutoff so most minichunks will be under MINI_CHUNK_SIZE
 # tokens. But we need it to be at least as big as 1/4th chunk size to avoid having a tiny mini-chunk at the end
 MINI_CHUNK_SIZE = 150
+
+# This is the number of regular chunks per large chunk
+LARGE_CHUNK_RATIO = 4
+
+# Include the document level metadata in each chunk. If the metadata is too long, then it is thrown out
+# We don't want the metadata to overwhelm the actual contents of the chunk
+SKIP_METADATA_IN_CHUNK = os.environ.get("SKIP_METADATA_IN_CHUNK", "").lower() == "true"
 # Timeout to wait for job's last update before killing it, in hours
 CLEANUP_INDEXING_JOBS_TIMEOUT = int(os.environ.get("CLEANUP_INDEXING_JOBS_TIMEOUT", 3))
 
+# The indexer will warn in the logs whenver a document exceeds this threshold (in bytes)
+INDEXING_SIZE_WARNING_THRESHOLD = int(
+    os.environ.get("INDEXING_SIZE_WARNING_THRESHOLD", 100 * 1024 * 1024)
+)
+
+# during indexing, will log verbose memory diff stats every x batches and at the end.
+# 0 disables this behavior and is the default.
+INDEXING_TRACER_INTERVAL = int(os.environ.get("INDEXING_TRACER_INTERVAL", 0))
+
+# During an indexing attempt, specifies the number of batches which are allowed to
+# exception without aborting the attempt.
+INDEXING_EXCEPTION_LIMIT = int(os.environ.get("INDEXING_EXCEPTION_LIMIT", 0))
 
 #####
 # Miscellaneous
 #####
-# File based Key Value store no longer used
-DYNAMIC_CONFIG_STORE = "PostgresBackedDynamicConfigStore"
-
 JOB_TIMEOUT = 60 * 60 * 6  # 6 hours default
 # used to allow the background indexing jobs to use a different embedding
 # model server than the API server
 CURRENT_PROCESS_IS_AN_INDEXING_JOB = (
     os.environ.get("CURRENT_PROCESS_IS_AN_INDEXING_JOB", "").lower() == "true"
 )
-# Logs every model prompt and output, mostly used for development or exploration purposes
+# Sets LiteLLM to verbose logging
 LOG_ALL_MODEL_INTERACTIONS = (
     os.environ.get("LOG_ALL_MODEL_INTERACTIONS", "").lower() == "true"
+)
+# Logs Arnold AI only model interactions like prompts, responses, messages etc.
+LOG_DANSWER_MODEL_INTERACTIONS = (
+    os.environ.get("LOG_DANSWER_MODEL_INTERACTIONS", "").lower() == "true"
 )
 # If set to `true` will enable additional logs about Vespa query performance
 # (time spent on finding the right docs + time spent fetching summaries from disk)
@@ -279,6 +387,10 @@ LOG_VESPA_TIMING_INFORMATION = (
     os.environ.get("LOG_VESPA_TIMING_INFORMATION", "").lower() == "true"
 )
 LOG_ENDPOINT_LATENCY = os.environ.get("LOG_ENDPOINT_LATENCY", "").lower() == "true"
+LOG_POSTGRES_LATENCY = os.environ.get("LOG_POSTGRES_LATENCY", "").lower() == "true"
+LOG_POSTGRES_CONN_COUNTS = (
+    os.environ.get("LOG_POSTGRES_CONN_COUNTS", "").lower() == "true"
+)
 # Anonymous usage telemetry
 DISABLE_TELEMETRY = os.environ.get("DISABLE_TELEMETRY", "").lower() == "true"
 
@@ -298,6 +410,13 @@ CUSTOM_ANSWER_VALIDITY_CONDITIONS = json.loads(
 #####
 # NOTE: this should only be enabled if you have purchased an enterprise license.
 
-ENTERPRISE_EDITION_ENABLED = (
-    os.environ.get("ENABLE_PAID_ENTERPRISE_EDITION_FEATURES", "").lower() == "true"
-)
+ENTERPRISE_EDITION_ENABLED = "true"
+
+# Azure DALL-E Configurations
+AZURE_DALLE_API_VERSION = os.environ.get("AZURE_DALLE_API_VERSION")
+AZURE_DALLE_API_KEY = os.environ.get("AZURE_DALLE_API_KEY")
+AZURE_DALLE_API_BASE = os.environ.get("AZURE_DALLE_API_BASE")
+AZURE_DALLE_DEPLOYMENT_NAME = os.environ.get("AZURE_DALLE_DEPLOYMENT_NAME")
+
+DATA_PLANE_SECRET = os.environ.get("DATA_PLANE_SECRET", "")
+EXPECTED_API_KEY = os.environ.get("EXPECTED_API_KEY", "")

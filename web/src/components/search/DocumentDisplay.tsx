@@ -1,12 +1,25 @@
-import { EnmeddDocument } from "@/lib/search/interfaces";
+import {
+  DocumentRelevance,
+  EnmeddDocument,
+  SearchEnmeddDocument,
+} from "@/lib/search/interfaces";
 import { DocumentFeedbackBlock } from "./DocumentFeedbackBlock";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DocumentUpdatedAtBadge } from "./DocumentUpdatedAtBadge";
-import { FiInfo, FiRadio, FiTag } from "react-icons/fi";
 import { SourceIcon } from "../SourceIcon";
 import { MetadataBadge } from "../MetadataBadge";
 import { Badge } from "../ui/badge";
-import { CustomTooltip } from "../CustomTooltip";
+import { BookIcon, Info, Radio, Star, Tag } from "lucide-react";
+import { PopupSpec } from "../admin/connectors/Popup";
+import { FaStar } from "react-icons/fa";
+import { SettingsContext } from "../settings/SettingsProvider";
+import { LightBulbIcon } from "../icons/icons";
+import { WarningCircle } from "@phosphor-icons/react";
+import {
+  CustomTooltip,
+  CustomTooltip as SchadcnTooltip,
+  TooltipGroup,
+} from "../CustomTooltip";
 
 export const buildDocumentSummaryDisplay = (
   matchHighlights: string[],
@@ -54,6 +67,9 @@ export const buildDocumentSummaryDisplay = (
       sections.push(["...", false, false]);
     }
   });
+  if (sections.length == 0) {
+    return;
+  }
 
   let previousIsContinuation = sections[0][2];
   let previousIsBold = sections[0][1];
@@ -112,16 +128,18 @@ export function DocumentMetadataBlock({
 }) {
   // don't display super long tags, as they are ugly
   const MAXIMUM_TAG_LENGTH = 40;
+  // const score = Math.abs(document.score) * 100;
+  // const badgeVariant =
+  //   score < 50 ? "destructive" : score < 80 ? "warning" : "success";
 
   return (
-    <div className="flex flex-col">
+    <div className="flex gap-2 flex-wrap">
       {document.updated_at && (
         <DocumentUpdatedAtBadge updatedAt={document.updated_at} />
       )}
 
       {Object.entries(document.metadata).length > 0 && (
         <>
-          <div className="pl-1 border-l border-border" />
           {Object.entries(document.metadata)
             .filter(
               ([key, value]) => (key + value).length <= MAXIMUM_TAG_LENGTH
@@ -130,101 +148,242 @@ export function DocumentMetadataBlock({
               return (
                 <MetadataBadge
                   key={key}
-                  icon={FiTag}
+                  icon={<Tag size={12} className="shrink-0" />}
                   value={`${key}=${value}`}
                 />
               );
             })}
         </>
       )}
+      {/* {document.score !== null && (
+        <div className="flex items-center gap-1">
+          <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
+        </div>
+      )} */}
     </div>
   );
 }
 
 interface DocumentDisplayProps {
-  document: EnmeddDocument;
+  document: SearchEnmeddDocument;
   messageId: number | null;
   documentRank: number;
   isSelected: boolean;
+  hide?: boolean;
+  index?: number;
+  contentEnriched?: boolean;
+  additional_relevance: DocumentRelevance | null;
 }
 
 export const DocumentDisplay = ({
   document,
-  messageId,
-  documentRank,
   isSelected,
+  additional_relevance,
+  messageId,
+  contentEnriched,
+  documentRank,
+  hide,
+  index,
 }: DocumentDisplayProps) => {
   const [isHovered, setIsHovered] = useState(false);
-
-  // Consider reintroducing null scored docs in the future
-  if (document.score === null) {
-    return null;
-  }
-
-  const score = Math.abs(document.score) * 100;
-  const badgeVariant =
-    score < 50 ? "destructive" : score < 90 ? "warning" : "success";
-
+  const [alternativeToggled, setAlternativeToggled] = useState(false);
+  const relevance_explanation =
+    document.relevance_explanation ?? additional_relevance?.content;
+  const settings = useContext(SettingsContext);
   return (
     <div
       key={document.semantic_identifier}
-      className="text-sm border-b border-border px-4 py-8 break-words break-all"
-      onMouseEnter={() => {
-        setIsHovered(true);
-      }}
+      className={`text-sm px-4 break-words break-all relative ${hide ? "" : "border-b border-border"}`}
+      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{
+        transitionDelay: `${index! * 10}ms`, // Add a delay to the transition based on index
+      }}
     >
-      <div className="flex flex-col relative gap-3">
-        <div className="flex items-center gap-[5px]">
-          <Badge variant="secondary">
-            <SourceIcon sourceType={document.source_type} iconSize={16} />
-            <span className="ml-1">
-              {document.source_type.charAt(0).toUpperCase() +
-                document.source_type.slice(1)}
-            </span>
-          </Badge>
-          <DocumentMetadataBlock document={document} />
-          {document.score !== null && (
-            <div className="flex items-center gap-[5px]">
-              <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
-              {isSelected && (
-                <CustomTooltip
-                  trigger={
-                    <Badge variant="secondary">
-                      <FiRadio size={16} />
-                    </Badge>
-                  }
-                >
-                  <div className="text-xs flex">
-                    <div className="flex mx-auto">
-                      <div className="w-3 h-3 flex flex-col my-auto mr-1">
-                        <FiInfo className="my-auto" />
-                      </div>
-                      <div className="my-auto">The AI liked this doc!</div>
-                    </div>
-                  </div>
-                </CustomTooltip>
+      <div
+        className={`collapsible space-y-2.5 overflow-hidden ${
+          hide ? "collapsible-closed overflow-y-auto border-transparent max-h-0 min-h-0" : "max-h-max"
+        }`}
+      >
+        <div className="flex relative">
+          <a
+            className={`rounded-lg flex font-bold text-link max-w-full ${
+              document.link ? "" : "pointer-events-none"
+            }`}
+            href={document.link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <SourceIcon sourceType={document.source_type} iconSize={22} />
+            <p className="truncate text-wrap break-all ml-2 my-auto line-clamp-1 text-base max-w-full">
+              {document.semantic_identifier || document.document_id}
+            </p>
+          </a>
+          <div className="ml-auto flex items-center">
+            <TooltipGroup>
+              {isHovered && messageId && (
+                <DocumentFeedbackBlock
+                  documentId={document.document_id}
+                  messageId={messageId}
+                  documentRank={documentRank}
+                />
               )}
-            </div>
-          )}
+              {(contentEnriched || additional_relevance) &&
+                relevance_explanation &&
+                (isHovered || alternativeToggled) && (
+                  <button
+                    onClick={() =>
+                      setAlternativeToggled(
+                        (alternativeToggled) => !alternativeToggled
+                      )
+                    }
+                    className="flex items-center justify-center"
+                  >
+                    <CustomTooltip
+                      trigger={
+                        <LightBulbIcon
+                          className={`${alternativeToggled ? "text-green-600" : "text-blue-600"} my-auto h-4 w-4 cursor-pointer`}
+                        />
+                      }
+                    >
+                      Toggle Content
+                    </CustomTooltip>
+                  </button>
+                )}
+            </TooltipGroup>
+            {!hide &&
+              (document.is_relevant || additional_relevance?.relevant) && (
+                <Badge variant="success" className="ml-2">
+                  <Star size={16} className="shrink-0" />
+                  Relevant
+                </Badge>
+              )}
+          </div>
         </div>
-        <a
-          className={
-            "rounded-regular flex font-bold text-dark-900 max-w-full " +
-            (document.link ? "" : "pointer-events-none")
-          }
-          href={document.link}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div>
+          <DocumentMetadataBlock document={document} />
+        </div>
+
+        <p
+          style={{ transition: "height 0.30s ease-in-out" }}
+          className="pl-1 break-words text-wrap"
         >
-          <p className="truncate text-wrap break-all my-auto text-base max-w-full">
-            {document.semantic_identifier || document.document_id}
-          </p>
-        </a>
+          {alternativeToggled && (contentEnriched || additional_relevance)
+            ? relevance_explanation
+            : buildDocumentSummaryDisplay(
+                document.match_highlights,
+                document.blurb
+              )}
+        </p>
       </div>
-      <p className="break-words pt-3">
-        {buildDocumentSummaryDisplay(document.match_highlights, document.blurb)}
-      </p>
+    </div>
+  );
+};
+
+export const AgenticDocumentDisplay = ({
+  document,
+  contentEnriched,
+  additional_relevance,
+  messageId,
+  documentRank,
+  index,
+  hide,
+}: DocumentDisplayProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const [alternativeToggled, setAlternativeToggled] = useState(false);
+
+  const relevance_explanation =
+    document.relevance_explanation ?? additional_relevance?.content;
+  return (
+    <div
+      key={document.semantic_identifier}
+      className={`text-sm px-4 break-words break-all relative ${hide ? "" : "border-b border-border"}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        transitionDelay: `${index! * 10}ms`, // Add a delay to the transition based on index
+      }}
+    >
+      <div
+        className={`collapsible space-y-2.5 overflow-hidden ${
+          hide ? "collapsible-closed overflow-y-auto border-transparent max-h-0 min-h-0" : "max-h-max"
+        }`}
+      >
+        <div className="flex relative">
+          <a
+            className={`rounded-lg flex font-bold text-link max-w-full ${
+              document.link ? "" : "pointer-events-none"
+            }`}
+            href={document.link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <SourceIcon sourceType={document.source_type} iconSize={22} />
+            <p className="truncate text-wrap break-all ml-2 my-auto line-clamp-1 text-base max-w-full">
+              {document.semantic_identifier || document.document_id}
+            </p>
+          </a>
+
+          <div className="ml-auto items-center flex">
+            <TooltipGroup>
+              {isHovered && messageId && (
+                <DocumentFeedbackBlock
+                  documentId={document.document_id}
+                  messageId={messageId}
+                  documentRank={documentRank}
+                />
+              )}
+
+              {(contentEnriched || additional_relevance) &&
+                (isHovered || alternativeToggled) && (
+                  <button
+                    onClick={() =>
+                      setAlternativeToggled(
+                        (alternativeToggled) => !alternativeToggled
+                      )
+                    }
+                    className="flex items-center justify-center"
+                  >
+                    <CustomTooltip
+                      trigger={
+                        <BookIcon
+                          size={20}
+                          className="my-auto flex flex-shrink-0 text-brand-500"
+                        />
+                      }
+                    >
+                      Toggle Content
+                    </CustomTooltip>
+                  </button>
+                )}
+            </TooltipGroup>
+          </div>
+        </div>
+        <div>
+          <DocumentMetadataBlock document={document} />
+        </div>
+
+        <div className="break-words flex gap-x-2">
+          <p
+            className="break-words text-wrap"
+            style={{ transition: "height 0.30s ease-in-out" }}
+          >
+            {alternativeToggled && (contentEnriched || additional_relevance)
+              ? buildDocumentSummaryDisplay(
+                  document.match_highlights,
+                  document.blurb
+                )
+              : relevance_explanation || (
+                  <span className="flex gap-x-1 items-center">
+                    {" "}
+                    <WarningCircle />
+                    Model failed to produce an analysis of the document
+                  </span>
+                )}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

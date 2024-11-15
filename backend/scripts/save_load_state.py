@@ -21,7 +21,7 @@ logger = setup_logger()
 
 
 def save_postgres(filename: str, container_name: str) -> None:
-    logger.info("Attempting to take Postgres snapshot")
+    logger.notice("Attempting to take Postgres snapshot")
     cmd = f"docker exec {container_name} pg_dump -U {POSTGRES_USER} -h {POSTGRES_HOST} -p {POSTGRES_PORT} -W -F t {POSTGRES_DB}"
     with open(filename, "w") as file:
         subprocess.run(
@@ -35,7 +35,7 @@ def save_postgres(filename: str, container_name: str) -> None:
 
 
 def load_postgres(filename: str, container_name: str) -> None:
-    logger.info("Attempting to load Postgres snapshot")
+    logger.notice("Attempting to load Postgres snapshot")
     try:
         alembic_cfg = Config("alembic.ini")
         command.upgrade(alembic_cfg, "head")
@@ -57,7 +57,7 @@ def load_postgres(filename: str, container_name: str) -> None:
 
 
 def save_vespa(filename: str) -> None:
-    logger.info("Attempting to take Vespa snapshot")
+    logger.notice("Attempting to take Vespa snapshot")
     continuation = ""
     params = {}
     doc_jsons: list[dict] = []
@@ -86,20 +86,24 @@ def load_vespa(filename: str) -> None:
             new_doc = json.loads(line.strip())
             doc_id = new_doc["update"].split("::")[-1]
             response = requests.post(
-                DOCUMENT_ID_ENDPOINT + "/" + doc_id, headers=headers, json=new_doc
+                DOCUMENT_ID_ENDPOINT + "/" + doc_id,
+                headers=headers,
+                json=new_doc,
             )
             response.raise_for_status()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="enMedD AI checkpoint saving and loading."
+        description="Arnold AI checkpoint saving and loading."
     )
     parser.add_argument(
-        "--save", action="store_true", help="Save enMedD AI state to directory."
+        "--save", action="store_true", help="Save Arnold AI state to directory."
     )
     parser.add_argument(
-        "--load", action="store_true", help="Load enMedD AI state from save directory."
+        "--load",
+        action="store_true",
+        help="Load Arnold AI state from save directory.",
     )
     parser.add_argument(
         "--postgres_container_name",

@@ -11,6 +11,7 @@ from ee.enmedd.server.enterprise_settings.api import (
 from ee.enmedd.server.enterprise_settings.api import (
     basic_router as enterprise_settings_router,
 )
+from ee.enmedd.server.manage.standard_answer import router as standard_answer_router
 from ee.enmedd.server.query_and_chat.chat_backend import (
     router as chat_router,
 )
@@ -21,9 +22,16 @@ from ee.enmedd.server.query_history.api import router as query_history_router
 from ee.enmedd.server.reporting.usage_export_api import router as usage_export_router
 from ee.enmedd.server.saml import router as saml_router
 from ee.enmedd.server.seeding import seed_db
-from ee.enmedd.server.teamspace.api import router as teamspace_router
+from ee.enmedd.server.teamspace.api import admin_router as teamspace_admin_router
+from ee.enmedd.server.teamspace.api import basic_router as teamspace_router
 from ee.enmedd.server.token_rate_limits.api import (
     router as token_rate_limit_settings_router,
+)
+from ee.enmedd.server.workspace.api import (
+    admin_router as workspaces_admin_router,
+)
+from ee.enmedd.server.workspace.api import (
+    basic_router as workspaces_router,
 )
 from ee.enmedd.utils.encryption import test_encryption
 from enmedd.auth.users import auth_backend
@@ -86,21 +94,27 @@ def get_application() -> FastAPI:
     # EE only backend APIs
     include_router_with_global_prefix_prepended(application, query_router)
     include_router_with_global_prefix_prepended(application, chat_router)
+    include_router_with_global_prefix_prepended(application, standard_answer_router)
     # Enterprise-only global settings
-    include_router_with_global_prefix_prepended(
-        application, enterprise_settings_admin_router
-    )
+    include_router_with_global_prefix_prepended(application, workspaces_admin_router)
+    include_router_with_global_prefix_prepended(application, teamspace_admin_router)
     # Token rate limit settings
     include_router_with_global_prefix_prepended(
         application, token_rate_limit_settings_router
     )
-    include_router_with_global_prefix_prepended(application, enterprise_settings_router)
+    include_router_with_global_prefix_prepended(application, workspaces_router)
     include_router_with_global_prefix_prepended(application, usage_export_router)
+    # Enterprise-only global settings
+    # TODO: clean this up: modify
+    include_router_with_global_prefix_prepended(
+        application, enterprise_settings_admin_router
+    )
+    include_router_with_global_prefix_prepended(application, enterprise_settings_router)
 
     # Ensure all routes have auth enabled or are explicitly marked as public
     check_ee_router_auth(application)
 
-    # seed the enMedD AI environment with LLMs, Assistants, etc. based on an optional
+    # seed the Arnold AI environment with LLMs, Assistants, etc. based on an optional
     # environment variable. Used to automate deployment for multiple environments.
     seed_db()
 

@@ -1,12 +1,13 @@
 import { SearchMultiSelectDropdown } from "@/components/Dropdown";
 import { useState } from "react";
 import { updateTeamspace } from "./lib";
-import { Connector, ConnectorIndexingStatus, Teamspace } from "@/lib/types";
+import { ConnectorIndexingStatus, Teamspace } from "@/lib/types";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Connector } from "@/lib/connectors/connectors";
 
 interface AddConnectorFormProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -27,7 +28,6 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
   );
   return (
     <div>
-      <h2 className="text-2xl font-semibold pb-6">Add New Connector</h2>
       <div className="mb-2 flex flex-wrap gap-x-2">
         {selectedCCPairs.length > 0 &&
           selectedCCPairs.map((ccPair) => (
@@ -41,7 +41,7 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
                 );
               }}
               variant="outline"
-              className="hover:opacity-75 cursor-pointer"
+              className="cursor-pointer hover:bg-opacity-80"
             >
               <ConnectorTitle
                 ccPairId={ccPair.cc_pair_id}
@@ -66,7 +66,7 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
                   .includes(ccPair.cc_pair_id)
             )
             // remove public docs, since they don't make sense as part of a group
-            .filter((ccPair) => !ccPair.public_doc)
+            .filter((ccPair) => !(ccPair.access_type === "public"))
             .map((ccPair) => {
               return {
                 name: ccPair.name?.toString() || "",
@@ -121,8 +121,9 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
             });
             if (response.ok) {
               toast({
-                title: "Success",
-                description: "Successfully added users to group",
+                title: "Users Added Successfully!",
+                description:
+                  "The selected users have been successfully added to the teamspace.",
                 variant: "success",
               });
               onClose();
@@ -130,15 +131,15 @@ export const AddConnectorForm: React.FC<AddConnectorFormProps> = ({
               const responseJson = await response.json();
               const errorMsg = responseJson.detail || responseJson.message;
               toast({
-                title: "Error",
-                description: `Failed to add users to group - ${errorMsg}`,
+                title: "Oops! Something Went Wrong",
+                description: `Failed to add users to the group: ${errorMsg}. Please try again.`,
                 variant: "destructive",
               });
               onClose();
             }
           }}
         >
-          Add Connectors
+          Add Data Sources
         </Button>
       </div>
     </div>

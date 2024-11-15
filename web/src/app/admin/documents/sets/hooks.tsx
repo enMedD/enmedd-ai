@@ -8,14 +8,19 @@ export function refreshDocumentSets() {
   mutate(DOCUMENT_SETS_URL);
 }
 
-export function useDocumentSets() {
-  const swrResponse = useSWR<DocumentSet[]>(
-    DOCUMENT_SETS_URL,
-    errorHandlingFetcher,
-    {
-      refreshInterval: 5000, // 5 seconds
-    }
-  );
+export function useDocumentSets(
+  getEditable: boolean = false,
+  teamspaceId?: string | string[]
+) {
+  const url = `${DOCUMENT_SETS_URL}?${
+    getEditable ? "get_editable=true" : ""
+  }${getEditable && teamspaceId ? "&" : ""}${
+    teamspaceId ? `teamspace_id=${teamspaceId}` : ""
+  }`.replace(/&$/, "");
+
+  const swrResponse = useSWR<DocumentSet[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
 
   return {
     ...swrResponse,

@@ -1,5 +1,4 @@
 import { User } from "@/lib/types";
-import { FullEmbeddingModelResponse } from "../admin/models/embedding/embeddingModels";
 import {
   AuthTypeMetadata,
   getAuthTypeMetadataSS,
@@ -8,15 +7,15 @@ import {
 import { redirect } from "next/navigation";
 import { fetchSS } from "@/lib/utilsSS";
 import Profile from "./profile";
-import { WorkSpaceSidebar } from "../chat/sessionSidebar/WorkSpaceSidebar";
-import { AssistantsBars } from "../assistants/mine/AssistantsBars";
-import TopBar from "@/components/TopBar";
-import { DynamicSidebar } from "@/components/DynamicSidebar";
-import { ProfileBars } from "./ProfileBars";
+import { BarLayout } from "@/components/BarLayout";
+import { fetchSettingsSS } from "@/components/settings/lib";
+import { CombinedSettings } from "../admin/settings/interfaces";
+import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
 
 export default async function ProfilePage() {
   const tasks = [
     getAuthTypeMetadataSS(),
+    fetchSettingsSS(),
     getCurrentUserSS(),
     fetchSS("/manage/indexing-status"),
     fetchSS("/manage/document-set"),
@@ -27,6 +26,7 @@ export default async function ProfilePage() {
 
   let results: (
     | User
+    | CombinedSettings
     | Response
     | AuthTypeMetadata
     | FullEmbeddingModelResponse
@@ -38,8 +38,9 @@ export default async function ProfilePage() {
     console.log(`Some fetch failed for the main search page - ${e}`);
   }
 
-  const user = results[1] as User | null;
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
+  const combinedSettings = results[1] as CombinedSettings | null;
+  const user = results[2] as User | null;
 
   const authDisabled = authTypeMetadata?.authType === "disabled";
 
@@ -53,11 +54,11 @@ export default async function ProfilePage() {
 
   return (
     <div className="h-full flex relative flex-row">
-      <div className="hidden md:flex">
-        <ProfileBars user={user} />
+      <div className="flex">
+        <BarLayout user={user} />
       </div>
-      <div className="h-full px-6 lg:pl-24 lg:pr-14 xl:px-10 2xl:px-24 container overflow-y-auto">
-        <Profile user={user} />
+      <div className="h-full container overflow-y-auto">
+        <Profile user={user} combinedSettings={combinedSettings} />
       </div>
     </div>
   );

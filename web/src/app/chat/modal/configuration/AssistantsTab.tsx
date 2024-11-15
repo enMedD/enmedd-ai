@@ -1,80 +1,91 @@
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
-import { Bubble } from "@/components/Bubble";
-import { AssistantIcon } from "@/components/assistants/AssistantIcon";
+import { LLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
 import { getFinalLLM } from "@/lib/llm/utils";
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Bookmark } from "lucide-react";
-
-interface AssistantsTabProps {
-  selectedAssistant: Assistant;
-  availableAssistants: Assistant[];
-  llmProviders: LLMProviderDescriptor[];
-  onSelect: (assistant: Assistant) => void;
-}
+import React, { useState } from "react";
+import { updateUserAssistantList } from "@/lib/assistants/updateAssistantPreferences";
+import { DraggableAssistantCard } from "@/components/assistants/AssistantCards";
+import { useUser } from "@/components/user/UserProvider";
+import { useAssistants } from "@/context/AssistantsContext";
 
 export function AssistantsTab({
   selectedAssistant,
-  availableAssistants,
   llmProviders,
   onSelect,
-}: AssistantsTabProps) {
+}: {
+  selectedAssistant: Assistant;
+  llmProviders: LLMProviderDescriptor[];
+  onSelect: (assistant: Assistant) => void;
+}) {
+  const { refreshUser } = useUser();
   const [_, llmName] = getFinalLLM(llmProviders, null, null);
+  // TODO Final assitant tandaan mo
+  const { assistants, refreshAssistants } = useAssistants();
+  const [assistant, setAssistants] = useState(assistants);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = assistant.findIndex(
+        (item) => item.id.toString() === active.id
+      );
+      const newIndex = assistant.findIndex(
+        (item) => item.id.toString() === over.id
+      );
+      const updatedAssistants = arrayMove(assistant, oldIndex, newIndex);
+
+      setAssistants(updatedAssistants);
+      await updateUserAssistantList(updatedAssistants.map((a) => a.id));
+      await refreshUser();
+      await refreshAssistants();
+    }
+  }
 
   return (
-    <>
-      <div className="my-3 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {availableAssistants.map((assistant) => (
-          <Card
-            key={assistant.id}
-            className={`
-              cursor-pointer
-              p-4 
-              ${
-                selectedAssistant.id === assistant.id
-                  ? "border-accent"
-                  : "border-border"
-              }
-            `}
-            onClick={() => onSelect(assistant)}
-          >
-            <CardContent className="p-0 w-full flex gap-3">
-              <AssistantIcon assistant={assistant} size="small" />
-              <div>
-                <div className="text-sm font-semibold text-dark-900 pt-1 pb-2">
-                  {assistant.name}
-                </div>
-
-                <div className="text-xs text-subtle pb-2">
-                  {assistant.description}
-                </div>
-                <div className="mt-2 flex flex-col gap-y-2">
-                  {assistant.document_sets.length > 0 && (
-                    <div className="text-xs text-subtle flex flex-col gap-2">
-                      <p className="my-auto font-medium">Document Sets:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {assistant.document_sets.map((set) => (
-                          <Bubble key={set.id} isSelected={false}>
-                            <div className="flex flex-row gap-1">
-                              <Bookmark size={16} className="mr-1 my-auto" />
-                              {set.name}
-                            </div>
-                          </Bubble>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="text-xs text-subtle">
-                    <span>Default Model:</span>{" "}
-                    <i>{assistant.llm_model_version_override || llmName}</i>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={assistant.map((a) => a.id.toString())}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="px-4 pb-20  max-h-[500px] my-3 grid grid-cols-1 gap-4">
+          {assistant.map((singleAssistant, index) => (
+            <DraggableAssistantCard
+              key={singleAssistant.id.toString()}
+              assistant={singleAssistant}
+              isSelected={selectedAssistant.id === singleAssistant.id}
+              onSelect={onSelect}
+              llmName={llmName}
+              isLastAssistant={index === assistant.length - 1}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

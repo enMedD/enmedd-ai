@@ -1,31 +1,29 @@
 "use client";
 
-import { PopupSpec } from "@/components/admin/connectors/Popup";
+import { PopupSpec, usePopup } from "@/components/admin/connectors/Popup";
 import { runConnector } from "@/lib/connector";
-import { Divider, Text } from "@tremor/react";
 import { mutate } from "swr";
 import { buildCCPairInfoUrl } from "./lib";
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Divider } from "@/components/Divider";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { Button } from "@/components/ui/button";
+import { CustomModal } from "@/components/CustomModal";
 
 function ReIndexPopup({
   connectorId,
   credentialId,
   ccPairId,
   hide,
+  reIndexPopupVisible
 }: {
   connectorId: number;
   credentialId: number;
   ccPairId: number;
   hide: () => void;
+  reIndexPopupVisible: boolean
 }) {
   const { toast } = useToast();
   async function triggerIndexing(fromBeginning: boolean) {
@@ -36,14 +34,14 @@ function ReIndexPopup({
     );
     if (errorMsg) {
       toast({
-        title: "Error",
-        description: errorMsg,
+        title: "Connector Run Failed",
+        description: `An error occurred while triggering the connector: ${errorMsg}`,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Success",
-        description: "Triggered connector run",
+        title: "Connector Run Successful",
+        description: "The connector has been triggered successfully.",
         variant: "success",
       });
     }
@@ -51,7 +49,12 @@ function ReIndexPopup({
   }
 
   return (
-    <Modal title="Run Indexing" onOutsideClick={hide}>
+    <CustomModal 
+      title="Run Indexing" 
+      onClose={hide} 
+      trigger={null}
+      open={reIndexPopupVisible}
+      >
       <div>
         <Button
           className="ml-auto"
@@ -63,10 +66,10 @@ function ReIndexPopup({
           Run Update
         </Button>
 
-        <Text className="mt-2">
+        <p className="mt-2">
           This will pull in and index all documents that have changed and/or
           have been added since the last successful indexing run.
-        </Text>
+        </p>
 
         <Divider />
 
@@ -80,17 +83,17 @@ function ReIndexPopup({
           Run Complete Re-Indexing
         </Button>
 
-        <Text className="mt-2">
+        <p className="mt-2">
           This will cause a complete re-indexing of all documents from the
           source.
-        </Text>
+        </p>
 
-        <Text className="mt-2">
+        <p className="mt-2">
           <b>NOTE:</b> depending on the number of documents stored in the
           source, this may take a long time.
-        </Text>
+        </p>
       </div>
-    </Modal>
+    </CustomModal>
   );
 }
 
@@ -99,14 +102,15 @@ export function ReIndexButton({
   connectorId,
   credentialId,
   isDisabled,
+  isDeleting,
 }: {
   ccPairId: number;
   connectorId: number;
   credentialId: number;
   isDisabled: boolean;
+  isDeleting: boolean;
 }) {
   const [reIndexPopupVisible, setReIndexPopupVisible] = useState(false);
-
   return (
     <>
       {reIndexPopupVisible && (
@@ -115,28 +119,50 @@ export function ReIndexButton({
           credentialId={credentialId}
           ccPairId={ccPairId}
           hide={() => setReIndexPopupVisible(false)}
+          reIndexPopupVisible={reIndexPopupVisible}
         />
       )}
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
+      {isDeleting || isDisabled ? (
+        <CustomTooltip
+          trigger={
             <Button
               className="ml-auto"
               onClick={() => {
                 setReIndexPopupVisible(true);
               }}
-              disabled={isDisabled}
+              disabled={isDisabled || isDeleting}
+              variant='outline'
             >
-              Run Indexing
+              Index
             </Button>
-          </TooltipTrigger>
-          {isDisabled ? (
-            <TooltipContent>
-              Connector must be active in order to run indexing
-            </TooltipContent>
-          ) : undefined}
-        </Tooltip>
-      </TooltipProvider>
+          }
+          asChild
+        >
+          <Button
+            className="ml-auto"
+            onClick={() => {
+              setReIndexPopupVisible(true);
+            }}
+            disabled={isDisabled || isDeleting}
+          >
+            {isDeleting
+              ? "Cannot index while connector is deleting"
+              : isDisabled
+                ? "Connector must be re-enabled before indexing"
+                : undefined}
+          </Button>
+        </CustomTooltip>
+      ) : (
+        <Button
+          className="ml-auto"
+          onClick={() => {
+            setReIndexPopupVisible(true);
+          }}
+          disabled={isDisabled || isDeleting}
+        >
+          Index
+        </Button>
+      )}
     </>
   );
 }

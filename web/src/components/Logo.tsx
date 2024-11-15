@@ -20,13 +20,13 @@ export function Logo({
 
   if (
     !settings ||
-    !settings.enterpriseSettings ||
-    !settings.enterpriseSettings.use_custom_logo
+    !settings.workspaces ||
+    !settings.workspaces.use_custom_logo
   ) {
     return (
       <div style={{ height, width }} className={className}>
         <Image
-          src="/logo.png"
+          src="/arnold_ai.png"
           alt="Logo"
           width={width}
           height={height}
@@ -38,12 +38,10 @@ export function Logo({
 
   return (
     <div style={{ height, width }} className={`relative ${className}`}>
-      <Image
-        src="/api/enterprise-settings/logo"
+      <img
+        src={`/api/workspace/logo?u=${Date.now()}`}
         alt="Logo"
-        className="object-contain rounded-regular"
-        width={width}
-        height={height}
+        style={{ objectFit: "cover", height, width, borderRadius: "8px" }}
       />
     </div>
   );

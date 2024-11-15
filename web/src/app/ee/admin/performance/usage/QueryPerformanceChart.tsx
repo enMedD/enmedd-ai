@@ -13,20 +13,34 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { DateRangeSelector } from "../DateRangeSelector";
 import { SubLabel } from "@/components/admin/connectors/Field";
 
-export function QueryPerformanceChart({ timeRange }: { timeRange: DateRange }) {
+import config from "../../../../../../tailwind-themes/tailwind.config";
+const colors = config.theme.extend.colors;
+
+const normalizeToUTC = (date: Date) => {
+  return new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
+};
+
+export function QueryPerformanceChart({
+  timeRange,
+  teamspaceId,
+}: {
+  timeRange: DateRange;
+  teamspaceId?: string | string[];
+}) {
   const {
     data: queryAnalyticsData,
     isLoading: isQueryAnalyticsLoading,
     error: queryAnalyticsError,
-  } = useQueryAnalytics(timeRange);
+  } = useQueryAnalytics(timeRange, teamspaceId);
   const {
     data: userAnalyticsData,
     isLoading: isUserAnalyticsLoading,
     error: userAnalyticsError,
-  } = useUserAnalytics(timeRange);
+  } = useUserAnalytics(timeRange, teamspaceId);
 
   let chart;
   if (isQueryAnalyticsLoading || isUserAnalyticsLoading) {
@@ -47,15 +61,23 @@ export function QueryPerformanceChart({ timeRange }: { timeRange: DateRange }) {
       </div>
     );
   } else {
-    const initialDate = timeRange.from || new Date(queryAnalyticsData[0].date);
-    const dateRange = getDatesList(initialDate);
+    const initialDate = normalizeToUTC(
+      timeRange.from || new Date(queryAnalyticsData[0]?.date)
+    );
+    const endDate = normalizeToUTC(timeRange.to || new Date());
+
+    const dateRange = getDatesList(initialDate, endDate);
 
     const data = dateRange.map((dateStr) => {
       const queryAnalyticsForDate = queryAnalyticsData.find(
-        (entry) => entry.date === dateStr
+        (entry) =>
+          normalizeToUTC(new Date(entry.date)).toISOString().split("T")[0] ===
+          dateStr
       );
       const userAnalyticsForDate = userAnalyticsData.find(
-        (entry) => entry.date === dateStr
+        (entry) =>
+          normalizeToUTC(new Date(entry.date)).toISOString().split("T")[0] ===
+          dateStr
       );
       return {
         date: dateStr,
@@ -67,11 +89,11 @@ export function QueryPerformanceChart({ timeRange }: { timeRange: DateRange }) {
     const chartConfig = {
       queries: {
         label: "Queries",
-        color: "#2039f3",
+        color: colors.brand[500], 
       },
       uniqueUsers: {
         label: "Unique Users",
-        color: "#60a5fa",
+        color: colors.brand[300],
       },
     } satisfies ChartConfig;
 
@@ -137,19 +159,18 @@ export function QueryPerformanceChart({ timeRange }: { timeRange: DateRange }) {
               />
             }
           />
+
           <Area
+            type="monotoneX"
             dataKey="queries"
-            type="natural"
             fill="url(#fillQueries)"
             stroke={chartConfig.queries.color}
-            stackId="a"
           />
           <Area
+            type="monotoneX"
             dataKey="uniqueUsers"
-            type="natural"
             fill="url(#fillUniqueUsers)"
             stroke={chartConfig.uniqueUsers.color}
-            stackId="a"
           />
         </AreaChart>
       </ChartContainer>
@@ -160,7 +181,7 @@ export function QueryPerformanceChart({ timeRange }: { timeRange: DateRange }) {
     <Card>
       <CardHeader className="border-b">
         <div className="flex flex-col">
-          <h3 className="font-semibold">Usage</h3>
+          <h3>Usage</h3>
           <SubLabel>Usage over time</SubLabel>
         </div>
       </CardHeader>

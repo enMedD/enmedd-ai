@@ -6,30 +6,34 @@ import { KeyIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import useSWR, { mutate } from "swr";
-import { Divider } from "@tremor/react";
-import { useState } from "react";
-import { DeleteButton } from "@/components/DeleteButton";
-import { FiCopy, FiEdit2, FiRefreshCw, FiX } from "react-icons/fi";
-import { Modal } from "@/components/Modal";
 import { Spinner } from "@/components/Spinner";
 import { deleteApiKey, regenerateApiKey } from "./lib";
 import { Button } from "@/components/ui/button";
+import { usePopup } from "@/components/admin/connectors/Popup";
+import { useState } from "react";
+import { Table, Title } from "@tremor/react";
+import { DeleteButton } from "@/components/DeleteButton";
+import { FiCopy, FiEdit2, FiRefreshCw, FiX } from "react-icons/fi";
+import { Modal } from "@/components/Modal";
+import { EnmeddApiKeyForm } from "./EnmeddApiKeyForm";
+import { APIKey } from "./types";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { Check, Copy, Pencil } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { CustomModal } from "@/components/CustomModal";
+import { Divider } from "@/components/Divider";
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EnmeddApiKeyForm } from "./EnmeddApiKeyForm";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit2, RefreshCw } from "lucide-react";
-import { CustomModal } from "@/components/CustomModal";
+import { Badge } from "@/components/ui/badge";
 
 const API_KEY_TEXT = `
-API Keys allow you to access enMedD AI APIs programmatically. Click the button below to generate a new API Key.
+API Keys allow you to access Arnold AI APIs programmatically. Click the button below to generate a new API Key.
 `;
 
 function NewApiKeyModal({
@@ -39,14 +43,11 @@ function NewApiKeyModal({
   apiKey: string;
   onClose: () => void;
 }) {
-  const [copyClicked, setCopyClicked] = useState(false);
+  const [isCopyClicked, setIsCopyClicked] = useState(false);
 
   return (
     <div className="h-full">
-      <div className="flex w-full border-b border-border mb-4 pb-4">
-        <h3 className="font-semibold">New API Key</h3>
-      </div>
-      <div className="h-32">
+      <div>
         <p className="pb-4">
           Make sure you copy your new API key. You won’t be able to see this key
           again.
@@ -54,30 +55,34 @@ function NewApiKeyModal({
 
         <div className="flex pt-2 pb-10">
           <b className="my-auto break-all">{apiKey}</b>
-          <div
-            className="ml-2 my-auto p-2 hover:bg-hover rounded cursor-pointer"
-            onClick={() => {
-              setCopyClicked(true);
-              navigator.clipboard.writeText(apiKey);
-              setTimeout(() => {
-                setCopyClicked(false);
-              }, 10000);
-            }}
+          <CustomTooltip
+            trigger={
+              <Button
+                onClick={() => {
+                  setIsCopyClicked(true);
+                  navigator.clipboard.writeText(apiKey);
+                  setTimeout(() => {
+                    setIsCopyClicked(false);
+                  }, 2000);
+                }}
+                variant="ghost"
+                size="icon"
+                className="ml-2"
+              >
+                {isCopyClicked ? <Check size="16" /> : <Copy size="16" />}
+              </Button>
+            }
           >
-            <FiCopy size="16" className="my-auto" />
-          </div>
+            {isCopyClicked ? "Copied" : "Copy"}
+          </CustomTooltip>
         </div>
-        {copyClicked && (
-          <p className="text-success text-xs font-medium pt-1">
-            API Key copied!
-          </p>
-        )}
       </div>
     </div>
   );
 }
 
 function Main() {
+  const { toast } = useToast();
   const {
     data: apiKeys,
     isLoading,
@@ -88,12 +93,13 @@ function Main() {
   const [keyIsGenerating, setKeyIsGenerating] = useState(false);
   const [showCreateUpdateForm, setShowCreateUpdateForm] = useState(false);
   const [selectedApiKey, setSelectedApiKey] = useState<APIKey | undefined>();
-  const { toast } = useToast();
 
   const handleEdit = (apiKey: APIKey) => {
     setSelectedApiKey(apiKey);
     setShowCreateUpdateForm(true);
   };
+
+  const isUpdate = selectedApiKey !== undefined;
 
   if (isLoading) {
     return <ThreeDotsLoader />;
@@ -109,7 +115,7 @@ function Main() {
   }
 
   const newApiKeyButton = (
-    <Button onClick={() => setShowCreateUpdateForm(true)}>
+    <Button className="mt-4" onClick={() => setShowCreateUpdateForm(true)}>
       Create API Key
     </Button>
   );
@@ -117,12 +123,13 @@ function Main() {
   if (apiKeys.length === 0) {
     return (
       <div>
-        <p className="pb-5">{API_KEY_TEXT}</p>
+        <p className="pb-4">{API_KEY_TEXT}</p>
 
         <CustomModal
           trigger={newApiKeyButton}
           onClose={() => setShowCreateUpdateForm(false)}
           open={showCreateUpdateForm}
+          title={isUpdate ? "Update API Key" : "Create a new API Key"}
         >
           <EnmeddApiKeyForm
             onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
@@ -145,6 +152,7 @@ function Main() {
           trigger={null}
           onClose={() => setFullApiKey(null)}
           open={Boolean(fullApiKey)}
+          title="New API Key"
         >
           <NewApiKeyModal
             apiKey={fullApiKey}
@@ -155,12 +163,13 @@ function Main() {
 
       {keyIsGenerating && <Spinner />}
 
-      <p className="pb-5">{API_KEY_TEXT}</p>
+      <p>{API_KEY_TEXT}</p>
 
       <CustomModal
         trigger={newApiKeyButton}
         onClose={() => setShowCreateUpdateForm(false)}
         open={showCreateUpdateForm}
+        title={isUpdate ? "Update API Key" : "Create a new API Key"}
       >
         <EnmeddApiKeyForm
           onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
@@ -175,14 +184,15 @@ function Main() {
 
       <Divider />
 
-      <h3 className="font-semibold pb-4">Existing API Keys</h3>
+      <h3 className="pb-4 mt-6">Existing API Keys</h3>
       <Card>
         <CardContent className="p-0">
-          <Table className="overflow-visible">
+          <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="text-sm">
                 <TableHead>Name</TableHead>
                 <TableHead>API Key</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead>Regenerate</TableHead>
                 <TableHead>Delete</TableHead>
               </TableRow>
@@ -191,16 +201,38 @@ function Main() {
               {apiKeys.map((apiKey) => (
                 <TableRow key={apiKey.api_key_id}>
                   <TableCell>
-                    <Button variant="ghost" onClick={() => handleEdit(apiKey)}>
-                      <Edit2 size={14} />
+                    <CustomTooltip
+                      trigger={
+                        <div
+                          className="flex items-center w-full gap-2 cursor-pointer"
+                          onClick={() => handleEdit(apiKey)}
+                        >
+                          <Pencil size={16} className="shrink-0" />
+
+                          <p className="w-full truncate mr-5">
+                            {apiKey.api_key_name || <i>null</i>}
+                          </p>
+                        </div>
+                      }
+                      asChild
+                      align="start"
+                    >
                       {apiKey.api_key_name || <i>null</i>}
-                    </Button>
+                    </CustomTooltip>
                   </TableCell>
                   <TableCell className="max-w-64">
                     {apiKey.api_key_display}
                   </TableCell>
+                  <TableCell className="max-w-64">
+                    {apiKey.api_key_role === "admin" ? (
+                      <Badge>ADMIN</Badge>
+                    ) : (
+                      <Badge variant="secondary">BASIC</Badge>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Button
+                      variant="ghost"
                       onClick={async () => {
                         setKeyIsGenerating(true);
                         const response = await regenerateApiKey(apiKey);
@@ -208,7 +240,7 @@ function Main() {
                         if (!response.ok) {
                           const errorMsg = await response.text();
                           toast({
-                            title: "Error",
+                            title: "Regeneration Failed",
                             description: `Failed to regenerate API Key: ${errorMsg}`,
                             variant: "destructive",
                           });
@@ -218,9 +250,8 @@ function Main() {
                         setFullApiKey(newKey.api_key);
                         mutate("/api/admin/api-key");
                       }}
-                      variant="ghost"
                     >
-                      <RefreshCw size={16} />
+                      <FiRefreshCw className="my-auto mr-1" />
                       Refresh
                     </Button>
                   </TableCell>
@@ -231,7 +262,7 @@ function Main() {
                         if (!response.ok) {
                           const errorMsg = await response.text();
                           toast({
-                            title: "Error",
+                            title: "Deletion Failed",
                             description: `Failed to delete API Key: ${errorMsg}`,
                             variant: "destructive",
                           });
@@ -253,7 +284,7 @@ function Main() {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
+    <div className="container mx-auto">
       <AdminPageTitle title="API Keys" icon={<KeyIcon size={32} />} />
 
       <Main />

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from enmedd.db.chat import delete_chat_session
 from enmedd.db.models import ChatFolder
+from enmedd.db.models import ChatFolder__Teamspace
 from enmedd.db.models import ChatSession
 from enmedd.utils.logger import setup_logger
 
@@ -14,7 +15,31 @@ def get_user_folders(
     user_id: UUID | None,
     db_session: Session,
 ) -> list[ChatFolder]:
-    return db_session.query(ChatFolder).filter(ChatFolder.user_id == user_id).all()
+    return (
+        db_session.query(ChatFolder)
+        .outerjoin(ChatFolder__Teamspace)
+        .filter(ChatFolder.user_id == user_id)
+        .filter(ChatFolder__Teamspace.teamspace_id.is_(None))
+        .all()
+    )
+
+
+def get_user_folders_in_teamspace(
+    user_id: UUID | None,
+    teamspace_id: int,
+    db_session: Session,
+) -> list[ChatFolder]:
+    return (
+        db_session.query(ChatFolder)
+        .join(
+            ChatFolder__Teamspace, ChatFolder.id == ChatFolder__Teamspace.chat_folder_id
+        )
+        .filter(
+            ChatFolder.user_id == user_id,
+            ChatFolder__Teamspace.teamspace_id == teamspace_id,
+        )
+        .all()
+    )
 
 
 def update_folder_display_priority(

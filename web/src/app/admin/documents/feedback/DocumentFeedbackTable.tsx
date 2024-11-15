@@ -3,7 +3,6 @@ import { PageSelector } from "@/components/PageSelector";
 import { DocumentBoostStatus } from "@/lib/types";
 import { updateHiddenStatus } from "../lib";
 import { numToDisplay } from "./constants";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import { getErrorMsg } from "@/lib/fetchUtils";
 import { ScoreSection } from "../ScoreEditor";
 import {
@@ -19,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 const IsVisibleSection = ({
   document,
@@ -40,7 +40,7 @@ const IsVisibleSection = ({
               onUpdate(response);
             }}
             variant="outline"
-            className="py-1.5 px-3 gap-1.5 text-error cursor-pointer hover:opacity-80"
+            className="py-1.5 px-3 gap-1.5 text-error cursor-pointer hover:bg-opacity-80"
           >
             Hidden
             <Checkbox checked={false} />
@@ -55,7 +55,7 @@ const IsVisibleSection = ({
               onUpdate(response);
             }}
             variant="outline"
-            className="p-1.5 px-3 gap-1.5 cursor-pointer hover:opacity-80"
+            className="p-1.5 px-3 gap-1.5 cursor-pointer hover:bg-opacity-80"
           >
             Visible
             <Checkbox checked={true} />
@@ -63,14 +63,14 @@ const IsVisibleSection = ({
         )
       }
     >
-      <div className="text-xs">
+      <div className="text-xs font-medium">
         {document.hidden ? (
           <div className="flex">
-            <FiEye className="my-auto mr-1" /> Unhide
+            <Eye size={16} className="my-auto mr-1" /> Unhide
           </div>
         ) : (
           <div className="flex">
-            <FiEyeOff className="my-auto mr-1" />
+            <EyeOff size={16} className="my-auto mr-1" />
             Hide
           </div>
         )}
@@ -107,7 +107,7 @@ export const DocumentFeedbackTable = ({
                 .map((document) => {
                   return (
                     <TableRow key={document.document_id}>
-                      <TableCell className="whitespace-normal min-w-56">
+                      <TableCell className="truncate min-w-56">
                         <a
                           className="text-blue-600"
                           href={document.link}
@@ -122,13 +122,17 @@ export const DocumentFeedbackTable = ({
                           document={document}
                           onUpdate={async (response) => {
                             if (response.ok) {
+                              toast({
+                                title: "Status Updated",
+                                description:
+                                  "The visibility status has been successfully updated.",
+                                variant: "success",
+                              });
                               refresh();
                             } else {
                               toast({
-                                title: "Error",
-                                description: `Error updating hidden status - ${getErrorMsg(
-                                  response
-                                )}`,
+                                title: "Update Failed",
+                                description: `Unable to update hidden status - ${getErrorMsg(response)}`,
                                 variant: "destructive",
                               });
                             }

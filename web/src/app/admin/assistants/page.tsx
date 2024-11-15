@@ -1,6 +1,5 @@
 import { AssistantsTable } from "./AssistantTable";
 import Link from "next/link";
-import { Divider, Text, Title } from "@tremor/react";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Assistant } from "./interfaces";
@@ -10,41 +9,45 @@ import { Button } from "@/components/ui/button";
 import { SquarePlus } from "lucide-react";
 
 export default async function Page() {
-  const assistantResponse = await fetchSS("/admin/assistant");
+  const allAssistantResponse = await fetchSS("/admin/assistant");
+  const editableAssistantResponse = await fetchSS(
+    "/admin/assistant?get_editable=true"
+  );
 
-  if (!assistantResponse.ok) {
+  if (!allAssistantResponse.ok || !editableAssistantResponse.ok) {
     return (
       <ErrorCallout
         errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch assistants - ${await assistantResponse.text()}`}
+        errorMsg={`Failed to fetch assistants - ${
+          (await allAssistantResponse.text()) ||
+          (await editableAssistantResponse.text())
+        }`}
       />
     );
   }
 
-  const assistants = (await assistantResponse.json()) as Assistant[];
+  const allAssistants = (await allAssistantResponse.json()) as Assistant[];
+  const editableAssistants =
+    (await editableAssistantResponse.json()) as Assistant[];
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle icon={<RobotIcon size={32} />} title="Assistants" />
+    <div className="w-full h-full overflow-y-auto">
+      <div className="container mx-auto">
+        <AdminPageTitle icon={<RobotIcon size={32} />} title="Assistants" />
 
-      <Text className="mb-2">
-        Assistants are a way to build custom search/question-answering
-        experiences for different use cases.
-      </Text>
-      <Text className="mt-2">They allow you to customize:</Text>
-      <div className="text-sm">
-        <ul className="list-disc mt-2 ml-4">
+        <p className="mb-2">
+          Assistants are a way to build custom search/question-answering
+          experiences for different use cases.
+        </p>
+        <h3 className="mt-2">They allow you to customize:</h3>
+        <ul className="mt-2 ml-4 text-sm list-disc">
           <li>
             The prompt used by your LLM of choice to respond to the user query
           </li>
           <li>The documents that are used as context</li>
         </ul>
-      </div>
 
-      <div>
-        <Divider />
-
-        <Title>Create an Assistant</Title>
+        <h3 className="pt-4">Create an Assistant</h3>
         <Link href="/admin/assistants/new" className="flex items-center">
           <Button className="mt-2">
             <SquarePlus size={16} />
@@ -52,10 +55,11 @@ export default async function Page() {
           </Button>
         </Link>
 
-        <Divider />
-
-        <Title>Existing Assistants</Title>
-        <AssistantsTable assistants={assistants} />
+        <h3 className="pt-6">Existing Assistants</h3>
+        <AssistantsTable
+          allAssistants={allAssistants}
+          editableAssistants={editableAssistants}
+        />
       </div>
     </div>
   );

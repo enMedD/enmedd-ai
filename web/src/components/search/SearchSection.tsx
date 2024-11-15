@@ -1,12 +1,11 @@
 "use client";
 
-import { useContext, useRef, useState } from "react";
-import { SearchBar } from "./SearchBar";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { FullSearchBar } from "./SearchBar";
 import { SearchResultsDisplay } from "./SearchResultsDisplay";
 import { SourceSelector } from "./filtering/Filters";
-import { CCPairBasicInfo, Connector, DocumentSet, Tag } from "@/lib/types";
 import {
-  EnmeddDocument,
+  SearchEnmeddDocument,
   Quote,
   SearchResponse,
   FlowType,
@@ -14,22 +13,37 @@ import {
   SearchDefaultOverrides,
   SearchRequestOverrides,
   ValidQuestionResponse,
+  Relevance,
 } from "@/lib/search/interfaces";
 import { searchRequestStreamed } from "@/lib/search/streamingQa";
-import { SearchHelper } from "./SearchHelper";
 import { CancellationToken, cancellable } from "@/lib/search/cancellable";
-import { useFilters, useObjectState } from "@/lib/hooks";
-import { questionValidationStreamed } from "@/lib/search/streamingQuestionValidation";
+import { useFilters } from "@/lib/hooks";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { AssistantSelector } from "./AssistantSelector";
 import { computeAvailableFilters } from "@/lib/filters";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { SettingsContext } from "../settings/SettingsProvider";
-import { SortSearch } from "./SortSearch";
+import { AGENTIC_SEARCH_TYPE_COOKIE_NAME } from "@/lib/constants";
+import Cookies from "js-cookie";
+import { FeedbackType } from "@/app/chat/types";
+import SearchAnswer from "./SearchAnswer";
+import { useUser } from "../user/UserProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Filter } from "lucide-react";
 import { Button } from "../ui/button";
 import { DateRangeSearchSelector } from "./DateRangeSearchSelector";
+import { SortSearch } from "./SortSearch";
+import { useSearchContext } from "@/context/SearchContext";
+import { useToast } from "@/hooks/use-toast";
+import { SearchSession } from "@/app/chat/interfaces";
+
+export type searchState =
+  | "input"
+  | "searching"
+  | "reading"
+  | "analyzing"
+  | "summarizing"
+  | "generating"
+  | "citing";
 
 const SEARCH_DEFAULT_OVERRIDES_START: SearchDefaultOverrides = {
   forceDisplayQA: false,
@@ -38,44 +52,79 @@ const SEARCH_DEFAULT_OVERRIDES_START: SearchDefaultOverrides = {
 
 const VALID_QUESTION_RESPONSE_DEFAULT: ValidQuestionResponse = {
   reasoning: null,
-  answerable: null,
   error: null,
 };
 
 interface SearchSectionProps {
-  ccPairs: CCPairBasicInfo[];
-  documentSets: DocumentSet[];
-  assistants: Assistant[];
-  tags: Tag[];
   defaultSearchType: SearchType;
 }
 
-export const SearchSection = ({
-  ccPairs,
-  documentSets,
-  assistants,
-  tags,
-  defaultSearchType,
-}: SearchSectionProps) => {
-  // Search Bar
-  const [query, setQuery] = useState<string>("");
+export const SearchSection = ({ defaultSearchType }: SearchSectionProps) => {
+  const {
+    ccPairs,
+    documentSets,
+    assistants,
+    tags,
+    agenticSearchEnabled,
+    disabledAgentic,
+  } = useSearchContext();
 
-  // Search
-  const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(
-    null
-  );
+  const [query, setQuery] = useState<string>("");
+  const [comments, setComments] = useState<any>(null);
+  const [contentEnriched, setContentEnriched] = useState(false);
+
+  const { teamspaceId } = useParams();
+  const { toast } = useToast();
+
+  const [searchResponse, setSearchResponse] = useState<SearchResponse>({
+    suggestedSearchType: null,
+    suggestedFlowType: null,
+    answer: null,
+    quotes: null,
+    documents: null,
+    selectedDocIndices: null,
+    error: null,
+    messageId: null,
+  });
+
+  const [showApiKeyModal, setShowApiKeyModal] = useState(true);
+
+  const [agentic, setAgentic] = useState(agenticSearchEnabled);
+
+  const toggleAgentic = useCallback(() => {
+    Cookies.set(
+      AGENTIC_SEARCH_TYPE_COOKIE_NAME,
+      String(!agentic).toLocaleLowerCase()
+    );
+    setAgentic((agentic) => !agentic);
+  }, [agentic]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey) {
+        switch (event.key.toLowerCase()) {
+          case "/":
+            toggleAgentic();
+            break;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleAgentic]);
+
   const [isFetching, setIsFetching] = useState(false);
 
-  const [validQuestionResponse, setValidQuestionResponse] =
-    useObjectState<ValidQuestionResponse>(VALID_QUESTION_RESPONSE_DEFAULT);
-
   // Search Type
-  const [selectedSearchType, setSelectedSearchType] =
-    useState<SearchType>(defaultSearchType);
+  const selectedSearchType = defaultSearchType;
 
   const [selectedAssistant, setSelectedAssistant] = useState<number>(
     assistants[0]?.id || 0
   );
+  const [analyzeStartTime, setAnalyzeStartTime] = useState<number>(0);
 
   // Filters
   const filterManager = useFilters();
@@ -89,9 +138,73 @@ export const SearchSection = ({
       availableDocumentSets: documentSets,
     });
 
+  const searchParams = useSearchParams();
+  const existingSearchIdRaw = searchParams.get("searchId");
+  const existingSearchessionId = existingSearchIdRaw
+    ? parseInt(existingSearchIdRaw)
+    : null;
+
+  useEffect(() => {
+    if (existingSearchIdRaw == null) {
+      return;
+    }
+    function extractFirstMessageByType(
+      chatSession: SearchSession,
+      messageType: "user" | "assistant"
+    ): string | null {
+      const userMessage = chatSession?.messages.find(
+        (msg) => msg.message_type === messageType
+      );
+      return userMessage ? userMessage.message : null;
+    }
+
+    async function initialSessionFetch() {
+      const response = await fetch(
+        `/api/query/search-session/${existingSearchessionId}`
+      );
+      const searchSession = (await response.json()) as SearchSession;
+      const userMessage = extractFirstMessageByType(searchSession, "user");
+      const assistantMessage = extractFirstMessageByType(
+        searchSession,
+        "assistant"
+      );
+
+      if (userMessage) {
+        setQuery(userMessage);
+        const enmeddDocs: SearchResponse = {
+          documents: searchSession.documents,
+          suggestedSearchType: null,
+          answer: assistantMessage || "Search response not found",
+          quotes: null,
+          selectedDocIndices: null,
+          error: null,
+          messageId: existingSearchIdRaw ? parseInt(existingSearchIdRaw) : null,
+          suggestedFlowType: null,
+          additional_relevance: undefined,
+        };
+
+        setIsFetching(false);
+        setFirstSearch(false);
+        setSearchResponse(enmeddDocs);
+        setContentEnriched(true);
+      }
+    }
+    initialSessionFetch();
+  }, [existingSearchessionId, existingSearchIdRaw]);
+
   // Overrides for default behavior that only last a single query
   const [defaultOverrides, setDefaultOverrides] =
     useState<SearchDefaultOverrides>(SEARCH_DEFAULT_OVERRIDES_START);
+
+  const newSearchState = (
+    currentSearchState: searchState,
+    newSearchState: searchState
+  ) => {
+    if (currentSearchState != "input") {
+      return newSearchState;
+    }
+    return "input";
+  };
 
   // Helpers
   const initialSearchResponse: SearchResponse = {
@@ -103,22 +216,64 @@ export const SearchSection = ({
     selectedDocIndices: null,
     error: null,
     messageId: null,
+    additional_relevance: undefined,
   };
-  const updateCurrentAnswer = (answer: string) =>
+  // Streaming updates
+  const updateCurrentAnswer = (answer: string) => {
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
       answer,
     }));
-  const updateQuotes = (quotes: Quote[]) =>
+
+    if (analyzeStartTime) {
+      const elapsedTime = Date.now() - analyzeStartTime;
+      const nextInterval = Math.ceil(elapsedTime / 1500) * 1500;
+      setTimeout(() => {
+        setSearchState((searchState) =>
+          newSearchState(searchState, "generating")
+        );
+      }, nextInterval - elapsedTime);
+    }
+  };
+
+  const updateQuotes = (quotes: Quote[]) => {
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
       quotes,
     }));
-  const updateDocs = (documents: EnmeddDocument[]) =>
+    setSearchState((searchState) => "citing");
+  };
+
+  const updateDocs = (documents: SearchEnmeddDocument[]) => {
+    if (agentic) {
+      setTimeout(() => {
+        setSearchState((searchState) => newSearchState(searchState, "reading"));
+      }, 1500);
+
+      setTimeout(() => {
+        setAnalyzeStartTime(Date.now());
+        setSearchState((searchState) => {
+          const newState = newSearchState(searchState, "analyzing");
+          if (newState === "analyzing") {
+            setAnalyzeStartTime(Date.now());
+          }
+          return newState;
+        });
+      }, 4500);
+    }
+
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
       documents,
     }));
+    if (disabledAgentic) {
+      setIsFetching(false);
+      setSearchState((searchState) => "citing");
+    }
+    if (documents.length == 0) {
+      setSearchState("input");
+    }
+  };
   const updateSuggestedSearchType = (suggestedSearchType: SearchType) =>
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
@@ -134,23 +289,80 @@ export const SearchSection = ({
       ...(prevState || initialSearchResponse),
       selectedDocIndices: docIndices,
     }));
-  const updateError = (error: FlowType) =>
+  const updateError = (error: FlowType) => {
+    resetInput(true);
+
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
       error,
     }));
-  const updateMessageId = (messageId: number) =>
+  };
+  const updateMessageAndThreadId = (
+    messageId: number,
+    chat_session_id: number
+  ) => {
     setSearchResponse((prevState) => ({
       ...(prevState || initialSearchResponse),
       messageId,
     }));
+    router.refresh();
+    setIsFetching(false);
+    setSearchState((searchState) => "input");
+  };
+
+  const updateDocumentRelevance = (relevance: Relevance) => {
+    setSearchResponse((prevState) => ({
+      ...(prevState || initialSearchResponse),
+      additional_relevance: relevance,
+    }));
+
+    setContentEnriched(true);
+
+    setIsFetching(false);
+    if (disabledAgentic) {
+      setSearchState("input");
+    } else {
+      setSearchState("analyzing");
+    }
+  };
+
+  const updateComments = (comments: any) => {
+    setComments(comments);
+  };
+
+  const finishedSearching = () => {
+    if (disabledAgentic) {
+      setSearchState("input");
+    }
+  };
+  const { user } = useUser();
+  const [searchAnswerExpanded, setSearchAnswerExpanded] = useState(false);
+
+  const resetInput = (finalized?: boolean) => {
+    setSweep(false);
+    setFirstSearch(false);
+    setComments(null);
+    setSearchState(finalized ? "input" : "searching");
+    setSearchAnswerExpanded(false);
+  };
+
+  const [previousSearch, setPreviousSearch] = useState<string>("");
+  const [agenticResults, setAgenticResults] = useState<boolean | null>(null);
 
   let lastSearchCancellationToken = useRef<CancellationToken | null>(null);
   const onSearch = async ({
     searchType,
+    agentic,
     offset,
+    overrideMessage,
   }: SearchRequestOverrides = {}) => {
-    // cancel the prior search if it hasn't finished
+    if ((overrideMessage || query) == "") {
+      return;
+    }
+    setAgenticResults(agentic!);
+    resetInput();
+    setContentEnriched(false);
+
     if (lastSearchCancellationToken.current) {
       lastSearchCancellationToken.current.cancel();
     }
@@ -158,11 +370,11 @@ export const SearchSection = ({
 
     setIsFetching(true);
     setSearchResponse(initialSearchResponse);
-    setValidQuestionResponse(VALID_QUESTION_RESPONSE_DEFAULT);
-
+    setPreviousSearch(overrideMessage || query);
     const searchFnArgs = {
-      query,
+      query: overrideMessage || query,
       sources: filterManager.selectedSources,
+      agentic: agentic,
       documentSets: filterManager.selectedDocumentSets,
       timeRange: filterManager.timeRange,
       tags: filterManager.selectedTags,
@@ -197,25 +409,31 @@ export const SearchSection = ({
         cancellationToken: lastSearchCancellationToken.current,
         fn: updateError,
       }),
-      updateMessageId: cancellable({
+      updateMessageAndThreadId: cancellable({
         cancellationToken: lastSearchCancellationToken.current,
-        fn: updateMessageId,
+        fn: updateMessageAndThreadId,
+      }),
+      updateDocStatus: cancellable({
+        cancellationToken: lastSearchCancellationToken.current,
+        fn: updateMessageAndThreadId,
+      }),
+      updateDocumentRelevance: cancellable({
+        cancellationToken: lastSearchCancellationToken.current,
+        fn: updateDocumentRelevance,
+      }),
+      updateComments: cancellable({
+        cancellationToken: lastSearchCancellationToken.current,
+        fn: updateComments,
+      }),
+      finishedSearching: cancellable({
+        cancellationToken: lastSearchCancellationToken.current,
+        fn: finishedSearching,
       }),
       selectedSearchType: searchType ?? selectedSearchType,
       offset: offset ?? defaultOverrides.offset,
     };
 
-    const questionValidationArgs = {
-      query,
-      update: setValidQuestionResponse,
-    };
-
-    await Promise.all([
-      searchRequestStreamed(searchFnArgs),
-      questionValidationStreamed(questionValidationArgs),
-    ]);
-
-    setIsFetching(false);
+    await Promise.all([searchRequestStreamed(searchFnArgs)]);
   };
 
   // handle redirect if search page is disabled
@@ -225,105 +443,136 @@ export const SearchSection = ({
   const router = useRouter();
   const settings = useContext(SettingsContext);
   if (settings?.settings?.search_page_enabled === false) {
-    router.push("/chat");
+    router.push(teamspaceId ? `/t/${teamspaceId}/chat` : "/chat");
   }
 
+  const [sweep, setSweep] = useState(false);
+  const performSweep = () => {
+    setSweep((sweep) => !sweep);
+  };
+  const [firstSearch, setFirstSearch] = useState(true);
+  const [searchState, setSearchState] = useState<searchState>("input");
+
+  // Used to maintain a "time out" for history sidebar so our existing refs can have time to process change
+
+  const { answer, quotes, documents, error, messageId } = searchResponse;
+
+  const dedupedQuotes: Quote[] = [];
+  const seen = new Set<string>();
+  if (quotes) {
+    quotes.forEach((quote) => {
+      if (!seen.has(quote.document_id)) {
+        dedupedQuotes.push(quote);
+        seen.add(quote.document_id);
+      }
+    });
+  }
+  const [currentFeedback, setCurrentFeedback] = useState<
+    [FeedbackType, number] | null
+  >(null);
+
+  const chatBannerPresent = settings?.workspaces?.custom_header_content;
+
+  const shouldUseAgenticDisplay =
+    agenticResults &&
+    (searchResponse.documents || []).some(
+      (document) =>
+        searchResponse.additional_relevance &&
+        searchResponse.additional_relevance[document.document_id] !== undefined
+    );
+
   return (
-    <div className="relative flex gap-16 lg:gap-14 xl:gap-10 2xl:gap-20 h-full max-w-full lg:pl-8 xl:pl-0 ml-auto">
-      <div className="w-full max-w-[70%] flex flex-col gap-5">
-        <div className="flex items-center gap-2 relative">
-          <SearchBar
-            query={query}
-            setQuery={setQuery}
-            onSearch={async () => {
-              setDefaultOverrides(SEARCH_DEFAULT_OVERRIDES_START);
-              await onSearch({ offset: 0 });
-            }}
-          />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="lg:hidden">
-                <Filter size={16} className="" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-[85vw] sm:w-full">
-              {(ccPairs.length > 0 || documentSets.length > 0) && (
-                <SourceSelector
-                  {...filterManager}
-                  availableDocumentSets={finalAvailableDocumentSets}
-                  existingSources={finalAvailableSources}
-                  availableTags={tags}
-                />
-              )}
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="w-full flex justify-between flex-col md:flex-row gap-5">
-          {/*  <div className="p-[3px] rounded-sm bg-primary-light flex gap-1 text-dark-900 text-sm font-medium">
-            <button className="px-4 py-2 bg-background rounded-xs w-full">
-              All
-            </button>
-            <button className="px-4 py-2 rounded-xs w-full">Public</button>
-            <button className="px-4 py-2 rounded-xs w-full">Private</button>
-          </div> */}
-
-          <div className="flex items-center gap-2 ml-auto">
-            <DateRangeSearchSelector
-              value={filterManager.timeRange}
-              onValueChange={filterManager.setTimeRange}
+    <div className="relative flex h-full max-w-full gap-16 ml-auto lg:gap-10 xl:gap-10 2xl:gap-20">
+      <div className="flex w-full gap-5">
+        <div className="w-full space-y-5">
+          <div className="relative flex gap-2">
+            <FullSearchBar
+              disabled={previousSearch === query}
+              toggleAgentic={disabledAgentic ? undefined : toggleAgentic}
+              agentic={agentic}
+              query={query}
+              setQuery={setQuery}
+              onSearch={async (agentic?: boolean) => {
+                setDefaultOverrides(SEARCH_DEFAULT_OVERRIDES_START);
+                await onSearch({ agentic, offset: 0 });
+              }}
+              finalAvailableDocumentSets={finalAvailableDocumentSets}
+              finalAvailableSources={finalAvailableSources}
+              filterManager={filterManager}
+              documentSets={documentSets}
+              ccPairs={ccPairs}
+              tags={tags}
             />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="lg:hidden">
+                  <Filter size={16} className="" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-[85vw] sm:w-full">
+                {(ccPairs.length > 0 || documentSets.length > 0) && (
+                  <SourceSelector
+                    {...filterManager}
+                    availableDocumentSets={finalAvailableDocumentSets}
+                    existingSources={finalAvailableSources}
+                    availableTags={tags}
+                  />
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
 
-            <SortSearch />
+          {!firstSearch && (
+            <SearchAnswer
+              isFetching={isFetching}
+              dedupedQuotes={dedupedQuotes}
+              searchResponse={searchResponse}
+              setSearchAnswerExpanded={setSearchAnswerExpanded}
+              searchAnswerExpanded={searchAnswerExpanded}
+              setCurrentFeedback={setCurrentFeedback}
+              searchState={searchState}
+            />
+          )}
+
+          <div className="flex flex-col justify-between w-full gap-5 md:flex-row">
+            <div className="items-center hidden gap-2 ml-auto lg:flex">
+              <DateRangeSearchSelector
+                value={filterManager.timeRange}
+                onValueChange={filterManager.setTimeRange}
+              />
+              <SortSearch />
+            </div>
+          </div>
+
+          <div className="mt-6">
+            {!(agenticResults && isFetching) || disabledAgentic ? (
+              <SearchResultsDisplay
+                searchState={searchState}
+                disabledAgentic={disabledAgentic}
+                contentEnriched={contentEnriched}
+                comments={comments}
+                sweep={sweep}
+                agenticResults={shouldUseAgenticDisplay && !disabledAgentic}
+                performSweep={performSweep}
+                searchResponse={searchResponse}
+                isFetching={isFetching}
+                defaultOverrides={defaultOverrides}
+              />
+            ) : (
+              <></>
+            )}
           </div>
         </div>
 
-        <div className="h-full overflow-auto">
-          <SearchResultsDisplay
-            searchResponse={searchResponse}
-            validQuestionResponse={validQuestionResponse}
-            isFetching={isFetching}
-            defaultOverrides={defaultOverrides}
-            assistantName={
-              selectedAssistant
-                ? assistants.find((p) => p.id === selectedAssistant)?.name
-                : null
-            }
-          />
-        </div>
-      </div>
-
-      <div className="min-w-[220px] lg:min-w-[300px] xl:min-w-[320px] max-w-[320px] hidden lg:flex flex-col">
-        {(ccPairs.length > 0 || documentSets.length > 0) && (
-          <SourceSelector
-            {...filterManager}
-            availableDocumentSets={finalAvailableDocumentSets}
-            existingSources={finalAvailableSources}
-            availableTags={tags}
-          />
-        )}
-
-        <div className="mt-4">
-          <SearchHelper
-            isFetching={isFetching}
-            searchResponse={searchResponse}
-            selectedSearchType={selectedSearchType}
-            setSelectedSearchType={setSelectedSearchType}
-            defaultOverrides={defaultOverrides}
-            restartSearch={onSearch}
-            forceQADisplay={() =>
-              setDefaultOverrides((prevState) => ({
-                ...(prevState || SEARCH_DEFAULT_OVERRIDES_START),
-                forceDisplayQA: true,
-              }))
-            }
-            setOffset={(offset) => {
-              setDefaultOverrides((prevState) => ({
-                ...(prevState || SEARCH_DEFAULT_OVERRIDES_START),
-                offset,
-              }));
-            }}
-          />
+        <div className="min-w-[220px] xl:min-w-[320px] max-w-[320px] hidden lg:flex flex-col">
+          {(ccPairs.length > 0 || documentSets.length > 0) && (
+            <SourceSelector
+              {...filterManager}
+              availableDocumentSets={finalAvailableDocumentSets}
+              existingSources={finalAvailableSources}
+              availableTags={tags}
+            />
+          )}
         </div>
       </div>
     </div>

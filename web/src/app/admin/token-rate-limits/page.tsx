@@ -30,9 +30,9 @@ const USER_DESCRIPTION =
   "User rate limits apply to individual users. When a user reaches a limit, they will \
   be temporarily blocked from spending tokens.";
 const TEAMSPACE_DESCRIPTION =
-  "Teamspace rate limits apply to all users in a group. When a group reaches a limit, \
-  all users in the group will be temporarily blocked from spending tokens, regardless \
-  of their individual limits. If a user is in multiple groups, the most lenient limit \
+  "Teamspace rate limits apply to all users in a teamspace. When a teamspace reaches a limit, \
+  all users in the teamspace will be temporarily blocked from spending tokens, regardless \
+  of their individual limits. If a user is in multiple teamspaces, the most lenient limit \
   will apply.";
 
 const handleCreateTokenRateLimit = async (
@@ -93,16 +93,17 @@ function Main() {
       .then(() => {
         setModalIsOpen(false);
         toast({
-          title: "Success",
-          description: "Token rate limit created!",
+          title: "Token Rate Limit Created",
+          description:
+            "The token rate limit has been successfully established.",
           variant: "success",
         });
         updateTable(target_scope);
       })
       .catch((error) => {
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Creation Failed",
+          description: `Unable to create token rate limit: ${error.message}`,
           variant: "destructive",
         });
       });
@@ -115,7 +116,7 @@ function Main() {
         given time period. With token rate limits, you can:
       </p>
 
-      <ul className="list-disc mt-2 ml-4 mb-2">
+      <ul className="mt-2 mb-2 ml-4 text-sm list-disc">
         <li>
           Set a global rate limit to control your organization&apos;s overall
           token spend.
@@ -127,7 +128,7 @@ function Main() {
               too many tokens.
             </li>
             <li>
-              Set rate limits for user groups to control token spend for your
+              Set rate limits for teamspace to control token spend for your
               teams.
             </li>
           </>
@@ -143,6 +144,7 @@ function Main() {
         }
         onClose={() => setModalIsOpen(false)}
         open={modalIsOpen}
+        title="Create a Token Rate Limit"
       >
         <CreateRateLimitModal
           isOpen={modalIsOpen}
@@ -151,6 +153,7 @@ function Main() {
           forSpecificScope={
             isPaidEnterpriseFeaturesEnabled ? undefined : Scope.GLOBAL
           }
+          onClose={() => setModalIsOpen(false)}
         />
       </CustomModal>
 
@@ -221,10 +224,12 @@ function Main() {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle title="Token Rate Limits" icon={<Shield size={32} />} />
+    <div className="w-full h-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle title="Token Rate Limits" icon={<Shield size={32} />} />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

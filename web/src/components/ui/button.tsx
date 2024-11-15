@@ -5,19 +5,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center gap-1.5 justify-center whitespace-nowrap rounded-regular text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center gap-1.5 justify-center whitespace-nowrap rounded-regular text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-inverted hover:bg-primary-foreground",
+        default:
+          "bg-brand-500 text-inverted hover:bg-brand-300 focus-visible:ring-brand-400",
         destructive:
-          "bg-destructive text-inverted hover:bg-destructive-foreground",
+          "bg-destructive-500 text-inverted hover:bg-destructive-100 focus-visible:ring-destructive",
         outline:
-          "border border-input-colored bg-background hover:bg-[#B0DEFF] hover:text-accent-foreground",
-        secondary: "bg-secondary text-inverted hover:bg-secondary-foreground",
-        ghost: "hover:bg-light hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        success: "bg-success text-inverted hover:bg-success-foreground",
+          "border border-brand-400 bg-background hover:bg-brand-200 hover:text-brand-600 focus-visible:ring-brand-400",
+        secondary:
+          "bg-secondary-500 text-inverted hover:bg-secondary-100 focus-visible:ring-secondary",
+        ghost:
+          "hover:bg-light hover:text-accent-foreground focus-visible:ring-light",
+        link: "text-brand-400 underline-offset-4 hover:underline focus-visible:ring-brand-400",
+        success:
+          "bg-success-500 text-inverted hover:bg-success-500-100 focus-visible:ring-success",
       },
       size: {
         default: "h-10 px-4 py-2",

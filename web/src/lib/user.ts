@@ -4,9 +4,21 @@ export const checkUserIsNoAuthUser = (userId: string) => {
   return userId === "__no_auth_user__";
 };
 
-// should be used client-side only
 export const getCurrentUser = async (): Promise<User | null> => {
   const response = await fetch("/api/me", {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    return null;
+  }
+  const user = await response.json();
+  return user;
+};
+
+export const getCurrentTeamspaceUser = async (
+  teamspaceId: string
+): Promise<User | null> => {
+  const response = await fetch(`/api/me?teamspace_id=${teamspaceId}`, {
     credentials: "include",
   });
   if (!response.ok) {
@@ -32,6 +44,7 @@ export const basicLogin = async (
     ["username", email],
     ["password", password],
   ]);
+
   const response = await fetch("/api/auth/login", {
     method: "POST",
     credentials: "include",

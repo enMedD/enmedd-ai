@@ -1,31 +1,36 @@
+from typing import List
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import Field
 
 from enmedd.db.models import DocumentSet as DocumentSetDBModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
 from enmedd.server.documents.models import ConnectorSnapshot
 from enmedd.server.documents.models import CredentialSnapshot
+from enmedd.server.models import MinimalTeamspaceSnapshot
+from enmedd.server.models import MinimalWorkspaceSnapshot
 
 
 class DocumentSetCreationRequest(BaseModel):
     name: str
     description: str
-    cc_pair_ids: list[int]
+    cc_pair_ids: List[int]
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: list[UUID] | None = None
-    groups: list[int] | None = None
+    users: list[UUID] = Field(default_factory=list)
+    groups: list[int] = Field(default_factory=list)
 
 
 class DocumentSetUpdateRequest(BaseModel):
     id: int
     description: str
-    cc_pair_ids: list[int]
+    cc_pair_ids: List[int]
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: list[UUID]
-    groups: list[int]
+    users: List[UUID]
+    groups: List[int]
 
 
 class CheckDocSetPublicRequest(BaseModel):
@@ -33,7 +38,7 @@ class CheckDocSetPublicRequest(BaseModel):
     Rather, this refers to the CC-Pairs in the Document Set, and if every CC-Pair is public
     """
 
-    document_set_ids: list[int]
+    document_set_ids: List[int]
 
 
 class CheckDocSetPublicResponse(BaseModel):
@@ -44,13 +49,12 @@ class DocumentSet(BaseModel):
     id: int
     name: str
     description: str
-    cc_pair_descriptors: list[ConnectorCredentialPairDescriptor]
+    cc_pair_descriptors: List[ConnectorCredentialPairDescriptor]
     is_up_to_date: bool
-    contains_non_public: bool
     is_public: bool
     # For Private Document Sets, who should be able to access these
-    users: list[UUID]
-    groups: list[int]
+    users: List[UUID]
+    groups: Optional[List[MinimalTeamspaceSnapshot]] = None
 
     @classmethod
     def from_model(cls, document_set_model: DocumentSetDBModel) -> "DocumentSet":
@@ -58,12 +62,6 @@ class DocumentSet(BaseModel):
             id=document_set_model.id,
             name=document_set_model.name,
             description=document_set_model.description,
-            contains_non_public=any(
-                [
-                    not cc_pair.is_public
-                    for cc_pair in document_set_model.connector_credential_pairs
-                ]
-            ),
             cc_pair_descriptors=[
                 ConnectorCredentialPairDescriptor(
                     id=cc_pair.id,
@@ -74,11 +72,37 @@ class DocumentSet(BaseModel):
                     credential=CredentialSnapshot.from_credential_db_model(
                         cc_pair.credential
                     ),
+                    groups=[
+                        MinimalTeamspaceSnapshot(
+                            id=groups.id,
+                            name=groups.name,
+                            workspace=[
+                                MinimalWorkspaceSnapshot(
+                                    id=workspace.id,
+                                    workspace_name=workspace.workspace_name,
+                                )
+                                for workspace in groups.workspace
+                            ],
+                        )
+                        for groups in cc_pair.groups
+                    ],
                 )
                 for cc_pair in document_set_model.connector_credential_pairs
             ],
             is_up_to_date=document_set_model.is_up_to_date,
             is_public=document_set_model.is_public,
             users=[user.id for user in document_set_model.users],
-            groups=[group.id for group in document_set_model.groups],
+            groups=[
+                MinimalTeamspaceSnapshot(
+                    id=groups.id,
+                    name=groups.name,
+                    workspace=[
+                        MinimalWorkspaceSnapshot(
+                            id=workspace.id, workspace_name=workspace.workspace_name
+                        )
+                        for workspace in groups.workspace
+                    ],
+                )
+                for groups in document_set_model.groups
+            ],
         )

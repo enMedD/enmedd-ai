@@ -23,6 +23,7 @@ interface CreateRateLimitModalProps {
   forSpecificTeamspace?: number;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
 }
 
 export const CreateRateLimitModal = ({
@@ -31,6 +32,7 @@ export const CreateRateLimitModal = ({
   forSpecificTeamspace,
   isOpen,
   setIsOpen,
+  onClose,
 }: CreateRateLimitModalProps) => {
   const [modalTeamspaces, setModalTeamspaces] = useState([]);
   const [shouldFetchTeamspaces, setShouldFetchTeamspaces] = useState(
@@ -52,8 +54,8 @@ export const CreateRateLimitModal = ({
         setShouldFetchTeamspaces(false);
       } catch (error) {
         toast({
-          title: "Error",
-          description: `Failed to fetch user teamspaces: ${error}`,
+          title: "Fetch Failed",
+          description: `Unable to retrieve user teamspaces. Reason: ${error}`,
           variant: "destructive",
         });
       }
@@ -65,10 +67,7 @@ export const CreateRateLimitModal = ({
   }, [shouldFetchTeamspaces]);
 
   return (
-    <div className="mt-4">
-      <h2 className="text-lg font-semibold leading-none tracking-tight pb-8">
-        Create a Token Rate Limit
-      </h2>
+    <div>
       <Formik
         initialValues={{
           enabled: true,
@@ -140,24 +139,33 @@ export const CreateRateLimitModal = ({
                   includeDefault={false}
                 />
               )}
+
+            <div className="pt-2" />
             <TextFormField
               name="period_hours"
               label="Time Window (Hours)"
               type="number"
               placeholder=""
             />
+
+            <div className="pt-2" />
             <TextFormField
               name="token_budget"
               label="Token Budget (Thousands)"
               type="number"
               placeholder=""
             />
-            <div className="flex">
+            <div className="flex pt-4 justify-end gap-2">
               <Button
-                type="submit"
+                type="button"
                 disabled={isSubmitting}
-                className="mx-auto w-64"
+                onClick={() => onClose()}
+                variant="ghost"
               >
+                Cancel
+              </Button>
+
+              <Button type="submit" disabled={isSubmitting}>
                 Create
               </Button>
             </div>

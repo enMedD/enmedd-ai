@@ -6,7 +6,6 @@ import {
   TriangleAlertIcon,
 } from "@/components/icons/icons";
 import { useState } from "react";
-import { Grid } from "react-loader-spinner";
 
 export type StatusOptions = "in-progress" | "failed" | "warning" | "success";
 
@@ -31,26 +30,13 @@ export const ResponseSection = ({
 
   let icon = null;
   if (status === "in-progress") {
-    icon = (
-      <div className="m-auto">
-        <Grid
-          height="12"
-          width="12"
-          color="#3b82f6"
-          ariaLabel="grid-loading"
-          radius="12.5"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-      </div>
-    );
+    icon = <></>;
   }
   if (status === "failed") {
     icon = <AlertIcon size={16} className="text-red-500" />;
   }
   if (status === "success") {
-    icon = <CheckmarkIcon size={16} className="text-green-600" />;
+    icon = <></>;
   }
   if (status === "warning") {
     icon = <TriangleAlertIcon size={16} className="text-yellow-600" />;
@@ -84,7 +70,7 @@ export const ResponseSection = ({
         }}
       >
         <div className="my-auto">{icon}</div>
-        <div className="my-auto text-sm text-gray-200 italic max-w-full truncate">
+        <div className="my-auto text-sm text-subtle italic max-w-full truncate">
           {header}
         </div>
 
@@ -98,7 +84,7 @@ export const ResponseSection = ({
           </div>
         )}
       </div>
-      {finalIsOpen && <div className="pb-1 mx-2 text-sm mb-1">{body}</div>}
+      {finalIsOpen && <div className="pb-2 text-sm">{body}</div>}
     </div>
   );
 };

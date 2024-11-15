@@ -1,5 +1,7 @@
 FROM python:3.11.7-slim-bookworm
 
+ENV ENMEDD_RUNNING_IN_DOCKER="true"
+
 # Install system dependencies
 # cmake needed for psycopg (postgres)
 # libpq-dev needed for psycopg (postgres)
@@ -28,6 +30,8 @@ RUN apt-get update && \
 COPY ./requirements/default.txt /tmp/requirements.txt
 COPY ./requirements/ee.txt /tmp/ee-requirements.txt
 RUN pip install --no-cache-dir --upgrade \
+        --retries 5 \
+        --timeout 30 \
         -r /tmp/requirements.txt \
         -r /tmp/ee-requirements.txt && \
     pip uninstall -y py && \
@@ -38,7 +42,7 @@ RUN pip install --no-cache-dir --upgrade \
 # Cleanup for CVEs and size reduction
 # https://github.com/tornadoweb/tornado/issues/3107
 # xserver-common and xvfb included by playwright installation but not needed after
-# perl-base is part of the base Python Debian image but not needed for enMedD AI functionality
+# perl-base is part of the base Python Debian image but not needed for Arnold AI functionality
 # perl-base could only be removed with --allow-remove-essential
 RUN apt-get update && \
     apt-get remove -y --allow-remove-essential \
@@ -56,13 +60,15 @@ RUN apt-get update && \
     rm -f /usr/local/lib/python3.11/site-packages/tornado/test/test.key
 
 # Pre-downloading models for setups with limited egress
-RUN python -c "from transformers import AutoTokenizer; AutoTokenizer.from_pretrained('intfloat/e5-base-v2')"
+RUN python -c "from tokenizers import Tokenizer; \
+Tokenizer.from_pretrained('nomic-ai/nomic-embed-text-v1')"
+
 
 # Pre-downloading NLTK for setups with limited egress
 RUN python -c "import nltk; \
 nltk.download('stopwords', quiet=True); \
-nltk.download('wordnet', quiet=True); \
 nltk.download('punkt', quiet=True);"
+# nltk.download('wordnet', quiet=True); introduce this back if lemmatization is needed
 
 # Set up application files
 WORKDIR /app
@@ -84,7 +90,7 @@ COPY ./scripts/force_delete_connector_by_id.py /app/scripts/force_delete_connect
 # Put logo in assets
 COPY ./assets /app/assets
 
-ENV PYTHONPATH /app
+ENV PYTHONPATH=/app
 
 EXPOSE 8080
 

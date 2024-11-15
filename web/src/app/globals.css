@@ -10,19 +10,14 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    /* --primary: 222.2 47.4% 11.2%; */
-    --primary: #2039f3;
-    --primary-foreground: #b8d7ff;
-    --secondary: rgba(14, 14, 15, 0.1);
-    /*  --secondary: #8e00c7; */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    /*  --secondary-foreground: #be8bfc; */
+    --secondary: #ebeefe;
+    --secondary-foreground: #ebeefe;
     --success: #69c57d;
-    --success-foreground: #a9deb4;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --success-foreground: rgba(27, 232, 72, 0.1);
+    --muted: #e7e7e7;
+    --muted-foreground: #8a8a8a;
+    --accent: #d1d1d1;
+    --accent-foreground: #000000;
     --destructive: #f16d69;
     --destructive-foreground: #f7a9a7;
     --warning: #ff9500;
@@ -45,8 +40,6 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -102,4 +95,151 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+}
+
+h3 {
+  font-weight: 600;
+}
+
+.line-clamp {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 4;
+  text-wrap: balance;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.loading-text {
+  display: inline-block;
+  color: #e5e5e5;
+
+  background: linear-gradient(
+    -90deg,
+    #a3a3a3 0%,
+    #000000 5%,
+    #a3a3a3 10%,
+    #a3a3a3 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerTransition 1.5s ease-out infinite;
+}
+
+.collapsible {
+  max-height: 300px;
+  transition:
+    max-height 0.5s ease-in-out,
+    opacity 0.5s ease-in-out,
+    padding 0.5s ease-in-out;
+  opacity: 1;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.collapsible-closed {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Base styles for code blocks */
+.prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background-color: theme("colors.code-bg");
+  font-size: theme("fontSize.code-sm");
+  margin: 8px 0px !important;
+  border-radius: 4px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+pre[class*="language-"] {
+  color: theme("colors.code-text");
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+code[class*="language-"] {
+  color: theme("colors.code-text");
+  overflow: initial; /* Removes overflow for single-line code */
+}
+
+/* Token styles */
+.code-line .token.comment,
+.code-line .token.prolog,
+.code-line .token.doctype,
+.code-line .token.cdata {
+  color: theme("colors.token-comment");
+}
+
+.code-line .token.punctuation,
+.code-line .token.operator,
+.code-line .token.entity,
+.code-line .token.url,
+.code-line .language-css .token.string,
+.code-line .style .token.string {
+  color: theme("colors.token-punctuation");
+}
+
+.code-line .token.property,
+.code-line .token.tag,
+.code-line .token.boolean,
+.code-line .token.number,
+.code-line .token.constant,
+.code-line .token.symbol,
+.code-line .token.deleted,
+.code-line .token.tag .token.punctuation {
+  color: theme("colors.token-property");
+}
+
+.code-line .token.selector,
+.code-line .token.attr-name,
+.code-line .token.string,
+.code-line .token.char,
+.code-line .token.builtin,
+.code-line .token.inserted,
+.code-line .token.attr-value,
+.code-line .token.attr-value .token.punctuation {
+  color: theme("colors.token-selector");
+}
+
+.code-line .token.atrule,
+.code-line .token.keyword {
+  color: theme("colors.token-atrule");
+}
+
+.code-line .token.function,
+.code-line .token.class-name {
+  color: theme("colors.token-function");
+}
+
+.code-line .token.regex,
+.code-line .token.important,
+.code-line .token.variable {
+  color: theme("colors.token-regex");
+}
+
+.code-line .token.important,
+.code-line .token.bold {
+  font-weight: theme("fontWeight.token-bold");
+}
+
+.code-line .token.italic {
+  font-style: theme("fontStyle.token-italic");
+}
+
+.code-line .token.entity {
+  cursor: help;
+}
+
+.code-line .token.attr-name {
+  color: theme("colors.token-attr-name");
+}
+
+.container {
+  @apply mx-auto max-w-[1400px] px-6 lg:px-14 xl:px-10 2xl:px-24 py-24 md:py-32 lg:pt-16 bg-background;
 }

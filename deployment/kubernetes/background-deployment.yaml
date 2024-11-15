@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: background-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: background
+  template:
+    metadata:
+      labels:
+        app: background
+    spec:
+      containers:
+      - name: background
+        image: 471112588823.dkr.ecr.ap-southeast-2.amazonaws.com/chp-api-server:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+        # There are some extra values since this is shared between services
+        # There are no conflicts though, extra env variables are simply ignored
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: enmedd-secrets
+              key: redis_password
+        envFrom:
+        - configMapRef:
+            name: env-configmap

@@ -31,16 +31,16 @@ export default async function Page() {
     }
     return redirect("/auth/login");
   }
-
-  if (!authTypeMetadata?.requiresVerification || currentUser.is_verified) {
+  if (
+    !authTypeMetadata?.requiresVerification &&
+    currentUser.is_verified === "true"
+  ) {
     return redirect("/");
   }
 
   return (
     <main>
-      <div className="absolute top-10x w-full">
-        <HealthCheckBanner />
-      </div>
+      <HealthCheckBanner />
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div>
           <Logo height={64} width={64} className="mx-auto w-fit" />

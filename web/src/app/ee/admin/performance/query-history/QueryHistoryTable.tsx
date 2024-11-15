@@ -26,18 +26,28 @@ import {
 } from "@/components/ui/select";
 import { Frown, Minus, Smile } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 const NUM_IN_PAGE = 20;
 
 function QueryHistoryTableRow({
   chatSessionMinimal,
+  teamspaceId,
 }: {
   chatSessionMinimal: ChatSessionMinimal;
+  teamspaceId?: string | string[];
 }) {
+  const handleRowClick = () => {
+    window.location.href = teamspaceId
+      ? `/t/${teamspaceId}/admin/performance/query-history/${chatSessionMinimal.id}`
+      : `/admin/performance/query-history/${chatSessionMinimal.id}`;
+  };
+
   return (
     <TableRow
       key={chatSessionMinimal.id}
       className="hover:bg-hover-light cursor-pointer relative"
+      onClick={handleRowClick}
     >
       <TableCell>
         <p className="whitespace-normal line-clamp-5">
@@ -53,16 +63,12 @@ function QueryHistoryTableRow({
         <FeedbackBadge feedback={chatSessionMinimal.feedback_type} />
       </TableCell>
       <TableCell>{chatSessionMinimal.user_email || "-"}</TableCell>
-      <TableCell>{chatSessionMinimal.assistant_name || "Unknown"}</TableCell>
+      <TableCell className="whitespace-nowrap">
+        {chatSessionMinimal.assistant_name || "Unknown"}
+      </TableCell>
       <TableCell>
         {timestampToReadableDate(chatSessionMinimal.time_created)}
       </TableCell>
-      <td className="w-0 p-0">
-        <Link
-          href={`/admin/performance/query-history/${chatSessionMinimal.id}`}
-          className="absolute w-full h-full left-0"
-        ></Link>
-      </td>
     </TableRow>
   );
 }
@@ -76,7 +82,7 @@ function SelectFeedbackType({
 }) {
   return (
     <div>
-      <p className="my-auto mr-2 font-medium mb-1">Feedback Type</p>
+      <Label className="font-semibold pb-1.5">Feedback Type</Label>
       <div className="max-w-sm space-y-6">
         <Select
           value={value}
@@ -102,21 +108,21 @@ function SelectFeedbackType({
   );
 }
 
-export function QueryHistoryTable() {
+export function QueryHistoryTable({ teamspaceId }: { teamspaceId?: string }) {
   const {
     data: chatSessionData,
     selectedFeedbackType,
     setSelectedFeedbackType,
     timeRange,
     setTimeRange,
-  } = useQueryHistory();
+  } = useQueryHistory(teamspaceId);
 
   const [page, setPage] = useState(1);
 
   return (
     <>
       {chatSessionData ? (
-        <div className="space-y-12">
+        <div className="space-y-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="gap-y-3 flex flex-col">
               <SelectFeedbackType
@@ -152,6 +158,7 @@ export function QueryHistoryTable() {
                       <QueryHistoryTableRow
                         key={chatSessionMinimal.id}
                         chatSessionMinimal={chatSessionMinimal}
+                        teamspaceId={teamspaceId}
                       />
                     ))}
                 </TableBody>
@@ -159,7 +166,7 @@ export function QueryHistoryTable() {
             </CardContent>
           </Card>
 
-          <div className="pt-6 flex">
+          <div className="flex">
             <div className="mx-auto">
               <PageSelector
                 totalPages={Math.ceil(chatSessionData.length / NUM_IN_PAGE)}

@@ -7,9 +7,11 @@ import { TableCell, TableRow } from "../ui/table";
 export function DraggableRow({
   row,
   forceDragging,
+  isAdmin = true,
 }: {
   row: Row;
   forceDragging?: boolean;
+  isAdmin?: boolean;
 }) {
   const {
     attributes,
@@ -30,14 +32,16 @@ export function DraggableRow({
     <TableRow
       ref={setNodeRef}
       style={style}
-      className={isDragging ? "invisible" : "bg-background"}
+      className={`${isDragging ? "invisible " : "bg-background"}`}
     >
       <TableCell>
-        <DragHandle
-          isDragging={isDragging || forceDragging}
-          {...attributes}
-          {...listeners}
-        />
+        {isAdmin && (
+          <DragHandle
+            isDragging={isDragging || forceDragging}
+            {...attributes}
+            {...listeners}
+          />
+        )}
       </TableCell>
       {row.cells.map((column, ind) => (
         <TableCell key={ind} className={ind === 1 ? "min-w-72 md:min-w-0" : ""}>

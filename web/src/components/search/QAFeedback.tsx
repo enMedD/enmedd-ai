@@ -2,6 +2,8 @@ import { useState } from "react";
 import { PopupSpec } from "../admin/connectors/Popup";
 import { ThumbsDownIcon, ThumbsUpIcon } from "../icons/icons";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "../ui/button";
+import { CustomTooltip } from "../CustomTooltip";
 
 type Feedback = "like" | "dislike";
 
@@ -28,42 +30,38 @@ interface QAFeedbackIconProps {
 }
 
 const QAFeedback = ({ messageId, feedbackType }: QAFeedbackIconProps) => {
-  const [isHovered, setIsHovered] = useState(false);
   const { toast } = useToast();
 
-  const size = isHovered ? 22 : 20;
-  const paddingY = isHovered ? "" : "py-0.5 ";
-
   return (
-    <div
-      onClick={async () => {
-        const isSuccessful = await giveFeedback(messageId, feedbackType);
-        if (isSuccessful) {
-          toast({
-            title: "Success",
-            description: "Thanks for your feedback!",
-            variant: "success",
-          });
-        }
-      }}
-      onMouseEnter={() => {
-        setIsHovered(true);
-      }}
-      onMouseLeave={() => setIsHovered(false)}
-      className={"cursor-pointer " + paddingY}
+    <CustomTooltip
+      trigger={
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={async () => {
+            const isSuccessful = await giveFeedback(messageId, feedbackType);
+            if (isSuccessful) {
+              toast({
+                title: "Feedback Submitted!",
+                description:
+                  "Thank you for your feedback! We appreciate your input.",
+                variant: "success",
+              });
+            }
+          }}
+          className="cursor-pointer"
+        >
+          {feedbackType === "like" ? (
+            <ThumbsUpIcon size={16} />
+          ) : (
+            <ThumbsDownIcon size={16} />
+          )}
+        </Button>
+      }
+      asChild
     >
-      {feedbackType === "like" ? (
-        <ThumbsUpIcon
-          size={size}
-          className="my-auto flex flex-shrink-0 text-gray-500"
-        />
-      ) : (
-        <ThumbsDownIcon
-          size={size}
-          className="my-auto flex flex-shrink-0 text-gray-500"
-        />
-      )}
-    </div>
+      {feedbackType === "like" ? "Like" : "Dislike"}
+    </CustomTooltip>
   );
 };
 
@@ -75,9 +73,7 @@ export const QAFeedbackBlock = ({ messageId }: QAFeedbackBlockProps) => {
   return (
     <div className="flex">
       <QAFeedback messageId={messageId} feedbackType="like" />
-      <div className="ml-2">
-        <QAFeedback messageId={messageId} feedbackType="dislike" />
-      </div>
+      <QAFeedback messageId={messageId} feedbackType="dislike" />
     </div>
   );
 };

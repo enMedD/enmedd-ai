@@ -1,50 +1,39 @@
+import React from "react";
 import { ConnectorIndexingStatus } from "@/lib/types";
-import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { Badge } from "@/components/ui/badge";
+import { Combobox } from "@/components/Combobox";
 
 interface ConnectorEditorProps {
+  allCCPairs: ConnectorIndexingStatus<any, any>[] | undefined;
   selectedCCPairIds: number[];
-  setSetCCPairIds: (ccPairId: number[]) => void;
-  allCCPairs: ConnectorIndexingStatus<any, any>[];
+  setSetCCPairIds: (ccPairIds: number[]) => void;
 }
 
-export const ConnectorEditor = ({
+export const ConnectorEditor: React.FC<ConnectorEditorProps> = ({
+  allCCPairs,
   selectedCCPairIds,
   setSetCCPairIds,
-  allCCPairs,
-}: ConnectorEditorProps) => {
+}) => {
+  const items = allCCPairs
+    ?.filter((ccPair) => ccPair.access_type == "public")
+    .map((ccPair) => ({
+      value: ccPair.cc_pair_id.toString(),
+      label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
+    }));
+
+  const handleSelect = (selectedValues: string[]) => {
+    const selectedIds = selectedValues.map((value) => parseInt(value));
+    setSetCCPairIds(selectedIds);
+  };
+
   return (
-    <div className="mb-3 flex gap-2 flex-wrap">
-      {allCCPairs.map((ccPair) => {
-        const ind = selectedCCPairIds.indexOf(ccPair.cc_pair_id);
-        let isSelected = ind !== -1;
-        return (
-          <Badge
-            key={`${ccPair.connector.id}-${ccPair.credential.id}`}
-            className="cursor-pointer"
-            variant={isSelected ? "default" : "outline"}
-            onClick={() => {
-              if (isSelected) {
-                setSetCCPairIds(
-                  selectedCCPairIds.filter(
-                    (ccPairId) => ccPairId !== ccPair.cc_pair_id
-                  )
-                );
-              } else {
-                setSetCCPairIds([...selectedCCPairIds, ccPair.cc_pair_id]);
-              }
-            }}
-          >
-            <ConnectorTitle
-              connector={ccPair.connector}
-              ccPairId={ccPair.cc_pair_id}
-              ccPairName={ccPair.name}
-              isLink={false}
-              showMetadata={false}
-            />
-          </Badge>
-        );
-      })}
+    <div>
+      <Combobox
+        items={items}
+        onSelect={handleSelect}
+        placeholder="Select data sources"
+        label="Select Data Sources"
+        isOnModal
+      />
     </div>
   );
 };

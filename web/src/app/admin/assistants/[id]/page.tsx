@@ -31,25 +31,24 @@ export default async function Page({ params }: { params: { id: string } }) {
         </Card>
 
         <div className="mt-12">
-          <Title>Delete Assistant</Title>
-          <div className="flex mt-6">
-            <DeleteAssistantButton
-              assistantId={values.existingAssistant!.id}
-              redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
-            />
-          </div>
+          <DeleteAssistantButton
+            assistantId={values.existingAssistant!.id}
+            redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
+          />
         </div>
       </>
     );
   }
 
   return (
-    <div>
-      <BackButton />
+    <div className="w-full h-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle title="Edit Assistant" icon={<RobotIcon size={32} />} />
+        <AdminPageTitle title="Edit Assistant" icon={<RobotIcon size={32} />} />
 
-      {body}
+        {body}
+      </div>
     </div>
   );
 }

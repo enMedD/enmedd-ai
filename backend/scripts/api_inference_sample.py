@@ -1,13 +1,10 @@
 # This file is used to demonstrate how to use the backend APIs directly
-# In this case, the equivalent of asking a question in enMedD Chat in a new chat session
+# In this case, the equivalent of asking a question in Arnold Chat in a new chat session
 import argparse
 import json
 import os
 
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 # TODO: replace the parameter names here
@@ -37,6 +34,7 @@ def process_question(enmedd_url: str, question: str, api_key: str | None) -> Non
         "message": question,
         "chat_session_id": chat_session_id,
         "parent_message_id": None,
+        "file_descriptors": [],
         # Default Question Answer prompt
         "prompt_id": 0,
         # Not specifying any specific docs to chat to, we want to run a search
@@ -71,12 +69,12 @@ if __name__ == "__main__":
         "--enmedd-url",
         type=str,
         default="http://localhost:80",
-        help="enMedD AI URL, should point to enMedD AI nginx.",
+        help="Arnold AI URL, should point to Arnold AI nginx.",
     )
     parser.add_argument(
         "--test-question",
         type=str,
-        default="What is enMedD AI?",
+        default="What is Arnold AI?",
         help="Test question for new Chat Session.",
     )
 

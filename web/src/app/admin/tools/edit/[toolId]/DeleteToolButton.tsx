@@ -1,28 +1,47 @@
 "use client";
 
-import { Button } from "@tremor/react";
-import { FiTrash } from "react-icons/fi";
 import { deleteCustomTool } from "@/lib/tools/edit";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-export function DeleteToolButton({ toolId }: { toolId: number }) {
+export function DeleteToolButton({
+  toolId,
+  teamspaceId,
+}: {
+  toolId: number;
+  teamspaceId?: string | string[];
+}) {
   const router = useRouter();
+  const { toast } = useToast();
 
   return (
     <Button
-      size="xs"
-      color="red"
       onClick={async () => {
         const response = await deleteCustomTool(toolId);
         if (response.data) {
-          router.push(`/admin/tools?u=${Date.now()}`);
+          router.push(
+            teamspaceId
+              ? `/t/${teamspaceId}/admin/tools?u=${Date.now()}`
+              : `/admin/tools?u=${Date.now()}`
+          );
+          toast({
+            title: "Tool deleted",
+            description: "The tool has been successfully deleted.",
+            variant: "success",
+          });
         } else {
-          alert(`Failed to delete tool - ${response.error}`);
+          toast({
+            title: "Failed to delete tool",
+            description: `Error details: ${response.error}`,
+            variant: "destructive",
+          });
         }
       }}
-      icon={FiTrash}
+      variant="destructive"
     >
-      Delete
+      <Trash size={16} /> Delete
     </Button>
   );
 }

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "enmedd-stack.fullname" . }}-test-connection"
+  labels:
+    {{- include "enmedd-stack.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "enmedd-stack.fullname" . }}:{{ .Values.webserver.service.port }}']
+  restartPolicy: Never

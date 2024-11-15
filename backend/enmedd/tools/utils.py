@@ -1,12 +1,22 @@
 import json
 
-from tiktoken import Encoding
+from sqlalchemy.orm import Session
 
-from enmedd.llm.utils import get_default_llm_tokenizer
+from enmedd.configs.app_configs import AZURE_DALLE_API_KEY
+from enmedd.db.connector import check_connectors_exist
+from enmedd.db.document import check_docs_exist
+from enmedd.db.models import LLMProvider
+from enmedd.natural_language_processing.utils import BaseTokenizer
 from enmedd.tools.tool import Tool
 
 
-OPEN_AI_TOOL_CALLING_MODELS = {"gpt-3.5-turbo", "gpt-4-turbo", "gpt-4"}
+OPEN_AI_TOOL_CALLING_MODELS = {
+    "gpt-3.5-turbo",
+    "gpt-4-turbo",
+    "gpt-4",
+    "gpt-4o",
+    "gpt-4o-mini",
+}
 
 
 def explicit_tool_calling_supported(model_provider: str, model_name: str) -> bool:
@@ -16,13 +26,24 @@ def explicit_tool_calling_supported(model_provider: str, model_name: str) -> boo
     return False
 
 
-def compute_tool_tokens(tool: Tool, llm_tokenizer: Encoding | None = None) -> int:
-    if not llm_tokenizer:
-        llm_tokenizer = get_default_llm_tokenizer()
+def compute_tool_tokens(tool: Tool, llm_tokenizer: BaseTokenizer) -> int:
     return len(llm_tokenizer.encode(json.dumps(tool.tool_definition())))
 
 
-def compute_all_tool_tokens(
-    tools: list[Tool], llm_tokenizer: Encoding | None = None
-) -> int:
+def compute_all_tool_tokens(tools: list[Tool], llm_tokenizer: BaseTokenizer) -> int:
     return sum(compute_tool_tokens(tool, llm_tokenizer) for tool in tools)
+
+
+def is_image_generation_available(db_session: Session) -> bool:
+    providers = db_session.query(LLMProvider).all()
+    for provider in providers:
+        if provider.name == "OpenAI":
+            return True
+
+    return bool(AZURE_DALLE_API_KEY)
+
+
+def is_document_search_available(db_session: Session) -> bool:
+    docs_exist = check_docs_exist(db_session)
+    connectors_exist = check_connectors_exist(db_session)
+    return docs_exist or connectors_exist

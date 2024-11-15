@@ -1,6 +1,9 @@
+from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import Field
 
 from enmedd.db.models import Assistant
 from enmedd.db.models import StarterMessage
@@ -10,7 +13,6 @@ from enmedd.server.features.prompt.models import PromptSnapshot
 from enmedd.server.features.tool.api import ToolSnapshot
 from enmedd.server.models import MinimalUserSnapshot
 from enmedd.utils.logger import setup_logger
-
 
 logger = setup_logger()
 
@@ -31,8 +33,15 @@ class CreateAssistantRequest(BaseModel):
     llm_model_version_override: str | None = None
     starter_messages: list[StarterMessage] | None = None
     # For Private Assistants, who should be able to access these
-    users: list[UUID] | None = None
-    groups: list[int] | None = None
+    users: list[UUID] = Field(default_factory=list)
+    groups: list[int] = Field(default_factory=list)
+    icon_color: str | None = None
+    icon_shape: int | None = None
+    uploaded_image_id: str | None = None  # New field for uploaded image
+    remove_image: bool | None = None
+    is_default_assistant: bool = False
+    display_priority: int | None = None
+    search_start_date: datetime | None = None
 
 
 class AssistantSnapshot(BaseModel):
@@ -49,21 +58,27 @@ class AssistantSnapshot(BaseModel):
     llm_model_provider_override: str | None
     llm_model_version_override: str | None
     starter_messages: list[StarterMessage] | None
-    default_assistant: bool
+    builtin_assistant: bool
     prompts: list[PromptSnapshot]
     tools: list[ToolSnapshot]
     document_sets: list[DocumentSet]
     users: list[MinimalUserSnapshot]
     groups: list[int]
+    icon_color: str | None
+    icon_shape: int | None
+    uploaded_image_id: str | None = None
+    is_default_assistant: bool
+    search_start_date: datetime | None = None
 
     @classmethod
     def from_model(
         cls, assistant: Assistant, allow_deleted: bool = False
-    ) -> "AssistantSnapshot":
+    ) -> Optional["AssistantSnapshot"]:
         if assistant.deleted:
             error_msg = f"Assistant with ID {assistant.id} has been deleted"
             if not allow_deleted:
-                raise ValueError(error_msg)
+                logger.warning(error_msg)
+                return None
             else:
                 logger.warning(error_msg)
 
@@ -71,7 +86,11 @@ class AssistantSnapshot(BaseModel):
             id=assistant.id,
             name=assistant.name,
             owner=(
-                MinimalUserSnapshot(id=assistant.user.id, email=assistant.user.email)
+                MinimalUserSnapshot(
+                    id=assistant.user.id,
+                    email=assistant.user.email,
+                    profile=assistant.user.profile,
+                )
                 if assistant.user
                 else None
             ),
@@ -85,7 +104,8 @@ class AssistantSnapshot(BaseModel):
             llm_model_provider_override=assistant.llm_model_provider_override,
             llm_model_version_override=assistant.llm_model_version_override,
             starter_messages=assistant.starter_messages,
-            default_assistant=assistant.default_assistant,
+            builtin_assistant=assistant.builtin_assistant,
+            is_default_assistant=assistant.is_default_assistant,
             prompts=[PromptSnapshot.from_model(prompt) for prompt in assistant.prompts],
             tools=[ToolSnapshot.from_model(tool) for tool in assistant.tools],
             document_sets=[
@@ -93,12 +113,24 @@ class AssistantSnapshot(BaseModel):
                 for document_set_model in assistant.document_sets
             ],
             users=[
-                MinimalUserSnapshot(id=user.id, email=user.email)
+                MinimalUserSnapshot(
+                    id=user.id,
+                    email=user.email,
+                    profile=user.profile,
+                )
                 for user in assistant.users
             ],
-            groups=[teamspace.id for teamspace in assistant.groups],
+            groups=[user_group.id for user_group in assistant.groups],
+            icon_color=assistant.icon_color,
+            icon_shape=assistant.icon_shape,
+            uploaded_image_id=assistant.uploaded_image_id,
+            search_start_date=assistant.search_start_date,
         )
 
 
 class PromptTemplateResponse(BaseModel):
     final_prompt_template: str
+
+
+class AssistantShareRequest(BaseModel):
+    user_ids: list[UUID]
