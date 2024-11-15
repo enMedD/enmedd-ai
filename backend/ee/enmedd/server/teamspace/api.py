@@ -70,8 +70,16 @@ def get_teamspace_by_id(
 def list_teamspaces(
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    include_deleted: bool = False,
 ) -> list[Teamspace]:
-    teamspaces = db_session.query(TeamspaceModel).all()
+    if include_deleted:
+        teamspaces = db_session.query(TeamspaceModel).all()
+    else:
+        teamspaces = (
+            db_session.query(TeamspaceModel)
+            .filter(TeamspaceModel.is_up_for_deletion == False)  # noqa E712
+            .all()
+        )
 
     teamspace_list = []
 

@@ -255,9 +255,9 @@ def update_default_multipass_indexing(db_session: Session) -> None:
         update_current_search_settings(db_session, updated_settings)
 
         # Update settings with GPU availability
-        settings = load_settings(db_session)
+        settings = load_settings(db_session, workspace_id=0)  # temporary set to 0
         settings.gpu_enabled = gpu_available
-        store_settings(settings, db_session)
+        store_settings(settings, db_session, workspace_id=0)  # temporary set to 0
         logger.notice(f"Updated settings with GPU availability: {gpu_available}")
 
     else:
