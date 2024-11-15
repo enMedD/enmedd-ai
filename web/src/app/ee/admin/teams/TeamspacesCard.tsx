@@ -73,7 +73,7 @@ export const TeamspacesCard = ({
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative xl:min-w-[280px] md:max-w-[400px]">
       <DropdownMenu>
         <DropdownMenuTrigger
           asChild
@@ -135,7 +135,7 @@ export const TeamspacesCard = ({
 
       <Card
         key={teamspace.id}
-        className="overflow-hidden !rounded-xl cursor-pointer xl:min-w-[280px] md:max-w-[400px] justify-start items-start"
+        className="overflow-hidden !rounded-xl cursor-pointer w-full justify-start items-start"
         onClick={() => onClick(teamspace.id)}
       >
         <CardHeader

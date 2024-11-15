@@ -57,8 +57,7 @@ export default async function Home({
     fetchSS(`/manage/document-set?teamspace_id=${params.teamspaceId}`),
     fetchAssistantsSS(params.teamspaceId),
     fetchSS("/query/valid-tags"),
-    // TODO: add by teamspace id
-    fetchSS("/query/user-searches"),
+    fetchSS(`/query/user-searches?teamspace_id=${params.teamspaceId}`),
     fetchLLMProvidersSS(),
   ];
 
@@ -206,7 +205,10 @@ export default async function Home({
           <InstantSSRAutoRefresh />
           <div className="w-full h-full overflow-hidden overflow-y-auto min-h-screen">
             <div className="pt-20 lg:pt-14 lg:px-14 container">
-              <SearchSection defaultSearchType={searchTypeDefault} />
+              <SearchSection
+                defaultSearchType={searchTypeDefault}
+                teamspaceId={params.teamspaceId}
+              />
             </div>
           </div>
         </SearchProvider>

@@ -199,7 +199,7 @@ function ConnectorRow({
       <TableCell className="!w-[200px] xl:!w-[350px] !max-w-[480px] flex truncate">
         <CustomTooltip
           trigger={
-            <p className=" truncate ellipsis w-full">
+            <p className=" truncate ellipsis w-auto">
               {ccPairsIndexingStatus.name}
             </p>
           }
