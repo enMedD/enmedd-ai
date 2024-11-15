@@ -3,7 +3,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import cast
 
-from enmedd.configs.app_configs import EMAIL_FROM
 from enmedd.configs.app_configs import SMTP_PASS
 from enmedd.configs.app_configs import SMTP_PORT
 from enmedd.configs.app_configs import SMTP_SERVER
@@ -54,19 +53,22 @@ def generate_invite_email(signup_link: str):
 
 
 def send_invite_user_email(
-    to_email: str, subject: str, body: str, mail_from: str = EMAIL_FROM
+    to_email: str,
+    subject: str,
+    body: str,
+    smtp_credentials: dict,
 ) -> None:
-    sender_email = SMTP_USER
-    sender_password = SMTP_PASS
-    smtp_server = SMTP_SERVER
-    smtp_port = SMTP_PORT
+    sender_email = smtp_credentials["smtp_user"] or SMTP_USER
+    sender_password = smtp_credentials["smtp_password"] or SMTP_PASS
+    smtp_server = smtp_credentials["smtp_server"] or SMTP_SERVER
+    smtp_port = smtp_credentials["smtp_port"] or SMTP_PORT
 
     # Create MIME message
     message = MIMEMultipart()
     message["To"] = to_email
     message["Subject"] = subject
-    if mail_from:
-        message["From"] = mail_from
+    if sender_email:
+        message["From"] = sender_email
     message.attach(MIMEText(body, "plain"))
 
     # Send email
