@@ -27,6 +27,7 @@ import {
 } from "@/lib/connectors/credentials";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "../CustomModal";
+import { Button } from "../ui/button";
 
 export default function CredentialSection({
   ccPair,
@@ -134,15 +135,15 @@ export default function CredentialSection({
         </Text>
       </div>
       <div className="flex text-sm justify-start mr-auto gap-x-2">
-        <button
+        <Button
           onClick={() => {
             setShowModifyCredential(true);
           }}
-          className="flex items-center gap-x-2 cursor-pointer bg-background-100 border-border border-2 hover:bg-border p-1.5 rounded-lg text-text-700"
+          variant="outline"
         >
           <FaSwatchbook />
           Update Credentials
-        </button>
+        </Button>
       </div>
       {showModifyCredential && (
         <CustomModal
