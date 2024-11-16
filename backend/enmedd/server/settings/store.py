@@ -51,7 +51,7 @@ def load_settings(
 def store_settings(
     settings: Settings,
     db_session: Session,
-    workspace_id: Optional[int] = None,
+    workspace_id: Optional[int] = 0,
     teamspace_id: Optional[int] = None,
 ) -> None:
     if teamspace_id:
