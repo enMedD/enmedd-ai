@@ -37,12 +37,12 @@ class Settings(BaseModel):
 
     chat_page_enabled: bool = True
     search_page_enabled: bool = True
-    chat_history_enabled: Optional[bool] = None
+    chat_history_enabled: Optional[bool] = True
     default_page: PageType = PageType.CHAT
     maximum_chat_retention_days: int | None = None
-    gpu_enabled: bool | None = None
-    num_indexing_workers: int | None = None
-    vespa_searcher_threads: int | None = None
+    gpu_enabled: bool | None = False
+    num_indexing_workers: int | None = 1
+    vespa_searcher_threads: int | None = 1
     smtp_server: Optional[str] = None
     smtp_port: Optional[int] = None
     smtp_username: Optional[str] = None
