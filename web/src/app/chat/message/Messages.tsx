@@ -141,6 +141,7 @@ export const AIMessage = ({
   onSubmit,
   otherMessagesCanSwitchTo,
   onMessageSelection,
+  llmProviders,
 }: {
   alternativeAssistant?: Assistant | null;
   currentAssistant: Assistant;
@@ -178,12 +179,14 @@ export const AIMessage = ({
     feedbackDetails: string,
     predefinedFeedback: string | undefined
   ) => Promise<void>;
+  llmProviders?: LLMProviderDescriptor[];
 }) => {
   const [isLikeModalOpen, setIsLikeModalOpen] = useState(false);
   const [isDislikeModalOpen, setIsDislikeModalOpen] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [showLikeButton, setShowLikeButton] = useState(true);
   const [showDislikeButton, setShowDislikeButton] = useState(true);
+  const [_, llmName] = getFinalLLM(llmProviders!, null, null);
 
   const handleLikeSubmit = async (
     messageId: number,
@@ -351,7 +354,7 @@ export const AIMessage = ({
 
   return (
     <div className={`w-full`}>
-      <div className="">
+      <div className="w-full relative">
         <div className="flex items-center">
           <div className="mx-1 flex items-center">
             <AssistantIcon
@@ -359,17 +362,22 @@ export const AIMessage = ({
               assistant={alternativeAssistant || currentAssistant}
             />
           </div>
-
-          <div className="my-auto ml-2 font-bold text-inverted-inverted">
-            {assistantName || "Arnold AI"}
+          <div
+            className={`my-auto ml-2 font-bold text-inverted-inverted flex flex-col gap-1 truncate w-full ${llmName ? "pt-4" : ""}`}
+          >
+            <span className="truncate w-3/4">
+              {assistantName || "Arnold AI"}
+            </span>
+            {llmName && <span className="font-normal text-xs">{llmName}</span>}
           </div>
 
-          {query === undefined &&
+          {query !== undefined &&
             hasDocs &&
             handleShowRetrieved !== undefined &&
             isCurrentlyShowingRetrieved !== undefined &&
             !retrievalDisabled && (
-              <div className="absolute flex ml-8 w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+              // <div className="absolute flex ml-8 w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+              <div className="absolute flex w-full">
                 <div className="ml-auto">
                   <ShowHideDocsButton
                     messageId={messageId}
@@ -681,6 +689,8 @@ import { UserProfile } from "@/components/UserProfile";
 import { Hoverable } from "@/components/Hoverable";
 import RegenerateOption from "../RegenerateOption";
 import { useMouseTracking } from "./hooks";
+import { getFinalLLM } from "@/lib/llm/utils";
+import { LLMProviderDescriptor } from "@/app/admin/configuration/llm/interfaces";
 
 export const HumanMessage = ({
   content,

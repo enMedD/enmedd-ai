@@ -2264,6 +2264,7 @@ export function ChatPage({
                                   }}
                                   onSubmit={onFeedback}
                                   currentFeedback={currentFeedback}
+                                  llmProviders={llmProviders}
                                 />
                               </div>
                             );
