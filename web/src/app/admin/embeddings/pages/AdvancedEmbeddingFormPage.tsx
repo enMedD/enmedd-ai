@@ -9,6 +9,7 @@ import { BooleanFormField } from "@/components/admin/connectors/Field";
 import NumberInput from "../../connectors/[connector]/pages/ConnectorInput/NumberInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 interface AdvancedEmbeddingFormPageProps {
   updateAdvancedEmbeddingDetails: (
@@ -59,13 +60,20 @@ const AdvancedEmbeddingFormPage = forwardRef<
                     (_: any, index: number) => (
                       <div key={index} className="w-full flex mb-4 gap-2">
                         <Input name={`multilingual_expansion.${index}`} />
-                        <Button
+                        <CustomTooltip
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              onClick={() => remove(index)}
+                              size="icon"
+                            >
+                              <TrashIcon className="text-white my-auto" />
+                            </Button>
+                          }
                           variant="destructive"
-                          onClick={() => remove(index)}
-                          size="icon"
                         >
-                          <TrashIcon className="text-white my-auto" />
-                        </Button>
+                          Delete
+                        </CustomTooltip>
                       </div>
                     )
                   )}

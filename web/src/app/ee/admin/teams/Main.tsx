@@ -13,8 +13,17 @@ import { ThreeDotsLoader } from "@/components/Loading";
 import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { useParams } from "next/navigation";
 
+import config from "../../../../../tailwind-themes/tailwind.config";
+const tailwindColors = config.theme.extend.colors;
+
 const generateGradient = (teamspaceName: string) => {
-  const colors = ["#CCCCCC", "#999999", "#666666", "#333333", "#000000"];
+  const colors = [
+    tailwindColors.brand[100],
+    tailwindColors.brand[200],
+    tailwindColors.brand[300],
+    tailwindColors.brand[400],
+    tailwindColors.brand[500],
+  ];
   const index = teamspaceName.charCodeAt(0) % colors.length;
   return `linear-gradient(135deg, ${colors[index]}, ${
     colors[(index + 1) % colors.length]

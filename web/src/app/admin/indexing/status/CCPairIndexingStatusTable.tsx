@@ -53,7 +53,7 @@ function SummaryRow({
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
   return (
-    <TableRow onClick={onToggle}>
+    <TableRow onClick={onToggle} className="border-brand-100">
       <TableCell className="gap-y-2">
         <div className="flex items-center text-xl font-semibold truncate ellipsis gap-x-2">
           <div className="cursor-pointer">
