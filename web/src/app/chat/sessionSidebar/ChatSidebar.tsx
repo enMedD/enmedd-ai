@@ -113,21 +113,20 @@ export const ChatSidebar = ({
             `}
         id="chat-sidebar"
       >
-        <div className="flex items-center w-full relative justify-center px-4 pb-4">
-          <div className="flex h-full items-center gap-1">
-            {workspaces && workspaces.use_custom_logo ? (
-              <Logo />
-            ) : (
-              <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-            )}
-            <span className="text-lg font-semibold">
-              {workspaces && workspaces.workspace_name
-                ? workspaces.workspace_name
-                : "Arnold AI"}
-            </span>
-          </div>
+        <div className="flex items-center gap-1 w-full relative justify-center px-4 pb-5 pt-1">
+          {workspaces && workspaces.use_custom_logo ? (
+            <Logo />
+          ) : (
+            <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
+          )}
+          <span className="text-lg font-semibold">
+            {workspaces && workspaces.workspace_name
+              ? workspaces.workspace_name
+              : "Arnold AI"}
+          </span>
+        </div>
 
-          {/* <Button
+        {/* <Button
             variant="ghost"
             size="icon"
             onClick={toggleSideBar}
@@ -135,7 +134,6 @@ export const ChatSidebar = ({
           >
             <PanelLeftClose size={24} />
           </Button> */}
-        </div>
 
         <div className="h-full overflow-y-auto">
           <div className="px-4 text-sm font-medium flex flex-col">

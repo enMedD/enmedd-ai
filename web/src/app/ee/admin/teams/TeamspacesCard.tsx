@@ -73,8 +73,8 @@ export const TeamspacesCard = ({
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
   return (
-    <div className="relative xl:min-w-[280px] md:max-w-[400px]">
-      <DropdownMenu>
+    <div className="relative">
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           asChild
           className="absolute cursor-pointer top-3 right-3"
@@ -112,7 +112,8 @@ export const TeamspacesCard = ({
           open={isDeleteModalOpen}
           type="Delete"
           onConfirm={async (event) => {
-            event.stopPropagation();
+            // event.stopPropagation();
+            event.preventDefault();
             const response = await deleteTeamspace(teamspace.id);
             if (response.ok) {
               toast({

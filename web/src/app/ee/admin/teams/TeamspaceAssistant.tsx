@@ -203,7 +203,7 @@ export const TeamspaceAssistant = ({
     <CustomModal
       trigger={
         <div
-          className={`rounded-md bg-muted w-full p-4 min-h-36 flex flex-col justify-between ${teamspace.is_up_to_date && !teamspace.is_up_for_deletion && "cursor-pointer"}`}
+          className={`rounded-md bg-brand-50 w-full p-4 min-h-36 flex flex-col justify-between ${teamspace.is_up_to_date && !teamspace.is_up_for_deletion && "cursor-pointer"}`}
           onClick={() =>
             setIsAssistantModalOpen(
               teamspace.is_up_to_date && !teamspace.is_up_for_deletion
