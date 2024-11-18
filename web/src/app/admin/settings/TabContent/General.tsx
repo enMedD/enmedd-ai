@@ -22,6 +22,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 export default function General() {
+  const settings = useContext(SettingsContext);
+  if (!settings) {
+    return null;
+  }
+  const workspaces = settings.workspaces;
   const { toast } = useToast();
   const router = useRouter();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
@@ -29,14 +34,16 @@ export default function General() {
     null
   );
   const [selectedLogotype, setSelectedLogotype] = useState<File | null>(null);
+  const [formData, setFormData] = useState({
+    smtp_server: settings.settings.smtp_server,
+    smtp_port: settings.settings.smtp_port,
+    smtp_username: settings.settings.smtp_username,
+    smtp_password: settings.settings.smtp_password,
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-
-  const settings = useContext(SettingsContext);
-  if (!settings) {
-    return null;
-  }
-  const workspaces = settings.workspaces;
 
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
@@ -66,9 +73,47 @@ export default function General() {
     }
   }
 
+  async function updateSmtpSettings(workspaceId: number, smtpSettings: any) {
+    setLoading(true);
+    const response = await fetch(
+      `/api/admin/settings/workspace/${workspaceId}/smtp`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(smtpSettings),
+      }
+    );
+
+    setLoading(false);
+    if (response.ok) {
+      toast({
+        title: "SMTP Settings Updated",
+        description: "The SMTP settings have been successfully updated.",
+        variant: "success",
+      });
+    } else {
+      const errorMsg = (await response.json()).detail;
+      toast({
+        title: "Failed to update SMTP settings.",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: name === "smtp_port" ? parseInt(value, 10) : value,
+    }));
+  };
+
   return (
     <div className="pt-6">
-      <h3 className="mb-4">Whitelabeling</h3>
       <Formik
         initialValues={{
           workspace_name: workspaces?.workspace_name || null,
@@ -85,6 +130,7 @@ export default function General() {
             workspaces?.custom_lower_disclaimer_content || "",
           custom_nav_items: workspaces?.custom_nav_items || [],
           enable_consent_screen: workspaces?.enable_consent_screen || false,
+          brand_color: workspaces?.brand_color || "",
         }}
         validationSchema={Yup.object().shape({
           workspace_name: Yup.string().nullable(),
@@ -137,6 +183,11 @@ export default function General() {
             if (response.ok) {
               const responseData = await response.json();
               values.custom_header_logo = responseData.file_path;
+              toast({
+                title: "Header logo uploaded",
+                description: "The header logo has been successfully uploaded.",
+                variant: "success",
+              });
             } else {
               const errorMsg = (await response.json()).detail;
               toast({
@@ -174,8 +225,8 @@ export default function General() {
           await updateWorkspaces(values);
 
           toast({
-            title: "Logo uploaded",
-            description: "The logo has been successfully uploaded.",
+            title: "Updated Successfully",
+            description: "Workspace successfully updated.",
             variant: "success",
           });
         }}
@@ -304,31 +355,51 @@ export default function General() {
                 <div className="md:w-[500px]">
                   <div className="flex items-center gap-4">
                     <span className="text-sm text-subtle">Custom color:</span>
-                    <Input className="w-32" />
+                    <TextFormField
+                      name="brand_color"
+                      width="w-32"
+                      optional
+                      noPadding
+                    />
 
-                    <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                    <div className="w-10 h-10 bg-background-inverted rounded-full outline-background-ibg-background-inverted outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                    <div className="flex gap-2">
+                      {workspaces?.brand_color && (
+                        <div
+                          className="w-10 h-10 rounded-full border-white border-2 cursor-pointer shrink-0"
+                          style={{
+                            background: workspaces?.brand_color,
+                            outline: `1px solid ${workspaces?.brand_color}`,
+                          }}
+                        />
+                      )}
+                      <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                      <div className="w-10 h-10 bg-background-inverted rounded-full outline-background-ibg-background-inverted outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="py-8 border-b">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="workspace_description"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    Custom Domain
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
-                    Custom domains allow you to serve your site from a domain
-                  </p>
-                </div>
+            <div className="mt-6 flex justify-end">
+              <Button type="submit">Update</Button>
+            </div>
 
-                <div className="md:w-[500px]">
-                  <div className="flex flex-col items-end w-full">
+            <div className="pt-20">
+              {/* <div className="py-8 border-b">
+                <div className="flex gap-5 flex-col md:flex-row">
+                  <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                    <Label
+                      htmlFor="workspace_description"
+                      className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                    >
+                      Custom Domain
+                    </Label>
+                    <p className="text-sm text-muted-foreground pb-1.5">
+                      Custom domains allow you to serve your site from a domain
+                    </p>
+                  </div>
+
+                  <div className="flex md:w-[500px]">
                     <TextFormField
                       name="custom_domain"
                       placeholder="Enter custom domain"
@@ -337,66 +408,151 @@ export default function General() {
                       optional
                     />
                     <div className="flex gap-2">
+                      <Button variant="ghost">Cancel</Button>
                       <Button>Save</Button>
-                      <Button variant="destructive">Remove</Button>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </div> */}
 
-            <div className="py-8 border-b">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="workspace_description"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    SMTP
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
-                    Enables the exchange of emails between servers.
-                  </p>
-                </div>
+              <div className="py-8 border-b">
+                <div className="flex gap-5 flex-col md:flex-row">
+                  <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                    <Label
+                      htmlFor="workspace_description"
+                      className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                    >
+                      SMTP
+                    </Label>
+                    <p className="text-sm text-muted-foreground pb-1.5">
+                      Enables the exchange of emails between servers.
+                    </p>
+                  </div>
 
-                <div className="md:w-[500px]">
-                  <div className="flex flex-col items-end">
-                    <div className="w-full">
-                      <TextFormField
-                        name="SMTP_Hostname"
-                        label="SMTP Hostname Field"
-                        placeholder="Enter hostname"
-                        //remove this
-                        optional
-                      />
+                  <div className="md:w-[500px]">
+                    <div className="flex flex-col items-end">
+                      <div className="w-full flex flex-col gap-4">
+                        {isEditing ? (
+                          <>
+                            <TextFormField
+                              name="smtp_server"
+                              label="SMTP Server"
+                              placeholder="Enter hostname"
+                              //remove this
+                              optional
+                              value={formData.smtp_server}
+                              onChange={handleChange}
+                            />
 
-                      <TextFormField
-                        name="SMTP_Server"
-                        label="SMTP Server (url)"
-                        placeholder="Enter link"
-                        //remove this
-                        optional
-                      />
+                            <TextFormField
+                              name="smtp_port"
+                              label="SMTP Port"
+                              placeholder="Enter port"
+                              optional
+                              type="text"
+                              value={formData.smtp_port.toString()}
+                              onChange={handleChange}
+                            />
 
-                      <TextFormField
-                        name="SMTP_User"
-                        label="SMTP User (email)"
-                        placeholder="Enter email"
-                        //remove this
-                        optional
-                      />
+                            <TextFormField
+                              name="smtp_username"
+                              label="SMTP Username (email)"
+                              placeholder="Enter username"
+                              //remove this
+                              optional
+                              value={formData.smtp_username}
+                              onChange={handleChange}
+                            />
 
-                      <TextFormField
-                        name="SMTP_Password"
-                        label="SMTP Password"
-                        placeholder="Enter password"
-                        //remove this
-                        optional
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button>Save</Button>
-                      <Button variant="destructive">Remove</Button>
+                            <TextFormField
+                              name="smtp_password"
+                              label="SMTP Password"
+                              placeholder="Enter password"
+                              //remove this
+                              optional
+                              type="password"
+                              value={formData.smtp_password}
+                              onChange={handleChange}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex gap-6">
+                              <span className="whitespace-nowrap">
+                                SMTP Server:
+                              </span>
+                              <span className="font-semibold text-inverted-inverted w-full truncate">
+                                {settings.settings.smtp_server || "None"}
+                              </span>
+                            </div>
+
+                            <div className="flex gap-6">
+                              <span className="whitespace-nowrap">
+                                SMTP Port:
+                              </span>
+                              <span className="font-semibold text-inverted-inverted w-full truncate">
+                                {settings.settings.smtp_port}
+                              </span>
+                            </div>
+
+                            <div className="flex gap-6">
+                              <span className="whitespace-nowrap">
+                                SMTP Username (email):
+                              </span>
+                              <span className="font-semibold text-inverted-inverted w-full truncate">
+                                {settings.settings.smtp_username || "None"}
+                              </span>
+                            </div>
+
+                            <div className="flex gap-6">
+                              <span className="whitespace-nowrap">
+                                SMTP Password:
+                              </span>
+                              <span className="font-semibold text-inverted-inverted truncate">
+                                &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        <div className="flex justify-end">
+                          {isEditing ? (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                type="button"
+                                onClick={() => setIsEditing(false)}
+                                disabled={loading}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                type="button"
+                                onClick={async () => {
+                                  await updateSmtpSettings(0, formData);
+                                  setFormData({
+                                    smtp_server: "",
+                                    smtp_port: 0,
+                                    smtp_username: "",
+                                    smtp_password: "",
+                                  });
+                                  setIsEditing(false);
+                                }}
+                                disabled={loading}
+                              >
+                                Save
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              onClick={() => setIsEditing(true)}
+                              type="button"
+                            >
+                              Edit
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -595,10 +751,6 @@ export default function General() {
                   </div>
                 </div>
               )} */}
-
-            <div className="mt-6 flex justify-end">
-              <Button type="submit">Update</Button>
-            </div>
           </Form>
         )}
       </Formik>
