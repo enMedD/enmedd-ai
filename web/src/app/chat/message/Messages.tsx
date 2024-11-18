@@ -186,7 +186,7 @@ export const AIMessage = ({
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [showLikeButton, setShowLikeButton] = useState(true);
   const [showDislikeButton, setShowDislikeButton] = useState(true);
-  const [_, llmName] = getFinalLLM(llmProviders!, null, null);
+  const [_, llmName] = getFinalLLM(llmProviders || [], null, null);
 
   const handleLikeSubmit = async (
     messageId: number,
@@ -363,12 +363,16 @@ export const AIMessage = ({
             />
           </div>
           <div
-            className={`my-auto ml-2 font-bold text-inverted-inverted flex flex-col gap-1 truncate w-full ${llmName ? "pt-4" : ""}`}
+            className={`my-auto ml-2 font-bold text-inverted-inverted flex flex-col truncate w-full`}
           >
             <span className="truncate w-3/4">
               {assistantName || "Arnold AI"}
             </span>
-            {llmName && <span className="font-normal text-xs">{llmName}</span>}
+            {llmName && (
+              <span className="font-normal text-xs text-neutral-600">
+                {llmName}
+              </span>
+            )}
           </div>
 
           {query !== undefined &&

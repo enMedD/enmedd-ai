@@ -6,6 +6,10 @@ export interface Settings {
   notifications: Notification[];
   needs_reindexing: boolean;
   gpu_enabled: boolean;
+  smtp_server: string;
+  smtp_port: 0;
+  smtp_username: string;
+  smtp_password: string;
 }
 
 export interface Notification {
@@ -36,6 +40,7 @@ export interface Workspaces {
   workspace_description: string | null;
   use_custom_logo: boolean;
   use_custom_logotype: boolean;
+  brand_color: string;
 
   // custom navigation
   custom_nav_items: NavigationItem[];

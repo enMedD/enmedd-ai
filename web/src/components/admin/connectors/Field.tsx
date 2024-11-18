@@ -143,6 +143,7 @@ export function TextFormField({
   width,
   maxHeight,
   small,
+  noPadding,
 }: {
   small?: boolean;
   value?: string;
@@ -173,6 +174,7 @@ export function TextFormField({
   explanationText?: string;
   explanationLink?: string;
   width?: string;
+  noPadding?: boolean;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -193,7 +195,7 @@ export function TextFormField({
 
   return (
     <div
-      className={`grid pb-4 ${fullWidth ? "w-full" : ""} ${width ? width : ""}`}
+      className={`grid ${noPadding ? "" : "pb-4"} ${fullWidth ? "w-full" : ""} ${width ? width : ""}`}
     >
       {(label || subtext) && (
         <div className="grid leading-none">

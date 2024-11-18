@@ -28,6 +28,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { Logo } from "@/components/Logo";
 import ArnoldAi from "../../../../public/arnold_ai.png";
 import { PageTab } from "@/components/PageTab";
+import { buildImgUrl } from "../files/images/utils";
 
 export const ChatSidebar = ({
   existingChats,
@@ -114,8 +115,12 @@ export const ChatSidebar = ({
         id="chat-sidebar"
       >
         <div className="flex items-center gap-1 w-full relative justify-center px-4 pb-5 pt-1">
-          {workspaces && workspaces.use_custom_logo ? (
-            <Logo />
+          {workspaces && workspaces.custom_header_logo ? (
+            <img
+              src={buildImgUrl(workspaces?.custom_header_logo)}
+              alt="Logo"
+              className="h-8 object-cover"
+            />
           ) : (
             <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
           )}

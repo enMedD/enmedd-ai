@@ -73,7 +73,7 @@ export const TeamspacesCard = ({
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative w-full max-w-[400px]">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           asChild
