@@ -119,16 +119,11 @@ export const ChatSidebar = ({
             <img
               src={buildImgUrl(workspaces?.custom_header_logo)}
               alt="Logo"
-              className="h-8 object-cover"
+              className="h-8 object-cover w-full"
             />
           ) : (
             <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
           )}
-          <span className="text-lg font-semibold">
-            {workspaces && workspaces.workspace_name
-              ? workspaces.workspace_name
-              : "Arnold AI"}
-          </span>
         </div>
 
         {/* <Button

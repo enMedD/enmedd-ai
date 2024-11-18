@@ -52,22 +52,25 @@ export const SearchSidebar = ({
         id="chat-sidebar"
       >
         <div className="flex items-center gap-2 w-full relative justify-center px-4 pb-4">
-          <div className="flex h-full items-center gap-1">
-            {workspaces && workspaces.custom_header_logo ? (
-              <img
-                src={buildImgUrl(workspaces?.custom_header_logo)}
-                alt="Logo"
-                className="h-8 object-cover"
-              />
-            ) : (
-              <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-            )}
-            <span className="text-lg font-semibold">
+          {workspaces && workspaces.custom_header_logo ? (
+            <img
+              src={buildImgUrl(workspaces?.custom_header_logo)}
+              alt="Logo"
+              className="h-8 object-cover w-full"
+            />
+          ) : (
+            <Image
+              src={ArnoldAi}
+              alt="arnoldai-logo"
+              height={32}
+              className="w-full"
+            />
+          )}
+          {/* <span className="text-lg font-semibold">
               {workspaces && workspaces.workspace_name
                 ? workspaces.workspace_name
                 : "Arnold AI"}
-            </span>
-          </div>
+            </span> */}
 
           {/* <Button
             variant="ghost"
