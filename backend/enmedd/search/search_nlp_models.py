@@ -41,7 +41,6 @@ logger = setup_logger()
 WARM_UP_STRINGS = [
     "Vanguard AI is amazing!",
     "Check out our easy deployment guide at",
-    "https://docs.danswer.dev/quickstart",
 ]
 
 

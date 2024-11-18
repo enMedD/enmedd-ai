@@ -1051,7 +1051,6 @@ export function AssistantEditor({
                         }}
                         defaultHeight="h-40"
                         explanationText="Learn about prompting in our docs!"
-                        explanationLink="https://docs.danswer.dev/guides/assistants"
                         optional
                       />
                     </>
