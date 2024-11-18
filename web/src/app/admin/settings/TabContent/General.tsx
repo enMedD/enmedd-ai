@@ -20,7 +20,6 @@ export default function General() {
     return null;
   }
   const workspaces = settings.workspaces;
-
   const { toast } = useToast();
   const router = useRouter();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
