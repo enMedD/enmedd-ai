@@ -9,12 +9,12 @@ from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.ciphers import modes
 
 from enmedd.configs.app_configs import ENCRYPTION_KEY_SECRET
-from enmedd.configs.app_configs import SMTP_SECREY_KEY
+from enmedd.configs.app_configs import SECRET_KEY
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
 
 logger = setup_logger()
-cipher = Fernet(SMTP_SECREY_KEY)
+cipher = Fernet(SECRET_KEY)
 
 
 @lru_cache(maxsize=1)

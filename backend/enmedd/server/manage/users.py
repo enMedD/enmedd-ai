@@ -28,7 +28,9 @@ from ee.enmedd.db.api_key import is_api_key_email_address
 from ee.enmedd.db.external_perm import delete_user__ext_teamspace_for_user__no_commit
 from ee.enmedd.server.workspace.store import _PROFILE_FILENAME
 from ee.enmedd.server.workspace.store import upload_profile
+from enmedd.auth.invited_users import decode_invite_token
 from enmedd.auth.invited_users import generate_invite_email
+from enmedd.auth.invited_users import generate_invite_token
 from enmedd.auth.invited_users import get_invited_users
 from enmedd.auth.invited_users import send_invite_user_email
 from enmedd.auth.invited_users import write_invited_users
@@ -139,6 +141,37 @@ async def verify_otp(
         raise HTTPException(status_code=400, detail="OTP code has expired.")
 
     return {"message": "OTP verified successfully!"}
+
+
+@router.post("/users/validate-token-invite")
+async def validate_token_invite(
+    email: str,
+    token: str,
+    _: User = Depends(current_user),
+    db_session: Session = Depends(get_session),
+):
+    user = get_user_by_email(email=email, db_session=db_session)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    teamspace_id = decode_invite_token(token, email, db_session)
+    if teamspace_id is None:
+        return None
+
+    teamspace = (
+        db_session.query(User__Teamspace)
+        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+        .first()
+    )
+    if not teamspace:
+        db_session.add(
+            User__Teamspace(
+                teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
+            )
+        )
+        db_session.commit()
+
+    return teamspace_id
 
 
 @router.post("/users/change-password", tags=["users"])
@@ -366,26 +399,35 @@ def list_all_users(
 @router.put("/manage/admin/users")
 def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
-    current_user: User | None = Depends(current_workspace_admin_user),
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_teamspace_admin_user),
     workspace_id: Optional[int] = 0,  # Temporary set to 0
     db_session: Session = Depends(get_session),
 ) -> int:
     """emails are string validated. If any email fails validation, no emails are
     invited and an exception is raised."""
-    if current_user is None:
+    if user is None:
         raise HTTPException(
             status_code=400, detail="Auth is disabled, cannot invite users"
         )
 
-    smtp_credentials = get_smtp_credentials(workspace_id, db_session)
-
     normalized_emails = []
     for email in emails:
         email_info = validate_email(email)
-        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email_info.email}"
+        normalized_emails.append(email_info.normalized)
+
+    if not normalized_emails:
+        raise HTTPException(status_code=400, detail="No valid emails found")
+
+    smtp_credentials = get_smtp_credentials(workspace_id, db_session)
+
+    token = generate_invite_token(teamspace_id, normalized_emails, db_session)
+
+    for email in normalized_emails:
+        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email}&token={token}"
         subject, body = generate_invite_email(signup_link)
         send_invite_user_email(email, subject, body, smtp_credentials)
-        normalized_emails.append(email_info.normalized)
+
     all_emails = list(set(normalized_emails) | set(get_invited_users()))
     return write_invited_users(all_emails)
 
