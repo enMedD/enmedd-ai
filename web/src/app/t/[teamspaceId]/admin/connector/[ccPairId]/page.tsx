@@ -158,46 +158,46 @@ function Main({ ccPairId }: { ccPairId: number }) {
   return (
     <>
       <BackButton />
-      <div className="flex flex-col items-start w-full gap-2 pb-5 sm:flex-row lg:items-center">
-        <div className="my-auto mr-2">
+      <div className="flex flex-col sm:flex-row items-start w-full gap-2 pb-5 lg:items-center">
+        <div className="flex sm:contents items-center justify-between gap-2 max-w-full">
           <SourceIcon iconSize={24} sourceType={ccPair.connector.source} />
+
+          {ccPair.is_editable_for_current_user && isEditing ? (
+            <div className="flex items-center">
+              <Input
+                ref={inputRef}
+                type="text"
+                value={editableName}
+                onChange={handleNameChange}
+              />
+              <Button onClick={handleUpdateName} className="ml-2">
+                <CheckmarkIcon className="text-neutral-200" />
+              </Button>
+              <Button
+                onClick={() => resetEditing()}
+                className="ml-2"
+                variant="destructive"
+              >
+                <XIcon className="text-neutral-200" />
+              </Button>
+            </div>
+          ) : (
+            <h1
+              onClick={() =>
+                ccPair.is_editable_for_current_user && startEditing()
+              }
+              className={`group flex w-full md:w-3/4 ${ccPair.is_editable_for_current_user ? "cursor-pointer" : ""} text-3xl text-emphasis gap-x-2 items-center font-bold`}
+            >
+              <p className="truncate max-w-[95%]">{ccPair.name}</p>
+              {ccPair.is_editable_for_current_user && (
+                <EditIcon className="invisible group-hover:visible" />
+              )}
+            </h1>
+          )}
         </div>
 
-        {ccPair.is_editable_for_current_user && isEditing ? (
-          <div className="flex items-center">
-            <Input
-              ref={inputRef}
-              type="text"
-              value={editableName}
-              onChange={handleNameChange}
-            />
-            <Button onClick={handleUpdateName} className="ml-2">
-              <CheckmarkIcon className="text-neutral-200" />
-            </Button>
-            <Button
-              onClick={() => resetEditing()}
-              className="ml-2"
-              variant="destructive"
-            >
-              <XIcon className="text-neutral-200" />
-            </Button>
-          </div>
-        ) : (
-          <h1
-            onClick={() =>
-              ccPair.is_editable_for_current_user && startEditing()
-            }
-            className={`group flex ${ccPair.is_editable_for_current_user ? "cursor-pointer" : ""} text-3xl text-emphasis gap-x-2 items-center font-bold`}
-          >
-            {ccPair.name}
-            {ccPair.is_editable_for_current_user && (
-              <EditIcon className="invisible group-hover:visible" />
-            )}
-          </h1>
-        )}
-
         {ccPair.is_editable_for_current_user && (
-          <div className="flex ml-auto gap-x-2">
+          <div className="flex sm:ml-auto gap-x-2">
             {!CONNECTOR_TYPES_THAT_CANT_REINDEX.includes(
               ccPair.connector.source
             ) && (
