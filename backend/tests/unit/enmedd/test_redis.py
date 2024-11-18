@@ -15,8 +15,8 @@ logger = setup_logger()
 )
 def test_redis_ssl() -> None:
     REDIS_PASSWORD = os.environ.get("REDIS_CLOUD_PYTEST_PASSWORD")
-    REDIS_HOST = "redis-15414.c267.us-east-1-4.ec2.redns.redis-cloud.com"
-    REDIS_PORT = 15414
+    REDIS_HOST = "redis-19406.c250.eu-central-1-1.ec2.redns.redis-cloud.com"
+    REDIS_PORT = 19406
     REDIS_SSL_CERT_REQS = "required"
 
     assert REDIS_PASSWORD
