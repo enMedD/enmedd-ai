@@ -256,12 +256,12 @@ code[class*="language-"] {
   color: theme("colors.token-attr-name");
 }
 
-/* .container {
-  @apply mx-auto max-w-[1400px] px-6 lg:px-14 xl:px-10 2xl:px-24 py-24 md:py-32 lg:pt-16 bg-background;
-} */
 .container {
-  @apply mx-auto max-w-[1400px] px-6 lg:px-14 xl:px-10 2xl:px-24 pb-24 md:pb-32 bg-background;
+  @apply mx-auto max-w-[1400px] px-6 lg:px-14 xl:px-10 2xl:px-24 py-24 md:py-32 lg:pt-16 bg-background;
 }
+/* .container {
+  @apply mx-auto max-w-[1400px] px-6 lg:px-14 xl:px-10 2xl:px-24 pb-24 md:pb-32 bg-background;
+} */
 
 @layer base {
   * {

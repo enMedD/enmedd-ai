@@ -1,4 +1,11 @@
-import { LogOut, MessageCircleMore, User, Wrench } from "lucide-react";
+"use client";
+
+import {
+  LogOut,
+  MessageCircleMore,
+  User as UserIcon,
+  Wrench,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,24 +15,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserProfile } from "./UserProfile";
-import { useContext, useRef, useState } from "react";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { useContext } from "react";
+import { SettingsContext } from "./settings/SettingsProvider";
+import Link from "next/link";
+import { useUser } from "./user/UserProvider";
+import { checkUserIsNoAuthUser, logout } from "@/lib/user";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from "next/navigation";
-import { useUser } from "./user/UserProvider";
-import { SettingsContext } from "./settings/SettingsProvider";
-import { checkUserIsNoAuthUser, logout } from "@/lib/user";
-import Link from "next/link";
 import { LOGOUT_DISABLED } from "@/lib/constants";
+import { UserProfile } from "./UserProfile";
 
 export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
-  const [userInfoVisible, setUserInfoVisible] = useState(false);
-  const { toast } = useToast();
-  const userInfoRef = useRef<HTMLDivElement>(null);
-  const settings = useContext(SettingsContext);
   const router = useRouter();
   const { teamspaceId } = useParams();
-  const { user, isAdmin, isLoadingUser, isTeamspaceAdmin } = useUser();
+  const { toast } = useToast();
+  const { isMobile } = useSidebar();
+  const { user, isAdmin, isTeamspaceAdmin } = useUser();
+
+  const combinedSettings = useContext(SettingsContext);
+  if (!combinedSettings) {
+    return null;
+  }
+  const settings = useContext(SettingsContext);
 
   const handleLogout = () => {
     logout().then((isSuccess) => {
@@ -44,83 +61,95 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
     user && !checkUserIsNoAuthUser(user.id) && !LOGOUT_DISABLED;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="focus:outline-none">
-        <UserProfile
-          user={user}
-          onClick={() => setUserInfoVisible(!userInfoVisible)}
-        />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent side="right" align="end">
-        <DropdownMenuLabel>
-          <div className="flex rounded-regular items-center gap-3 group">
-            <UserProfile user={user} />
-            <div className="flex flex-col w-[160px]">
-              <span className="truncate">
-                {user?.full_name || "Unknown User"}
-              </span>
-              <span className="text-dark-500 truncate font-normal">
-                {user?.email || "anonymous@gmail.com"}
-              </span>
-            </div>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          {settings?.featureFlags.profile_page && (
-            <DropdownMenuItem asChild>
-              <Link href="/profile" className="flex gap-2 items-center">
-                <User size={16} strokeWidth={1.5} />
-                <span>Profile Settings</span>
-              </Link>
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem asChild>
-            <Link
-              // redirect to default page
-              href={
-                teamspaceId
-                  ? `/t/${teamspaceId}/${defaultPage}`
-                  : `/${defaultPage}`
-              }
-              className="flex gap-2 items-center"
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground md:h-8 md:p-0"
             >
-              <MessageCircleMore size={16} strokeWidth={1.5} />
-              <span>Chat & Search</span>
-            </Link>
-          </DropdownMenuItem>
-          {isTeamspaceAdmin && (
-            <DropdownMenuItem asChild>
-              <Link
-                href={`/t/${teamspaceId}/admin/indexing/status`}
-                className="flex gap-2 items-center"
-              >
-                <Wrench size={16} strokeWidth={1.5} />
-                <span>Teamspace Admin Panel</span>
-              </Link>
-            </DropdownMenuItem>
-          )}
-          {isAdmin && (
-            <DropdownMenuItem asChild>
-              <Link
-                href="/admin/indexing/status"
-                className="flex gap-2 items-center"
-              >
-                <Wrench size={16} strokeWidth={1.5} />
-                <span>Workspace Admin Panel</span>
-              </Link>
-            </DropdownMenuItem>
-          )}
-          {showLogout && (
-            <DropdownMenuItem asChild onClick={handleLogout} className="focus:bg-destructive-500">
-              <div className="flex gap-2 items-center">
-                <LogOut size={16} strokeWidth={1.5} />
-                <span>Log out</span>
+              <UserProfile user={user} size={32} textSize="sm" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <UserProfile user={user} size={32} textSize="sm" />
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    {user?.full_name}
+                  </span>
+                  <span className="truncate text-xs">{user?.email}</span>
+                </div>
               </div>
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              {settings?.featureFlags.profile_page && (
+                <DropdownMenuItem>
+                  <UserIcon size={16} strokeWidth={1.5} />
+                  Profile Settings
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuItem>
+                <Link
+                  // redirect to default page
+                  href={
+                    teamspaceId
+                      ? `/t/${teamspaceId}/${defaultPage}`
+                      : `/${defaultPage}`
+                  }
+                  className="flex gap-2 items-center"
+                >
+                  <MessageCircleMore size={16} strokeWidth={1.5} />
+                  Chat & Search
+                </Link>
+              </DropdownMenuItem>
+
+              {isTeamspaceAdmin && (
+                <DropdownMenuItem>
+                  <Link
+                    href={`/t/${teamspaceId}/admin/indexing/status`}
+                    className="flex gap-2 items-center"
+                  >
+                    <Wrench size={16} strokeWidth={1.5} />
+                    Teamspace Admin Panel
+                  </Link>
+                </DropdownMenuItem>
+              )}
+
+              {isAdmin && (
+                <DropdownMenuItem>
+                  <Link
+                    href="/admin/indexing/status"
+                    className="flex gap-2 items-center"
+                  >
+                    <Wrench size={16} strokeWidth={1.5} />
+                    Workspace Admin Panel
+                  </Link>
+                </DropdownMenuItem>
+              )}
+
+              {showLogout && (
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="focus:bg-destructive-500"
+                >
+                  <LogOut size={16} strokeWidth={1.5} />
+                  Log out
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
