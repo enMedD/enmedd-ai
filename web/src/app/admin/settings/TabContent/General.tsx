@@ -616,7 +616,7 @@
 //                   <Text>
 //                     Read{" "}
 //                     <Link
-//                       href={"https://docs.danswer.dev/enterprise_edition/theming"}
+//                       href={"#"}
 //                       className="text-link cursor-pointer"
 //                     >
 //                       the docs
@@ -1418,7 +1418,7 @@ export default function General() {
                   <Text>
                     Read{" "}
                     <Link
-                      href={"https://docs.danswer.dev/enterprise_edition/theming"}
+                      href={"#"}
                       className="text-link cursor-pointer"
                     >
                       the docs
