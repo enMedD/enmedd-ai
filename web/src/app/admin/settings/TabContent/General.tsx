@@ -278,7 +278,7 @@ export default function General() {
                   </Label>
                   <p className="text-sm text-muted-foreground pb-1.5">
                     The custom name you are giving for your workspace. This will
-                    replace 'Arnold AI' everywhere in the UI.
+                    replace &#39;Arnold AI&#39; everywhere in the UI.
                   </p>
                 </div>
 
