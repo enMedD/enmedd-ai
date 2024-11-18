@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Workspaces } from "@/app/admin/settings/interfaces";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
@@ -36,44 +36,6 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-
-  const [palette, setPalette] = useState(null);
-
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch(
-          "https://tailwind.simeongriggs.dev/api/brand/2522FC",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        console.log("G");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
@@ -144,10 +106,6 @@ export default function General() {
 
   return (
     <div className="pt-6">
-      <div>
-        <h1>Fetched Data</h1>
-        <pre>{data}</pre>
-      </div>
       <Formik
         initialValues={{
           workspace_name: workspaces?.workspace_name || null,
@@ -418,7 +376,7 @@ export default function General() {
               <Button type="submit">Update</Button>
             </div>
 
-            <div className="pt-20">
+            <div className="mt-20 border-t">
               {/* <div className="py-8 border-b">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">

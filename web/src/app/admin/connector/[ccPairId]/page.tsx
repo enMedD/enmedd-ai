@@ -157,6 +157,8 @@ function Main({ ccPairId }: { ccPairId: number }) {
     refresh_freq: refreshFreq,
     indexing_start: indexingStart,
   } = ccPair.connector;
+
+  console.log(ccPair);
   return (
     <>
       <BackButton behaviorOverride={navigateToDataSource} />
@@ -226,9 +228,16 @@ function Main({ ccPairId }: { ccPairId: number }) {
         Total Documents Indexed:{" "}
         <b className="text-emphasis">{ccPair.num_docs_indexed}</b>
       </div>
+
+      <div className="mt-1 text-sm">
+        Permission:{" "}
+        <b className="text-emphasis">
+          {ccPair.access_type === "public" ? "Public" : "Private"}
+        </b>
+      </div>
       {!ccPair.is_editable_for_current_user && (
         <div className="mt-2 text-sm italic text-neutral-500">
-          {ccPair.is_public
+          {ccPair.access_type === "public"
             ? "Public connectors are not editable by curators."
             : "This connector belongs to groups where you don't have curator permissions, so it's not editable."}
         </div>
