@@ -18,11 +18,16 @@ import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
 import { Text } from "@tremor/react";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "../ImageUpload";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function General() {
   const { toast } = useToast();
   const router = useRouter();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
+  const [selectedHeaderLogo, setSelectedHeaderLogo] = useState<File | null>(
+    null
+  );
   const [selectedLogotype, setSelectedLogotype] = useState<File | null>(null);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -119,6 +124,31 @@ export default function General() {
             }
           }
 
+          if (selectedHeaderLogo) {
+            const formData = new FormData();
+            formData.append("file", selectedHeaderLogo);
+            setSelectedHeaderLogo(null);
+
+            const response = await fetch("/api/admin/workspace/header-logo", {
+              method: "PUT",
+              body: formData,
+            });
+
+            if (response.ok) {
+              const responseData = await response.json();
+              values.custom_header_logo = responseData.file_path;
+            } else {
+              const errorMsg = (await response.json()).detail;
+              toast({
+                title: "Failed to upload header logo",
+                description: `Error: ${errorMsg}`,
+                variant: "destructive",
+              });
+              formikHelpers.setSubmitting(false);
+              return;
+            }
+          }
+
           if (selectedLogotype) {
             values.use_custom_logotype = true;
 
@@ -150,77 +180,274 @@ export default function General() {
           });
         }}
       >
-        {({ isSubmitting, values, setValues }) => (
+        {({ isSubmitting, values, setValues, setFieldValue }) => (
           <Form>
-            <TextFormField
-              label="Workspace Name"
-              name="workspace_name"
-              subtext={`The custom name you are giving for your workspace. This will replace 'Arnold AI' everywhere in the UI.`}
-              placeholder="Custom name which will replace 'Arnold AI'"
-              disabled={isSubmitting}
-            />
-
-            <div className="pt-2" />
-
-            <TextFormField
-              optional
-              label="Description"
-              name="workspace_description"
-              subtext={`The custom description metadata you are giving ${
-                values.workspace_name || "Arnold AI"
-              } for your workspace.\
-                  This will be seen when sharing the link or searching through the browser.`}
-              placeholder="Custom description for your Workspace"
-              disabled={isSubmitting}
-            />
-
-            <div className="pt-2" />
-
-            {values.use_custom_logo ? (
-              <div className="pt-3 flex flex-col items-start gap-3">
-                <div>
-                  <h3>Custom Logo</h3>
-                  <SubLabel>Current Custom Logo: </SubLabel>
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_name"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Workspace Name
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    The custom name you are giving for your workspace. This will
+                    replace 'Arnold AI' everywhere in the UI.
+                  </p>
                 </div>
-                <img
-                  src={"/api/workspace/logo?workspace_id=" + 0} //temporary id for workspace
-                  alt="Logo"
-                  style={{ objectFit: "contain" }}
-                  className="w-32 h-32"
-                />
 
-                <Button
-                  variant="destructive"
-                  type="button"
-                  onClick={async () => {
-                    const valuesWithoutLogo = {
-                      ...values,
-                      use_custom_logo: false,
-                    };
-                    await updateWorkspaces(valuesWithoutLogo);
-                    setValues(valuesWithoutLogo);
-                  }}
-                >
-                  Delete
-                </Button>
-
-                <p className="text-sm text-subtle pt-4 pb-2">
-                  Override the current custom logo by uploading a new image
-                  below and clicking the Update button.
-                </p>
+                <div className="md:w-[500px]">
+                  <Input
+                    name="workspace_name"
+                    value={values.workspace_name || ""}
+                    onChange={(e) =>
+                      setFieldValue("workspace_name", e.target.value)
+                    }
+                  />
+                </div>
               </div>
-            ) : (
-              <p className="pb-3 text-sm text-subtle">
-                Specify your own logo to replace the standard Arnold AI logo.
-              </p>
-            )}
+            </div>
 
-            <ImageUpload
-              selectedFile={selectedLogo}
-              setSelectedFile={setSelectedLogo}
-            />
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_description"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Description
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    {`The custom description metadata you are giving ${
+                      values.workspace_name || "Arnold AI"
+                    } for your workspace.\
+                  This will be seen when sharing the link or searching through the browser.`}
+                  </p>
+                </div>
 
-            <div className="pt-2" />
+                <div className="md:w-[500px]">
+                  <Input
+                    name="workspace_description"
+                    placeholder="Custom description for your Workspace"
+                    value={values.workspace_description || ""}
+                    onChange={(e) =>
+                      setFieldValue("workspace_description", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="custom_logo"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Logo
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    Specify your own logo to replace the standard Arnold AI
+                    logo.
+                  </p>
+                </div>
+
+                <div className="md:w-[500px]">
+                  <ImageUpload
+                    selectedFile={selectedLogo}
+                    setSelectedFile={setSelectedLogo}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="custom_logo"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Header Logo
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    Specify your own header logo to replace the standard Arnold
+                    AI header logo.
+                  </p>
+                </div>
+
+                <div className="md:w-[500px]">
+                  <ImageUpload
+                    selectedFile={selectedHeaderLogo}
+                    setSelectedFile={setSelectedHeaderLogo}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_description"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Brand Theme
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    Select your customize brand color.
+                  </p>
+                </div>
+
+                <div className="md:w-[500px]">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-subtle">Custom color:</span>
+                    <Input className="w-32" />
+
+                    <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                    <div className="w-10 h-10 bg-background-inverted rounded-full outline-background-ibg-background-inverted outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_description"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Custom Domain
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    Custom domains allow you to serve your site from a domain
+                  </p>
+                </div>
+
+                <div className="md:w-[500px]">
+                  <div className="flex flex-col items-end w-full">
+                    <TextFormField
+                      name="custom_domain"
+                      placeholder="Enter custom domain"
+                      width="w-full"
+                      //remove this
+                      optional
+                    />
+                    <div className="flex gap-2">
+                      <Button>Save</Button>
+                      <Button variant="destructive">Remove</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_description"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    SMTP
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5">
+                    Enables the exchange of emails between servers.
+                  </p>
+                </div>
+
+                <div className="md:w-[500px]">
+                  <div className="flex flex-col items-end">
+                    <div className="w-full">
+                      <TextFormField
+                        name="SMTP_Hostname"
+                        label="SMTP Hostname Field"
+                        placeholder="Enter hostname"
+                        //remove this
+                        optional
+                      />
+
+                      <TextFormField
+                        name="SMTP_Server"
+                        label="SMTP Server (url)"
+                        placeholder="Enter link"
+                        //remove this
+                        optional
+                      />
+
+                      <TextFormField
+                        name="SMTP_User"
+                        label="SMTP User (email)"
+                        placeholder="Enter email"
+                        //remove this
+                        optional
+                      />
+
+                      <TextFormField
+                        name="SMTP_Password"
+                        label="SMTP Password"
+                        placeholder="Enter password"
+                        //remove this
+                        optional
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button>Save</Button>
+                      <Button variant="destructive">Remove</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* <div>
+              {values.use_custom_logo ? (
+                <div className="pt-3 flex flex-col items-start gap-3">
+                  <div>
+                    <h3>Custom Logo</h3>
+                    <SubLabel>Current Custom Logo: </SubLabel>
+                  </div>
+                  <img
+                    src={"/api/workspace/logo?workspace_id=" + 0} //temporary id for workspace
+                    alt="Logo"
+                    style={{ objectFit: "contain" }}
+                    className="w-32 h-32"
+                  />
+
+                  <Button
+                    variant="destructive"
+                    type="button"
+                    onClick={async () => {
+                      const valuesWithoutLogo = {
+                        ...values,
+                        use_custom_logo: false,
+                      };
+                      await updateWorkspaces(valuesWithoutLogo);
+                      setValues(valuesWithoutLogo);
+                    }}
+                  >
+                    Delete
+                  </Button>
+
+                  <p className="text-sm text-subtle pt-4 pb-2">
+                    Override the current custom logo by uploading a new image
+                    below and clicking the Update button.
+                  </p>
+                </div>
+              ) : (
+                <p className="pb-3 text-sm text-subtle">
+                  Specify your own logo to replace the standard Arnold AI logo.
+                </p>
+              )}
+
+              <ImageUpload
+                selectedFile={selectedLogo}
+                setSelectedFile={setSelectedLogo}
+              />
+            </div> */}
 
             {/* TODO: polish the features here*/}
             {/* <AdvancedOptionsToggle
@@ -369,9 +596,9 @@ export default function General() {
                 </div>
               )} */}
 
-            <Button type="submit" className="mt-6">
-              Update
-            </Button>
+            <div className="mt-6 flex justify-end">
+              <Button type="submit">Update</Button>
+            </div>
           </Form>
         )}
       </Formik>
