@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { HeaderTitle } from "@/components/header/HeaderTitle";
 import { ProviderContextProvider } from "@/components/chat_search/ProviderContext";
+import ThemeProvider from "@/components/ThemeProvider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -102,6 +103,7 @@ export default async function RootLayout({
         <UserProvider>
           <ProviderContextProvider>
             <SettingsProvider settings={combinedSettings}>
+              <ThemeProvider />
               {children}
               <Toaster />
               <PageSwitcher />

@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import getPalette from "tailwindcss-palette-generator";
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -93,6 +94,46 @@ export default function General() {
         description: errorMsg,
         variant: "destructive",
       });
+    }
+  }
+
+  async function updateWorkspaceTheme(workspaceId: number, brandColor: string) {
+    const palette = getPalette([
+      {
+        color: brandColor,
+        name: "primary",
+        shade: 500,
+        shades: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+      },
+      {
+        color: "#2a9d8f",
+        name: "secondary",
+        shade: 500,
+        shades: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+      },
+    ]);
+
+    const themeData = {
+      brand: palette.primary,
+      secondary: palette.secondary,
+    };
+
+    const response = await fetch(
+      `/api/admin/settings/themes?workspace_id=${workspaceId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(themeData),
+      }
+    );
+
+    if (response.ok) {
+      router.refresh();
+    } else {
+      const error = await response.json();
+      console.error("Failed to update theme:", error.detail);
     }
   }
 
@@ -225,8 +266,13 @@ export default function General() {
             }
           }
 
+          if (values.brand_color !== workspaces?.brand_color) {
+            await updateWorkspaceTheme(0, values.brand_color);
+          }
+
           formikHelpers.setValues(values);
           await updateWorkspaces(values);
+          window.location.reload();
         }}
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (
@@ -361,7 +407,7 @@ export default function General() {
                     />
 
                     <div className="flex gap-2">
-                      {workspaces?.brand_color && (
+                      {/* {workspaces?.brand_color && (
                         <div
                           className="w-10 h-10 rounded-full border-white border-2 cursor-pointer shrink-0"
                           style={{
@@ -369,9 +415,9 @@ export default function General() {
                             outline: `1px solid ${workspaces?.brand_color}`,
                           }}
                         />
-                      )}
+                      )} */}
                       <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                      <div className="w-10 h-10 bg-background-inverted rounded-full cursor-pointer shrink-0" />
+                      {/* <div className="w-10 h-10 bg-background-inverted rounded-full cursor-pointer shrink-0" /> */}
                     </div>
                   </div>
                 </div>
