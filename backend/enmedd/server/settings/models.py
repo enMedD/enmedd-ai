@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel
+from pydantic import Field
 
 from enmedd.configs.constants import NotificationType
 from enmedd.db.models import Notification as NotificationDBModel
@@ -97,3 +98,29 @@ class SmtpUpdate(BaseModel):
     smtp_port: Optional[int] = None
     smtp_username: Optional[str] = None
     smtp_password: Optional[str] = None
+
+
+class ThemeColors(BaseModel):
+    """Model to define theme colors"""
+
+    color_50: str = Field(..., alias="50")
+    color_100: str = Field(..., alias="100")
+    color_200: str = Field(..., alias="200")
+    color_300: str = Field(..., alias="300")
+    color_400: str = Field(..., alias="400")
+    color_500: str = Field(..., alias="500")
+    color_600: str = Field(..., alias="600")
+    color_700: str = Field(..., alias="700")
+    color_800: str = Field(..., alias="800")
+    color_900: str = Field(..., alias="900")
+    color_950: str = Field(..., alias="950")
+
+
+class WorkspaceThemes(BaseModel):
+    """Model for workspace themes"""
+
+    brand: ThemeColors
+    secondary: ThemeColors
+
+    def check_validity(self) -> None:
+        return

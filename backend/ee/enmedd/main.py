@@ -25,13 +25,7 @@ from ee.enmedd.server.workspace.api import (
     admin_router as workspace_admin_router,
 )
 from ee.enmedd.server.workspace.api import (
-    admin_router as workspaces_admin_router,
-)
-from ee.enmedd.server.workspace.api import (
     basic_router as workspace_router,
-)
-from ee.enmedd.server.workspace.api import (
-    basic_router as workspaces_router,
 )
 from ee.enmedd.utils.encryption import test_encryption
 from enmedd.auth.users import auth_backend
@@ -96,13 +90,11 @@ def get_application() -> FastAPI:
     include_router_with_global_prefix_prepended(application, chat_router)
     include_router_with_global_prefix_prepended(application, standard_answer_router)
     # Enterprise-only global settings
-    include_router_with_global_prefix_prepended(application, workspaces_admin_router)
     include_router_with_global_prefix_prepended(application, teamspace_admin_router)
     # Token rate limit settings
     include_router_with_global_prefix_prepended(
         application, token_rate_limit_settings_router
     )
-    include_router_with_global_prefix_prepended(application, workspaces_router)
     include_router_with_global_prefix_prepended(application, usage_export_router)
     # Enterprise-only global settings
     # TODO: clean this up: modify

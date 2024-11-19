@@ -22,6 +22,10 @@ export async function fetchFeatureFlagSS() {
   return fetchSS("/ff");
 }
 
+export async function fetchWorkspaceThemesSS() {
+  return fetchSS("/themes");
+}
+
 export async function fetchEnterpriseSettingsSS() {
   return fetchSS("/workspace");
 }
