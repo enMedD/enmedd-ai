@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Workspaces } from "@/app/admin/settings/interfaces";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
@@ -20,6 +20,7 @@ export default function General() {
     return null;
   }
   const workspaces = settings.workspaces;
+
   const { toast } = useToast();
   const router = useRouter();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
