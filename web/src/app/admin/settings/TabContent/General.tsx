@@ -240,7 +240,7 @@ export default function General() {
                   >
                     Workspace Name
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     The custom name you are giving for your workspace. This will
                     replace &#39;Arnold AI&#39; everywhere in the UI.
                   </p>
@@ -267,7 +267,7 @@ export default function General() {
                   >
                     Description
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     {`The custom description metadata you are giving ${
                       values.workspace_name || "Arnold AI"
                     } for your workspace.\
@@ -297,7 +297,7 @@ export default function General() {
                   >
                     Logo
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     Specify your own logo to replace the standard Arnold AI
                     logo.
                   </p>
@@ -321,7 +321,7 @@ export default function General() {
                   >
                     Header Logo
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     Specify your own header logo to replace the standard Arnold
                     AI header logo.
                   </p>
@@ -345,7 +345,7 @@ export default function General() {
                   >
                     Brand Theme
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     Select your customize brand color.
                   </p>
                 </div>
@@ -371,7 +371,7 @@ export default function General() {
                         />
                       )}
                       <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                      <div className="w-10 h-10 bg-background-inverted rounded-full outline-background-ibg-background-inverted outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                      <div className="w-10 h-10 bg-background-inverted rounded-full cursor-pointer shrink-0" />
                     </div>
                   </div>
                 </div>
@@ -392,7 +392,7 @@ export default function General() {
                     >
                       Custom Domain
                     </Label>
-                    <p className="text-sm text-muted-foreground pb-1.5">
+                    <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                       Custom domains allow you to serve your site from a domain
                     </p>
                   </div>
@@ -422,14 +422,16 @@ export default function General() {
                     >
                       SMTP
                     </Label>
-                    <p className="text-sm text-muted-foreground pb-1.5">
+                    <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                       Enables the exchange of emails between servers.
                     </p>
                   </div>
 
                   <div className="md:w-[500px]">
                     <div className="flex flex-col items-end">
-                      <div className="w-full flex flex-col gap-4">
+                      <div
+                        className={`w-full flex flex-col ${!isEditing ? "gap-4" : ""}`}
+                      >
                         {isEditing ? (
                           <>
                             <TextFormField
@@ -545,6 +547,7 @@ export default function General() {
                             <Button
                               onClick={() => setIsEditing(true)}
                               type="button"
+                              variant="outline"
                             >
                               Edit
                             </Button>
