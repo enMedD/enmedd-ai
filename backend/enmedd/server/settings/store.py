@@ -38,7 +38,7 @@ def store_workspace_themes(
     _: User | None = Depends(current_workspace_admin_user),
 ) -> None:
     logger.info("Updating Workspace Themes")
-    get_kv_store().store(_WORKSPACE_THEMES, workspace_themes.model_dump())
+    get_kv_store().store(_WORKSPACE_THEMES, workspace_themes.model_dump(by_alias=True))
 
 
 def load_settings(

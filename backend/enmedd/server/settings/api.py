@@ -51,7 +51,7 @@ def fetch_workspace_themes() -> WorkspaceThemes:
 
 
 @admin_router.put("/themes")
-def put_feature_flags(
+def put_workspace_themes(
     workspace_themes: WorkspaceThemes,
     _: User | None = Depends(current_workspace_admin_user),
 ) -> None:
