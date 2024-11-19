@@ -14,6 +14,7 @@ import { useSearchContext } from "@/context/SearchContext";
 import { ChatSession } from "../chat/interfaces";
 import { Logo } from "@/components/Logo";
 import ArnoldAi from "../../../public/arnold_ai.png";
+import { buildImgUrl } from "../chat/files/images/utils";
 
 export const SearchSidebar = ({
   isExpanded,
@@ -52,8 +53,12 @@ export const SearchSidebar = ({
       >
         <div className="flex items-center gap-2 w-full relative justify-center px-4 pb-4">
           <div className="flex h-full items-center gap-1">
-            {workspaces && workspaces.use_custom_logo ? (
-              <Logo />
+            {workspaces && workspaces.custom_header_logo ? (
+              <img
+                src={buildImgUrl(workspaces?.custom_header_logo)}
+                alt="Logo"
+                className="h-8 object-cover"
+              />
             ) : (
               <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
             )}
