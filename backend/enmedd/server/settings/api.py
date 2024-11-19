@@ -30,16 +30,36 @@ from enmedd.server.settings.models import Notification
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.models import SmtpUpdate
 from enmedd.server.settings.models import UserSettings
+from enmedd.server.settings.models import WorkspaceThemes
 from enmedd.server.settings.store import load_settings
+from enmedd.server.settings.store import load_workspace_themes
 from enmedd.server.settings.store import store_settings
+from enmedd.server.settings.store import store_workspace_themes
 from enmedd.utils.logger import setup_logger
 
 
 logger = setup_logger()
 
-
+router = APIRouter(prefix="/themes")
 admin_router = APIRouter(prefix="/admin/settings")
 basic_router = APIRouter(prefix="/settings")
+
+
+@router.get("")
+def fetch_workspace_themes() -> WorkspaceThemes:
+    return load_workspace_themes()
+
+
+@admin_router.put("/themes")
+def put_workspace_themes(
+    workspace_themes: WorkspaceThemes,
+    _: User | None = Depends(current_workspace_admin_user),
+) -> None:
+    try:
+        workspace_themes.check_validity()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    store_workspace_themes(workspace_themes)
 
 
 @admin_router.put("")

@@ -91,8 +91,8 @@ USER_AUTH_SECRET = os.environ.get("USER_AUTH_SECRET", "")
 REQUIRE_EMAIL_VERIFICATION = (
     os.environ.get("REQUIRE_EMAIL_VERIFICATION", "").lower() == "true"
 )
-SMTP_SECREY_KEY = os.environ.get(
-    "SMTP_SECREY_KEY", "YXJub2xkYWlBRll6N1FNa3hyV0ZQZGpDWmJ3U1ZPbG8="
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "YXJub2xkYWlBRll6N1FNa3hyV0ZQZGpDWmJ3U1ZPbG8="
 )
 SMTP_SERVER = os.environ.get("SMTP_SERVER") or "smtp.gmail.com"
 SMTP_PORT = int(os.environ.get("SMTP_PORT") or "587")
