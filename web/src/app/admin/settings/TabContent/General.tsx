@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Workspaces } from "@/app/admin/settings/interfaces";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
@@ -19,6 +19,7 @@ export default function General() {
     return null;
   }
   const workspaces = settings.workspaces;
+
   const { toast } = useToast();
   const router = useRouter();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
@@ -172,15 +173,7 @@ export default function General() {
               body: formData,
             });
 
-            if (response.ok) {
-              const responseData = await response.json();
-              values.custom_header_logo = responseData.file_path;
-              toast({
-                title: "Header logo uploaded",
-                description: "The header logo has been successfully uploaded.",
-                variant: "success",
-              });
-            } else {
+            if (!response.ok) {
               const errorMsg = (await response.json()).detail;
               toast({
                 title: "Failed to upload header logo",
@@ -211,16 +204,29 @@ export default function General() {
               formikHelpers.setSubmitting(false);
               return;
             }
+
+            const headerLogoResponse = await fetch(
+              "/api/admin/workspace/header-logo",
+              {
+                method: "PUT",
+                body: formData,
+              }
+            );
+
+            if (!headerLogoResponse.ok) {
+              const errorMsg = (await headerLogoResponse.json()).detail;
+              toast({
+                title: "Failed to upload header logo after logotype",
+                description: `Error: ${errorMsg}`,
+                variant: "destructive",
+              });
+              formikHelpers.setSubmitting(false);
+              return;
+            }
           }
 
           formikHelpers.setValues(values);
           await updateWorkspaces(values);
-
-          toast({
-            title: "Updated Successfully",
-            description: "Workspace successfully updated.",
-            variant: "success",
-          });
         }}
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (

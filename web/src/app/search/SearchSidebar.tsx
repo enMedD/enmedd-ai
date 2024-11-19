@@ -56,7 +56,7 @@ export const SearchSidebar = ({
             <img
               src={buildImgUrl(workspaces?.custom_header_logo)}
               alt="Logo"
-              className="h-8 object-cover w-full"
+              className="h-8 object-contain w-full"
             />
           ) : (
             <Image
