@@ -22,6 +22,7 @@ import { Assistants } from "./Assistants";
 import { Input } from "@/components/ui/input";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/components/user/UserProvider";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -42,6 +43,7 @@ export const TeamspaceCreationForm = ({
 }: TeamspaceCreationFormProps) => {
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const { user } = useUser();
   // const [tokenBudget, setTokenBudget] = useState(0);
   // const [periodHours, setPeriodHours] = useState(0);
   const isUpdate = existingTeamspace !== undefined;
@@ -173,7 +175,7 @@ export const TeamspaceCreationForm = ({
                       setFieldValue("user_ids", userIds)
                     }
                     allUsers={users}
-                    existingUsers={[]}
+                    existingUsers={user ? [user] : []}
                   />
                 </div>
               </div>
