@@ -10,6 +10,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 
+import config from "../../../tailwind-themes/tailwind.config";
+const tailwindColors = config.theme.extend.colors;
+
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
   defaultPage: string;
@@ -26,7 +29,13 @@ export const TeamspaceModal = ({
   if (!teamspace) return null;
 
   const generateGradient = (teamspaceName: string) => {
-    const colors = ["#f9a8d4", "#8b5cf6", "#34d399", "#60a5fa", "#f472b6"];
+    const colors = [
+      tailwindColors.brand[100],
+      tailwindColors.brand[200],
+      tailwindColors.brand[300],
+      tailwindColors.brand[400],
+      tailwindColors.brand[500],
+    ];
     const index = teamspaceName.charCodeAt(0) % colors.length;
     return `linear-gradient(135deg, ${colors[index]}, ${
       colors[(index + 1) % colors.length]

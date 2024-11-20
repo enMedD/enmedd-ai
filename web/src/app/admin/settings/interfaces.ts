@@ -41,6 +41,7 @@ export interface Workspaces {
   use_custom_logo: boolean;
   use_custom_logotype: boolean;
   brand_color: string;
+  secondary_color: string;
 
   // custom navigation
   custom_nav_items: NavigationItem[];

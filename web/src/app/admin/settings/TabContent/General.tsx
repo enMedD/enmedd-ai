@@ -38,6 +38,33 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [brand500, setBrand500] = useState("Loading...");
+  const [secondary500, setSecondary500] = useState("Loading...");
+
+  useEffect(() => {
+    const fetchThemes = async () => {
+      try {
+        const response = await fetch("/api/themes", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const themes = await response.json();
+        setBrand500(themes.brand["500"]);
+        setSecondary500(themes.secondary["500"]);
+      } catch (error) {
+        console.error("Error fetching themes:", error);
+      }
+    };
+
+    fetchThemes();
+  }, []);
 
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
@@ -97,7 +124,11 @@ export default function General() {
     }
   }
 
-  async function updateWorkspaceTheme(workspaceId: number, brandColor: string) {
+  async function updateWorkspaceTheme(
+    workspaceId: number,
+    brandColor: string,
+    secondaryColor: string
+  ) {
     const palette = getPalette([
       {
         color: brandColor,
@@ -106,7 +137,7 @@ export default function General() {
         shades: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
       },
       {
-        color: "#2a9d8f",
+        color: secondaryColor,
         name: "secondary",
         shade: 500,
         shades: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
@@ -165,6 +196,7 @@ export default function General() {
           custom_nav_items: workspaces?.custom_nav_items || [],
           enable_consent_screen: workspaces?.enable_consent_screen || false,
           brand_color: workspaces?.brand_color || "",
+          secondary_color: workspaces?.secondary_color || "",
         }}
         validationSchema={Yup.object().shape({
           workspace_name: Yup.string().nullable(),
@@ -266,8 +298,15 @@ export default function General() {
             }
           }
 
-          if (values.brand_color !== workspaces?.brand_color) {
-            await updateWorkspaceTheme(0, values.brand_color);
+          if (
+            values.brand_color !== workspaces?.brand_color ||
+            values.secondary_color !== workspaces?.secondary_color
+          ) {
+            await updateWorkspaceTheme(
+              0,
+              values.brand_color,
+              values.secondary_color
+            );
           }
 
           formikHelpers.setValues(values);
@@ -384,7 +423,7 @@ export default function General() {
 
             <div className="py-8 border-b">
               <div className="flex gap-5 flex-col md:flex-row">
-                <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
                     htmlFor="workspace_description"
                     className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
@@ -396,28 +435,48 @@ export default function General() {
                   </p>
                 </div>
 
-                <div className="md:w-[500px]">
+                <div className="md:w-[500px] space-y-2">
                   <div className="flex items-center gap-4">
-                    <span className="text-sm text-subtle">Custom color:</span>
-                    <TextFormField
-                      name="brand_color"
-                      width="w-32"
-                      optional
-                      noPadding
-                    />
-
-                    <div className="flex gap-2">
-                      {/* {workspaces?.brand_color && (
-                        <div
-                          className="w-10 h-10 rounded-full border-white border-2 cursor-pointer shrink-0"
-                          style={{
-                            background: workspaces?.brand_color,
-                            outline: `1px solid ${workspaces?.brand_color}`,
+                    <span className="text-sm text-subtle w-32">
+                      Primary color:
+                    </span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <TextFormField
+                          name="brand_color"
+                          width="w-32"
+                          optional
+                          noPadding
+                          value={brand500}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            setBrand500(e.target.value);
                           }}
                         />
-                      )} */}
-                      <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                      {/* <div className="w-10 h-10 bg-background-inverted rounded-full cursor-pointer shrink-0" /> */}
+
+                        <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-subtle w-32">
+                      Secondary color:
+                    </span>
+                    <div className="flex gap-2">
+                      <TextFormField
+                        name="secondary_color"
+                        width="w-32"
+                        optional
+                        noPadding
+                        value={secondary500}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setSecondary500(e.target.value);
+                        }}
+                      />
+
+                      <div className="w-10 h-10 bg-secondary-500 rounded-full outline-secondary-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
                     </div>
                   </div>
                 </div>
