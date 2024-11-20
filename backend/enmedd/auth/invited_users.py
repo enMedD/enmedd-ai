@@ -21,19 +21,47 @@ from enmedd.key_value_store.interface import JSON_ro
 from enmedd.key_value_store.interface import KvKeyNotFoundError
 
 USER_STORE_KEY = "INVITED_USERS"
+TEAMSPACE_INVITE_USER = "TEAMSPACE_INVITE_USER"
 
 
-def get_invited_users() -> list[str]:
+def get_invited_users(teamspace_id: int = None) -> list[str]:
     try:
         store = get_kv_store()
-        return cast(list, store.load(USER_STORE_KEY))
+
+        if teamspace_id:
+            teamspace_users = cast(dict, store.load(TEAMSPACE_INVITE_USER))
+
+            if str(teamspace_id) in teamspace_users:
+                return teamspace_users[str(teamspace_id)]
+            else:
+                return []
+        else:
+            return cast(list, store.load(USER_STORE_KEY))
     except KvKeyNotFoundError:
         return list()
 
 
-def write_invited_users(emails: list[str]) -> int:
+def write_invited_users(emails: list[str], teamspace_id: Optional[int] = None) -> int:
     store = get_kv_store()
-    store.store(USER_STORE_KEY, cast(JSON_ro, emails))
+
+    if teamspace_id:
+        try:
+            teamspace_users = store.load(TEAMSPACE_INVITE_USER)
+        except KvKeyNotFoundError:
+            teamspace_users = {}
+
+        if str(teamspace_id) in teamspace_users:
+            existing_emails = set(teamspace_users[str(teamspace_id)])
+            updated_emails = existing_emails.union(emails)
+            teamspace_users[str(teamspace_id)] = list(updated_emails)
+        else:
+            teamspace_users[str(teamspace_id)] = emails
+
+        store.store(TEAMSPACE_INVITE_USER, cast(JSON_ro, teamspace_users))
+
+    else:
+        store.store(USER_STORE_KEY, cast(JSON_ro, emails))
+
     return len(emails)
 
 

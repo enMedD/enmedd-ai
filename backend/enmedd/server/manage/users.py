@@ -368,7 +368,7 @@ def list_all_users(
         if not is_api_key_email_address(user.email)
     ]
 
-    invited_emails = get_invited_users()
+    invited_emails = get_invited_users(teamspace_id=teamspace_id)
     if q:
         invited_emails = [
             email for email in invited_emails if re.search(r"{}".format(q), email, re.I)
@@ -428,18 +428,21 @@ def bulk_invite_users(
         subject, body = generate_invite_email(signup_link)
         send_invite_user_email(email, subject, body, smtp_credentials)
 
-    all_emails = list(set(normalized_emails) | set(get_invited_users()))
-    return write_invited_users(all_emails)
+    all_emails = list(set(normalized_emails) | set(get_invited_users(teamspace_id)))
+
+    return write_invited_users(all_emails, teamspace_id)
 
 
 @router.patch("/manage/admin/remove-invited-user")
 def remove_invited_user(
     user_email: UserByEmail,
+    teamspace_id: Optional[int] = None,
     _: User | None = Depends(current_workspace_admin_user),
 ) -> int:
-    user_emails = get_invited_users()
+    user_emails = get_invited_users(teamspace_id)
     remaining_users = [user for user in user_emails if user != user_email.user_email]
-    return write_invited_users(remaining_users)
+
+    return write_invited_users(remaining_users, teamspace_id)
 
 
 @router.patch("/manage/admin/deactivate-user")
