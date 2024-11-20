@@ -46,34 +46,6 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [brand500, setBrand500] = useState("Loading...");
-  const [secondary500, setSecondary500] = useState("Loading...");
-
-  useEffect(() => {
-    const fetchThemes = async () => {
-      try {
-        const response = await fetch("/api/themes", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const themes = await response.json();
-        setBrand500(themes.brand["500"]);
-        setSecondary500(themes.secondary["500"]);
-      } catch (error) {
-        console.error("Error fetching themes:", error);
-      }
-    };
-
-    fetchThemes();
-  }, []);
-
   const [primaryColor, setPrimaryColor] = useState("#65007E");
   const [secondaryColor, setSecondaryColor] = useState("#EEB3FE");
 
@@ -222,7 +194,7 @@ export default function General() {
           workspace_description: workspaces?.workspace_description || null,
           use_custom_logo: workspaces?.use_custom_logo || false,
           use_custom_logotype: workspaces?.use_custom_logotype || false,
-          custom_header_logo: workspaces?.custom_header_logo || "",
+          custom_header_logo: workspaces?.custom_header_logo || null,
           custom_header_content: workspaces?.custom_header_content || "",
           two_lines_for_chat_header:
             workspaces?.two_lines_for_chat_header || false,
