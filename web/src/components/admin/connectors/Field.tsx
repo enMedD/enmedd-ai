@@ -232,7 +232,6 @@ export function TextFormField({
               onChange={handleChange}
               onFocus={onFocus}
               onBlur={onBlur}
-              value={value}
               className={`
                 ${fontSize} ${defaultHeight}
                 ${disabled ? " bg-background-strong" : " bg-white"}
