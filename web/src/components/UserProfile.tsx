@@ -2,10 +2,8 @@ import React from "react";
 import { User as UserTypes } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-
-import config from "../../tailwind-themes/tailwind.config";
 import { User } from "lucide-react";
-const tailwindColors = config.theme.extend.colors;
+import { useGradient } from "@/hooks/useGradient";
 
 interface UserProfileProps {
   user?: UserTypes | null;
@@ -20,18 +18,6 @@ const getNameInitials = (fullName: string) => {
   return names[0][0].toUpperCase() + names[names.length - 1][0].toUpperCase();
 };
 
-const generateGradient = (teamspaceName: string) => {
-  const colors = [
-    tailwindColors.brand[100],
-    tailwindColors.brand[200],
-    tailwindColors.brand[300],
-    tailwindColors.brand[400],
-    tailwindColors.brand[500],
-  ];
-  const index = teamspaceName.charCodeAt(0) % colors.length;
-  return `linear-gradient(135deg, ${colors[index]}, ${colors[(index + 1) % colors.length]})`;
-};
-
 export function UserProfile({
   user,
   onClick,
@@ -41,7 +27,7 @@ export function UserProfile({
 }: UserProfileProps) {
   const backgroundGradient =
     user && user.full_name
-      ? generateGradient(getNameInitials(user.full_name))
+      ? useGradient(getNameInitials(user.full_name))
       : "linear-gradient(to right, #e2e2e2, #ffffff)";
 
   return (
