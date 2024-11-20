@@ -9,6 +9,7 @@ import { MinimalTeamspaceSnapshot } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
+import { useGradient } from "@/hooks/useGradient";
 
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
@@ -24,14 +25,6 @@ export const TeamspaceModal = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   if (!teamspace) return null;
-
-  const generateGradient = (teamspaceName: string) => {
-    const colors = ["#f9a8d4", "#8b5cf6", "#34d399", "#60a5fa", "#f472b6"];
-    const index = teamspaceName.charCodeAt(0) % colors.length;
-    return `linear-gradient(135deg, ${colors[index]}, ${
-      colors[(index + 1) % colors.length]
-    })`;
-  };
 
   return (
     <CustomModal
@@ -77,7 +70,7 @@ export const TeamspaceModal = ({
               </div>
             ) : (
               <div
-                style={{ background: generateGradient(team.name) }}
+                style={{ background: useGradient(team.name) }}
                 className="font-bold text-inverted w-10 h-10 shrink-0 rounded-md bg-brand-500 flex justify-center items-center uppercase"
               >
                 {team.name.charAt(0)}
