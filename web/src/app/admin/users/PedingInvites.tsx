@@ -28,13 +28,17 @@ const RemoveUserButton = ({
   user,
   onSuccess,
   onError,
+  teamspaceId,
 }: {
   user: User;
   onSuccess: () => void;
   onError: () => void;
+  teamspaceId?: string | string[];
 }) => {
   const { trigger } = useSWRMutation(
-    "/api/manage/admin/remove-invited-user",
+    teamspaceId
+      ? `/api/manage/admin/remove-invited-user?teamspace_id=${teamspaceId}`
+      : "/api/manage/admin/remove-invited-user",
     userMutationFetcher,
     { onSuccess, onError }
   );
@@ -138,7 +142,7 @@ export const PendingInvites = ({
         <p className="text-sm mt-2">Invitations awaiting a response.</p>
       </div>
 
-      {invited.length > 0 ? (
+      {filteredUsers.length > 0 ? (
         <div className="flex-1 space-y-4">
           <Input
             placeholder="Search user..."
@@ -183,36 +187,30 @@ export const PendingInvites = ({
                                 </Button>
                               }
                               title="Revoke Invite"
+                              description="Revoking an invite will no longer allow this
+                                  person to become a member of your space. You
+                                  can always invite them again if you change
+                                  your mind."
                               onClose={() => {
                                 setIsCancelModalVisible(false);
                                 setSelectedUser(null);
                               }}
                               open={isCancelModalVisible}
                             >
-                              <div>
-                                <p>
-                                  Revoking an invite will no longer allow this
-                                  person to become a member of your space. You
-                                  can always invite them again if you change
-                                  your mind.
-                                </p>
-
-                                <div className="flex gap-2 pt-8 justify-end">
-                                  <Button
-                                    onClick={() =>
-                                      setIsCancelModalVisible(false)
-                                    }
-                                  >
-                                    Keep Member
-                                  </Button>
-                                  {selectedUser && (
-                                    <RemoveUserButton
-                                      user={selectedUser}
-                                      onSuccess={onRemovalSuccess}
-                                      onError={onRemovalError}
-                                    />
-                                  )}
-                                </div>
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  onClick={() => setIsCancelModalVisible(false)}
+                                >
+                                  Keep Invite
+                                </Button>
+                                {selectedUser && (
+                                  <RemoveUserButton
+                                    user={selectedUser}
+                                    onSuccess={onRemovalSuccess}
+                                    onError={onRemovalError}
+                                    teamspaceId={teamspaceId}
+                                  />
+                                )}
                               </div>
                             </CustomModal>
                           </div>
