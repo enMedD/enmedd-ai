@@ -22,6 +22,10 @@ export async function fetchFeatureFlagSS() {
   return fetchSS("/ff");
 }
 
+export async function fetchWorkspaceThemesSS() {
+  return fetchSS("/themes");
+}
+
 export async function fetchEnterpriseSettingsSS() {
   return fetchSS("/workspace");
 }
@@ -53,6 +57,10 @@ export async function fetchSettingsSS(): Promise<CombinedSettings | null> {
           maximum_chat_retention_days: null,
           notifications: [],
           needs_reindexing: false,
+          smtp_server: "",
+          smtp_port: 0,
+          smtp_username: "",
+          smtp_password: "",
         };
       } else {
         throw new Error(

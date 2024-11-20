@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useToast } from "@/hooks/use-toast";
-import { basicLogin, basicSignup } from "@/lib/user";
+import { basicLogin, basicSignup, validateInvite } from "@/lib/user";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/Spinner";
 import { TextFormField } from "@/components/admin/connectors/Field";
@@ -20,6 +20,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
+  const token = searchParams.get("token") || "";
 
   // Use the custom hook
   const {
@@ -98,6 +99,9 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
 
           const loginResponse = await basicLogin(values.email, values.password);
           if (loginResponse.ok) {
+            if (token) {
+              await validateInvite(values.email, token);
+            }
             if (shouldVerify) {
               router.push("/auth/waiting-on-verification");
             } else {

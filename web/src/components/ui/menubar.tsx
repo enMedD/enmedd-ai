@@ -37,10 +37,7 @@ const MenubarTrigger = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenubarPrimitive.Trigger
     ref={ref}
-    className={cn(
-      "focus:outline-none",
-      className
-    )}
+    className={cn("focus:outline-none", className)}
     {...props}
   />
 ));

@@ -266,7 +266,7 @@ export function CustomLLMProviderUpdateForm({
               optional
             />
 
-            <Label>[Optional] Custom Configs</Label>
+            <Label className="pb-1.5">[Optional] Custom Configs</Label>
             <SubLabel>
               <>
                 <div>
@@ -351,7 +351,6 @@ export function CustomLLMProviderUpdateForm({
                     onClick={() => {
                       arrayHelpers.push(["", ""]);
                     }}
-                    className="mt-3 "
                   >
                     <FiPlus /> Add New
                   </Button>
@@ -432,16 +431,7 @@ export function CustomLLMProviderUpdateForm({
                 <Text className="text-error mt-2">{testError}</Text>
               )}
 
-              <div className="flex w-full mt-4">
-                <Button type="submit">
-                  {isTesting ? (
-                    <LoadingAnimation text="Testing" />
-                  ) : existingLlmProvider ? (
-                    "Update"
-                  ) : (
-                    "Enable"
-                  )}
-                </Button>
+              <div className="flex w-full mt-4 justify-end gap-2">
                 {existingLlmProvider && (
                   <Button
                     variant="destructive"
@@ -462,10 +452,20 @@ export function CustomLLMProviderUpdateForm({
                       mutate(LLM_PROVIDERS_ADMIN_URL);
                       onClose();
                     }}
+                    type="button"
                   >
                     <FiTrash /> Delete
                   </Button>
                 )}
+                <Button type="submit">
+                  {isTesting ? (
+                    <LoadingAnimation text="Testing" />
+                  ) : existingLlmProvider ? (
+                    "Update"
+                  ) : (
+                    "Enable"
+                  )}
+                </Button>
               </div>
             </div>
           </Form>

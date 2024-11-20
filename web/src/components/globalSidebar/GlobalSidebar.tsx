@@ -1,7 +1,7 @@
 "use client";
 
 import { UserSettingsButton } from "@/components/UserSettingsButton";
-import ArnoldAi from "../../../public/logo-brand.png";
+import VanguardAi from "../../../public/logo.png";
 import { Separator } from "@/components/ui/separator";
 import { User } from "@/lib/types";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -53,7 +53,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
       >
         <div className="flex flex-col items-center h-full overflow-y-auto">
           <Image
-            src={ArnoldAi}
+            src={VanguardAi}
             alt="Vanguard AI Logo"
             width={40}
             height={40}
@@ -64,7 +64,16 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
             <CustomTooltip
               trigger={
                 <Link href={`/${defaultPage}`} className="flex items-center">
-                  <Logo />
+                  {workspaces?.use_custom_logo ? (
+                    <Logo />
+                  ) : (
+                    <Image
+                      src={VanguardAi}
+                      alt="Vanguard AI Logo"
+                      width={40}
+                      height={40}
+                    />
+                  )}
                 </Link>
               }
               side="right"

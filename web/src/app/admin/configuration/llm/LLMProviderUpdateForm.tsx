@@ -1,6 +1,5 @@
 import { LoadingAnimation } from "@/components/Loading";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
-import { Divider, Text } from "@tremor/react";
 import { Form, Formik } from "formik";
 import { FiTrash } from "react-icons/fi";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
@@ -18,6 +17,7 @@ import isEqual from "lodash/isEqual";
 import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Divider } from "@/components/Divider";
 
 export function LLMProviderUpdateForm({
   llmProviderDescriptor,
@@ -34,7 +34,7 @@ export function LLMProviderUpdateForm({
   hideAdvanced?: boolean;
   hideSuccess?: boolean;
 }) {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const { mutate } = useSWRConfig();
 
   const [isTesting, setIsTesting] = useState(false);
@@ -104,7 +104,7 @@ export function LLMProviderUpdateForm({
       : {}),
     deployment_name: llmProviderDescriptor.deployment_name_required
       ? Yup.string().required("Deployment Name is required")
-      : Yup.string(),
+      : Yup.string().nullable(),
     default_model_name: Yup.string().required("Model name is required"),
     fast_default_model_name: Yup.string().nullable(),
     // EE Only
@@ -164,11 +164,11 @@ export function LLMProviderUpdateForm({
           const fullErrorMsg = existingLlmProvider
             ? `Failed to update provider: ${errorMsg}`
             : `Failed to enable provider: ${errorMsg}`;
-            toast({
-              title: "Error",
-              description: fullErrorMsg,
-              variant: "destructive",
-            });
+          toast({
+            title: "Error",
+            description: fullErrorMsg,
+            variant: "destructive",
+          });
           return;
         }
 
@@ -204,7 +204,7 @@ export function LLMProviderUpdateForm({
             description: successMsg,
             variant: "success",
           });
-        } 
+        }
 
         setSubmitting(false);
       }}
@@ -376,18 +376,9 @@ export function LLMProviderUpdateForm({
           )}
           <div>
             {/* NOTE: this is above the test button to make sure it's visible */}
-            {testError && <Text className="text-error mt-2">{testError}</Text>}
+            {testError && <p className="text-error mt-2">{testError}</p>}
 
-            <div className="flex w-full mt-4">
-              <Button type="submit" >
-                {isTesting ? (
-                  <LoadingAnimation text="Testing" />
-                ) : existingLlmProvider ? (
-                  "Update"
-                ) : (
-                  "Enable"
-                )}
-              </Button>
+            <div className="flex w-full justify-end mt-4 gap-2">
               {existingLlmProvider && (
                 <Button
                   type="button"
@@ -431,9 +422,18 @@ export function LLMProviderUpdateForm({
                     onClose();
                   }}
                 >
-                <FiTrash /> Delete
+                  <FiTrash /> Delete
                 </Button>
               )}
+              <Button type="submit">
+                {isTesting ? (
+                  <LoadingAnimation text="Testing" />
+                ) : existingLlmProvider ? (
+                  "Update"
+                ) : (
+                  "Enable"
+                )}
+              </Button>
             </div>
           </div>
         </Form>

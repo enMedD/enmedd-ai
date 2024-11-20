@@ -420,6 +420,14 @@ export function AssistantEditor({
               tool_ids: enabledTools,
               remove_image: removeAssistantImage,
             });
+
+            if (assistantResponse?.ok) {
+              toast({
+                title: "Assistant Updated",
+                description: `"${values.name}" has been successfully updated.`,
+                variant: "success",
+              });
+            }
           } else {
             [promptResponse, assistantResponse] = await createAssistant({
               ...values,

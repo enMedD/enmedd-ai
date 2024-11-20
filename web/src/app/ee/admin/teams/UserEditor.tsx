@@ -28,7 +28,8 @@ export const UserEditor = ({
     }));
 
   const handleSelect = (selectedValues: string[]) => {
-    const selectedIds = selectedValues.map((value) => value);
+    let selectedIds = selectedValues.map((value) => value);
+    selectedIds = [...selectedIds, ...existingUsers.map((user) => user.id)];
     setSelectedUserIds(selectedIds); // Update selected user IDs
   };
 

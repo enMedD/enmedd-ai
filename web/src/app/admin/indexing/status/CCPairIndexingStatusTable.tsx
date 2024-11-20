@@ -53,7 +53,7 @@ function SummaryRow({
   const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
 
   return (
-    <TableRow onClick={onToggle}>
+    <TableRow onClick={onToggle} className="bg-neutral-50">
       <TableCell className="gap-y-2">
         <div className="flex items-center text-xl font-semibold truncate ellipsis gap-x-2">
           <div className="cursor-pointer">
@@ -196,13 +196,14 @@ function ConnectorRow({
         );
       }}
     >
-      <TableCell>
+      <TableCell className="!w-[200px] xl:!w-[350px] !max-w-[480px] flex truncate">
         <CustomTooltip
           trigger={
-            <p className="w-full truncate ellipsis max-w-[480px]">
+            <p className=" truncate ellipsis w-auto">
               {ccPairsIndexingStatus.name}
             </p>
           }
+          asChild
         >
           {ccPairsIndexingStatus.name}
         </CustomTooltip>
@@ -214,11 +215,11 @@ function ConnectorRow({
       {isPaidEnterpriseFeaturesEnabled && (
         <TableCell>
           {ccPairsIndexingStatus.access_type === "public" ? (
-            <Badge color={isEditable ? "green" : "gray"}>
+            <Badge variant="secondary">
               <Unlock size={14} /> Public
             </Badge>
           ) : (
-            <Badge color={isEditable ? "blue" : "gray"}>
+            <Badge variant="secondary">
               <Lock size={14} /> Private
             </Badge>
           )}
@@ -519,8 +520,8 @@ export function CCPairIndexingStatusTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px] xl:w-[350px]">
-                  <div className="w-full">Name</div>
+                <TableHead className="!w-[200px] xl:!w-[350px] flex items-center">
+                  Name
                 </TableHead>
                 {/* <TableHead>
                   Last Indexed
@@ -617,12 +618,14 @@ export function CCPairIndexingStatusTable({
                   if (sourceMatches || matchingConnectors.length > 0) {
                     return (
                       <React.Fragment key={ind}>
-                        <SummaryRow
-                          source={source}
-                          summary={groupSummaries[source]}
-                          isOpen={connectorsToggled[source] || false}
-                          onToggle={() => toggleSource(source)}
-                        />
+                        {matchingConnectors.length > 0 && (
+                          <SummaryRow
+                            source={source}
+                            summary={groupSummaries[source]}
+                            isOpen={connectorsToggled[source] || false}
+                            onToggle={() => toggleSource(source)}
+                          />
+                        )}
 
                         {connectorsToggled[source] && (
                           <>

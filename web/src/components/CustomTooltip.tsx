@@ -47,7 +47,7 @@ export function CustomTooltip({
   style,
   asChild,
   variant = "primary",
-  open
+  open,
 }: {
   children: React.ReactNode;
   trigger: string | React.ReactNode;

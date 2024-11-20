@@ -125,7 +125,6 @@ export const DocumentFeedbackBlock = ({
             feedbackType="endorse"
           />
         }
-        
       >
         Good Response
       </CustomTooltip>
@@ -138,7 +137,7 @@ export const DocumentFeedbackBlock = ({
             feedbackType="reject"
           />
         }
-        variant='destructive'
+        variant="destructive"
       >
         Bad Response
       </CustomTooltip>

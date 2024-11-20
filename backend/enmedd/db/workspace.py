@@ -45,6 +45,8 @@ def insert_workspace(
         custom_logo=workspace.custom_logo,
         custom_header_logo=workspace.custom_header_logo,
         custom_header_content=workspace.custom_header_content,
+        brand_color=workspace.brand_color,
+        secondary_color=workspace.secondary_color,
     )
     db_session.add(db_workspace)
     db_session.flush()  # give the workspace an ID
@@ -138,6 +140,8 @@ def upsert_workspace(
     workspace_description: str | None = None,
     use_custom_logo: bool = False,
     custom_header_content: str | None = None,
+    brand_color: str | None = None,
+    secondary_color: str | None = None,
     commit: bool = True,
 ) -> Workspace:
     try:
@@ -153,6 +157,8 @@ def upsert_workspace(
             workspace.workspace_description = workspace_description
             workspace.use_custom_logo = use_custom_logo
             workspace.custom_header_content = custom_header_content
+            workspace.brand_color = brand_color
+            workspace.secondary_color = secondary_color
         else:
             # Create new workspace
             workspace = Workspace(
@@ -164,6 +170,8 @@ def upsert_workspace(
                 workspace_description=workspace_description,
                 use_custom_logo=use_custom_logo,
                 custom_header_content=custom_header_content,
+                brand_color=brand_color,
+                secondary_color=secondary_color,
             )
             db_session.add(workspace)
 

@@ -228,6 +228,17 @@ class TwofactorAuth(Base):
     )
 
 
+class InviteToken(Base):
+    __tablename__ = "invite_token"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    token: Mapped[str] = mapped_column(String, unique=True)
+    emails: Mapped[JSON_ro] = mapped_column(postgresql.JSONB(), nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class ApiKey(Base):
     __tablename__ = "api_key"
 
@@ -1919,6 +1930,8 @@ class Workspace(Base):
     custom_logo: Mapped[str | None] = mapped_column(Text, nullable=True)
     custom_header_logo: Mapped[str | None] = mapped_column(Text, nullable=True)
     custom_header_content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    brand_color: Mapped[str | None] = mapped_column(Text, nullable=True)
+    secondary_color: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     users: Mapped[list[User]] = relationship(
         "User", secondary=Workspace__Users.__table__, viewonly=True
@@ -1977,6 +1990,10 @@ class WorkspaceSettings(Base):
     vespa_searcher_threads: Mapped[int] = mapped_column(
         Integer, nullable=False, default=2
     )
+    smtp_server: Mapped[str | None] = mapped_column(Text, nullable=True)
+    smtp_port: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    smtp_username: Mapped[str | None] = mapped_column(Text, nullable=True)
+    smtp_password: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class TeamspaceSettings(Base):

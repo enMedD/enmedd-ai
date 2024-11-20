@@ -35,7 +35,7 @@ export const StandardAnswerCreationForm = ({
   standardAnswerCategories: StandardAnswerCategory[];
   existingStandardAnswer?: StandardAnswer;
 }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const isUpdate = existingStandardAnswer !== undefined;
   const router = useRouter();
 

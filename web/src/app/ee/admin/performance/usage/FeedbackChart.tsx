@@ -13,18 +13,27 @@ import {
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { SubLabel } from "@/components/admin/connectors/Field";
 
+import config from "../../../../../../tailwind-themes/tailwind.config";
+const colors = config.theme.extend.colors;
+
 const normalizeToUTC = (date: Date) => {
   return new Date(
     Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
   );
 };
 
-export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
+export function FeedbackChart({
+  timeRange,
+  teamspaceId,
+}: {
+  timeRange: DateRange;
+  teamspaceId?: string | string[];
+}) {
   const {
     data: queryAnalyticsData,
     isLoading: isQueryAnalyticsLoading,
     error: queryAnalyticsError,
-  } = useQueryAnalytics(timeRange);
+  } = useQueryAnalytics(timeRange, teamspaceId);
 
   let chart;
   if (isQueryAnalyticsLoading) {
@@ -60,11 +69,11 @@ export function FeedbackChart({ timeRange }: { timeRange: DateRange }) {
     const chartConfig = {
       "Positive Feedback": {
         label: "Positive Feedback",
-        color: "#2039f3",
+        color: colors.brand[500],
       },
       "Negative Feedback": {
         label: "Negative Feedback",
-        color: "#60a5fa",
+        color: colors.brand[300],
       },
     } satisfies ChartConfig;
 

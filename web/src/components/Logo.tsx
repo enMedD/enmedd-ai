@@ -39,7 +39,7 @@ export function Logo({
   return (
     <div style={{ height, width }} className={`relative ${className}`}>
       <img
-        src={`/api/workspace/logo?u=${Date.now()}`}
+        src={"/api/workspace/logo?workspace_id=" + 0} //temporary id for workspace
         alt="Logo"
         style={{ objectFit: "cover", height, width, borderRadius: "8px" }}
       />
