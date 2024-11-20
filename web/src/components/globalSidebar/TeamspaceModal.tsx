@@ -98,9 +98,6 @@ import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { useGradient } from "@/hooks/useGradient";
 import { SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
 
-import config from "../../../tailwind-themes/tailwind.config";
-const tailwindColors = config.theme.extend.colors;
-
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
   defaultPage: string;

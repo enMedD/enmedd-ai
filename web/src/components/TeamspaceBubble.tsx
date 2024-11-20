@@ -35,7 +35,7 @@ export const TeamspaceBubble = ({
           ) : (
             <div
               style={{ background: useGradient(teamspace.name) }}
-              className={`font-bold text-inverted bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "w-8 h-8 rounded-sm" : "w-full h-full"}`}
+              className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "w-8 h-8 rounded-sm" : "w-full h-full"}`}
             >
               {teamspace.name.charAt(0)}
             </div>
