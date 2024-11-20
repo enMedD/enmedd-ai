@@ -229,7 +229,7 @@ export function Main({
         disabled={ccPair.status === ConnectorCredentialPairStatus.PAUSED}
         isDeleting={isDeleting}
       />
-      <div className="mt-1 text-sm">
+      <div className="mt-2 text-sm">
         Total Documents Indexed:{" "}
         <b className="text-emphasis">{ccPair.num_docs_indexed}</b>
       </div>

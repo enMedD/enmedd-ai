@@ -252,8 +252,8 @@ export function Configuration() {
   }
 
   return (
-    <div className="pt-6">
-      <h3 className="mb-4">Page Visibility</h3>
+    <div className="pt-8">
+      <h3 className="mb-4 pt-6">Page Visibility</h3>
 
       <CheckboxComponent
         label="Search Page Enabled?"

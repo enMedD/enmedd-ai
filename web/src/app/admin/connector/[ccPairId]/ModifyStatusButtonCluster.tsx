@@ -40,6 +40,7 @@ export function ModifyStatusButtonCluster({
             </Button>
           }
           asChild
+          variant="destructive"
         >
           When paused, the connectors documents will still be visible. However,
           no new documents will be indexed.
