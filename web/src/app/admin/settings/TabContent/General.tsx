@@ -407,6 +407,7 @@ export default function General() {
                       optional
                       noPadding
                       placeholder="#000000"
+                      value={workspaces?.brand_color || ""}
                     />
 
                     <div className="flex gap-2">
@@ -488,7 +489,7 @@ export default function General() {
                               placeholder="Enter hostname"
                               //remove this
                               optional
-                              value={formData.smtp_server}
+                              value={formData?.smtp_server || ""}
                               onChange={handleChange}
                             />
 
@@ -498,7 +499,11 @@ export default function General() {
                               placeholder="Enter port"
                               optional
                               type="text"
-                              value={formData.smtp_port.toString()}
+                              value={
+                                formData.smtp_port
+                                  ? formData.smtp_port.toString()
+                                  : "587"
+                              }
                               onChange={handleChange}
                             />
 
@@ -508,7 +513,7 @@ export default function General() {
                               placeholder="Enter username"
                               //remove this
                               optional
-                              value={formData.smtp_username}
+                              value={formData?.smtp_username || ""}
                               onChange={handleChange}
                             />
 
@@ -519,7 +524,7 @@ export default function General() {
                               //remove this
                               optional
                               type="password"
-                              value={formData.smtp_password}
+                              value={formData?.smtp_password || ""}
                               onChange={handleChange}
                             />
                           </>
@@ -539,7 +544,7 @@ export default function General() {
                                 SMTP Port:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_port}
+                                {settings.settings.smtp_port || "None"}
                               </span>
                             </div>
 

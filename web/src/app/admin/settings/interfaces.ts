@@ -6,10 +6,10 @@ export interface Settings {
   notifications: Notification[];
   needs_reindexing: boolean;
   gpu_enabled: boolean;
-  smtp_server: string;
-  smtp_port: 0;
-  smtp_username: string;
-  smtp_password: string;
+  smtp_server?: string;
+  smtp_port?: number;
+  smtp_username?: string;
+  smtp_password?: string;
 }
 
 export interface Notification {
