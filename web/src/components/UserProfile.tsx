@@ -4,6 +4,7 @@ import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 import config from "../../tailwind-themes/tailwind.config";
+import { User } from "lucide-react";
 const tailwindColors = config.theme.extend.colors;
 
 interface UserProfileProps {
@@ -11,6 +12,7 @@ interface UserProfileProps {
   onClick?: () => void;
   size?: number;
   textSize?: string;
+  isShared?: boolean;
 }
 
 const getNameInitials = (fullName: string) => {
@@ -35,6 +37,7 @@ export function UserProfile({
   onClick,
   size = 40,
   textSize = "text-base",
+  isShared,
 }: UserProfileProps) {
   const backgroundGradient =
     user && user.full_name
@@ -61,7 +64,13 @@ export function UserProfile({
             background: backgroundGradient,
           }}
         >
-          {user ? getNameInitials(user.full_name || "") : ""}
+          {user ? (
+            getNameInitials(user.full_name || "")
+          ) : isShared ? (
+            <User />
+          ) : (
+            ""
+          )}
         </AvatarFallback>
       )}
     </Avatar>
