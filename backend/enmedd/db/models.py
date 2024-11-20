@@ -228,6 +228,17 @@ class TwofactorAuth(Base):
     )
 
 
+class InviteToken(Base):
+    __tablename__ = "invite_token"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    token: Mapped[str] = mapped_column(String, unique=True)
+    emails: Mapped[JSON_ro] = mapped_column(postgresql.JSONB(), nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class ApiKey(Base):
     __tablename__ = "api_key"
 

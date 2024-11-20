@@ -1,11 +1,44 @@
+from typing import cast
 from typing import Optional
 
+from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.models import TeamspaceSettings
+from enmedd.db.models import User
 from enmedd.db.models import WorkspaceSettings
+from enmedd.key_value_store.factory import get_kv_store
+from enmedd.key_value_store.interface import KvKeyNotFoundError
 from enmedd.server.settings.models import Settings
+from enmedd.server.settings.models import WorkspaceThemes
+from enmedd.utils.logger import setup_logger
+
+
+_WORKSPACE_THEMES = "workspace_themes"
+logger = setup_logger()
+
+
+def load_workspace_themes() -> WorkspaceThemes:
+    dynamic_config_store = get_kv_store()
+    try:
+        workspace_themes = WorkspaceThemes(
+            **cast(dict, dynamic_config_store.load(_WORKSPACE_THEMES))
+        )
+    except KvKeyNotFoundError:
+        workspace_themes = WorkspaceThemes()
+        dynamic_config_store.store(_WORKSPACE_THEMES, workspace_themes.model_dump())
+
+    return workspace_themes
+
+
+def store_workspace_themes(
+    workspace_themes: WorkspaceThemes,
+    _: User | None = Depends(current_workspace_admin_user),
+) -> None:
+    logger.info("Updating Workspace Themes")
+    get_kv_store().store(_WORKSPACE_THEMES, workspace_themes.model_dump(by_alias=True))
 
 
 def load_settings(
