@@ -13,6 +13,7 @@ import { ImageUpload } from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import getPalette from "tailwindcss-palette-generator";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -23,6 +24,7 @@ export default function General() {
 
   const { toast } = useToast();
   const router = useRouter();
+  const themes = useTheme();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [selectedHeaderLogo, setSelectedHeaderLogo] = useState<File | null>(
     null
@@ -316,7 +318,7 @@ export default function General() {
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (
           <Form>
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -343,7 +345,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -373,7 +375,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -397,7 +399,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -421,7 +423,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="pt-8">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -488,7 +490,7 @@ export default function General() {
             </div>
 
             <div className="mt-20 border-t">
-              {/* <div className="py-8 border-b">
+              {/* <div className="py-8 ">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                     <Label
@@ -518,7 +520,7 @@ export default function General() {
                 </div>
               </div> */}
 
-              <div className="py-8 border-b">
+              <div className="py-8 ">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                     <Label
@@ -545,7 +547,7 @@ export default function General() {
                               placeholder="Enter hostname"
                               //remove this
                               optional
-                              value={formData.smtp_server}
+                              value={formData?.smtp_server || ""}
                               onChange={handleChange}
                             />
 
@@ -555,7 +557,11 @@ export default function General() {
                               placeholder="Enter port"
                               optional
                               type="text"
-                              value={formData.smtp_port.toString()}
+                              value={
+                                formData.smtp_port
+                                  ? formData.smtp_port.toString()
+                                  : "587"
+                              }
                               onChange={handleChange}
                             />
 
@@ -565,7 +571,7 @@ export default function General() {
                               placeholder="Enter username"
                               //remove this
                               optional
-                              value={formData.smtp_username}
+                              value={formData?.smtp_username || ""}
                               onChange={handleChange}
                             />
 
@@ -576,7 +582,7 @@ export default function General() {
                               //remove this
                               optional
                               type="password"
-                              value={formData.smtp_password}
+                              value={formData?.smtp_password || ""}
                               onChange={handleChange}
                             />
                           </>
@@ -596,7 +602,7 @@ export default function General() {
                                 SMTP Port:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_port}
+                                {settings.settings.smtp_port || "None"}
                               </span>
                             </div>
 
