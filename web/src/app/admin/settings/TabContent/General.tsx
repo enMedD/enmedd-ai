@@ -13,6 +13,7 @@ import { ImageUpload } from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import getPalette from "tailwindcss-palette-generator";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -23,6 +24,7 @@ export default function General() {
 
   const { toast } = useToast();
   const router = useRouter();
+  const themes = useTheme();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [selectedHeaderLogo, setSelectedHeaderLogo] = useState<File | null>(
     null
@@ -277,7 +279,7 @@ export default function General() {
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (
           <Form>
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -304,7 +306,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -334,7 +336,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -358,7 +360,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -382,7 +384,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            <div className="pt-8">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -404,6 +406,7 @@ export default function General() {
                       width="w-32"
                       optional
                       noPadding
+                      placeholder="#000000"
                     />
 
                     <div className="flex gap-2">
@@ -417,7 +420,6 @@ export default function General() {
                         />
                       )} */}
                       <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                      {/* <div className="w-10 h-10 bg-background-inverted rounded-full cursor-pointer shrink-0" /> */}
                     </div>
                   </div>
                 </div>
@@ -429,7 +431,7 @@ export default function General() {
             </div>
 
             <div className="mt-20 border-t">
-              {/* <div className="py-8 border-b">
+              {/* <div className="py-8 ">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                     <Label
@@ -459,7 +461,7 @@ export default function General() {
                 </div>
               </div> */}
 
-              <div className="py-8 border-b">
+              <div className="py-8 ">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                     <Label
