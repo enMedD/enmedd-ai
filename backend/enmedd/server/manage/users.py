@@ -424,7 +424,7 @@ def bulk_invite_users(
     token = generate_invite_token(teamspace_id, normalized_emails, db_session)
 
     for email in normalized_emails:
-        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email}&token={token}"
+        signup_link = f"{WEB_DOMAIN}/auth/signup?email={email}&invitetoken={token}"
         subject, body = generate_invite_email(signup_link)
         send_invite_user_email(email, subject, body, smtp_credentials)
 
