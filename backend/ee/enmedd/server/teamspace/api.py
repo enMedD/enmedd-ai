@@ -122,7 +122,7 @@ def create_teamspace(
 def patch_teamspace(
     teamspace_id: int,
     teamspace: TeamspaceUpdate,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     try:
@@ -136,7 +136,7 @@ def patch_teamspace(
 @admin_router.delete("/admin/teamspace/{teamspace_id}")
 def delete_teamspace(
     teamspace_id: int,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     try:
@@ -176,6 +176,37 @@ def update_teamspace_name(
     db_session.commit()
 
     return Teamspace.from_model(db_teamspace)
+
+
+# Leave current user to teamspace admin can leave but not the creator
+@basic_router.delete("/leave/{teamspace_id}")
+def leave_teamspace(
+    teamspace_id: int,
+    user: User = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
+    if not teamspace:
+        raise HTTPException(status_code=404, detail="Teamspace not found")
+
+    if user.id == teamspace.creator_id:
+        raise HTTPException(
+            status_code=400, detail="Creator cannot leave the teamspace"
+        )
+
+    user_teamspace = (
+        db_session.query(User__Teamspace)
+        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+        .first()
+    )
+
+    if not user_teamspace:
+        raise HTTPException(status_code=404, detail="User not found in the teamspace")
+
+    db_session.delete(user_teamspace)
+    db_session.commit()
+
+    return {"message": "You have left the teamspace successfully"}
 
 
 @admin_router.patch("/admin/teamspace/user-role/{teamspace_id}")
@@ -226,7 +257,7 @@ def update_teamspace_user_role(
 def add_teamspace_users(
     teamspace_id: int,
     emails: list[str],
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     added_users = []

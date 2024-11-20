@@ -254,6 +254,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         token: str,
         request: Optional[Request] = None,
     ) -> None:
+        if not user.email:
+            logger.error(f"User {user.id} does not have a valid email.")
+            return
         with Session(get_sqlalchemy_engine()) as db_session:
             logger.notice(
                 f"User {user.id} has forgot their password. Reset token: {token}"
@@ -486,10 +489,13 @@ async def current_workspace_admin_user(
         )
 
         if workspace is None:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="User does not have admin rights for this workspace",
-            )
+            if user.role != UserRole.ADMIN:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="User does not have admin rights for this workspace",
+                )
+            user.role = UserRole.ADMIN
+            return user
         user.role = UserRole.ADMIN
         return user
 
