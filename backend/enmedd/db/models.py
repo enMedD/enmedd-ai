@@ -204,7 +204,7 @@ class InputPrompt__User(Base):
     __tablename__ = "inputprompt__user"
 
     input_prompt_id: Mapped[int] = mapped_column(
-        ForeignKey("inputprompt.id"), primary_key=True
+        ForeignKey("inputprompt.id", ondelete="CASCADE"), primary_key=True
     )
     user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("inputprompt.id", ondelete="CASCADE"), primary_key=True
@@ -287,10 +287,10 @@ class Assistant__DocumentSet(Base):
     __tablename__ = "assistant__document_set"
 
     assistant_id: Mapped[int] = mapped_column(
-        ForeignKey("assistant.id"), primary_key=True
+        ForeignKey("assistant.id", ondelete="CASCADE"), primary_key=True
     )
     document_set_id: Mapped[int] = mapped_column(
-        ForeignKey("document_set.id"), primary_key=True
+        ForeignKey("document_set.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -298,16 +298,18 @@ class Assistant__Prompt(Base):
     __tablename__ = "assistant__prompt"
 
     assistant_id: Mapped[int] = mapped_column(
-        ForeignKey("assistant.id"), primary_key=True
+        ForeignKey("assistant.id", ondelete="CASCADE"), primary_key=True
     )
-    prompt_id: Mapped[int] = mapped_column(ForeignKey("prompt.id"), primary_key=True)
+    prompt_id: Mapped[int] = mapped_column(
+        ForeignKey("prompt.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class Assistant__User(Base):
     __tablename__ = "assistant__user"
 
     assistant_id: Mapped[int] = mapped_column(
-        ForeignKey("assistant.id"), primary_key=True
+        ForeignKey("assistant.id", ondelete="CASCADE"), primary_key=True
     )
     user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, nullable=True
@@ -318,7 +320,7 @@ class DocumentSet__User(Base):
     __tablename__ = "document_set__user"
 
     document_set_id: Mapped[int] = mapped_column(
-        ForeignKey("document_set.id"), primary_key=True
+        ForeignKey("document_set.id", ondelete="CASCADE"), primary_key=True
     )
     user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, nullable=True
@@ -329,10 +331,10 @@ class DocumentSet__ConnectorCredentialPair(Base):
     __tablename__ = "document_set__connector_credential_pair"
 
     document_set_id: Mapped[int] = mapped_column(
-        ForeignKey("document_set.id"), primary_key=True
+        ForeignKey("document_set.id", ondelete="CASCADE"), primary_key=True
     )
     connector_credential_pair_id: Mapped[int] = mapped_column(
-        ForeignKey("connector_credential_pair.id"), primary_key=True
+        ForeignKey("connector_credential_pair.id", ondelete="CASCADE"), primary_key=True
     )
     # if `True`, then is part of the current state of the document set
     # if `False`, then is a part of the prior state of the document set
@@ -353,10 +355,10 @@ class ChatMessage__SearchDoc(Base):
     __tablename__ = "chat_message__search_doc"
 
     chat_message_id: Mapped[int] = mapped_column(
-        ForeignKey("chat_message.id"), primary_key=True
+        ForeignKey("chat_message.id", ondelete="CASCADE"), primary_key=True
     )
     search_doc_id: Mapped[int] = mapped_column(
-        ForeignKey("search_doc.id"), primary_key=True
+        ForeignKey("search_doc.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -373,16 +375,18 @@ class Assistant__Tool(Base):
     __tablename__ = "assistant__tool"
 
     assistant_id: Mapped[int] = mapped_column(
-        ForeignKey("assistant.id"), primary_key=True
+        ForeignKey("assistant.id", ondelete="CASCADE"), primary_key=True
     )
-    tool_id: Mapped[int] = mapped_column(ForeignKey("tool.id"), primary_key=True)
+    tool_id: Mapped[int] = mapped_column(
+        ForeignKey("tool.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class Workspace__Users(Base):
     __tablename__ = "workspace__users"
 
     workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.id"), primary_key=True
+        ForeignKey("workspace.id", ondelete="CASCADE"), primary_key=True
     )
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
@@ -396,10 +400,10 @@ class Workspace__Teamspace(Base):
     __tablename__ = "workspace__teamspace"
 
     workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.id"), primary_key=True
+        ForeignKey("workspace.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -407,10 +411,10 @@ class ChatSession__Teamspace(Base):
     __tablename__ = "chat_session__teamspace"
 
     chat_session_id: Mapped[int] = mapped_column(
-        ForeignKey("chat_session.id"), primary_key=True
+        ForeignKey("chat_session.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -418,19 +422,21 @@ class ChatFolder__Teamspace(Base):
     __tablename__ = "chat_folder__teamspace"
 
     chat_folder_id: Mapped[int] = mapped_column(
-        ForeignKey("chat_folder.id"), primary_key=True
+        ForeignKey("chat_folder.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
 class Tool__Teamspace(Base):
     __tablename__ = "tool__teamspace"
 
-    tool_id: Mapped[int] = mapped_column(ForeignKey("tool.id"), primary_key=True)
+    tool_id: Mapped[int] = mapped_column(
+        ForeignKey("tool.id", ondelete="CASCADE"), primary_key=True
+    )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -438,10 +444,10 @@ class StandardAnswer__StandardAnswerCategory(Base):
     __tablename__ = "standard_answer__standard_answer_category"
 
     standard_answer_id: Mapped[int] = mapped_column(
-        ForeignKey("standard_answer.id"), primary_key=True
+        ForeignKey("standard_answer.id", ondelete="CASCADE"), primary_key=True
     )
     standard_answer_category_id: Mapped[int] = mapped_column(
-        ForeignKey("standard_answer_category.id"), primary_key=True
+        ForeignKey("standard_answer_category.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -449,10 +455,10 @@ class ChatMessage__StandardAnswer(Base):
     __tablename__ = "chat_message__standard_answer"
 
     chat_message_id: Mapped[int] = mapped_column(
-        ForeignKey("chat_message.id"), primary_key=True
+        ForeignKey("chat_message.id", ondelete="CASCADE"), primary_key=True
     )
     standard_answer_id: Mapped[int] = mapped_column(
-        ForeignKey("standard_answer.id"), primary_key=True
+        ForeignKey("standard_answer.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -481,13 +487,13 @@ class ConnectorCredentialPair(Base):
         Enum(ConnectorCredentialPairStatus, native_enum=False), nullable=False
     )
     connector_id: Mapped[int] = mapped_column(
-        ForeignKey("connector.id"), primary_key=True
+        ForeignKey("connector.id", ondelete="CASCADE"), primary_key=True
     )
 
     deletion_failure_message: Mapped[str | None] = mapped_column(String, nullable=True)
 
     credential_id: Mapped[int] = mapped_column(
-        ForeignKey("credential.id"), primary_key=True
+        ForeignKey("credential.id", ondelete="CASCADE"), primary_key=True
     )
     # controls whether the documents indexed by this CC pair are visible to all
     # or if they are only visible to those with that are given explicit access
@@ -800,7 +806,7 @@ class IndexAttempt(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     connector_credential_pair_id: Mapped[int] = mapped_column(
-        ForeignKey("connector_credential_pair.id"),
+        ForeignKey("connector_credential_pair.id", ondelete="CASCADE"),
         nullable=False,
     )
 
@@ -821,7 +827,7 @@ class IndexAttempt(Base):
     full_exception_trace: Mapped[str | None] = mapped_column(Text, default=None)
     # Nullable because in the past, we didn't allow swapping out embedding models live
     search_settings_id: Mapped[int] = mapped_column(
-        ForeignKey("search_settings.id"),
+        ForeignKey("search_settings.id", ondelete="CASCADE"),
         nullable=False,
     )
     time_created: Mapped[datetime.datetime] = mapped_column(
@@ -884,7 +890,7 @@ class IndexAttemptError(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     index_attempt_id: Mapped[int] = mapped_column(
-        ForeignKey("index_attempt.id"),
+        ForeignKey("index_attempt.id", ondelete="CASCADE"),
         nullable=True,
     )
 
@@ -926,10 +932,10 @@ class DocumentByConnectorCredentialPair(Base):
     id: Mapped[str] = mapped_column(ForeignKey("document.id"), primary_key=True)
     # TODO: transition this to use the ConnectorCredentialPair id directly
     connector_id: Mapped[int] = mapped_column(
-        ForeignKey("connector.id"), primary_key=True
+        ForeignKey("connector.id", ondelete="CASCADE"), primary_key=True
     )
     credential_id: Mapped[int] = mapped_column(
-        ForeignKey("credential.id"), primary_key=True
+        ForeignKey("credential.id", ondelete="CASCADE"), primary_key=True
     )
 
     connector: Mapped[Connector] = relationship(
@@ -1019,7 +1025,7 @@ class ChatSession(Base):
         ForeignKey("user.id", ondelete="CASCADE"), nullable=True
     )
     assistant_id: Mapped[int | None] = mapped_column(
-        ForeignKey("assistant.id"), nullable=True
+        ForeignKey("assistant.id", ondelete="CASCADE"), nullable=True
     )
     description: Mapped[str] = mapped_column(Text)
     # One-shot direct answering, currently the two types of chats are not mixed
@@ -1032,7 +1038,7 @@ class ChatSession(Base):
         default=ChatSessionSharedStatus.PRIVATE,
     )
     folder_id: Mapped[int | None] = mapped_column(
-        ForeignKey("chat_folder.id"), nullable=True
+        ForeignKey("chat_folder.id", ondelete="CASCADE"), nullable=True
     )
 
     current_alternate_model: Mapped[str | None] = mapped_column(String, default=None)
@@ -1084,10 +1090,12 @@ class ChatMessage(Base):
     __tablename__ = "chat_message"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    chat_session_id: Mapped[int] = mapped_column(ForeignKey("chat_session.id"))
+    chat_session_id: Mapped[int] = mapped_column(
+        ForeignKey("chat_session.id", ondelete="CASCADE")
+    )
 
     alternate_assistant_id = mapped_column(
-        Integer, ForeignKey("assistant.id"), nullable=True
+        Integer, ForeignKey("assistant.id", ondelete="CASCADE"), nullable=True
     )
 
     overridden_model: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -1604,7 +1612,7 @@ class User__Teamspace(Base):
     __tablename__ = "user__teamspace"
 
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
     user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, nullable=True
@@ -1619,10 +1627,10 @@ class Teamspace__ConnectorCredentialPair(Base):
     __tablename__ = "teamspace__connector_credential_pair"
 
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
     cc_pair_id: Mapped[int] = mapped_column(
-        ForeignKey("connector_credential_pair.id"), primary_key=True
+        ForeignKey("connector_credential_pair.id", ondelete="CASCADE"), primary_key=True
     )
     # if `True`, then is part of the current state of the Teamspace
     # if `False`, then is a part of the prior state of the Teamspace
@@ -1644,10 +1652,10 @@ class Assistant__Teamspace(Base):
     __tablename__ = "assistant__teamspace"
 
     assistant_id: Mapped[int] = mapped_column(
-        ForeignKey("assistant.id"), primary_key=True
+        ForeignKey("assistant.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -1655,10 +1663,10 @@ class LLMProvider__Teamspace(Base):
     __tablename__ = "llm_provider__teamspace"
 
     llm_provider_id: Mapped[int] = mapped_column(
-        ForeignKey("llm_provider.id"), primary_key=True
+        ForeignKey("llm_provider.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -1666,10 +1674,10 @@ class DocumentSet__Teamspace(Base):
     __tablename__ = "document_set__teamspace"
 
     document_set_id: Mapped[int] = mapped_column(
-        ForeignKey("document_set.id"), primary_key=True
+        ForeignKey("document_set.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -1677,10 +1685,10 @@ class Credential__Teamspace(Base):
     __tablename__ = "credential__teamspace"
 
     credential_id: Mapped[int] = mapped_column(
-        ForeignKey("credential.id"), primary_key=True
+        ForeignKey("credential.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -1798,10 +1806,10 @@ class TokenRateLimit__Teamspace(Base):
     __tablename__ = "token_rate_limit__teamspace"
 
     rate_limit_id: Mapped[int] = mapped_column(
-        ForeignKey("token_rate_limit.id"), primary_key=True
+        ForeignKey("token_rate_limit.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -1865,7 +1873,9 @@ class User__ExternalTeamspaceId(Base):
     )
     # These group ids have been prefixed by the source type
     external_teamspace_id: Mapped[str] = mapped_column(String, primary_key=True)
-    cc_pair_id: Mapped[int] = mapped_column(ForeignKey("connector_credential_pair.id"))
+    cc_pair_id: Mapped[int] = mapped_column(
+        ForeignKey("connector_credential_pair.id", ondelete="CASCADE")
+    )
 
 
 class UsageReport(Base):
@@ -1905,10 +1915,10 @@ class UsageReport__Teamspace(Base):
     __tablename__ = "usage_report__teamspace"
 
     report_id: Mapped[int] = mapped_column(
-        ForeignKey("usage_reports.id"), primary_key=True
+        ForeignKey("usage_reports.id", ondelete="CASCADE"), primary_key=True
     )
     teamspace_id: Mapped[int] = mapped_column(
-        ForeignKey("teamspace.id"), primary_key=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
 
 
@@ -1922,7 +1932,7 @@ class Workspace(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     instance_id: Mapped[int | None] = mapped_column(
-        ForeignKey("instance.id"), nullable=True
+        ForeignKey("instance.id", ondelete="CASCADE"), nullable=True
     )
     workspace_name: Mapped[str] = mapped_column(Text)
     workspace_description: Mapped[str] = mapped_column(Text, nullable=True)
@@ -1979,7 +1989,7 @@ class WorkspaceSettings(Base):
     )
 
     workspace_id: Mapped[int | None] = mapped_column(
-        ForeignKey("workspace.id"), nullable=True
+        ForeignKey("workspace.id", ondelete="CASCADE"), nullable=True
     )
     workspace: Mapped["Workspace"] = relationship(
         "Workspace", back_populates="settings"
@@ -2011,7 +2021,7 @@ class TeamspaceSettings(Base):
     )
 
     teamspace_id: Mapped[int | None] = mapped_column(
-        ForeignKey("teamspace.id"), nullable=True
+        ForeignKey("teamspace.id", ondelete="CASCADE"), nullable=True
     )
     teamspace: Mapped["Teamspace"] = relationship(
         "Teamspace", back_populates="settings"

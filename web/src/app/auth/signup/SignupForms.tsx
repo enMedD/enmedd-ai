@@ -20,7 +20,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
-  const token = searchParams.get("token") || "";
+  const token = searchParams.get("invitetoken") || "";
 
   // Use the custom hook
   const {
