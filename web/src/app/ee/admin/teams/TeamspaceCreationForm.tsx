@@ -22,6 +22,7 @@ import { Assistants } from "./Assistants";
 import { Input } from "@/components/ui/input";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { useRouter } from "next/navigation";
+import { ImageUpload } from "@/app/admin/settings/ImageUpload";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -41,7 +42,7 @@ export const TeamspaceCreationForm = ({
   documentSets,
 }: TeamspaceCreationFormProps) => {
   const router = useRouter();
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File | null>(null);
   // const [tokenBudget, setTokenBudget] = useState(0);
   // const [periodHours, setPeriodHours] = useState(0);
   const isUpdate = existingTeamspace !== undefined;
@@ -111,8 +112,8 @@ export const TeamspaceCreationForm = ({
           if (response.ok) {
             const { id } = await response.json();
 
-            if (selectedFiles.length > 0) {
-              await uploadLogo(id, selectedFiles[0]);
+            if (selectedFiles) {
+              await uploadLogo(id, selectedFiles);
             }
             // await setTokenRateLimit(id);
             router.refresh();
@@ -155,9 +156,9 @@ export const TeamspaceCreationForm = ({
               <div className="flex flex-col justify-between gap-2 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">Logo</p>
                 <div className="flex items-center w-full gap-2">
-                  <FileUpload
-                    selectedFiles={selectedFiles}
-                    setSelectedFiles={setSelectedFiles}
+                  <ImageUpload
+                    selectedFile={selectedFiles}
+                    setSelectedFile={setSelectedFiles}
                   />
                 </div>
               </div>
