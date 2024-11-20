@@ -43,19 +43,6 @@ const config = {
         ring: "hsl(var(--ring))",
         foreground: "hsl(var(--foreground))",
         // TODO: make a proper palette for this that uses range
-        // brand: {
-        //   50: "#F7D6FF",
-        //   100: "#F0B3FF",
-        //   200: "#E066FF",
-        //   300: "#D11AFF",
-        //   400: "#A300CC",
-        //   500: "#65007E",
-        //   600: "#520066",
-        //   700: "#3D004D",
-        //   800: "#290033",
-        //   900: "#140019",
-        //   950: "#08000A",
-        // },
         brand: {
           50: "var(--brand-50)",
           100: "var(--brand-100)",
