@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import getPalette from "tailwindcss-palette-generator";
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -19,6 +20,7 @@ export default function General() {
     return null;
   }
   const workspaces = settings.workspaces;
+
   const { toast } = useToast();
   const router = useRouter();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
@@ -36,44 +38,6 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-
-  const [palette, setPalette] = useState(null);
-
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch(
-          "https://tailwind.simeongriggs.dev/api/brand/2522FC",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        console.log("G");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
@@ -133,6 +97,46 @@ export default function General() {
     }
   }
 
+  async function updateWorkspaceTheme(workspaceId: number, brandColor: string) {
+    const palette = getPalette([
+      {
+        color: brandColor,
+        name: "primary",
+        shade: 500,
+        shades: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+      },
+      {
+        color: "#2a9d8f",
+        name: "secondary",
+        shade: 500,
+        shades: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+      },
+    ]);
+
+    const themeData = {
+      brand: palette.primary,
+      secondary: palette.secondary,
+    };
+
+    const response = await fetch(
+      `/api/admin/settings/themes?workspace_id=${workspaceId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(themeData),
+      }
+    );
+
+    if (response.ok) {
+      router.refresh();
+    } else {
+      const error = await response.json();
+      console.error("Failed to update theme:", error.detail);
+    }
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -144,10 +148,6 @@ export default function General() {
 
   return (
     <div className="pt-6">
-      <div>
-        <h1>Fetched Data</h1>
-        <pre>{data}</pre>
-      </div>
       <Formik
         initialValues={{
           workspace_name: workspaces?.workspace_name || null,
@@ -214,15 +214,7 @@ export default function General() {
               body: formData,
             });
 
-            if (response.ok) {
-              const responseData = await response.json();
-              values.custom_header_logo = responseData.file_path;
-              toast({
-                title: "Header logo uploaded",
-                description: "The header logo has been successfully uploaded.",
-                variant: "success",
-              });
-            } else {
+            if (!response.ok) {
               const errorMsg = (await response.json()).detail;
               toast({
                 title: "Failed to upload header logo",
@@ -253,16 +245,34 @@ export default function General() {
               formikHelpers.setSubmitting(false);
               return;
             }
+
+            const headerLogoResponse = await fetch(
+              "/api/admin/workspace/header-logo",
+              {
+                method: "PUT",
+                body: formData,
+              }
+            );
+
+            if (!headerLogoResponse.ok) {
+              const errorMsg = (await headerLogoResponse.json()).detail;
+              toast({
+                title: "Failed to upload header logo after logotype",
+                description: `Error: ${errorMsg}`,
+                variant: "destructive",
+              });
+              formikHelpers.setSubmitting(false);
+              return;
+            }
+          }
+
+          if (values.brand_color !== workspaces?.brand_color) {
+            await updateWorkspaceTheme(0, values.brand_color);
           }
 
           formikHelpers.setValues(values);
           await updateWorkspaces(values);
-
-          toast({
-            title: "Updated Successfully",
-            description: "Workspace successfully updated.",
-            variant: "success",
-          });
+          window.location.reload();
         }}
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (
@@ -276,7 +286,7 @@ export default function General() {
                   >
                     Workspace Name
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     The custom name you are giving for your workspace. This will
                     replace &#39;Arnold AI&#39; everywhere in the UI.
                   </p>
@@ -303,7 +313,7 @@ export default function General() {
                   >
                     Description
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     {`The custom description metadata you are giving ${
                       values.workspace_name || "Arnold AI"
                     } for your workspace.\
@@ -333,7 +343,7 @@ export default function General() {
                   >
                     Logo
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     Specify your own logo to replace the standard Arnold AI
                     logo.
                   </p>
@@ -357,7 +367,7 @@ export default function General() {
                   >
                     Header Logo
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     Specify your own header logo to replace the standard Arnold
                     AI header logo.
                   </p>
@@ -381,7 +391,7 @@ export default function General() {
                   >
                     Brand Theme
                   </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5">
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     Select your customize brand color.
                   </p>
                 </div>
@@ -397,7 +407,7 @@ export default function General() {
                     />
 
                     <div className="flex gap-2">
-                      {workspaces?.brand_color && (
+                      {/* {workspaces?.brand_color && (
                         <div
                           className="w-10 h-10 rounded-full border-white border-2 cursor-pointer shrink-0"
                           style={{
@@ -405,9 +415,9 @@ export default function General() {
                             outline: `1px solid ${workspaces?.brand_color}`,
                           }}
                         />
-                      )}
+                      )} */}
                       <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                      <div className="w-10 h-10 bg-background-inverted rounded-full outline-background-ibg-background-inverted outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                      {/* <div className="w-10 h-10 bg-background-inverted rounded-full cursor-pointer shrink-0" /> */}
                     </div>
                   </div>
                 </div>
@@ -418,7 +428,7 @@ export default function General() {
               <Button type="submit">Update</Button>
             </div>
 
-            <div className="pt-20">
+            <div className="mt-20 border-t">
               {/* <div className="py-8 border-b">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
@@ -428,7 +438,7 @@ export default function General() {
                     >
                       Custom Domain
                     </Label>
-                    <p className="text-sm text-muted-foreground pb-1.5">
+                    <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                       Custom domains allow you to serve your site from a domain
                     </p>
                   </div>
@@ -458,14 +468,16 @@ export default function General() {
                     >
                       SMTP
                     </Label>
-                    <p className="text-sm text-muted-foreground pb-1.5">
+                    <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                       Enables the exchange of emails between servers.
                     </p>
                   </div>
 
                   <div className="md:w-[500px]">
                     <div className="flex flex-col items-end">
-                      <div className="w-full flex flex-col gap-4">
+                      <div
+                        className={`w-full flex flex-col ${!isEditing ? "gap-4" : ""}`}
+                      >
                         {isEditing ? (
                           <>
                             <TextFormField
@@ -581,6 +593,7 @@ export default function General() {
                             <Button
                               onClick={() => setIsEditing(true)}
                               type="button"
+                              variant="outline"
                             >
                               Edit
                             </Button>

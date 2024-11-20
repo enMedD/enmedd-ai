@@ -2053,7 +2053,9 @@ export function ChatPage({
                               (selectedMessageForDocDisplay !== null &&
                                 selectedMessageForDocDisplay ===
                                   message.messageId) ||
-                              i === messageHistory.length - 1;
+                              (selectedMessageForDocDisplay ===
+                                TEMP_USER_MESSAGE_ID &&
+                                i === messageHistory.length - 1);
                             const previousMessage =
                               i !== 0 ? messageHistory[i - 1] : null;
 

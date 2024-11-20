@@ -90,7 +90,7 @@ export function LabelWithTooltip({
 }
 
 export function SubLabel({ children }: { children: string | JSX.Element }) {
-  return <p className="text-sm text-muted-foreground">{children}</p>;
+  return <p className="text-sm text-muted-foreground pb-1.5">{children}</p>;
 }
 
 export function ManualErrorMessage({ children }: { children: string }) {
@@ -544,7 +544,6 @@ export function TextArrayField<T extends Yup.AnyObject>({
                 arrayHelpers.push("");
               }}
               type="button"
-              className="mt-3 "
             >
               <Plus size={16} /> Add New
             </Button>

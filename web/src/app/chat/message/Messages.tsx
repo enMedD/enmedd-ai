@@ -521,7 +521,7 @@ export const AIMessage = ({
           )}
         </div>
         {handleFeedback && (
-          <div className="flex flex-row gap-x-0.5 pl-1 md:pl-12 mt-1.5">
+          <div className="flex flex-row gap-x-0.5 pl-1 md:pl-14 mt-1.5">
             <div className="flex justify-start w-full gap-x-0.5">
               {includeMessageSwitcher && (
                 <div className="-mx-1 mr-auto">
