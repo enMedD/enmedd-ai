@@ -193,7 +193,11 @@ export default async function Home({
             shouldDisplayNoSources: shouldDisplayNoSourcesModal,
           }}
         >
-          <BarLayout user={user} BarComponent={SearchSidebar} />
+          <BarLayout
+            user={user}
+            teamspaceId={params.teamspaceId}
+            BarComponent={SearchSidebar}
+          />
           {shouldShowWelcomeModal && <WelcomeModal user={user} />}
           {shouldDisplayNoSourcesModal && <NoSourcesModal />}
           {shouldDisplaySourcesIncompleteModal && (

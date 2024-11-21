@@ -155,7 +155,7 @@ export const TeamspaceCreationForm = ({
                 />
               </div>
 
-              <div className="flex flex-col justify-between gap-2 lg:flex-row">
+              <div className="flex flex-col justify-between gap-2 lg:flex-row pb-6">
                 <p className="w-1/2 font-semibold whitespace-nowrap">Logo</p>
                 <div className="flex items-center w-full gap-2">
                   <ImageUpload
