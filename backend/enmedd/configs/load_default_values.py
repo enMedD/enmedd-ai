@@ -39,8 +39,10 @@ def load_workspace_from_yaml(
             id=workspace["id"],
             workspace_name=workspace["workspace_name"],
             instance_id=workspace["instance_id"],
-            custom_logo=workspace["custom_logo"] if not None else None,
-            custom_header_logo=workspace["custom_header_logo"] if not None else None,
+            custom_logo=workspace["custom_logo"],
+            custom_header_logo=workspace["custom_header_logo"],
+            brand_color=workspace["brand_color"],
+            secondary_color=workspace["secondary_color"],
             db_session=db_session,
             commit=True,
         )
