@@ -5,6 +5,8 @@ from fastapi import Response
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
+from ee.enmedd.db.teamspace import check_assistant_document_set
+from ee.enmedd.db.teamspace import check_document_set_connector_credential_pair
 from ee.enmedd.db.teamspace import fetch_teamspace
 from ee.enmedd.db.teamspace import insert_teamspace
 from ee.enmedd.db.teamspace import prepare_teamspace_for_deletion
@@ -107,15 +109,38 @@ def create_teamspace(
     current_user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
-    # try:
-    db_teamspace = insert_teamspace(db_session, teamspace, creator_id=current_user.id)
-    # except IntegrityError:
-    #     raise HTTPException(
-    #         400,
-    #         f"Teamspace with name '{teamspace.name}' already exists. Please "
-    #         + "choose a different name.",
-    #     )
-    return Teamspace.from_model(db_teamspace)
+    try:
+        updated_document_set_ids = set()
+        for assistant_id in teamspace.assistant_ids:
+            updated_document_set_ids.update(
+                check_assistant_document_set(
+                    db_session=db_session,
+                    assistant_id=assistant_id,
+                    document_set_ids=teamspace.document_set_ids,
+                )
+            )
+        teamspace.document_set_ids = list(updated_document_set_ids)
+
+        updated_cc_pair_ids = set(
+            check_document_set_connector_credential_pair(
+                db_session=db_session,
+                document_set_ids=teamspace.document_set_ids,
+                cc_pair_ids=teamspace.cc_pair_ids,
+            )
+        )
+        teamspace.cc_pair_ids = list(updated_cc_pair_ids)
+
+        db_teamspace = insert_teamspace(
+            db_session, teamspace, creator_id=current_user.id
+        )
+
+        return Teamspace.from_model(db_teamspace)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create teamspace: {str(e)}",
+        )
 
 
 @admin_router.patch("/admin/teamspace/{teamspace_id}")
@@ -126,6 +151,31 @@ def patch_teamspace(
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     try:
+        updated_document_set_ids = set()
+        updated_cc_pair_ids = set()
+
+        for assistant_id in teamspace.assistant_ids:
+            updated_document_set_ids.update(
+                check_assistant_document_set(
+                    db_session=db_session,
+                    assistant_id=assistant_id,
+                    document_set_ids=teamspace.document_set_ids,
+                )
+            )
+
+        teamspace.document_set_ids = list(updated_document_set_ids)
+
+        for document_set_id in teamspace.document_set_ids:
+            updated_cc_pair_ids.update(
+                check_document_set_connector_credential_pair(
+                    db_session=db_session,
+                    document_set_ids=[document_set_id],
+                    cc_pair_ids=teamspace.cc_pair_ids,
+                )
+            )
+
+        teamspace.cc_pair_ids = list(updated_cc_pair_ids)
+
         return Teamspace.from_model(
             update_teamspace(db_session, teamspace_id, teamspace)
         )
