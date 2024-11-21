@@ -6,10 +6,10 @@ import {
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { SideBar } from "../SideBar";
-import { BarLayout } from "../BarLayout";
-import { AdminBar } from "./AdminBar";
 import { HealthCheckBanner } from "../health/healthcheck";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
+import { GlobalSidebar } from "./GlobalSidebar";
+import { AdminSidebar } from "./AdminSidebar";
 
 export async function Layout({
   children,
@@ -57,14 +57,26 @@ export async function Layout({
   }
 
   return (
-    <div className="h-full">
+    <>
       <HealthCheckBanner />
-      <div className="flex h-full">
-        <AdminBar user={user}>
-          <SideBar isTeamspace={isTeamspace} />
-        </AdminBar>
-        {children}
-      </div>
-    </div>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "350px",
+          } as React.CSSProperties
+        }
+        className="h-full w-full"
+      >
+        <GlobalSidebar user={user}>
+          <AdminSidebar />
+        </GlobalSidebar>
+        <SidebarInset className="w-full overflow-hidden">
+          <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0">
+            <SidebarTrigger className="-ml-1" />
+          </header>
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </>
   );
 }
