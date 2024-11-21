@@ -28,14 +28,15 @@ export const useQueryAnalytics = (
   teamspaceId?: string | string[]
 ) => {
   const url = buildApiPath(
-    teamspaceId
-      ? `/api/analytics/admin/query?teamspace_id=${teamspaceId}`
-      : "/api/analytics/admin/query",
-    {
-      start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
-      end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
-    }
+    `/api/analytics/admin/query${
+      teamspaceId ? `?teamspace_id=${teamspaceId}` : ""
+    }${
+      timeRange.from && timeRange.to
+        ? `&start=${convertDateToStartOfDay(timeRange.from)?.toISOString()}&end=${convertDateToEndOfDay(timeRange.to)?.toISOString()}`
+        : ""
+    }`
   );
+
   const swrResponse = useSWR<QueryAnalytics[]>(url, errorHandlingFetcher);
 
   return {
@@ -49,14 +50,15 @@ export const useUserAnalytics = (
   teamspaceId?: string | string[]
 ) => {
   const url = buildApiPath(
-    teamspaceId
-      ? `/api/analytics/admin/user?teamspace_id=${teamspaceId}`
-      : "/api/analytics/admin/user",
-    {
-      start: convertDateToStartOfDay(timeRange.from)?.toISOString(),
-      end: convertDateToEndOfDay(timeRange.to)?.toISOString(),
-    }
+    `/api/analytics/admin/user${
+      teamspaceId ? `?teamspace_id=${teamspaceId}` : ""
+    }${
+      timeRange.from && timeRange.to
+        ? `&start=${convertDateToStartOfDay(timeRange.from)?.toISOString()}&end=${convertDateToEndOfDay(timeRange.to)?.toISOString()}`
+        : ""
+    }`
   );
+
   const swrResponse = useSWR<UserAnalytics[]>(url, errorHandlingFetcher);
 
   return {

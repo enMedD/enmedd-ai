@@ -581,6 +581,7 @@ export default function General() {
                           setFieldValue("brand_color", e.target.value);
                           setPrimaryColor(e.target.value);
                         }}
+                        required
                       />
 
                       <Popover>
@@ -619,6 +620,7 @@ export default function General() {
                           setFieldValue("secondary_color", e.target.value);
                           setSecondaryColor(e.target.value);
                         }}
+                        required
                       />
 
                       <Popover>
