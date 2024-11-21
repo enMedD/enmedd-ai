@@ -75,6 +75,35 @@ export default function General() {
     fetchThemes();
   }, []);
 
+  const [primaryColor, setPrimaryColor] = useState("#65007E");
+  const [secondaryColor, setSecondaryColor] = useState("#EEB3FE");
+
+  useEffect(() => {
+    const fetchThemes = async () => {
+      try {
+        const response = await fetch("/api/themes", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const themes = await response.json();
+
+        setPrimaryColor(themes.brand["500"]);
+        setSecondaryColor(themes.secondary["500"]);
+      } catch (error) {
+        console.error("Error fetching themes:", error);
+      }
+    };
+
+    fetchThemes();
+  }, []);
+
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
       method: "PUT",
