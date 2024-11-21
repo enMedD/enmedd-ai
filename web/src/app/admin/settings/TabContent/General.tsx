@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Workspaces } from "@/app/admin/settings/interfaces";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
@@ -13,6 +13,12 @@ import { ImageUpload } from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import getPalette from "tailwindcss-palette-generator";
+import { HexColorPicker } from "react-colorful";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -38,33 +44,11 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [brand500, setBrand500] = useState("Loading...");
-  const [secondary500, setSecondary500] = useState("Loading...");
 
-  useEffect(() => {
-    const fetchThemes = async () => {
-      try {
-        const response = await fetch("/api/themes", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const themes = await response.json();
-        setBrand500(themes.brand["500"]);
-        setSecondary500(themes.secondary["500"]);
-      } catch (error) {
-        console.error("Error fetching themes:", error);
-      }
-    };
-
-    fetchThemes();
-  }, []);
+  const [primaryColor, setPrimaryColor] = useState(workspaces?.brand_color);
+  const [secondaryColor, setSecondaryColor] = useState(
+    workspaces?.secondary_color
+  );
 
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
@@ -421,7 +405,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="py-8 border-b">
+            {/* <div className="py-8 border-b">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -435,6 +419,11 @@ export default function General() {
                   </p>
                 </div>
 
+                <HexColorPicker
+                  color={values.brand_color || "#000000"}
+                  onChange={(color) => setFieldValue("brand_color", color)}
+                />
+
                 <div className="md:w-[500px] space-y-2">
                   <div className="flex items-center gap-4">
                     <span className="text-sm text-subtle w-32">
@@ -442,17 +431,13 @@ export default function General() {
                     </span>
                     <div className="flex flex-col gap-2">
                       <div className="flex gap-2">
-                        <TextFormField
+                        <Input
                           name="brand_color"
-                          width="w-32"
-                          optional
-                          noPadding
-                          value={brand500}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            setBrand500(e.target.value);
-                          }}
+                          className="w-32"
+                          value={values.brand_color || ""}
+                          onChange={(e) =>
+                            setFieldValue("brand_color", e.target.value)
+                          }
                         />
 
                         <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
@@ -465,18 +450,197 @@ export default function General() {
                       Secondary color:
                     </span>
                     <div className="flex gap-2">
-                      <TextFormField
+                      <Input
                         name="secondary_color"
-                        width="w-32"
-                        optional
-                        noPadding
-                        value={secondary500}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setSecondary500(e.target.value);
-                        }}
+                        className="w-32"
+                        value={values.secondary_color || ""}
+                        onChange={(e) =>
+                          setFieldValue("secondary_color", e.target.value)
+                        }
                       />
 
                       <div className="w-10 h-10 bg-secondary-500 rounded-full outline-secondary-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+
+            {/* <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_description"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Brand Theme
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                    Select your customized brand color.
+                  </p>
+                </div>
+
+                {isPickerVisible && (
+                  <HexColorPicker
+                    color={
+                      activeColor === "primary" ? primaryColor : secondaryColor
+                    }
+                    onChange={(color) => {
+                      if (activeColor === "primary") {
+                        setPrimaryColor(color);
+                        setFieldValue("brand_color", color);
+                      } else {
+                        setSecondaryColor(color);
+                        setFieldValue("secondary_color", color);
+                      }
+                    }}
+                  />
+                )}
+
+                <div className="md:w-[500px] space-y-2">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-subtle w-32">
+                      Primary color:
+                    </span>
+                    <div className="flex gap-2">
+                      <Input
+                        name="brand_color"
+                        className="w-32"
+                        value={values.brand_color || primaryColor}
+                        onChange={(e) => {
+                          setFieldValue("brand_color", e.target.value);
+                          setPrimaryColor(e.target.value);
+                        }}
+                      />
+
+                      <div
+                        onClick={() => toggleColorPicker("primary")}
+                        className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                        style={{
+                          backgroundColor: primaryColor,
+                          outlineColor: primaryColor,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-subtle w-32">
+                      Secondary color:
+                    </span>
+                    <div className="flex gap-2">
+                      <Input
+                        name="secondary_color"
+                        className="w-32"
+                        value={values.secondary_color || secondaryColor}
+                        onChange={(e) => {
+                          setFieldValue("secondary_color", e.target.value);
+                          setSecondaryColor(e.target.value);
+                        }}
+                      />
+
+                      <div
+                        onClick={() => toggleColorPicker("secondary")}
+                        className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                        style={{
+                          backgroundColor: secondaryColor,
+                          outlineColor: secondaryColor,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+
+            <div className="py-8 border-b">
+              <div className="flex gap-5 flex-col md:flex-row">
+                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                  <Label
+                    htmlFor="workspace_description"
+                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                  >
+                    Brand Theme
+                  </Label>
+                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                    Select your customized brand color.
+                  </p>
+                </div>
+
+                <div className="md:w-[500px] space-y-2">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-subtle w-32">
+                      Primary color:
+                    </span>
+                    <div className="flex gap-2">
+                      <Input
+                        name="brand_color"
+                        className="w-32"
+                        value={values.brand_color || primaryColor}
+                        onChange={(e) => {
+                          setFieldValue("brand_color", e.target.value);
+                          setPrimaryColor(e.target.value);
+                        }}
+                      />
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <div
+                            className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                            style={{
+                              backgroundColor: primaryColor,
+                              outlineColor: primaryColor,
+                            }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <HexColorPicker
+                            color={primaryColor}
+                            onChange={(color) => {
+                              setPrimaryColor(color);
+                              setFieldValue("brand_color", color);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-subtle w-32">
+                      Secondary color:
+                    </span>
+                    <div className="flex gap-2">
+                      <Input
+                        name="secondary_color"
+                        className="w-32"
+                        value={values.secondary_color || secondaryColor}
+                        onChange={(e) => {
+                          setFieldValue("secondary_color", e.target.value);
+                          setSecondaryColor(e.target.value);
+                        }}
+                      />
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <div
+                            className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                            style={{
+                              backgroundColor: secondaryColor,
+                              outlineColor: secondaryColor,
+                            }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <HexColorPicker
+                            color={secondaryColor}
+                            onChange={(color) => {
+                              setSecondaryColor(color);
+                              setFieldValue("secondary_color", color);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 </div>
