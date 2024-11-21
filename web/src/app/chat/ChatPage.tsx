@@ -1799,7 +1799,7 @@ export function ChatPage({
         )
       )}
 
-      {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
+      {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit.
       Only used in the EE version of the app. */}
 
       <ChatPopup />
@@ -1850,7 +1850,7 @@ export function ChatPage({
                     className={`w-full sm:relative flex flex-col lg:px-10 3xl:px-0 ${
                       !retrievalEnabled ? "" : ""
                     }
-                      flex-auto transition-margin duration-300 
+                      flex-auto transition-margin duration-300
                       overflow-x-auto  overflow-y-auto
                       `}
                     {...getRootProps()}
@@ -1917,7 +1917,7 @@ export function ChatPage({
                       className="w-full h-full flex flex-col overflow-x-hidden relative scroll-smooth flex-1 pt-6 lg:pt-0"
                       ref={scrollableDivRef}
                     >
-                      {/* ChatBanner is a custom banner that displays a admin-specified message at 
+                      {/* ChatBanner is a custom banner that displays a admin-specified message at
                       the top of the chat page. Only used in the EE version of the app. */}
                       {/*  <ChatBanner /> */}
 

@@ -16,21 +16,18 @@ export function DocumentSetSelectable({
     uniqueSources.add(ccPairDescriptor.connector.source);
   });
 
-  // Only trigger onSelect when necessary
-  const handleClick = () => {
-    if (!isSelected) {
-      onSelect(); // Call only when not selected
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    if (typeof checked === "boolean") {
+      onSelect();
     }
   };
 
   return (
-    <div
-      key={documentSet.id}
+    <label
       className={
         `p-4 w-72 rounded-regular border border-border flex justify-between gap-3 cursor-pointer ` +
         (isSelected ? " bg-hover" : " bg-background hover:bg-hover-light")
       }
-      onClick={handleClick} // Changed this part
     >
       <div className="flex gap-3">
         <div className="pt-0.5 space-y-2">
@@ -43,10 +40,7 @@ export function DocumentSetSelectable({
           <div className="text-sm pt-1">{documentSet.description}</div>
         </div>
       </div>
-      <Checkbox
-        checked={isSelected}
-        onChange={() => null} // Ensure this is controlled externally
-      />
-    </div>
+      <Checkbox checked={isSelected} onCheckedChange={handleCheckboxChange} />
+    </label>
   );
 }
