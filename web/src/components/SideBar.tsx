@@ -251,30 +251,17 @@ export const SideBar: React.FC<SideBarProps> = ({ isTeamspace }) => {
           {
             name: "Performance",
             items: [
-              // {
-              //   name: (
-              //     <div className="flex items-center gap-2">
-              //       <Activity size={20} />
-              //       <div>Usage Statistics</div>
-              //     </div>
-              //   ),
-              //   link: teamspaceId
-              //     ? `/t/${teamspaceId}/admin/performance/usage`
-              //     : `/admin/performance/usage`,
-              // },
-              ...(!isTeamspace
-                ? [
-                    {
-                      name: (
-                        <div className="flex items-center gap-2">
-                          <Activity size={20} />
-                          <div>Usage Statistics</div>
-                        </div>
-                      ),
-                      link: "/admin/performance/usage",
-                    },
-                  ]
-                : []),
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <Activity size={20} />
+                    <div>Usage Statistics</div>
+                  </div>
+                ),
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/performance/usage`
+                  : `/admin/performance/usage`,
+              },
               ...(dynamicSettings?.featureFlags.query_history
                 ? [
                     {
