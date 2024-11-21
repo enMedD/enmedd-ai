@@ -55,7 +55,7 @@ const DataSourceContent = ({
           {filteredDataSources?.map((dataSource) => (
             <div
               key={dataSource.id}
-              className="border rounded-md flex items-start gap-4 p-4"
+              className="border rounded-md flex items-start gap-4 p-4 cursor-pointer"
               onClick={() => onSelect && onSelect(dataSource)}
             >
               <Globe className="shrink-0 my-auto" />

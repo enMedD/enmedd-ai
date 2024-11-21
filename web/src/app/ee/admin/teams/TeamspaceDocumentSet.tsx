@@ -51,7 +51,7 @@ const DocumentSetContent = ({
           {filteredDocumentSets.map((documentSet) => (
             <div
               key={documentSet.id}
-              className="border rounded-md flex items-start gap-4 p-4"
+              className="border rounded-md flex items-start gap-4 p-4 cursor-pointer"
               onClick={() => onSelect && onSelect(documentSet)}
             >
               <Globe className="shrink-0" />
