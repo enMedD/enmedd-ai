@@ -29,6 +29,7 @@ import { checkUserIsNoAuthUser, logout } from "@/lib/user";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from "next/navigation";
 import { LOGOUT_DISABLED } from "@/lib/constants";
+import { FeatureFlagWrapper } from "./feature_flag/FeatureFlagWrapper";
 import { UserProfile } from "./UserProfile";
 
 export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
@@ -91,12 +92,12 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {settings?.featureFlags.profile_page && (
+              <FeatureFlagWrapper flag="profile_page">
                 <DropdownMenuItem>
                   <UserIcon size={16} strokeWidth={1.5} />
                   Profile Settings
                 </DropdownMenuItem>
-              )}
+              </FeatureFlagWrapper>
 
               <DropdownMenuItem>
                 <Link

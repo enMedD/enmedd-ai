@@ -36,7 +36,6 @@ import { GroupsIcon, RobotIcon } from "../icons/icons";
 import { Logo } from "../Logo";
 import Image from "next/image";
 import ArnoldAi from "../../../public/arnold_ai.png";
-import { buildImgUrl } from "@/app/chat/files/images/utils";
 
 interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
   isTeamspace?: boolean;
@@ -325,15 +324,18 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
   return (
     <Sidebar collapsible="none" className="flex-1 flex">
       <SidebarHeader className="gap-3.5 border-b py-[17px] md:py-[9px] mx-3">
-        {workspaces && workspaces.custom_header_logo ? (
-          <img
-            src={buildImgUrl(workspaces?.custom_header_logo)}
-            alt="Logo"
-            className="h-8 object-contain w-full"
-          />
-        ) : (
-          <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-        )}
+        <div className="flex h-full justify-center items-center gap-1">
+          {workspaces && workspaces.use_custom_logo ? (
+            <Logo />
+          ) : (
+            <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
+          )}
+          <span className="text-lg font-semibold whitespace-nowrap">
+            {workspaces && workspaces.workspace_name
+              ? workspaces.workspace_name
+              : "Arnold AI"}
+          </span>
+        </div>
       </SidebarHeader>
       <SidebarContent className="gap-0">
         {sidebarCollections
