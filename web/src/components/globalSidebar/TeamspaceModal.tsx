@@ -11,6 +11,9 @@ import Image from "next/image";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { useGradient } from "@/hooks/useGradient";
 
+import config from "../../../tailwind-themes/tailwind.config";
+const tailwindColors = config.theme.extend.colors;
+
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
   defaultPage: string;
