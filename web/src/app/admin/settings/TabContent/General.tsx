@@ -222,7 +222,7 @@ export default function General() {
           workspace_description: workspaces?.workspace_description || null,
           use_custom_logo: workspaces?.use_custom_logo || false,
           use_custom_logotype: workspaces?.use_custom_logotype || false,
-          custom_header_logo: workspaces?.custom_header_logo || "",
+          custom_header_logo: workspaces?.custom_header_logo || null,
           custom_header_content: workspaces?.custom_header_content || "",
           two_lines_for_chat_header:
             workspaces?.two_lines_for_chat_header || false,

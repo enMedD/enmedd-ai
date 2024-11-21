@@ -1,7 +1,10 @@
 import yaml
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from enmedd.db.instance import upsert_instance
+from enmedd.db.models import Instance
+from enmedd.db.models import Workspace
 from enmedd.db.workspace import upsert_workspace
 
 DEFAULT_DATA_YAML = "./enmedd/configs/default_values.yaml"
@@ -11,6 +14,9 @@ def load_default_instance_from_yaml(
     db_session: Session,
     default_data_yaml: str = DEFAULT_DATA_YAML,
 ) -> None:
+    if db_session.scalar(select(Instance.id).limit(1)):
+        return
+
     with open(default_data_yaml, "r") as file:
         data = yaml.safe_load(file)
 
@@ -30,6 +36,9 @@ def load_workspace_from_yaml(
     db_session: Session,
     default_data_yaml: str = DEFAULT_DATA_YAML,
 ) -> None:
+    if db_session.scalar(select(Workspace.id).limit(1)):
+        return
+
     with open(default_data_yaml, "r") as file:
         data = yaml.safe_load(file)
 
