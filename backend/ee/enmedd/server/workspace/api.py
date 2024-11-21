@@ -1,6 +1,5 @@
 from datetime import datetime
 from datetime import timezone
-from sqlite3 import IntegrityError
 from typing import Any
 
 import httpx
@@ -15,7 +14,6 @@ from pydantic import Field
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
-from ee.enmedd.server.workspace.models import WorkspaceCreate
 from ee.enmedd.server.workspace.models import Workspaces
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
 from ee.enmedd.server.workspace.store import _LOGOTYPE_FILENAME
@@ -31,7 +29,6 @@ from enmedd.auth.users import UserManager
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.db.workspace import get_workspace_settings
-from enmedd.db.workspace import insert_workspace
 from enmedd.db.workspace import upsert_workspace
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.utils.logger import setup_logger
@@ -114,23 +111,6 @@ async def refresh_access_token(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred",
         )
-
-
-@admin_router.post("")
-def create_workspace(
-    workspace: WorkspaceCreate,
-    user: User = Depends(current_workspace_admin_user),
-    db_session: Session = Depends(get_session),
-) -> Workspaces:
-    try:
-        # Insert the workspace and its instance
-        db_workspace = insert_workspace(db_session, workspace, user_id=user.id)
-    except IntegrityError:
-        raise HTTPException(
-            400,
-            f"Workspace with name '{workspace.workspace_name}' already exists. Please choose a different name.",
-        )
-    return Workspaces.from_model(db_workspace)
 
 
 # @admin_router.put("/{workspace_id}")

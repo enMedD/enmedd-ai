@@ -14,12 +14,22 @@ const defaultTheme = {
     900: "#140019",
     950: "#08000A",
   },
-  secondary: {},
+  secondary: {
+    50: "#FDF5FF",
+    100: "#FCF0FF",
+    200: "#F8E1FF",
+    300: "#F5D2FE",
+    400: "#F1C3FE",
+    500: "#EEB3FE",
+    600: "#DA5EFD",
+    700: "#C708FC",
+    800: "#8702AB",
+    900: "#430156",
+    950: "#200128",
+  },
 };
 
 export function useTheme() {
-  const [themeClass, setThemeClass] = useState("default-theme");
-
   useEffect(() => {
     async function fetchAndApplyTheme() {
       try {

@@ -44,6 +44,7 @@ import {
   ThumbsDownIcon,
   ThumbsUp,
   ThumbsUpIcon,
+  User,
   Wrench,
 } from "lucide-react";
 import { FeedbackModal } from "../modal/FeedbackModal";
@@ -705,6 +706,7 @@ export const HumanMessage = ({
   onMessageSelection,
   user,
   stopGenerating = () => null,
+  isShared,
 }: {
   content: string;
   files?: FileDescriptor[];
@@ -714,6 +716,7 @@ export const HumanMessage = ({
   onMessageSelection?: (messageId: number) => void;
   user?: UserTypes | null;
   stopGenerating?: () => void;
+  isShared?: boolean;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -759,7 +762,7 @@ export const HumanMessage = ({
         <div className="">
           <div className="flex">
             <div className="mx-1">
-              <UserProfile user={user} size={40} />
+              <UserProfile user={user} size={40} isShared={isShared} />
             </div>
 
             <div className="my-auto ml-2 font-bold text-inverted-inverted">

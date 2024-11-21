@@ -2,9 +2,7 @@ import Link from "next/link";
 import { CustomTooltip } from "./CustomTooltip";
 import { MinimalTeamspaceSnapshot } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
-
-import config from "../../tailwind-themes/tailwind.config";
-const tailwindColors = config.theme.extend.colors;
+import { useGradient } from "@/hooks/useGradient";
 
 interface TeamspaceBubbleProps {
   teamspace?: MinimalTeamspaceSnapshot | undefined;
@@ -18,18 +16,6 @@ export const TeamspaceBubble = ({
   teamspaceId,
 }: TeamspaceBubbleProps) => {
   if (!teamspace) return null;
-
-  const generateGradient = (teamspaceName: string) => {
-    const colors = [
-      tailwindColors.brand[100],
-      tailwindColors.brand[200],
-      tailwindColors.brand[300],
-      tailwindColors.brand[400],
-      tailwindColors.brand[500],
-    ];
-    const index = teamspaceName.charCodeAt(0) % colors.length;
-    return `linear-gradient(135deg, ${colors[index]}, ${colors[(index + 1) % colors.length]})`;
-  };
 
   return (
     <CustomTooltip
@@ -48,7 +34,7 @@ export const TeamspaceBubble = ({
             />
           ) : (
             <div
-              style={{ background: generateGradient(teamspace.name) }}
+              style={{ background: useGradient(teamspace.name) }}
               className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "w-8 h-8 rounded-sm" : "w-full h-full"}`}
             >
               {teamspace.name.charAt(0)}
