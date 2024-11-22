@@ -8,8 +8,8 @@ import {
 import { redirect } from "next/navigation";
 import { HealthCheckBanner } from "../health/healthcheck";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
-import { GlobalSidebar } from "./GlobalSidebar";
 import { AdminSidebar } from "./AdminSidebar";
+import { GlobalSidebar } from "../globalSidebar/GlobalSidebar";
 
 export async function Layout({
   children,

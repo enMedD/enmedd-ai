@@ -149,7 +149,7 @@ export function GlobalSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user?: User | null;
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }) {
   const { teamspaceId } = useParams();
   const { setOpen } = useSidebar();
@@ -262,7 +262,7 @@ export function GlobalSidebar({
                         children: teamspace.name,
                         hidden: false,
                       }}
-                      className={`!p-0 h-8 ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500" : ""}`}
+                      className={`!p-0 w-8 h-8 ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
                       isActive={teamspace.id.toString() === teamspaceId}
                     >
                       <Link
@@ -274,7 +274,7 @@ export function GlobalSidebar({
                             src={buildImgUrl(teamspace.logo)}
                             alt="Teamspace Logo"
                             // className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "w-7 h-7 rounded-[8px]" : "w-full h-full"}`}
-                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-7 w-7 rounded-sm" : "w-9 h-full"}`}
+                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[26px] w-[26px] rounded-xs" : "w-full h-full"}`}
                             width={28}
                             height={28}
                           />
@@ -284,7 +284,7 @@ export function GlobalSidebar({
                               background: generateGradient(teamspace.name),
                             }}
                             // className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "w-7 h-7 rounded-[8px]" : "w-full h-full"}`}
-                            className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-7 w-8 rounded-sm" : "w-full h-full"}`}
+                            className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[26px] w-[26px] rounded-xs" : "w-full h-full"}`}
                           >
                             {teamspace.name.charAt(0)}
                           </div>
@@ -301,7 +301,7 @@ export function GlobalSidebar({
                         children: "More",
                         hidden: false,
                       }}
-                      className="p-0 h-8 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
+                      className="p-0 w-8 h-8 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
                     >
                       <Ellipsis size={16} />
                     </SidebarMenuButton>

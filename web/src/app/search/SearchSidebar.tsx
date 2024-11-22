@@ -158,6 +158,7 @@ import {
 import Link from "next/link";
 import { Command, MessageCircleMore, Search } from "lucide-react";
 import { PageTab } from "@/components/PageTab";
+import { buildImgUrl } from "../chat/files/images/utils";
 
 export const SearchSidebar = ({
   currentSearchSession,
@@ -181,20 +182,17 @@ export const SearchSidebar = ({
   const currentSearchId = currentSearchSession?.id;
 
   return (
-    <Sidebar collapsible="none" className="hidden flex-1 md:flex">
+    <Sidebar collapsible="none" className="flex-1 flex">
       <SidebarHeader className="gap-3.5 border-b py-[17px] md:py-[9px] mx-3">
-        <div className="flex h-full justify-center items-center gap-1">
-          {workspaces && workspaces.use_custom_logo ? (
-            <Logo />
-          ) : (
-            <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-          )}
-          <span className="text-lg font-semibold whitespace-nowrap">
-            {workspaces && workspaces.workspace_name
-              ? workspaces.workspace_name
-              : "Arnold AI"}
-          </span>
-        </div>
+        {workspaces && workspaces.custom_header_logo ? (
+          <img
+            src={buildImgUrl(workspaces?.custom_header_logo)}
+            alt="Logo"
+            className="h-8 object-contain w-full"
+          />
+        ) : (
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
+        )}
       </SidebarHeader>
 
       <SidebarContent className="mx-3 gap-0">
@@ -260,6 +258,24 @@ export const SearchSidebar = ({
                 </>
               )}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="border-b px-0">
+          <SidebarGroupContent>
+            {/* <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate bg-brand-500 text-inverted hover:bg-brand-500"></SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu> */}
+
+            <PageTab
+              existingChats={querySessions}
+              currentChatId={currentSearchId}
+              toggleSideBar={toggleSideBar}
+              teamspaceId={teamspaceId}
+              isSearch
+            />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
