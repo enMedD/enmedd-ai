@@ -60,6 +60,8 @@ export const DocumentSetCreationForm = ({
       label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
     }));
 
+  console.log(existingDocumentSet);
+
   return (
     <div>
       <Formik<DocumentSetCreationRequest>
@@ -72,7 +74,7 @@ export const DocumentSetCreationForm = ({
             ) ?? [],
           is_public: existingDocumentSet?.is_public ?? true,
           users: existingDocumentSet?.users ?? [],
-          groups: existingDocumentSet?.groups ?? [],
+          groups: existingDocumentSet?.groups.map((group) => group.id) ?? [],
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required("Please enter a name for the set"),
