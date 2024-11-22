@@ -165,7 +165,7 @@ export const TeamspaceCreationForm = ({
 
               <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select Users
+                  Select member
                 </p>
                 <div className="w-full">
                   <UserEditor
