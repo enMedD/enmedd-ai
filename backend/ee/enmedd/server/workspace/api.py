@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
 from ee.enmedd.server.workspace.models import Workspaces
+from ee.enmedd.server.workspace.store import _HEADERLOGO_FILENAME
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
 from ee.enmedd.server.workspace.store import _LOGOTYPE_FILENAME
 from ee.enmedd.server.workspace.store import load_analytics_script
@@ -28,6 +29,7 @@ from enmedd.auth.users import get_user_manager
 from enmedd.auth.users import UserManager
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.db.models import Workspace
 from enmedd.db.workspace import get_workspace_settings
 from enmedd.db.workspace import upsert_workspace
 from enmedd.file_store.file_store import get_default_file_store
@@ -241,7 +243,7 @@ def fetch_logotype(db_session: Session = Depends(get_session)) -> Response:
 
 @basic_router.get("/logo")
 def fetch_logo(
-    workspace_id: int,
+    workspace_id: int = 0,  # Temporary setting workspace_id to 0
     _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> Response:
@@ -255,6 +257,65 @@ def fetch_logo(
         return Response(content=file_io.read(), media_type="image/jpeg")
     except Exception:
         raise HTTPException(status_code=404, detail="No logo file found")
+
+
+@admin_router.delete("/logo")
+def remove_logo(
+    workspace_id: int = 0,  # Temporary setting workspace_id to 0
+    db_session: Session = Depends(get_session),
+    _: User = Depends(current_workspace_admin_user),
+) -> dict:
+    try:
+        workspace = (
+            db_session.query(Workspace).filter(Workspace.id == workspace_id).first()
+        )
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found.")
+
+        file_path = f"{workspace_id}{_LOGO_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+        file_store.delete_file(file_path)
+
+        workspace.custom_logo = None
+        workspace.use_custom_logo = False
+        db_session.commit()
+
+        return {"detail": "Workspace logo removed successfully."}
+    except Exception as e:
+        logger.error(f"Error removing workspace logo: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail="An error occurred while removing the logo."
+        )
+
+
+@admin_router.delete("/header-logo")
+def remove_header_logo(
+    workspace_id: int = 0,  # Temporary setting workspace_id to 0
+    db_session: Session = Depends(get_session),
+    _: User = Depends(current_workspace_admin_user),
+) -> dict:
+    try:
+        workspace = (
+            db_session.query(Workspace).filter(Workspace.id == workspace_id).first()
+        )
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found.")
+
+        file_path = f"{workspace_id}{_HEADERLOGO_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+        file_store.delete_file(file_path)
+
+        workspace.custom_header_logo = None
+        db_session.commit()
+
+        return {"detail": "Workspace header logo removed successfully."}
+    except Exception as e:
+        logger.error(f"Error removing workspace header logo: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail="An error occurred while removing the header logo."
+        )
 
 
 @admin_router.put("/custom-analytics-script")

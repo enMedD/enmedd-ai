@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from operator import and_
+from typing import List
 from typing import Optional
 from uuid import UUID
 
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 from ee.enmedd.server.teamspace.models import TeamspaceCreate
 from ee.enmedd.server.teamspace.models import TeamspaceUpdate
 from ee.enmedd.server.teamspace.models import TeamspaceUserRole
+from ee.enmedd.server.teamspace.models import UserWithRole
 from enmedd.auth.schemas import UserRole
 from enmedd.db.connector_credential_pair import get_connector_credential_pair_from_id
 from enmedd.db.enums import ConnectorCredentialPairStatus
@@ -233,6 +235,31 @@ def _check_teamspace_is_modifiable(teamspace: Teamspace) -> None:
         )
 
 
+def _add_user__teamspace_relationships_with_set_role__no_commit(
+    db_session: Session,
+    teamspace_id: int,
+    users: List[UserWithRole],
+    creator_id: Optional[UUID] = None,
+) -> list[User__Teamspace]:
+    """NOTE: does not commit the transaction."""
+
+    # if creator_id not in user_ids:
+    #     user_ids.append(creator_id)
+
+    relationships = [
+        User__Teamspace(
+            user_id=user.user_id,
+            teamspace_id=teamspace_id,
+            # TODO: replace this with the CREATOR role but with the same
+            # privilege as the ADMIN.
+            role=TeamspaceUserRole.ADMIN if user.user_id == creator_id else user.role,
+        )
+        for user in users
+    ]
+    db_session.add_all(relationships)
+    return relationships
+
+
 def _add_user__teamspace_relationships__no_commit(
     db_session: Session,
     teamspace_id: int,
@@ -386,10 +413,10 @@ def insert_teamspace(
     _add_workspace__teamspace_relationship(
         db_session, teamspace.workspace_id, db_teamspace.id
     )
-    _add_user__teamspace_relationships__no_commit(
+    _add_user__teamspace_relationships_with_set_role__no_commit(
         db_session=db_session,
         teamspace_id=db_teamspace.id,
-        user_ids=teamspace.user_ids,
+        users=teamspace.users,
         creator_id=creator_id,
     )
     _add_teamspace__assistant_relationships__no_commit(
