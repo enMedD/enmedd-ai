@@ -112,16 +112,26 @@ def upsert_workspace(
         workspace = db_session.scalar(select(Workspace).where(Workspace.id == id))
 
         if workspace:
-            # Update existing workspace
-            workspace.instance_id = instance_id
-            workspace.workspace_name = workspace_name
-            workspace.custom_logo = custom_logo
-            workspace.custom_header_logo = custom_header_logo
-            workspace.workspace_description = workspace_description
-            workspace.use_custom_logo = use_custom_logo
-            workspace.custom_header_content = custom_header_content
-            workspace.brand_color = brand_color
-            workspace.secondary_color = secondary_color
+            # Update only the fields that have new values
+            if instance_id is not None:
+                workspace.instance_id = instance_id
+            if workspace_name is not None:
+                workspace.workspace_name = workspace_name
+            if custom_logo is not None:
+                workspace.custom_logo = custom_logo
+            if custom_header_logo is not None:
+                workspace.custom_header_logo = custom_header_logo
+            if workspace_description is not None:
+                workspace.workspace_description = workspace_description
+            if use_custom_logo is not None:
+                if not workspace.use_custom_logo or use_custom_logo:
+                    workspace.use_custom_logo = use_custom_logo
+            if custom_header_content is not None:
+                workspace.custom_header_content = custom_header_content
+            if brand_color is not None:
+                workspace.brand_color = brand_color
+            if secondary_color is not None:
+                workspace.secondary_color = secondary_color
         else:
             # Create new workspace
             workspace = Workspace(
