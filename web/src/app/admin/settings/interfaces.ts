@@ -38,6 +38,7 @@ export interface TeamspaceSettings {
 export interface Workspaces {
   workspace_name: string | null;
   workspace_description: string | null;
+  custom_logo: string;
   use_custom_logo: boolean;
   use_custom_logotype: boolean;
   brand_color: string;
