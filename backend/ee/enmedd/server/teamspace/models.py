@@ -140,9 +140,20 @@ class Teamspace(BaseModel):
         )
 
 
+class TeamspaceUserRole(str, Enum):
+    BASIC = "basic"
+    CREATOR = "creator"
+    ADMIN = "admin"
+
+
+class UserWithRole(BaseModel):
+    user_id: UUID
+    role: Optional[str] = TeamspaceUserRole.BASIC
+
+
 class TeamspaceCreate(BaseModel):
     name: str
-    user_ids: list[UUID]
+    users: List[UserWithRole]
     cc_pair_ids: Optional[List[int]] = None
     document_set_ids: Optional[List[int]] = None
     assistant_ids: Optional[List[int]] = None
@@ -158,12 +169,6 @@ class TeamspaceUpdate(BaseModel):
 
 class TeamspaceUpdateName(BaseModel):
     name: str
-
-
-class TeamspaceUserRole(str, Enum):
-    BASIC = "basic"
-    CREATOR = "creator"
-    ADMIN = "admin"
 
 
 class UpdateUserRoleRequest(BaseModel):
