@@ -46,34 +46,6 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [brand500, setBrand500] = useState("Loading...");
-  const [secondary500, setSecondary500] = useState("Loading...");
-
-  useEffect(() => {
-    const fetchThemes = async () => {
-      try {
-        const response = await fetch("/api/themes", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const themes = await response.json();
-        setBrand500(themes.brand["500"]);
-        setSecondary500(themes.secondary["500"]);
-      } catch (error) {
-        console.error("Error fetching themes:", error);
-      }
-    };
-
-    fetchThemes();
-  }, []);
-
   const [primaryColor, setPrimaryColor] = useState("#65007E");
   const [secondaryColor, setSecondaryColor] = useState("#EEB3FE");
 
