@@ -27,15 +27,23 @@ export const useQueryAnalytics = (
   timeRange: DateRange,
   teamspaceId?: string | string[]
 ) => {
-  const url = buildApiPath(
-    `/api/analytics/admin/query${
-      teamspaceId ? `?teamspace_id=${teamspaceId}` : ""
-    }${
-      timeRange.from && timeRange.to
-        ? `&start=${convertDateToStartOfDay(timeRange.from)?.toISOString()}&end=${convertDateToEndOfDay(timeRange.to)?.toISOString()}`
-        : ""
-    }`
-  );
+  const queryParameters = [];
+
+  if (teamspaceId) {
+    queryParameters.push(`teamspace_id=${teamspaceId}`);
+  }
+
+  if (timeRange.from && timeRange.to) {
+    queryParameters.push(
+      `start=${convertDateToStartOfDay(timeRange.from)?.toISOString()}`,
+      `end=${convertDateToEndOfDay(timeRange.to)?.toISOString()}`
+    );
+  }
+
+  const queryString =
+    queryParameters.length > 0 ? `?${queryParameters.join("&")}` : "";
+
+  const url = buildApiPath(`/api/analytics/admin/query${queryString}`);
 
   const swrResponse = useSWR<QueryAnalytics[]>(url, errorHandlingFetcher);
 
@@ -49,15 +57,23 @@ export const useUserAnalytics = (
   timeRange: DateRange,
   teamspaceId?: string | string[]
 ) => {
-  const url = buildApiPath(
-    `/api/analytics/admin/user${
-      teamspaceId ? `?teamspace_id=${teamspaceId}` : ""
-    }${
-      timeRange.from && timeRange.to
-        ? `&start=${convertDateToStartOfDay(timeRange.from)?.toISOString()}&end=${convertDateToEndOfDay(timeRange.to)?.toISOString()}`
-        : ""
-    }`
-  );
+  const queryParameters = [];
+
+  if (teamspaceId) {
+    queryParameters.push(`teamspace_id=${teamspaceId}`);
+  }
+
+  if (timeRange.from && timeRange.to) {
+    queryParameters.push(
+      `start=${convertDateToStartOfDay(timeRange.from)?.toISOString()}`,
+      `end=${convertDateToEndOfDay(timeRange.to)?.toISOString()}`
+    );
+  }
+
+  const queryString =
+    queryParameters.length > 0 ? `?${queryParameters.join("&")}` : "";
+
+  const url = buildApiPath(`/api/analytics/admin/user${queryString}`);
 
   const swrResponse = useSWR<UserAnalytics[]>(url, errorHandlingFetcher);
 
