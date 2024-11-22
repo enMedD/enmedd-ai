@@ -437,7 +437,7 @@ def bulk_invite_users(
 def remove_invited_user(
     user_email: UserByEmail,
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_workspace_admin_user),
+    _: User | None = Depends(current_teamspace_admin_user),
 ) -> int:
     user_emails = get_invited_users(teamspace_id)
     remaining_users = [user for user in user_emails if user != user_email.user_email]
