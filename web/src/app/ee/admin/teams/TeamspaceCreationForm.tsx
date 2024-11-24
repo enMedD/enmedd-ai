@@ -15,12 +15,9 @@ import { ConnectorEditor } from "./ConnectorEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { FileUpload } from "@/components/admin/connectors/FileUpload";
 import { useState } from "react";
 import { DocumentSets } from "./DocumentSets";
 import { Assistants } from "./Assistants";
-import { Input } from "@/components/ui/input";
-import { errorHandlingFetcher } from "@/lib/fetcher";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/app/admin/settings/ImageUpload";
 import { useUser } from "@/components/user/UserProvider";
@@ -76,29 +73,38 @@ export const TeamspaceCreationForm = ({
       <Formik
         initialValues={{
           name: existingTeamspace ? existingTeamspace.name : "",
-          user_ids: [] as string[],
+          users: [] as { user_id: string; role: string }[],
           cc_pair_ids: [] as number[],
           document_set_ids: [] as number[],
-          assistant_ids: [] as string[],
+          assistant_ids: [] as number[],
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required("Please enter a name for the group"),
-          user_ids: Yup.array().of(Yup.string().required()),
+          users: Yup.array().of(
+            Yup.object().shape({
+              user_id: Yup.string().required("User ID is required"),
+              role: Yup.string()
+                .oneOf(["basic", "admin"], "Role must be 'basic' or 'admin'")
+                .required("Role is required"),
+            })
+          ),
           cc_pair_ids: Yup.array().of(Yup.number().required()),
           document_set_ids: Yup.array().of(Yup.number().required()),
           assistant_ids: Yup.array().of(Yup.number().required()),
         })}
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
-          if (values.user_ids.length === 0) {
+
+          if (values.users.length === 0) {
             formikHelpers.setSubmitting(false);
             toast({
               title: "Operation Failed",
-              description: "Please select at least one user",
+              description: "Please select at least one user with a role",
               variant: "destructive",
             });
             return;
           }
+
           if (values.assistant_ids.length === 0) {
             formikHelpers.setSubmitting(false);
             toast({
@@ -108,36 +114,43 @@ export const TeamspaceCreationForm = ({
             });
             return;
           }
+
           let response;
-          response = await createTeamspace(values);
-          formikHelpers.setSubmitting(false);
-          if (response.ok) {
-            const { id } = await response.json();
+          try {
+            response = await createTeamspace(values);
+            formikHelpers.setSubmitting(false);
 
-            if (selectedFiles) {
-              await uploadLogo(id, selectedFiles);
+            if (response.ok) {
+              const { id } = await response.json();
+
+              if (selectedFiles) {
+                await uploadLogo(id, selectedFiles);
+              }
+
+              router.refresh();
+              toast({
+                title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
+                description: isUpdate
+                  ? "Your teamspace has been updated successfully."
+                  : "Your new teamspace has been created successfully.",
+                variant: "success",
+              });
+
+              onClose();
+            } else {
+              const responseJson = await response.json();
+              const errorMsg = responseJson.detail || responseJson.message;
+              toast({
+                title: "Operation Failed",
+                description: isUpdate
+                  ? `Could not update the teamspace: ${errorMsg}`
+                  : `Could not create the teamspace: ${errorMsg}`,
+                variant: "destructive",
+              });
             }
-            // await setTokenRateLimit(id);
-            router.refresh();
-            toast({
-              title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
-              description: isUpdate
-                ? "Your teamspace has been updated successfully."
-                : "Your new teamspace has been created successfully.",
-              variant: "success",
-            });
-
-            onClose();
-          } else {
-            const responseJson = await response.json();
-            const errorMsg = responseJson.detail || responseJson.message;
-            toast({
-              title: "Operation Failed",
-              description: isUpdate
-                ? `Could not update the teamspace: ${errorMsg}`
-                : `Could not create the teamspace: ${errorMsg}`,
-              variant: "destructive",
-            });
+          } catch (error) {
+            console.error(error);
+            formikHelpers.setSubmitting(false);
           }
         }}
       >
@@ -171,12 +184,18 @@ export const TeamspaceCreationForm = ({
                 </p>
                 <div className="w-full">
                   <UserEditor
-                    selectedUserIds={values.user_ids}
-                    setSelectedUserIds={(userIds) =>
-                      setFieldValue("user_ids", userIds)
-                    }
+                    selectedUserIds={values.users.map((user) => user.user_id)}
                     allUsers={users}
-                    existingUsers={user ? [user] : []}
+                    existingUsers={values.users}
+                    onAddUser={(newUser) => {
+                      setFieldValue("users", [...values.users, newUser]);
+                    }}
+                    onRemoveUser={(userId) => {
+                      setFieldValue(
+                        "users",
+                        values.users.filter((user) => user.user_id !== userId)
+                      );
+                    }}
                   />
                 </div>
               </div>
@@ -226,7 +245,7 @@ export const TeamspaceCreationForm = ({
 
               {/* <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
-                
+
                   Set Token Rate Limit
                 </p>
                 <div className="flex items-center w-full gap-4">
