@@ -5,13 +5,16 @@ import { CustomModal } from "@/components/CustomModal";
 import { Assistant } from "../admin/assistants/interfaces";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { User } from "@/lib/types";
 
 export function NoValidAssistantModal({
   assistants,
   teamspaceId,
+  user,
 }: {
   assistants: Assistant[];
   teamspaceId: string;
+  user: User | null;
 }) {
   return (
     <CustomModal
@@ -24,11 +27,22 @@ export function NoValidAssistantModal({
     >
       <div className="flex gap-2 justify-end">
         <Link href="/chat" passHref>
-          <Button variant="outline">Go back to workspace</Button>
+          <Button>Go back to Workspace</Button>
         </Link>
 
-        {teamspaceId && (
-          <Link href={`/t/${teamspaceId}/admin/indexing/status`} passHref>
+        <Link href={`/t/${teamspaceId}/search`} passHref>
+          <Button>Go to Search</Button>
+        </Link>
+
+        {user?.role === "admin" && (
+          <Link
+            href={
+              teamspaceId
+                ? `/t/${teamspaceId}/admin/indexing/status`
+                : `/admin/indexing/status`
+            }
+            passHref
+          >
             <Button>Go to Admin Panel</Button>
           </Link>
         )}

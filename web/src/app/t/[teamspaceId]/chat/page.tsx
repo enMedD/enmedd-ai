@@ -49,6 +49,7 @@ export default async function Page({
       <NoValidAssistantModal
         assistants={assistants}
         teamspaceId={params.teamspaceId}
+        user={user}
       />
     );
   }
