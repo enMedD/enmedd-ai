@@ -186,6 +186,72 @@ export default function General() {
     }));
   };
 
+  async function deleteLogo() {
+    try {
+      const response = await fetch("/api/admin/workspace/logo", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Workspace Logo Deleted",
+          description: "The workspace logo has been successfully removed.",
+          variant: "success",
+        });
+        window.location.reload();
+      } else {
+        const errorMsg = (await response.json()).detail;
+        toast({
+          title: "Failed to delete workspace logo",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong while deleting the workspace logo.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function deleteHeaderLogo() {
+    try {
+      const response = await fetch("/api/admin/workspace/header-logo", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Header Logo Deleted",
+          description: "The header logo has been successfully removed.",
+          variant: "success",
+        });
+        window.location.reload();
+      } else {
+        const errorMsg = (await response.json()).detail;
+        toast({
+          title: "Failed to delete header logo",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong while deleting the header logo.",
+        variant: "destructive",
+      });
+    }
+  }
+
   return (
     <div className="pt-6">
       <Formik
@@ -406,11 +472,20 @@ export default function General() {
                     <div className="space-y-2">
                       <SubLabel>Current Logo:</SubLabel>
                       {workspaces?.use_custom_logo ? (
-                        <img
-                          src={"/api/workspace/logo?workspace_id=" + 0}
-                          alt="Logo"
-                          className="h-40 object-contain w-40"
-                        />
+                        <>
+                          <img
+                            src={"/api/workspace/logo?workspace_id=" + 0}
+                            alt="Logo"
+                            className="h-40 object-contain w-40"
+                          />
+                          <Button
+                            variant="destructive"
+                            type="button"
+                            onClick={deleteLogo}
+                          >
+                            Remove
+                          </Button>
+                        </>
                       ) : (
                         <Image
                           src="/arnold_ai.png"
@@ -450,11 +525,20 @@ export default function General() {
                     <div className="space-y-2">
                       <SubLabel>Current Header Logo:</SubLabel>
                       {workspaces?.custom_header_logo ? (
-                        <img
-                          src={buildImgUrl(workspaces?.custom_header_logo)}
-                          alt="Logo"
-                          className="h-40 object-contain w-40"
-                        />
+                        <>
+                          <img
+                            src={buildImgUrl(workspaces?.custom_header_logo)}
+                            alt="Logo"
+                            className="h-40 object-contain w-40"
+                          />
+                          <Button
+                            variant="destructive"
+                            type="button"
+                            onClick={deleteHeaderLogo}
+                          >
+                            Remove
+                          </Button>
+                        </>
                       ) : (
                         <Image
                           src="/arnold_ai.png"
