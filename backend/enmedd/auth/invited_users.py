@@ -50,12 +50,7 @@ def write_invited_users(emails: list[str], teamspace_id: Optional[int] = None) -
         except KvKeyNotFoundError:
             teamspace_users = {}
 
-        if str(teamspace_id) in teamspace_users:
-            existing_emails = set(teamspace_users[str(teamspace_id)])
-            updated_emails = existing_emails.union(emails)
-            teamspace_users[str(teamspace_id)] = list(updated_emails)
-        else:
-            teamspace_users[str(teamspace_id)] = emails
+        teamspace_users[str(teamspace_id)] = emails
 
         store.store(TEAMSPACE_INVITE_USER, cast(JSON_ro, teamspace_users))
 
