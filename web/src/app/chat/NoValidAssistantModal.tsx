@@ -1,0 +1,38 @@
+"use client";
+
+import { useState } from "react";
+import { CustomModal } from "@/components/CustomModal";
+import { Assistant } from "../admin/assistants/interfaces";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
+export function NoValidAssistantModal({
+  assistants,
+  teamspaceId,
+}: {
+  assistants: Assistant[];
+  teamspaceId: string;
+}) {
+  return (
+    <CustomModal
+      trigger={null}
+      title="No valid assistant for this teamspace"
+      open={assistants.length === 0}
+      description="There is currently no valid assistant assigned to this teamspace, so
+          the chat page cannot be used. This may be because the teamspace is
+          still syncing, or an assistant has not been assigned yet."
+    >
+      <div className="flex gap-2 justify-end">
+        <Link href="/chat" passHref>
+          <Button variant="outline">Go back to workspace</Button>
+        </Link>
+
+        {teamspaceId && (
+          <Link href={`/t/${teamspaceId}/admin/indexing/status`} passHref>
+            <Button>Go to Admin Panel</Button>
+          </Link>
+        )}
+      </div>
+    </CustomModal>
+  );
+}
