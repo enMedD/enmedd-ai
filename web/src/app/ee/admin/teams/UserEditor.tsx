@@ -27,7 +27,7 @@ export const UserEditor = ({
   onRemoveUser,
 }: UserEditorProps) => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<string | null>("basic");
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   const availableUsers = allUsers
     .filter(
@@ -45,7 +45,7 @@ export const UserEditor = ({
 
     onAddUser({ user_id: selectedUser, role: selectedRole });
     setSelectedUser(null);
-    setSelectedRole("basic");
+    setSelectedRole(null);
   };
 
   return (
