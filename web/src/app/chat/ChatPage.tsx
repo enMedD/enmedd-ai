@@ -119,7 +119,10 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useAssistants } from "@/context/AssistantsContext";
 import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
 import { NoValidAssistantModal } from "./NoValidAssistantModal";
+<<<<<<< HEAD
 import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
+=======
+>>>>>>> d6a533e6 (Fix: teamspace creation with user role (#269))
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1792,6 +1795,15 @@ export function ChatPage({
   const toggleLeftSideBar = () => {
     setOpenSidebar((prevState) => !prevState);
   };
+
+  if (noAssistants) {
+    return (
+      <NoValidAssistantModal
+        assistants={liveAssistant}
+        teamspaceId={teamspaceId}
+      />
+    );
+  }
 
   return (
     <>
