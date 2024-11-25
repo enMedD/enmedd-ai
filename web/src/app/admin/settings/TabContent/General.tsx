@@ -830,7 +830,19 @@ export default function General() {
                                   setIsEditing(false);
                                   await updateSmtpSettings(0, formData);
                                 }}
-                                disabled={loading}
+                                disabled={
+                                  loading ||
+                                  JSON.stringify(formData) ===
+                                    JSON.stringify({
+                                      smtp_server:
+                                        settings.settings.smtp_server,
+                                      smtp_port: settings.settings.smtp_port,
+                                      smtp_username:
+                                        settings.settings.smtp_username,
+                                      smtp_password:
+                                        settings.settings.smtp_password,
+                                    })
+                                }
                               >
                                 Save
                               </Button>
