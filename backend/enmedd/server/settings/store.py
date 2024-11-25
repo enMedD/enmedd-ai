@@ -6,7 +6,6 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from ee.enmedd.utils.encryption import decrypt_password
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.models import TeamspaceSettings
 from enmedd.db.models import User
@@ -67,11 +66,6 @@ def load_settings(
         db_session.query(WorkspaceSettings).filter_by(workspace_id=workspace_id).first()
     )
     if settings_record:
-        decrypted_smtp_password = (
-            decrypt_password(settings_record.smtp_password)
-            if settings_record.smtp_password
-            else None
-        )
         return Settings(
             chat_page_enabled=settings_record.chat_page_enabled,
             search_page_enabled=settings_record.search_page_enabled,
@@ -82,7 +76,7 @@ def load_settings(
             smtp_port=settings_record.smtp_port,
             smtp_server=settings_record.smtp_server,
             smtp_username=settings_record.smtp_username,
-            smtp_password=decrypted_smtp_password,
+            smtp_password=settings_record.smtp_password,
         )
 
     return Settings()
