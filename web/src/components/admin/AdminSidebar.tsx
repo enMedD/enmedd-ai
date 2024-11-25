@@ -33,7 +33,6 @@ import {
 import { SettingsContext } from "../settings/SettingsProvider";
 import { useParams, usePathname } from "next/navigation";
 import { GroupsIcon, RobotIcon } from "../icons/icons";
-import { Logo } from "../Logo";
 import Image from "next/image";
 import ArnoldAi from "../../../public/arnold_ai.png";
 
@@ -278,27 +277,17 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
     {
       name: "Settings",
       items: [
-        isTeamspace
-          ? {
-              name: (
-                <div className="flex items-center gap-2">
-                  <Settings size={18} />
-                  <div>Teamspace Settings</div>
-                </div>
-              ),
-              link: teamspaceId
-                ? `/t/${teamspaceId}/admin/settings`
-                : `/admin/settings`,
-            }
-          : {
-              name: (
-                <div className="flex items-center gap-2">
-                  <Settings size={18} />
-                  <div>Workspace Settings</div>
-                </div>
-              ),
-              link: "/admin/settings",
-            },
+        {
+          name: (
+            <div className="flex items-center gap-2">
+              <Settings size={18} />
+              <div>{teamspaceId ? "Teamspace" : "Workspace"} Settings</div>
+            </div>
+          ),
+          link: teamspaceId
+            ? `/t/${teamspaceId}/admin/settings`
+            : `/admin/settings`,
+        },
       ],
     },
   ];

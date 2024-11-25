@@ -142,6 +142,7 @@ import { useParams } from "next/navigation";
 import { User } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Ellipsis } from "lucide-react";
+import { TeamspaceModal } from "./TeamspaceModal";
 
 export function GlobalSidebar({
   user,
@@ -295,17 +296,11 @@ export function GlobalSidebar({
                 ))}
 
                 {!showEllipsis && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      tooltip={{
-                        children: "More",
-                        hidden: false,
-                      }}
-                      className="p-0 w-8 h-8 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
-                    >
-                      <Ellipsis size={16} />
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <TeamspaceModal
+                    teamspace={teamsapces}
+                    defaultPage={defaultPage}
+                    teamspaceId={teamspaceId}
+                  />
                 )}
               </SidebarMenu>
             </SidebarGroupContent>
