@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation"; // Import the custom hook
 import ReCAPTCHA from "react-google-recaptcha";
-import { CAPTCHA_SITE_KEY } from "@/lib/constants";
+import { NEXT_PUBLIC_CAPTCHA_SITE_KEY } from "@/lib/constants";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -59,7 +59,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
         })}
         onSubmit={async (values) => {
           const captchaValue = recaptchaRef.current?.getValue();
-          if (!captchaValue) {
+          if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
             toast({
               title: "ReCAPTCHA Missing",
               description: "Please complete the ReCAPTCHA to proceed.",
@@ -178,17 +178,19 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
               placeholder="Enter your password"
             />
 
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={CAPTCHA_SITE_KEY}
-              className="pb-4"
-            />
+            {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
+                className="pb-4"
+              />
+            )}
 
             <div className="flex items-center gap-2">
-              <Checkbox id="remember" />
+              {/* <Checkbox id="remember" />
               <Label className="p-0" htmlFor="remember">
                 Remember me
-              </Label>
+              </Label> */}
             </div>
 
             <div className="flex pt-8">

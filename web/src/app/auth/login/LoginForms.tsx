@@ -18,7 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import ReCAPTCHA from "react-google-recaptcha";
-import { CAPTCHA_SITE_KEY } from "@/lib/constants";
+import { NEXT_PUBLIC_CAPTCHA_SITE_KEY } from "@/lib/constants";
 
 export function LogInForms({}: {}) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -41,7 +41,7 @@ export function LogInForms({}: {}) {
         })}
         onSubmit={async (values) => {
           const captchaValue = recaptchaRef.current?.getValue();
-          if (!captchaValue) {
+          if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
             toast({
               title: "ReCAPTCHA Missing",
               description: "Please complete the ReCAPTCHA to proceed.",
@@ -100,18 +100,20 @@ export function LogInForms({}: {}) {
               placeholder="Enter your password"
             />
 
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={CAPTCHA_SITE_KEY}
-              className="pb-4"
-            />
+            {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
+                className="pb-4"
+              />
+            )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Checkbox id="remember" />
+                {/* <Checkbox id="remember" />
                 <Label className="p-0" htmlFor="remember">
                   Remember me
-                </Label>
+                </Label> */}
               </div>
               <Link
                 href="/auth/forgot-password"

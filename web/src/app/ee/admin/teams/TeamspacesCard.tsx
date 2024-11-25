@@ -146,11 +146,11 @@ export const TeamspacesCard = ({
         <CardContent className="relative flex flex-col justify-between min-h-48 bg-muted/50">
           <div className="absolute top-0 w-12 h-12 -translate-y-1/2 right-4 flex items-center justify-center">
             {teamspace.logo ? (
-              <div className="rounded-md w-10 h-10 bg-background overflow-hidden">
+              <div className="rounded-md w-10 h-10 bg-background overflow-hidden shrink-0">
                 <img
                   src={buildImgUrl(teamspace.logo)}
                   alt="Teamspace Logo"
-                  className="object-cover w-full h-full shrink-0"
+                  className="object-cover w-full h-full"
                   width={40}
                   height={40}
                 />
