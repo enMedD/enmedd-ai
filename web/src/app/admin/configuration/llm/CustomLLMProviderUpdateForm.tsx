@@ -266,7 +266,9 @@ export function CustomLLMProviderUpdateForm({
               optional
             />
 
-            <Label className="pb-1.5">[Optional] Custom Configs</Label>
+            <Label className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5">
+              [Optional] Custom Configs
+            </Label>
             <SubLabel>
               <>
                 <div>
