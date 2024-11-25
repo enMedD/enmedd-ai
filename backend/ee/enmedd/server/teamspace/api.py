@@ -30,6 +30,8 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.models import UserRole
 from enmedd.db.users import get_user_by_email
 from enmedd.file_store.file_store import get_default_file_store
+from enmedd.server.settings.models import Settings
+from enmedd.server.settings.store import store_settings
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -132,6 +134,12 @@ def create_teamspace(
 
         db_teamspace = insert_teamspace(
             db_session, teamspace, creator_id=current_user.id
+        )
+        default_settings = Settings()
+        store_settings(
+            settings=default_settings,
+            db_session=db_session,
+            teamspace_id=db_teamspace.id,
         )
 
         return Teamspace.from_model(db_teamspace)

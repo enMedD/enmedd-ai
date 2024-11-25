@@ -68,7 +68,8 @@ def put_settings(
     db: Session = Depends(get_session),
     workspace_id: Optional[int] = 0,  # temporary set to 0
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User
+    | None = Depends(current_teamspace_admin_user or current_workspace_admin_user),
 ) -> None:
     try:
         settings.check_validity()
