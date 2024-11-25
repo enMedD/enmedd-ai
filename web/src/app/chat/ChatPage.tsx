@@ -118,6 +118,7 @@ import { SIDEBAR_WIDTH_CONST } from "@/lib/constants";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useAssistants } from "@/context/AssistantsContext";
 import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
+import { NoValidAssistantModal } from "./NoValidAssistantModal";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1779,6 +1780,16 @@ export function ChatPage({
   const toggleLeftSideBar = () => {
     setOpenSidebar((prevState) => !prevState);
   };
+
+  if (noAssistants) {
+    return (
+      <NoValidAssistantModal
+        assistants={liveAssistant}
+        teamspaceId={teamspaceId}
+        user={user}
+      />
+    );
+  }
 
   return (
     <>

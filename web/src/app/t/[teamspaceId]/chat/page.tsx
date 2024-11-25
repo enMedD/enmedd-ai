@@ -7,7 +7,6 @@ import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompl
 import { fetchChatData } from "@/lib/chat/fetchChatData";
 import { ChatProvider } from "@/context/ChatContext";
 import { AssistantsProvider } from "@/context/AssistantsContext";
-import { NoValidAssistantModal } from "@/app/chat/NoValidAssistantModal";
 
 export default async function Page({
   params,
@@ -43,16 +42,6 @@ export default async function Page({
     hasAnyConnectors,
     hasImageCompatibleModel,
   } = data;
-
-  if (assistants.length === 0) {
-    return (
-      <NoValidAssistantModal
-        assistants={assistants}
-        teamspaceId={params.teamspaceId}
-        user={user}
-      />
-    );
-  }
 
   return (
     <>

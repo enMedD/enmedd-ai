@@ -13,7 +13,7 @@ export function NoValidAssistantModal({
   user,
 }: {
   assistants: Assistant[];
-  teamspaceId: string;
+  teamspaceId: string | undefined;
   user: User | null;
 }) {
   return (
