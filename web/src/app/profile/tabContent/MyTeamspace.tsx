@@ -85,8 +85,8 @@ export default function MyTeamspace({ user }: { user: User | null }) {
       <div className="py-8">
         <h2 className="font-bold text-lg md:text-xl">Your Teamspaces</h2>
         <p className="text-sm">
-          Manage and explore all the teamspaces you're part of. Search, view
-          details, or leave a teamspace with ease.
+          Manage and explore all the teamspaces you&apos;re part of. Search,
+          view details, or leave a teamspace with ease.
         </p>
 
         <div className="flex flex-col gap-6 pt-8">

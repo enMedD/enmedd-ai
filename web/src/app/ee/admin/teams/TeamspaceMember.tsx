@@ -69,7 +69,7 @@ const InviteModal = () => {
               <Button>Send Invite</Button>
             </div>
             <p className="text-xs text-subtle">
-              We'll send them instructions and a magic link to join the
+              We&apos;ll send them instructions and a magic link to join the
               teamspace via email.
             </p>
           </div>
