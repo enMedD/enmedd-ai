@@ -14,6 +14,8 @@ import { Logo } from "@/components/Logo";
 import { HeaderTitle } from "@/components/header/HeaderTitle";
 import { ProviderContextProvider } from "@/components/chat_search/ProviderContext";
 import ThemeProvider from "@/components/ThemeProvider";
+import { fetchFeatureFlagSS } from "@/components/feature_flag/lib";
+import { FeatureFlagProvider } from "@/components/feature_flag/FeatureFlagContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,6 +48,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const combinedSettings = await fetchSettingsSS();
+  const featureFlags = await fetchFeatureFlagSS();
+
   if (!combinedSettings) {
     // Just display a simple full page error if fetching fails.
 
@@ -100,16 +104,18 @@ export default async function RootLayout({
           process.env.THEME_IS_DARK?.toLowerCase() === "true" ? "dark" : ""
         }`}
       >
-        <UserProvider>
-          <ProviderContextProvider>
-            <SettingsProvider settings={combinedSettings}>
-              <ThemeProvider />
-              {children}
-              <Toaster />
-              <PageSwitcher />
-            </SettingsProvider>
-          </ProviderContextProvider>
-        </UserProvider>
+        <FeatureFlagProvider flags={featureFlags}>
+          <UserProvider>
+            <ProviderContextProvider>
+              <SettingsProvider settings={combinedSettings}>
+                <ThemeProvider />
+                {children}
+                <Toaster />
+                <PageSwitcher />
+              </SettingsProvider>
+            </ProviderContextProvider>
+          </UserProvider>
+        </FeatureFlagProvider>
       </body>
     </html>
   );
