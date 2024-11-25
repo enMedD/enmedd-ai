@@ -781,7 +781,9 @@ export default function General() {
                                 SMTP Server:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_server || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_server || "None"}
                               </span>
                             </div>
 
@@ -790,7 +792,9 @@ export default function General() {
                                 SMTP Port:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_port || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_port || "None"}
                               </span>
                             </div>
 
@@ -799,7 +803,9 @@ export default function General() {
                                 SMTP Username (email):
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_username || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_username || "None"}
                               </span>
                             </div>
 
@@ -808,7 +814,7 @@ export default function General() {
                                 SMTP Password:
                               </span>
                               <span className="font-semibold text-inverted-inverted truncate">
-                                &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;
+                                {loading ? "Syncing" : "●●●●●●●●"}
                               </span>
                             </div>
                           </>
@@ -828,6 +834,7 @@ export default function General() {
                               <Button
                                 type="button"
                                 onClick={async () => {
+                                  setIsEditing(false);
                                   await updateSmtpSettings(0, formData);
                                   setFormData({
                                     smtp_server: "",
@@ -835,7 +842,6 @@ export default function General() {
                                     smtp_username: "",
                                     smtp_password: "",
                                   });
-                                  setIsEditing(false);
                                 }}
                                 disabled={loading}
                               >
