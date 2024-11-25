@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation"; // Import the custom hook
 import ReCAPTCHA from "react-google-recaptcha";
+import { CAPTCHA_SITE_KEY } from "@/lib/constants";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -179,10 +180,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
 
             <ReCAPTCHA
               ref={recaptchaRef}
-              sitekey={
-                process.env.CAPTCHA_SITE_KEY ||
-                "6LdSMokqAAAAAJNIJbydmfe-PCs9cvdhFwRaq37Q"
-              }
+              sitekey={CAPTCHA_SITE_KEY}
               className="pb-4"
             />
 

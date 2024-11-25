@@ -18,6 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import ReCAPTCHA from "react-google-recaptcha";
+import { CAPTCHA_SITE_KEY } from "@/lib/constants";
 
 export function LogInForms({}: {}) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -101,10 +102,7 @@ export function LogInForms({}: {}) {
 
             <ReCAPTCHA
               ref={recaptchaRef}
-              sitekey={
-                process.env.CAPTCHA_SITE_KEY ||
-                "6LdSMokqAAAAAJNIJbydmfe-PCs9cvdhFwRaq37Q"
-              }
+              sitekey={CAPTCHA_SITE_KEY}
               className="pb-4"
             />
 

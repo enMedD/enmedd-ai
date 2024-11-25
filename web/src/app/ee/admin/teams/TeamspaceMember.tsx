@@ -30,11 +30,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
-interface TeamspaceMemberProps {
-  teamspace: Teamspace & { gradient: string };
-  refreshTeamspaces: () => void;
-}
+const InviteModal = () => {
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
+  return (
+    <div className="flex justify-end">
+      <CustomModal
+        trigger={
+          <Button onClick={() => setIsInviteModalOpen(true)}>
+            <Plus size={16} />
+            Invite
+          </Button>
+        }
+        open={isInviteModalOpen}
+        title="Invite to Your Teamspace"
+        description="Your invite link has been created. Share this link to join your workspace."
+        onClose={() => setIsInviteModalOpen(false)}
+        className="!max-w-[700px]"
+      >
+        <div>
+          <div className="space-y-2 w-full">
+            <div className="flex gap-2 w-full">
+              <Input placeholder="Email" />
+              <Select value="basic">
+                <SelectTrigger className="w-56">
+                  <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Basic</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-subtle">
+              We'll send them instructions and a magic link to join the
+              teamspace via email.
+            </p>
+          </div>
+
+          <div></div>
+
+          <div className="flex gap-2 justify-end pt-12">
+            <Button variant="ghost" onClick={() => setIsInviteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button>Send</Button>
+          </div>
+        </div>
+      </CustomModal>
+    </div>
+  );
+};
 
 interface MemberContentProps {
   isGlobal?: boolean;
@@ -325,6 +373,11 @@ const MemberContent = ({
   );
 };
 
+interface TeamspaceMemberProps {
+  teamspace: Teamspace & { gradient: string };
+  refreshTeamspaces: () => void;
+}
+
 export const TeamspaceMember = ({
   teamspace,
   refreshTeamspaces,
@@ -399,7 +452,9 @@ export const TeamspaceMember = ({
         open={isMemberModalOpen}
         onClose={() => setIsMemberModalOpen(false)}
       >
-        <div className="space-y-12">
+        <div className="space-y-12 pb-12">
+          <InviteModal />
+
           <MemberContent
             teamspace={teamspace}
             refreshTeamspaces={refreshTeamspaces}
