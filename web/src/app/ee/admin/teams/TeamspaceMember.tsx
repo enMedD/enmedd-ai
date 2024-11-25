@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { InviteUserButton } from "@/app/admin/users/InviteUserButton";
 
 const InviteModal = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -50,19 +51,22 @@ const InviteModal = () => {
         onClose={() => setIsInviteModalOpen(false)}
         className="!max-w-[700px]"
       >
-        <div>
+        <div className="pb-8">
           <div className="space-y-2 w-full">
-            <div className="flex gap-2 w-full">
-              <Input placeholder="Email" />
-              <Select value="basic">
-                <SelectTrigger className="w-56">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="basic">Basic</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
+              <div className="flex gap-2 w-full">
+                <Input placeholder="Email" />
+                <Select value="basic">
+                  <SelectTrigger className="w-56">
+                    <SelectValue placeholder="Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button>Send Invite</Button>
             </div>
             <p className="text-xs text-subtle">
               We'll send them instructions and a magic link to join the
@@ -71,13 +75,6 @@ const InviteModal = () => {
           </div>
 
           <div></div>
-
-          <div className="flex gap-2 justify-end pt-12">
-            <Button variant="ghost" onClick={() => setIsInviteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button>Send</Button>
-          </div>
         </div>
       </CustomModal>
     </div>
@@ -130,7 +127,10 @@ const MemberContent = ({
     if (isAllSelected) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(filteredUsers!.map((user) => user.email));
+      const nonCreatorUsers = filteredUsers!.filter(
+        (user) => user.id !== teamspace.creator.id
+      );
+      setSelectedUsers(nonCreatorUsers.map((user) => user.email));
     }
   };
 
@@ -274,12 +274,14 @@ const MemberContent = ({
                   {filteredUsers?.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
-                        <Checkbox
-                          checked={selectedUsers.includes(user.email)}
-                          onCheckedChange={() =>
-                            handleCheckboxChange(user.email)
-                          }
-                        />
+                        {teamspace.creator.id !== user.id && (
+                          <Checkbox
+                            checked={selectedUsers.includes(user.email)}
+                            onCheckedChange={() =>
+                              handleCheckboxChange(user.email)
+                            }
+                          />
+                        )}
                       </TableCell>
                       <TableCell className="flex items-center gap-2">
                         <UserProfile user={user} size={40} />
@@ -288,9 +290,6 @@ const MemberContent = ({
                             <span className="font-semibold whitespace-nowrap">
                               {user.full_name}
                             </span>
-                            {user.id === teamspace.creator.id && (
-                              <Badge>Creator</Badge>
-                            )}
                             {!isGlobal && (
                               <Badge
                                 variant={
@@ -307,8 +306,8 @@ const MemberContent = ({
                         </div>
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
-                      {!isGlobal && teamspace.creator.id !== user.id && (
-                        <TableCell>
+                      <TableCell>
+                        {!isGlobal && teamspace.creator.id !== user.id ? (
                           <Select
                             value={user.role || "basic"}
                             onValueChange={(newRole) =>
@@ -323,8 +322,12 @@ const MemberContent = ({
                               <SelectItem value="admin">Admin</SelectItem>
                             </SelectContent>
                           </Select>
-                        </TableCell>
-                      )}
+                        ) : user.id === teamspace.creator.id ? (
+                          <Badge>Creator</Badge>
+                        ) : (
+                          ""
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -453,7 +456,13 @@ export const TeamspaceMember = ({
         onClose={() => setIsMemberModalOpen(false)}
       >
         <div className="space-y-12 pb-12">
-          <InviteModal />
+          {/* <InviteModal /> */}
+          <div className="flex justify-end">
+            <InviteUserButton
+              teamspaceId={teamspace.id.toString()}
+              isTeamspaceModal
+            />
+          </div>
 
           <MemberContent
             teamspace={teamspace}
