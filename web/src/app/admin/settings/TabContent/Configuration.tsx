@@ -264,20 +264,20 @@ export function Configuration() {
       <h3 className="mb-4 pt-8">Page Visibility</h3>
 
       <CheckboxComponent
-        label="Search Page Enabled?"
-        sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
-        checked={settings.search_page_enabled}
-        onChange={(checked) =>
-          handleToggleSettingsField("search_page_enabled", checked)
-        }
-      />
-
-      <CheckboxComponent
         label="Chat Page Enabled?"
         sublabel="If set, then the 'Chat' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
         checked={settings.chat_page_enabled}
         onChange={(checked) =>
           handleToggleSettingsField("chat_page_enabled", checked)
+        }
+      />
+
+      <CheckboxComponent
+        label="Search Page Enabled?"
+        sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
+        checked={settings.search_page_enabled}
+        onChange={(checked) =>
+          handleToggleSettingsField("search_page_enabled", checked)
         }
       />
 
@@ -313,12 +313,14 @@ export function Configuration() {
             id="chatRetentionInput"
             placeholder="Infinite Retention"
           />
-          <Button onClick={handleSetChatRetention} className="mr-3">
-            Set Retention Limit
-          </Button>
-          <Button onClick={handleClearChatRetention} variant="outline">
-            Retain All
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleClearChatRetention} variant="outline">
+              Retain All
+            </Button>
+            <Button onClick={handleSetChatRetention}>
+              Set Retention Limit
+            </Button>
+          </div>
         </>
       )}
     </div>
