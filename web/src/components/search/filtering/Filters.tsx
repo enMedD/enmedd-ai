@@ -174,7 +174,9 @@ export function SourceSelector({
                         <div className="mt-1">{documentSet.description}</div>
                       </div>
                     </CustomTooltip>
-                    <span className="text-sm w-4/5">{documentSet.name}</span>
+                    <span className="text-sm w-4/5 truncate">
+                      {documentSet.name}
+                    </span>
                   </label>
                   <Checkbox id={documentSet.name} />
                 </div>

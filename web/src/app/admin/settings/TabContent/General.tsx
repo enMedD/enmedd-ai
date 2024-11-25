@@ -260,6 +260,7 @@ export default function General() {
           workspace_description: workspaces?.workspace_description || null,
           use_custom_logo: workspaces?.use_custom_logo || false,
           use_custom_logotype: workspaces?.use_custom_logotype || false,
+          custom_logo: workspaces?.custom_logo || null,
           custom_header_logo: workspaces?.custom_header_logo || null,
           custom_header_content: workspaces?.custom_header_content || "",
           two_lines_for_chat_header:
@@ -277,6 +278,7 @@ export default function General() {
           workspace_name: Yup.string().nullable(),
           workspace_description: Yup.string().nullable(),
           use_custom_logo: Yup.boolean().required(),
+          custom_logo: Yup.string().nullable(),
           custom_header_logo: Yup.string().nullable(),
           use_custom_logotype: Yup.boolean().required(),
           custom_header_content: Yup.string().nullable(),
@@ -471,10 +473,11 @@ export default function General() {
                   {!selectedLogo && (
                     <div className="space-y-2">
                       <SubLabel>Current Logo:</SubLabel>
-                      {workspaces?.use_custom_logo ? (
+                      {workspaces?.custom_logo ? (
                         <>
                           <img
-                            src={"/api/workspace/logo?workspace_id=" + 0}
+                            // src={"/api/workspace/logo?workspace_id=" + 0}
+                            src={buildImgUrl(workspaces?.custom_logo)}
                             alt="Logo"
                             className="h-40 object-contain w-40"
                           />

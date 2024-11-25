@@ -253,7 +253,15 @@ export function Configuration() {
 
   return (
     <div className="pt-8">
-      <h3 className="mb-4 pt-6">Page Visibility</h3>
+      <div>
+        <h2 className="font-bold text:lg md:text-xl">Page and Chat Setup</h2>
+        <p className="text-sm">
+          Manage general Arnold AI settings applicable to all users in the
+          workspace.
+        </p>
+      </div>
+
+      <h3 className="mb-4 pt-8">Page Visibility</h3>
 
       <CheckboxComponent
         label="Search Page Enabled?"
