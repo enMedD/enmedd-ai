@@ -230,6 +230,16 @@ export function ChatPage({
 
   const noAssistants = liveAssistant == null || liveAssistant == undefined;
 
+  if (noAssistants) {
+    return (
+      <NoValidAssistantModal
+        assistants={liveAssistant}
+        teamspaceId={teamspaceId}
+        user={user}
+      />
+    );
+  }
+
   useEffect(() => {
     if (!loadedIdSessionRef.current && !currentAssistantId) {
       return;
@@ -1780,16 +1790,6 @@ export function ChatPage({
   const toggleLeftSideBar = () => {
     setOpenSidebar((prevState) => !prevState);
   };
-
-  if (noAssistants) {
-    return (
-      <NoValidAssistantModal
-        assistants={liveAssistant}
-        teamspaceId={teamspaceId}
-        user={user}
-      />
-    );
-  }
 
   return (
     <>

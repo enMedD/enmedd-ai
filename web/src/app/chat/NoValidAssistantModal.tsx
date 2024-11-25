@@ -20,7 +20,7 @@ export function NoValidAssistantModal({
     <CustomModal
       trigger={null}
       title="No valid assistant for this teamspace"
-      open={assistants.length === 0}
+      open={!assistants || assistants.length === 0}
       description="There is currently no valid assistant assigned to this teamspace, so
           the chat page cannot be used. This may be because the teamspace is
           still syncing, or an assistant has not been assigned yet."
