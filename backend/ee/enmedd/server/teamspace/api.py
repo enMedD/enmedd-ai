@@ -30,6 +30,8 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.models import UserRole
 from enmedd.db.users import get_user_by_email
 from enmedd.file_store.file_store import get_default_file_store
+from enmedd.server.settings.models import Settings
+from enmedd.server.settings.store import store_settings
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -66,6 +68,40 @@ def get_teamspace_by_id(
     teamspace_data = Teamspace.from_model(teamspace_model)
 
     return teamspace_data
+
+
+# fetch all teamspaces for the user
+@basic_router.get("/user-list")
+def list_user_teamspaces(
+    user: User = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> list[Teamspace]:
+    teamspaces = (
+        db_session.query(TeamspaceModel)
+        .filter(TeamspaceModel.is_up_for_deletion == False)  # noqa E712
+        .join(User__Teamspace)
+        .filter(User__Teamspace.user_id == user.id)
+        .all()
+    )
+
+    teamspace_list = []
+
+    for teamspace_model in teamspaces:
+        user_roles = (
+            db_session.query(User__Teamspace)
+            .filter(User__Teamspace.teamspace_id == teamspace_model.id)
+            .all()
+        )
+
+        user_role_dict = {ur.user_id: ur.role for ur in user_roles}
+
+        for user in teamspace_model.users:
+            user.role = user_role_dict.get(user.id, UserRole.BASIC)
+
+        teamspace_data = Teamspace.from_model(teamspace_model)
+        teamspace_list.append(teamspace_data)
+
+    return teamspace_list
 
 
 @admin_router.get("/admin/teamspace")
@@ -132,6 +168,12 @@ def create_teamspace(
 
         db_teamspace = insert_teamspace(
             db_session, teamspace, creator_id=current_user.id
+        )
+        default_settings = Settings()
+        store_settings(
+            settings=default_settings,
+            db_session=db_session,
+            teamspace_id=db_teamspace.id,
         )
 
         return Teamspace.from_model(db_teamspace)
@@ -239,10 +281,23 @@ def leave_teamspace(
     if not teamspace:
         raise HTTPException(status_code=404, detail="Teamspace not found")
 
+    # Creator can only leave if there are other admins
     if user.id == teamspace.creator_id:
-        raise HTTPException(
-            status_code=400, detail="Creator cannot leave the teamspace"
+        other_admins_exist = (
+            db_session.query(User__Teamspace)
+            .filter(
+                User__Teamspace.teamspace_id == teamspace_id,
+                User__Teamspace.role == TeamspaceUserRole.ADMIN,
+                User__Teamspace.user_id != user.id,
+            )
+            .first()
+            is not None
         )
+        if not other_admins_exist:
+            raise HTTPException(
+                status_code=400,
+                detail="Creator cannot leave the teamspace as no other admins are present",
+            )
 
     user_teamspace = (
         db_session.query(User__Teamspace)

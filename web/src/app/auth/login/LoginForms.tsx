@@ -19,13 +19,14 @@ import Link from "next/link";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import ReCAPTCHA from "react-google-recaptcha";
 import { NEXT_PUBLIC_CAPTCHA_SITE_KEY } from "@/lib/constants";
+import { useFeatureFlag } from "@/components/feature_flag/FeatureFlagContext";
 
 export function LogInForms({}: {}) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const settings = useContext(SettingsContext);
+  const isTwoFactorAuthEnabled = useFeatureFlag("two_factor_auth");
 
   return (
     <>
@@ -54,7 +55,7 @@ export function LogInForms({}: {}) {
 
           const loginResponse = await basicLogin(values.email, values.password);
           if (loginResponse.ok) {
-            if (settings?.featureFlags.two_factor_auth == true) {
+            if (isTwoFactorAuthEnabled) {
               router.push(`/auth/2factorverification/?email=${values.email}`);
               await fetch("/api/users/generate-otp", {
                 method: "PATCH",
