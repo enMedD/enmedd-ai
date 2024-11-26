@@ -120,9 +120,13 @@ import { useAssistants } from "@/context/AssistantsContext";
 import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
 import { NoValidAssistantModal } from "./NoValidAssistantModal";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
 =======
 >>>>>>> d6a533e6 (Fix: teamspace creation with user role (#269))
+=======
+import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
+>>>>>>> d899d9f9 (Feat/feature flag component and class (#274))
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
