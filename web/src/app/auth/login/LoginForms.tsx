@@ -35,10 +35,10 @@ export function LogInForms({}: {}) {
   const isTwoFactorAuthEnabled = useFeatureFlag("two_factor_auth");
 
   const formSchema = z.object({
-    email: z.string().min(1, {
+    email: z.string().min(2, {
       message: "Please fill out this field.",
     }),
-    password: z.string().min(1, {
+    password: z.string().min(8, {
       message: "Please fill out this field.",
     }),
   });

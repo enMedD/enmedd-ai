@@ -45,13 +45,13 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   } = usePasswordValidation();
 
   const formSchema = z.object({
-    full_name: z.string().min(1, {
+    full_name: z.string().min(2, {
       message: "Please fill out this field.",
     }),
-    company_name: z.string().min(1, {
+    company_name: z.string().min(2, {
       message: "Please fill out this field.",
     }),
-    email: z.string().min(1, {
+    email: z.string().min(2, {
       message: "Please fill out this field.",
     }),
     password: z.string().min(8, {
@@ -235,7 +235,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="Repeat password"
+                    placeholder="Confirm your password"
                     {...field}
                   />
                 </FormControl>
