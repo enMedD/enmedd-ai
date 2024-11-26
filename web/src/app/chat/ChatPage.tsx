@@ -119,6 +119,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useAssistants } from "@/context/AssistantsContext";
 import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
 import { NoValidAssistantModal } from "./NoValidAssistantModal";
+import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1884,8 +1885,8 @@ export function ChatPage({
                             <Image src={Logo} alt="Logo" width={112} />
                           </div>
                           <div className="flex ml-auto gap-2 items-center">
-                            {settings?.featureFlags.share_chat &&
-                              chatSessionIdRef.current !== null && (
+                            {chatSessionIdRef.current !== null && (
+                              <FeatureFlagWrapper flag="share_chat">
                                 <ShareChatSessionModal
                                   chatSessionId={chatSessionIdRef.current}
                                   existingSharedStatus={chatSessionSharedStatus}
@@ -1897,7 +1898,8 @@ export function ChatPage({
                                     )
                                   }
                                 />
-                              )}
+                              </FeatureFlagWrapper>
+                            )}
 
                             {retrievalEnabled && (
                               <CustomTooltip

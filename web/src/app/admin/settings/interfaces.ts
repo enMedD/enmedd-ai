@@ -70,7 +70,6 @@ export interface FeatureFlags {
 
 export interface CombinedSettings {
   settings: Settings;
-  featureFlags: FeatureFlags;
   workspaces: Workspaces | null;
   customAnalyticsScript: string | null;
   isMobile?: boolean;

@@ -165,14 +165,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
               placeholder="Enter your password"
             />
 
-            <div className="flex items-center gap-2">
-              <Checkbox id="remember" />
-              <Label className="p-0" htmlFor="remember">
-                Remember me
-              </Label>
-            </div>
-
-            <div className="flex pt-8">
+            <div className="flex pt-4">
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 Sign Up
               </Button>
