@@ -151,7 +151,8 @@ export function ChatPage({
 
   const [showApiKeyModal, setShowApiKeyModal] = useState(true);
 
-  const { user, isAdmin, isLoadingUser, refreshUser } = useUser();
+  const { user, isAdmin, isLoadingUser, refreshUser, isTeamspaceAdmin } =
+    useUser();
 
   const existingChatIdRaw = searchParams.get("chatId");
   const currentAssistantId = searchParams.get(SEARCH_PARAM_NAMES.ASSISTANT_ID);
@@ -235,7 +236,7 @@ export function ChatPage({
       <NoValidAssistantModal
         assistants={liveAssistant}
         teamspaceId={teamspaceId}
-        user={user}
+        isTeamspaceAdmin={isTeamspaceAdmin}
       />
     );
   }
