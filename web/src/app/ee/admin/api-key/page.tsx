@@ -11,7 +11,7 @@ import { deleteApiKey, regenerateApiKey } from "./lib";
 import { Button } from "@/components/ui/button";
 import { usePopup } from "@/components/admin/connectors/Popup";
 import { useState } from "react";
-import { Table, Title } from "@tremor/react";
+import { Title } from "@tremor/react";
 import { DeleteButton } from "@/components/DeleteButton";
 import { FiCopy, FiEdit2, FiRefreshCw, FiX } from "react-icons/fi";
 import { Modal } from "@/components/Modal";
@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
 import { Divider } from "@/components/Divider";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -47,35 +48,28 @@ function NewApiKeyModal({
 
   return (
     <div className="h-full">
-      <div>
-        <p className="pb-4">
-          Make sure you copy your new API key. You won’t be able to see this key
-          again.
-        </p>
-
-        <div className="flex pt-2 pb-10">
-          <b className="my-auto break-all">{apiKey}</b>
-          <CustomTooltip
-            trigger={
-              <Button
-                onClick={() => {
-                  setIsCopyClicked(true);
-                  navigator.clipboard.writeText(apiKey);
-                  setTimeout(() => {
-                    setIsCopyClicked(false);
-                  }, 2000);
-                }}
-                variant="ghost"
-                size="icon"
-                className="ml-2"
-              >
-                {isCopyClicked ? <Check size="16" /> : <Copy size="16" />}
-              </Button>
-            }
-          >
-            {isCopyClicked ? "Copied" : "Copy"}
-          </CustomTooltip>
-        </div>
+      <div className="flex pt-2 pb-10">
+        <b className="my-auto break-all">{apiKey}</b>
+        <CustomTooltip
+          trigger={
+            <Button
+              onClick={() => {
+                setIsCopyClicked(true);
+                navigator.clipboard.writeText(apiKey);
+                setTimeout(() => {
+                  setIsCopyClicked(false);
+                }, 2000);
+              }}
+              variant="ghost"
+              size="icon"
+              className="ml-2"
+            >
+              {isCopyClicked ? <Check size="16" /> : <Copy size="16" />}
+            </Button>
+          }
+        >
+          {isCopyClicked ? "Copied" : "Copy"}
+        </CustomTooltip>
       </div>
     </div>
   );
@@ -130,6 +124,7 @@ function Main() {
           onClose={() => setShowCreateUpdateForm(false)}
           open={showCreateUpdateForm}
           title={isUpdate ? "Update API Key" : "Create a new API Key"}
+          description="Choose a memorable name for your API key. This is optional and can be added or changed later."
         >
           <EnmeddApiKeyForm
             onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
@@ -153,6 +148,8 @@ function Main() {
           onClose={() => setFullApiKey(null)}
           open={Boolean(fullApiKey)}
           title="New API Key"
+          description="Make sure you copy your new API key. You won’t be able to see this key
+          again."
         >
           <NewApiKeyModal
             apiKey={fullApiKey}
@@ -170,6 +167,7 @@ function Main() {
         onClose={() => setShowCreateUpdateForm(false)}
         open={showCreateUpdateForm}
         title={isUpdate ? "Update API Key" : "Create a new API Key"}
+        description="Choose a memorable name for your API key. This is optional and can be added or changed later."
       >
         <EnmeddApiKeyForm
           onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
@@ -189,7 +187,7 @@ function Main() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="text-sm">
+              <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>API Key</TableHead>
                 <TableHead>Role</TableHead>
