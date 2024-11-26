@@ -35,7 +35,7 @@ export function LogInForms({}: {}) {
   const isTwoFactorAuthEnabled = useFeatureFlag("two_factor_auth");
 
   const formSchema = z.object({
-    username: z.string().min(1, {
+    email: z.string().min(1, {
       message: "Please fill out this field.",
     }),
     password: z.string().min(1, {
@@ -47,7 +47,7 @@ export function LogInForms({}: {}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -66,10 +66,10 @@ export function LogInForms({}: {}) {
 
     setIsLoading(true);
 
-    const loginResponse = await basicLogin(values.username, values.password);
+    const loginResponse = await basicLogin(values.email, values.password);
     if (loginResponse.ok) {
       if (isTwoFactorAuthEnabled) {
-        router.push(`/auth/2factorverification/?email=${values.username}`);
+        router.push(`/auth/2factorverification/?email=${values.email}`);
         await fetch("/api/users/generate-otp", {
           method: "PATCH",
           headers: {
@@ -86,7 +86,7 @@ export function LogInForms({}: {}) {
 
       let errorMsg = "Unknown error";
       if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
-        errorMsg = "Invalid username or password";
+        errorMsg = "Invalid email or password";
       }
       toast({
         title: "Login Failed",
@@ -103,10 +103,10 @@ export function LogInForms({}: {}) {
       {isLoading && <Spinner />}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Username Field */}
+          {/* Email Field */}
           <FormField
             control={form.control}
-            name="username"
+            name="email"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>

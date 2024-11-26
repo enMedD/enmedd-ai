@@ -161,19 +161,19 @@ export function GlobalSidebar({
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
-  let teamsapces = user?.groups || [];
+  let teamspaces = user?.groups || [];
   if (teamspaceId) {
-    const matchingTeamspace = teamsapces.find(
+    const matchingTeamspace = teamspaces.find(
       (group) => group.id.toString() === teamspaceId
     );
-    const otherTeamspaces = teamsapces.filter(
+    const otherTeamspaces = teamspaces.filter(
       (group) => group.id.toString() !== teamspaceId
     );
-    teamsapces = matchingTeamspace
+    teamspaces = matchingTeamspace
       ? [matchingTeamspace, ...otherTeamspaces]
       : otherTeamspaces;
   }
-  const displayedTeamspaces = teamsapces.slice(0, 8);
+  const displayedTeamspaces = teamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
 
   const generateGradient = (teamspaceName: string) => {

@@ -20,7 +20,7 @@ export default function UserTeamspace() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [teamspaces, setTeamspaces] = useState<Teamspace[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTeamspace, setSelectedTeamspace] = useState<any>(null);
 
