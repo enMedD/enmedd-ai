@@ -6,21 +6,23 @@ import { Assistant } from "../admin/assistants/interfaces";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { User } from "@/lib/types";
+import { useTeamspaces, useTeamspaceUsers } from "@/lib/hooks";
 
 export function NoValidAssistantModal({
   assistants,
   teamspaceId,
-  user,
+  isTeamspaceAdmin = false,
 }: {
   assistants: Assistant[];
   teamspaceId: string | undefined;
-  user: User | null;
+  isTeamspaceAdmin: boolean;
 }) {
+  const { data } = useTeamspaces();
   return (
     <CustomModal
       trigger={null}
       title="No valid assistant for this teamspace"
-      open={assistants.length === 0}
+      open={!assistants || assistants.length === 0}
       description="There is currently no valid assistant assigned to this teamspace, so
           the chat page cannot be used. This may be because the teamspace is
           still syncing, or an assistant has not been assigned yet."
@@ -34,7 +36,7 @@ export function NoValidAssistantModal({
           <Button>Go to Search</Button>
         </Link>
 
-        {user?.role === "admin" && (
+        {isTeamspaceAdmin && (
           <Link
             href={
               teamspaceId
@@ -43,7 +45,7 @@ export function NoValidAssistantModal({
             }
             passHref
           >
-            <Button>Go to Admin Panel</Button>
+            <Button>Go to Teamspace Admin Panel</Button>
           </Link>
         )}
       </div>

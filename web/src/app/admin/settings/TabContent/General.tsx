@@ -733,8 +733,6 @@ export default function General() {
                               name="smtp_server"
                               label="SMTP Server"
                               placeholder="Enter hostname"
-                              //remove this
-                              optional
                               value={formData?.smtp_server || ""}
                               onChange={handleChange}
                             />
@@ -743,13 +741,8 @@ export default function General() {
                               name="smtp_port"
                               label="SMTP Port"
                               placeholder="Enter port"
-                              optional
                               type="text"
-                              value={
-                                formData.smtp_port
-                                  ? formData.smtp_port.toString()
-                                  : "587"
-                              }
+                              value={formData.smtp_port?.toString() || ""}
                               onChange={handleChange}
                             />
 
@@ -757,8 +750,6 @@ export default function General() {
                               name="smtp_username"
                               label="SMTP Username (email)"
                               placeholder="Enter username"
-                              //remove this
-                              optional
                               value={formData?.smtp_username || ""}
                               onChange={handleChange}
                             />
@@ -767,8 +758,6 @@ export default function General() {
                               name="smtp_password"
                               label="SMTP Password"
                               placeholder="Enter password"
-                              //remove this
-                              optional
                               type="password"
                               value={formData?.smtp_password || ""}
                               onChange={handleChange}
@@ -781,7 +770,9 @@ export default function General() {
                                 SMTP Server:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_server || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_server || "None"}
                               </span>
                             </div>
 
@@ -790,7 +781,9 @@ export default function General() {
                                 SMTP Port:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_port || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_port || "None"}
                               </span>
                             </div>
 
@@ -799,7 +792,9 @@ export default function General() {
                                 SMTP Username (email):
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_username || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_username || "None"}
                               </span>
                             </div>
 
@@ -808,7 +803,11 @@ export default function General() {
                                 SMTP Password:
                               </span>
                               <span className="font-semibold text-inverted-inverted truncate">
-                                &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_password
+                                    ? "●●●●●●●●"
+                                    : "None"}
                               </span>
                             </div>
                           </>
@@ -828,16 +827,22 @@ export default function General() {
                               <Button
                                 type="button"
                                 onClick={async () => {
-                                  await updateSmtpSettings(0, formData);
-                                  setFormData({
-                                    smtp_server: "",
-                                    smtp_port: 0,
-                                    smtp_username: "",
-                                    smtp_password: "",
-                                  });
                                   setIsEditing(false);
+                                  await updateSmtpSettings(0, formData);
                                 }}
-                                disabled={loading}
+                                disabled={
+                                  loading ||
+                                  JSON.stringify(formData) ===
+                                    JSON.stringify({
+                                      smtp_server:
+                                        settings.settings.smtp_server,
+                                      smtp_port: settings.settings.smtp_port,
+                                      smtp_username:
+                                        settings.settings.smtp_username,
+                                      smtp_password:
+                                        settings.settings.smtp_password,
+                                    })
+                                }
                               >
                                 Save
                               </Button>
@@ -847,6 +852,7 @@ export default function General() {
                               onClick={() => setIsEditing(true)}
                               type="button"
                               variant="outline"
+                              disabled={loading}
                             >
                               Edit
                             </Button>

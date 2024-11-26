@@ -152,7 +152,8 @@ export function ChatPage({
 
   const [showApiKeyModal, setShowApiKeyModal] = useState(true);
 
-  const { user, isAdmin, isLoadingUser, refreshUser } = useUser();
+  const { user, isAdmin, isLoadingUser, refreshUser, isTeamspaceAdmin } =
+    useUser();
 
   const existingChatIdRaw = searchParams.get("chatId");
   const currentAssistantId = searchParams.get(SEARCH_PARAM_NAMES.ASSISTANT_ID);
@@ -230,6 +231,16 @@ export function ChatPage({
     availableAssistants[0];
 
   const noAssistants = liveAssistant == null || liveAssistant == undefined;
+
+  if (noAssistants) {
+    return (
+      <NoValidAssistantModal
+        assistants={liveAssistant}
+        teamspaceId={teamspaceId}
+        isTeamspaceAdmin={isTeamspaceAdmin}
+      />
+    );
+  }
 
   useEffect(() => {
     if (!loadedIdSessionRef.current && !currentAssistantId) {
@@ -1781,16 +1792,6 @@ export function ChatPage({
   const toggleLeftSideBar = () => {
     setOpenSidebar((prevState) => !prevState);
   };
-
-  if (noAssistants) {
-    return (
-      <NoValidAssistantModal
-        assistants={liveAssistant}
-        teamspaceId={teamspaceId}
-        user={user}
-      />
-    );
-  }
 
   return (
     <>
