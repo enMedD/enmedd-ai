@@ -78,6 +78,7 @@ def list_user_teamspaces(
 ) -> list[Teamspace]:
     teamspaces = (
         db_session.query(TeamspaceModel)
+        .filter(TeamspaceModel.is_up_for_deletion == False)  # noqa E712
         .join(User__Teamspace)
         .filter(User__Teamspace.user_id == user.id)
         .all()

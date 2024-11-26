@@ -16,7 +16,6 @@ from enmedd.server.manage.models import UserPreferences
 from enmedd.server.models import MinimalTeamspaceSnapshot
 from enmedd.server.models import MinimalUserwithNameSnapshot
 from enmedd.server.models import MinimalWorkspaceSnapshot
-from enmedd.server.query_and_chat.models import ChatSessionDetails
 from enmedd.server.settings.models import TeamspaceSettings
 from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 
@@ -29,7 +28,6 @@ class Teamspace(BaseModel):
     cc_pairs: list[ConnectorCredentialPairDescriptor]
     document_sets: list[DocumentSet]
     assistants: list[AssistantSnapshot]
-    chat_sessions: list[ChatSessionDetails]
     is_up_to_date: bool
     is_up_for_deletion: bool
     logo: Optional[str] = None
@@ -104,19 +102,6 @@ class Teamspace(BaseModel):
                 AssistantSnapshot.from_model(assistant)
                 for assistant in teamspace_model.assistants
                 if AssistantSnapshot.from_model(assistant) is not None
-            ],
-            chat_sessions=[
-                ChatSessionDetails(
-                    id=chat_session.id,
-                    name=chat_session.description,
-                    description=chat_session.description,
-                    assistant_id=chat_session.assistant_id,
-                    time_created=chat_session.time_created.isoformat(),
-                    shared_status=chat_session.shared_status,
-                    folder_id=chat_session.folder_id,
-                    current_alternate_model=chat_session.current_alternate_model,
-                )
-                for chat_session in teamspace_model.chat_sessions
             ],
             is_up_to_date=teamspace_model.is_up_to_date,
             is_up_for_deletion=teamspace_model.is_up_for_deletion,
