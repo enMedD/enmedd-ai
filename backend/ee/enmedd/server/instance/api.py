@@ -20,6 +20,8 @@ from enmedd.db.instance import migrate_public_schema_to_new_schema
 from enmedd.db.models import User
 from enmedd.db.models import Workspace
 from enmedd.server.models import MinimalWorkspaceInfo
+from enmedd.server.settings.models import Settings
+from enmedd.server.settings.store import store_settings
 from enmedd.utils.logger import setup_logger
 
 
@@ -44,7 +46,15 @@ def create_new_workspace(
 
         migrate_public_schema_to_new_schema(db_session, schema_name)
 
-        insert_workspace_data(db_session, schema_name, workspace)
+        workspace_id = insert_workspace_data(db_session, schema_name, workspace)
+
+        default_settings = Settings()
+        store_settings(
+            settings=default_settings,
+            db_session=db_session,
+            workspace_id=workspace_id,
+            schema_name=schema_name,
+        )
 
     except IntegrityError:
         db_session.rollback()
@@ -55,7 +65,8 @@ def create_new_workspace(
     except Exception as e:
         db_session.rollback()
         raise HTTPException(
-            status_code=500, detail=f"Failed to create workspace: {str(e)}"
+            status_code=500,
+            detail=f"Failed to create workspace: {str(e)}",
         )
 
     return {"message": f"Workspace '{workspace.workspace_name}' created successfully."}
