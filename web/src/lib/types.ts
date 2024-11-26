@@ -224,12 +224,7 @@ export interface MinimalTeamspaceSnapshot {
   id: number;
   name: string;
   logo?: string;
-}
-
-export interface MinimalTeamspaceSnapshot {
-  id: number;
-  name: string;
-  logo?: string;
+  users: User[];
 }
 
 const validSources = [

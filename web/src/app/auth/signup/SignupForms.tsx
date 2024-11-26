@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useToast } from "@/hooks/use-toast";
@@ -13,8 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation"; // Import the custom hook
+import ReCAPTCHA from "react-google-recaptcha";
+import { NEXT_PUBLIC_CAPTCHA_SITE_KEY } from "@/lib/constants";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -55,6 +58,16 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
             .oneOf([Yup.ref("password")], "Passwords must match"),
         })}
         onSubmit={async (values) => {
+          const captchaValue = recaptchaRef.current?.getValue();
+          if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
+            toast({
+              title: "ReCAPTCHA Missing",
+              description: "Please complete the ReCAPTCHA to proceed.",
+              variant: "destructive",
+            });
+            return;
+          }
+
           if (
             !(
               values.password.length >= 8 &&
@@ -165,7 +178,22 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
               placeholder="Enter your password"
             />
 
-            <div className="flex pt-4">
+            {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
+                className="pb-4"
+              />
+            )}
+
+            <div className="flex items-center gap-2">
+              {/* <Checkbox id="remember" />
+              <Label className="p-0" htmlFor="remember">
+                Remember me
+              </Label> */}
+            </div>
+
+            <div className="flex pt-8">
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 Sign Up
               </Button>
