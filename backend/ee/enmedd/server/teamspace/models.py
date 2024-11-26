@@ -23,6 +23,7 @@ from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 class Teamspace(BaseModel):
     id: int
     name: str
+    description: Optional[str] = None
     creator: MinimalUserwithNameSnapshot
     users: list[UserInfo]
     cc_pairs: list[ConnectorCredentialPairDescriptor]
@@ -138,6 +139,7 @@ class UserWithRole(BaseModel):
 
 class TeamspaceCreate(BaseModel):
     name: str
+    descriptions: Optional[str] = None
     users: List[UserWithRole]
     cc_pair_ids: Optional[List[int]] = None
     document_set_ids: Optional[List[int]] = None
@@ -154,6 +156,7 @@ class TeamspaceUpdate(BaseModel):
 
 class TeamspaceUpdateName(BaseModel):
     name: str
+    description: Optional[str] = None
 
 
 class UpdateUserRoleRequest(BaseModel):

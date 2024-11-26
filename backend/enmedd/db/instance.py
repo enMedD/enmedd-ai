@@ -7,11 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import WorkspaceCreate
-from enmedd.auth.schemas import UserRole
 from enmedd.db.enums import InstanceSubscriptionPlan
 from enmedd.db.models import Instance
-from enmedd.db.models import User
-from enmedd.db.models import Workspace__Users
 
 
 def create_new_schema(db_session: Session, schema_name: str) -> None:
@@ -67,11 +64,11 @@ def insert_workspace_data(
         text(
             f"""
             INSERT INTO {schema_name}.workspace (
-                instance_id, workspace_name, workspace_description, use_custom_logo,
+                id, instance_id, workspace_name, workspace_description, use_custom_logo,
                 custom_logo, custom_header_logo, custom_header_content,
                 brand_color, secondary_color
             ) VALUES (
-                :instance_id, :workspace_name, :workspace_description, :use_custom_logo,
+                0, :instance_id, :workspace_name, :workspace_description, :use_custom_logo,
                 :custom_logo, :custom_header_logo, :custom_header_content,
                 :brand_color, :secondary_color
             )
@@ -135,20 +132,3 @@ def upsert_instance(
         # Roll back the changes in case of an error
         db_session.rollback()
         raise Exception(f"Error upserting instance: {str(e)}") from e
-
-
-def get_workspace_by_id(
-    instance_id: int, user: User | None = None, db_session: Session = None
-) -> Instance | None:
-    stmt = select(Instance).where(Instance.id == instance_id)
-
-    if user and user.role == UserRole.BASIC:
-        stmt = (
-            stmt.where(Instance.workspaces)
-            .join(Workspace__Users)
-            .join(User)
-            .where(User.id == user.id)
-        )
-
-    instance = db_session.scalar(stmt)
-    return instance

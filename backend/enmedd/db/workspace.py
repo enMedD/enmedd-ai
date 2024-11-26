@@ -1,27 +1,9 @@
-from uuid import UUID
-
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import WorkspaceUpdate
-from enmedd.auth.schemas import UserRole
-from enmedd.db.models import User
 from enmedd.db.models import Workspace
-from enmedd.db.models import Workspace__Users
-
-
-def _add_user__workspace_relationships__no_commit(
-    db_session: Session, workspace_id: int, user_ids: list[UUID]
-) -> list[Workspace__Users]:
-    """NOTE: does not commit the transaction."""
-    relationships = [
-        Workspace__Users(user_id=user_id, workspace_id=workspace_id)
-        for user_id in user_ids
-    ]
-    db_session.add_all(relationships)
-    return relationships
 
 
 # def put_workspace(
@@ -160,33 +142,6 @@ def upsert_workspace(
         # Roll back the changes in case of an error
         db_session.rollback()
         raise Exception(f"Error upserting workspace: {str(e)}") from e
-
-
-def get_workspaces_for_user(user_id: int, db_session: Session) -> list[Workspace]:
-    stmt = (
-        select(Workspace)
-        .join(Workspace__Users)
-        .join(User)
-        .where(User.id == user_id)
-        .options(joinedload(Workspace.users))
-    )
-
-    workspaces = db_session.scalars(stmt).all()
-    return workspaces
-
-
-def get_workspace_for_user_by_id(
-    workspace_id: int,
-    db_session: Session,
-    user: User | None = None,
-) -> Workspace | None:
-    stmt = select(Workspace).where(Workspace.id == workspace_id)
-
-    if user and user.role == UserRole.BASIC:
-        stmt = stmt.join(Workspace__Users).join(User).where(User.id == user.id)
-
-    workspace = db_session.scalar(stmt)
-    return workspace
 
 
 def get_workspace_settings(db_session: Session) -> Workspace | None:

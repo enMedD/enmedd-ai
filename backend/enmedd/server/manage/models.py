@@ -12,7 +12,6 @@ from enmedd.search.models import SavedSearchSettings
 from enmedd.server.models import FullUserSnapshot
 from enmedd.server.models import InvitedUserSnapshot
 from enmedd.server.models import TeamspaceResponse
-from enmedd.server.models import WorkspaceResponse
 
 
 if TYPE_CHECKING:
@@ -53,7 +52,6 @@ class UserInfo(BaseModel):
     billing_email_address: str | None = None
     vat: str | None = None
     preferences: UserPreferences
-    workspace: list[WorkspaceResponse] | None = None
     groups: list[TeamspaceResponse] | None = None
     oidc_expiry: datetime | None = None
     current_token_created_at: datetime | None = None
@@ -80,18 +78,6 @@ class UserInfo(BaseModel):
             company_billing=user.company_billing,
             billing_email_address=user.billing_email_address,
             vat=user.vat,
-            workspace=[
-                WorkspaceResponse(
-                    id=workspace.id,
-                    instance_id=workspace.instance_id,
-                    workspace_name=workspace.workspace_name,
-                    workspace_description=workspace.workspace_description,
-                    use_custom_logo=workspace.use_custom_logo,
-                    custom_logo=workspace.custom_logo,
-                    custom_header_content=workspace.custom_header_content,
-                )
-                for workspace in user.workspace
-            ],
             groups=[
                 TeamspaceResponse(
                     id=group.id,

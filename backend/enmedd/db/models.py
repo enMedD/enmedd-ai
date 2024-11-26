@@ -180,9 +180,6 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     groups: Mapped[list["Teamspace"]] = relationship(
         "Teamspace", secondary="user__teamspace", back_populates="users", lazy="joined"
     )
-    workspace: Mapped[list["Workspace"]] = relationship(
-        "Workspace", secondary="workspace__users", back_populates="users", lazy="joined"
-    )
     teamspace = relationship("Teamspace", back_populates="users")
 
 
@@ -379,20 +376,6 @@ class Assistant__Tool(Base):
     )
     tool_id: Mapped[int] = mapped_column(
         ForeignKey("tool.id", ondelete="CASCADE"), primary_key=True
-    )
-
-
-class Workspace__Users(Base):
-    __tablename__ = "workspace__users"
-
-    workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.id", ondelete="CASCADE"), primary_key=True
-    )
-    user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
-    )
-    role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, native_enum=False, default=UserRole.BASIC)
     )
 
 
@@ -1707,6 +1690,7 @@ class Teamspace(Base):
     is_up_for_deletion: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
+    description: Mapped[str] = mapped_column(Text, nullable=True)
     logo: Mapped[str] = mapped_column(String, nullable=True)
     creator: Mapped[User] = relationship("User", back_populates="teamspace")
     users: Mapped[list[User]] = relationship(
@@ -1931,7 +1915,7 @@ Workspace Tables
 class Workspace(Base):
     __tablename__ = "workspace"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, default=0)
     instance_id: Mapped[int | None] = mapped_column(
         ForeignKey("instance.id", ondelete="CASCADE"), nullable=True
     )
@@ -1943,10 +1927,6 @@ class Workspace(Base):
     custom_header_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     brand_color: Mapped[str | None] = mapped_column(Text, nullable=True)
     secondary_color: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    users: Mapped[list[User]] = relationship(
-        "User", secondary=Workspace__Users.__table__, viewonly=True
-    )
 
     groups: Mapped[list["Teamspace"]] = relationship(
         "Teamspace",
