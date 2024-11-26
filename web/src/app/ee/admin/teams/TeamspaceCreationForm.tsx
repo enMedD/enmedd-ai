@@ -186,7 +186,9 @@ export const TeamspaceCreationForm = ({
                   <UserEditor
                     selectedUserIds={values.users.map((user) => user.user_id)}
                     allUsers={users}
-                    existingUsers={values.users}
+                    existingUsers={
+                      user ? [{ user_id: user.id, role: "admin" }] : []
+                    }
                     onAddUser={(newUser) => {
                       setFieldValue("users", [...values.users, newUser]);
                     }}
