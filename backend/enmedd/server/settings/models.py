@@ -43,7 +43,7 @@ class Settings(BaseModel):
     maximum_chat_retention_days: int | None = None
     gpu_enabled: bool | None = False
     num_indexing_workers: int | None = 1
-    vespa_searcher_threads: int | None = 1
+    vespa_searcher_threads: int | None = 2
     smtp_server: Optional[str] = None
     smtp_port: Optional[int] = None
     smtp_username: Optional[str] = None

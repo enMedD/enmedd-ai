@@ -61,21 +61,22 @@ def delete_schema(db_session: Session, schema_name: str) -> None:
 
 def insert_workspace_data(
     db_session: Session, schema_name: str, workspace: WorkspaceCreate
-) -> None:
-    """Insert workspace data into the new schema's workspace table."""
-    db_session.execute(
+) -> int:
+    """Insert workspace data into the new schema's workspace table and return workspace_id."""
+    result = db_session.execute(
         text(
             f"""
-        INSERT INTO {schema_name}.workspace (
-            instance_id, workspace_name, workspace_description, use_custom_logo,
-            custom_logo, custom_header_logo, custom_header_content,
-            brand_color, secondary_color
-        ) VALUES (
-            :instance_id, :workspace_name, :workspace_description, :use_custom_logo,
-            :custom_logo, :custom_header_logo, :custom_header_content,
-            :brand_color, :secondary_color
-        )
-    """
+            INSERT INTO {schema_name}.workspace (
+                instance_id, workspace_name, workspace_description, use_custom_logo,
+                custom_logo, custom_header_logo, custom_header_content,
+                brand_color, secondary_color
+            ) VALUES (
+                :instance_id, :workspace_name, :workspace_description, :use_custom_logo,
+                :custom_logo, :custom_header_logo, :custom_header_content,
+                :brand_color, :secondary_color
+            )
+            RETURNING id  -- Assuming `id` is the primary key column for the workspace table
+        """
         ),
         {
             "instance_id": 0,  # Adjust as needed
@@ -89,7 +90,9 @@ def insert_workspace_data(
             "secondary_color": workspace.secondary_color,
         },
     )
+    workspace_id = result.scalar()
     db_session.commit()
+    return workspace_id
 
 
 def upsert_instance(
