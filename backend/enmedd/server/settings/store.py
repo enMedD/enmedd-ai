@@ -90,7 +90,9 @@ def store_settings(
     schema_name: Optional[str] = None,
 ) -> None:
     if schema_name:
-        db_session.execute(text(f"SET search_path TO {schema_name}"))
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
 
     if teamspace_id:
         settings_record = (

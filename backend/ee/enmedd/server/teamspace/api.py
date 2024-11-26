@@ -238,7 +238,7 @@ def delete_teamspace(
 
 
 @admin_router.patch("/admin/teamspace")
-def update_teamspace_name(
+def update_teamspace_name_and_description(
     teamspace_id: int,
     teamspace_update: TeamspaceUpdateName,
     _: User = Depends(current_teamspace_admin_user),
@@ -265,6 +265,7 @@ def update_teamspace_name(
         )
 
     db_teamspace.name = teamspace_update.name
+    db_teamspace.description = teamspace_update.description
     db_session.commit()
 
     return Teamspace.from_model(db_teamspace)
