@@ -162,17 +162,17 @@ export function GlobalSidebar({
   const defaultPage = settings.default_page;
 
   let teamspaces = user?.groups || [];
-  if (teamspaceId) {
-    const matchingTeamspace = teamspaces.find(
-      (group) => group.id.toString() === teamspaceId
-    );
-    const otherTeamspaces = teamspaces.filter(
-      (group) => group.id.toString() !== teamspaceId
-    );
-    teamspaces = matchingTeamspace
-      ? [matchingTeamspace, ...otherTeamspaces]
-      : otherTeamspaces;
-  }
+  // if (teamspaceId) {
+  //   const matchingTeamspace = teamspaces.find(
+  //     (group) => group.id.toString() === teamspaceId
+  //   );
+  //   const otherTeamspaces = teamspaces.filter(
+  //     (group) => group.id.toString() !== teamspaceId
+  //   );
+  //   teamspaces = matchingTeamspace
+  //     ? [matchingTeamspace, ...otherTeamspaces]
+  //     : otherTeamspaces;
+  // }
   const displayedTeamspaces = teamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
 
