@@ -1,20 +1,27 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
 import { useToast } from "@/hooks/use-toast";
 import { basicLogin, basicSignup, validateInvite } from "@/lib/user";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/Spinner";
-import { TextFormField } from "@/components/admin/connectors/Field";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordRequirements } from "./PasswordRequirements";
-import { usePasswordValidation } from "@/hooks/usePasswordValidation"; // Import the custom hook
+import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 import ReCAPTCHA from "react-google-recaptcha";
 import { NEXT_PUBLIC_CAPTCHA_SITE_KEY } from "@/lib/constants";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -37,170 +44,221 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     setPasswordFocused,
   } = usePasswordValidation();
 
+  const formSchema = z.object({
+    full_name: z.string().min(1, {
+      message: "Please fill out this field.",
+    }),
+    company_name: z.string().min(1, {
+      message: "Please fill out this field.",
+    }),
+    email: z.string().min(1, {
+      message: "Please fill out this field.",
+    }),
+    password: z.string().min(8, {
+      message: "Please fill out this field.",
+    }),
+    confirm_password: z.string().min(8, {
+      message: "Please fill out this field.",
+    }),
+  });
+
+  // Initialize form using react-hook-form with Zod validation
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      full_name: "",
+      company_name: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+    },
+  });
+
+  // Handle form submission
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const captchaValue = recaptchaRef.current?.getValue();
+    if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
+      toast({
+        title: "ReCAPTCHA Missing",
+        description: "Please complete the ReCAPTCHA to proceed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (
+      !(values.password.length >= 8 && hasUppercase && hasNumberOrSpecialChar)
+    ) {
+      setPasswordFocused(true);
+      toast({
+        title: "Password doesn't meet requirements",
+        description: "Ensure your password meets all the criteria.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const response = await basicSignup(
+      values.full_name,
+      values.company_name,
+      values.email,
+      values.password
+    );
+
+    if (!response.ok) {
+      setIsLoading(false);
+      const errorDetail = (await response.json()).detail;
+
+      let errorMsg = "Unknown error";
+      if (errorDetail === "REGISTER_USER_ALREADY_EXISTS") {
+        errorMsg = "An account already exist with the specified email.";
+      }
+      toast({
+        title: "Sign Up Failed",
+        description: `Failed to sign up - ${errorMsg}`,
+        variant: "destructive",
+      });
+
+      setPasswordFocused(true);
+      return;
+    }
+
+    const loginResponse = await basicLogin(values.email, values.password);
+    if (loginResponse.ok) {
+      if (token) {
+        await validateInvite(values.email, token);
+      }
+      if (shouldVerify) {
+        router.push("/auth/waiting-on-verification");
+      } else {
+        router.push("/");
+      }
+    }
+    setIsLoading(false);
+  }
+
   return (
     <>
       {isLoading && <Spinner />}
-      <Formik
-        initialValues={{
-          full_name: "",
-          company_name: "",
-          email: email,
-          password: "",
-          confirm_password: "",
-        }}
-        validationSchema={Yup.object().shape({
-          full_name: Yup.string().min(3).max(70).required(),
-          company_name: Yup.string().required(),
-          email: Yup.string().email().required("Email is required"),
-          password: Yup.string().required("Password is required").min(8),
-          confirm_password: Yup.string()
-            .required("Confirm password is required")
-            .oneOf([Yup.ref("password")], "Passwords must match"),
-        })}
-        onSubmit={async (values) => {
-          const captchaValue = recaptchaRef.current?.getValue();
-          if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
-            toast({
-              title: "ReCAPTCHA Missing",
-              description: "Please complete the ReCAPTCHA to proceed.",
-              variant: "destructive",
-            });
-            return;
-          }
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Full Name Field */}
+          <FormField
+            control={form.control}
+            name="full_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your full name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Company Name Field */}
+          <FormField
+            control={form.control}
+            name="company_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your company name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          if (
-            !(
-              values.password.length >= 8 &&
-              hasUppercase &&
-              hasNumberOrSpecialChar
-            )
-          ) {
-            setPasswordFocused(true);
-            toast({
-              title: "Password doesn't meet requirements",
-              description: "Ensure your password meets all the criteria.",
-              variant: "destructive",
-            });
-            return;
-          }
+          {/* Email Field */}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          setIsLoading(true);
-          const response = await basicSignup(
-            values.full_name,
-            values.company_name,
-            values.email,
-            values.password
-          );
-
-          if (!response.ok) {
-            setIsLoading(false);
-            const errorDetail = (await response.json()).detail;
-
-            let errorMsg = "Unknown error";
-            if (errorDetail === "REGISTER_USER_ALREADY_EXISTS") {
-              errorMsg = "An account already exist with the specified email.";
-            }
-            toast({
-              title: "Sign Up Failed",
-              description: `Failed to sign up - ${errorMsg}`,
-              variant: "destructive",
-            });
-
-            setPasswordFocused(true);
-            return;
-          }
-
-          const loginResponse = await basicLogin(values.email, values.password);
-          if (loginResponse.ok) {
-            if (token) {
-              await validateInvite(values.email, token);
-            }
-            if (shouldVerify) {
-              router.push("/auth/waiting-on-verification");
-            } else {
-              router.push("/");
-            }
-          }
-          setIsLoading(false);
-        }}
-      >
-        {({ isSubmitting, values, setFieldValue }) => (
-          <Form>
-            <TextFormField
-              name="full_name"
-              label="Full name"
-              type="text"
-              placeholder="Enter your full name"
-            />
-            <TextFormField
-              name="company_name"
-              label="Company Name"
-              type="text"
-              placeholder="Enter your company name"
-            />
-            <TextFormField
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="email@yourcompany.com"
-            />
-
-            <div className="relative">
-              <TextFormField
-                name="password"
-                label="Password"
-                type="password"
-                placeholder="Enter your password"
-                onChange={(e) => {
-                  setFieldValue("password", e.target.value);
-                  calculatePasswordStrength(e.target.value);
-                }}
-                onFocus={() => setPasswordFocused(true)}
-                onBlur={() => setPasswordFocused(false)}
-              />
-
-              {passwordFocused && (
-                <PasswordRequirements
-                  password={values.password}
-                  hasUppercase={hasUppercase}
-                  hasNumberOrSpecialChar={hasNumberOrSpecialChar}
-                  passwordStrength={passwordStrength}
-                  passwordFeedback={passwordFeedback}
-                  passwordWarning={passwordWarning}
-                />
+          {/* Password Field */}
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e); // Update form state
+                        calculatePasswordStrength(e.target.value);
+                      }}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-
-            <TextFormField
-              name="confirm_password"
-              label="Confirm Password"
-              type="password"
-              placeholder="Enter your password"
             />
 
-            {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
-                className="pb-4"
+            {passwordFocused && (
+              <PasswordRequirements
+                password={form.watch("password")}
+                hasUppercase={hasUppercase}
+                hasNumberOrSpecialChar={hasNumberOrSpecialChar}
+                passwordStrength={passwordStrength}
+                passwordFeedback={passwordFeedback}
+                passwordWarning={passwordWarning}
               />
             )}
+          </div>
 
-            <div className="flex items-center gap-2">
-              {/* <Checkbox id="remember" />
-              <Label className="p-0" htmlFor="remember">
-                Remember me
-              </Label> */}
-            </div>
+          {/* Confirm Password Field */}
+          <FormField
+            control={form.control}
+            name="confirm_password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Repeat password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <div className="flex pt-8">
-              <Button type="submit" disabled={isSubmitting} className="w-full">
-                Sign Up
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+          {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
+              className="pb-4"
+            />
+          )}
+
+          <div className="flex pt-6">
+            <Button type="submit" className="w-full">
+              Sign Up
+            </Button>
+          </div>
+        </form>
+      </Form>
     </>
   );
 }

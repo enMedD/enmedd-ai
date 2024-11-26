@@ -12,7 +12,7 @@ import Link from "next/link";
 import { TeamspaceBubble } from "@/components/TeamspaceBubble";
 import Image from "next/image";
 import { TeamspaceModal } from "./TeamspaceModal";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 interface GlobalSidebarProps {
   openSidebar?: boolean;
@@ -29,19 +29,19 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
-  let teamsapces = user?.groups || [];
+  let teamspaces = user?.groups || [];
   if (teamspaceId) {
-    const matchingTeamspace = teamsapces.find(
+    const matchingTeamspace = teamspaces.find(
       (group) => group.id.toString() === teamspaceId
     );
-    const otherTeamspaces = teamsapces.filter(
+    const otherTeamspaces = teamspaces.filter(
       (group) => group.id.toString() !== teamspaceId
     );
-    teamsapces = matchingTeamspace
+    teamspaces = matchingTeamspace
       ? [matchingTeamspace, ...otherTeamspaces]
       : otherTeamspaces;
   }
-  const displayedTeamspaces = teamsapces.slice(0, 8);
+  const displayedTeamspaces = teamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
 
   return (
@@ -98,7 +98,7 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
               ))}
               {showEllipsis && (
                 <TeamspaceModal
-                  teamspace={teamsapces}
+                  teamspace={teamspaces}
                   defaultPage={defaultPage}
                   teamspaceId={teamspaceId}
                 />
