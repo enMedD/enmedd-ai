@@ -1,26 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useGradient } from "@/hooks/useGradient";
-import { User } from "@/lib/types";
+import { Teamspace } from "@/lib/types";
 import { Users } from "lucide-react";
-import Image from "next/image";
 import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { ThreeDotsLoader } from "@/components/Loading";
+import Image from "next/image";
 
-export default function MyTeamspace({ user }: { user: User | null }) {
+export default function UserTeamspace() {
   const router = useRouter();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
+  const [teamspaces, setTeamspaces] = useState<Teamspace[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTeamspace, setSelectedTeamspace] = useState<any>(null);
 
-  const filteredTeamspaces = user?.groups?.filter((teamspace) =>
+  useEffect(() => {
+    const fetchTeamspaces = async () => {
+      try {
+        const response = await fetch("/api/teamspace/user-list", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        setLoading(true);
+
+        if (response.ok) {
+          const data = await response.json();
+          setTeamspaces(data);
+        } else {
+          const errorData = await response.json();
+          console.log(errorData);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamspaces();
+  }, []);
+
+  const filteredTeamspaces = teamspaces.filter((teamspace) =>
     teamspace.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -60,6 +91,10 @@ export default function MyTeamspace({ user }: { user: User | null }) {
     }
   };
 
+  if (loading) {
+    return <ThreeDotsLoader />;
+  }
+
   return (
     <>
       <CustomModal
@@ -82,7 +117,7 @@ export default function MyTeamspace({ user }: { user: User | null }) {
           </Button>{" "}
         </div>
       </CustomModal>
-      <div className="py-8">
+      <div className="py-8 w-full">
         <h2 className="font-bold text-lg md:text-xl">Your Teamspaces</h2>
         <p className="text-sm">
           Manage and explore all the teamspaces you&apos;re part of. Search,
@@ -90,7 +125,7 @@ export default function MyTeamspace({ user }: { user: User | null }) {
         </p>
 
         <div className="flex flex-col gap-6 pt-8">
-          <div className="relative w-1/2 ml-auto">
+          <div className="relative w-full md:w-1/2 ml-auto">
             <Input
               type="text"
               placeholder="Search Teamspace"
@@ -99,9 +134,12 @@ export default function MyTeamspace({ user }: { user: User | null }) {
             />
           </div>
 
-          <div className="flex gap-10 flex-wrap">
+          <div className="flex flex-wrap gap-8">
             {filteredTeamspaces?.map((teamspace) => (
-              <Card key={teamspace.id} className="w-[375px]">
+              <Card
+                key={teamspace.id}
+                className="w-full sm:w-[calc(50%_-_16px)] xl:w-[calc(33%_-_18px)]"
+              >
                 <CardContent>
                   <div>
                     <div className="flex justify-between gap-5 items-end">
@@ -127,10 +165,17 @@ export default function MyTeamspace({ user }: { user: User | null }) {
                         )}
                       </div>
                     </div>
-                    <div className="space-x-2 flex gap-2 items-center text-subtle">
+                    <p className="space-x-2 flex gap-2 items-center text-subtle">
                       <Users size={15} />
-                      {teamspace.users ? teamspace.users.length : 0}
-                    </div>
+                      {teamspace.users.length}
+                    </p>
+                    <p>
+                      Role:{" "}
+                      {teamspace.users.find((user) => user.role === "basic")
+                        ? "Basic"
+                        : "Admin"}
+                    </p>
+
                     <div className="flex justify-end pt-8">
                       <Button
                         variant="destructive"
