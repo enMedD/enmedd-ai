@@ -40,7 +40,7 @@ export function Logo({
 
   return (
     <div style={{ height, width }} className={`relative ${className}`}>
-      <Image
+      <img
         src={buildImgUrl(settings.workspaces?.custom_logo)}
         alt="Logo"
         style={{ objectFit: "cover", height, width, borderRadius: "8px" }}
