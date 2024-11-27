@@ -29,9 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
 
 function parseJsonWithTrailingCommas(jsonString: string) {
   // Regular expression to remove trailing commas before } or ]
@@ -220,63 +222,79 @@ function ToolForm({
       />
       {showAdvancedOptions && (
         <div className="pt-4">
-          <h3 className="mb-2 text-xl font-bold text-primary-600">
-            Custom Headers
-          </h3>
-          <p className="mb-6 text-sm italic text-gray-600">
-            Specify custom headers for each request to this tool&apos;s API.
-          </p>
           <FieldArray
             name="customHeaders"
             render={(arrayHelpers: ArrayHelpers) => (
-              <div className="space-y-4">
-                {values.customHeaders && values.customHeaders.length > 0 && (
-                  <div className="space-y-3">
-                    {values.customHeaders.map(
-                      (
-                        header: { key: string; value: string },
-                        index: number
-                      ) => (
-                        <div
-                          key={index}
-                          className="flex items-center p-3 space-x-2 rounded-lg shadow-sm bg-gray-50"
-                        >
-                          <Field
-                            name={`customHeaders.${index}.key`}
-                            placeholder="Header Key"
-                            className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          />
-                          <Field
-                            name={`customHeaders.${index}.value`}
-                            placeholder="Header Value"
-                            className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => arrayHelpers.remove(index)}
-                            variant="destructive"
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      )
-                    )}
+              <div>
+                <div className="flex justify-between pb-4">
+                  <div>
+                    <h3 className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1">
+                      Custom Headers
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Specify custom headers for each request to this
+                      tool&apos;s API.
+                    </p>
                   </div>
-                )}
 
-                <Button
-                  onClick={() => arrayHelpers.push({ key: "", value: "" })}
-                  variant="outline"
-                >
-                  Add New Header
-                </Button>
+                  <Button
+                    onClick={() => arrayHelpers.push({ key: "", value: "" })}
+                    variant="outline"
+                  >
+                    <Plus size={16} /> Add New Header
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {values.customHeaders && values.customHeaders.length > 0 && (
+                    <div className="space-y-3">
+                      {values.customHeaders.map(
+                        (
+                          header: { key: string; value: string },
+                          index: number
+                        ) => (
+                          <div
+                            key={index}
+                            className="flex items-center p-3 space-x-2 rounded-lg shadow-sm bg-background-weak"
+                          >
+                            <Field name={`customHeaders.${index}.key`}>
+                              {({ field }: { field: any }) => (
+                                <Input
+                                  {...field}
+                                  placeholder="Header Key"
+                                  className="flex-1"
+                                />
+                              )}
+                            </Field>
+                            <Field name={`customHeaders.${index}.value`}>
+                              {({ field }: { field: any }) => (
+                                <Input
+                                  {...field}
+                                  placeholder="Header Value"
+                                  className="flex-1"
+                                />
+                              )}
+                            </Field>
+                            <Button
+                              type="button"
+                              onClick={() => arrayHelpers.remove(index)}
+                              variant="destructive"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           />
         </div>
       )}
 
-      <div className="flex pt-10">
+      <div className="flex pt-8">
         <Button
           className="mx-auto"
           type="submit"

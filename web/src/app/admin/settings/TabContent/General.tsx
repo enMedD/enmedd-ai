@@ -557,7 +557,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="pt-8">
+            <div className="py-8">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -673,7 +673,7 @@ export default function General() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 pt-6 flex justify-end border-t">
               <Button type="submit">Update</Button>
             </div>
 

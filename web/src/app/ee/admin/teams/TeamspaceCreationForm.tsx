@@ -158,7 +158,7 @@ export const TeamspaceCreationForm = ({
           <Form>
             <div className="space-y-6">
               <div className="flex flex-col justify-between gap-2 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">Name</p>
+                <p className="w-1/2 font-semibold whitespace-nowrap">Name*</p>
                 <TextFormField
                   name="name"
                   placeholder="Teamspace name"
@@ -180,13 +180,15 @@ export const TeamspaceCreationForm = ({
 
               <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select members
+                  Select members*
                 </p>
                 <div className="w-full">
                   <UserEditor
                     selectedUserIds={values.users.map((user) => user.user_id)}
                     allUsers={users}
-                    existingUsers={values.users}
+                    existingUsers={
+                      user ? [{ user_id: user.id, role: "admin" }] : []
+                    }
                     onAddUser={(newUser) => {
                       setFieldValue("users", [...values.users, newUser]);
                     }}
@@ -202,7 +204,7 @@ export const TeamspaceCreationForm = ({
 
               <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select assistants
+                  Select assistants*
                 </p>
                 <div className="w-full">
                   <Assistants

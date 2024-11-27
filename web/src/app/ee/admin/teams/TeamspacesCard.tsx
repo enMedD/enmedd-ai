@@ -74,6 +74,7 @@ export const TeamspacesCard = ({
 
   return (
     <div className="relative w-full max-w-[400px]">
+      {/* <div className="w-full sm:w-[calc(50%_-_16px)] xl:w-[calc(33%_-_18px)]"> */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           asChild
