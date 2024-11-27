@@ -156,8 +156,6 @@ export const SearchResultsDisplay = ({
 
   const uniqueDocuments = getUniqueDocuments(documents || []);
 
-  console.log(selectedDocumentIds);
-
   return (
     <div>
       {documents && documents.length > 0 && (

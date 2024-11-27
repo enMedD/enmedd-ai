@@ -100,8 +100,6 @@ const AddUserForm = withFormik<FormProps, FormValues>({
         formikBag.props.onFailure(res);
       }
     });
-
-    console.log(formikBag.props.teamspaceId);
   },
 })(AddUserFormRenderer);
 
