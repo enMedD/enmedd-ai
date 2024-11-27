@@ -35,6 +35,11 @@ import { useParams, usePathname } from "next/navigation";
 import { GroupsIcon, RobotIcon } from "../icons/icons";
 import Image from "next/image";
 import ArnoldAi from "../../../public/arnold_ai.png";
+import { useFeatureFlag } from "../feature_flag/FeatureFlagContext";
+import { Logo } from "../Logo";
+import { buildImgUrl } from "@/app/chat/files/images/utils";
+import { Separator } from "../ui/separator";
+import Link from "next/link";
 
 interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
   isTeamspace?: boolean;
@@ -51,10 +56,11 @@ interface SidebarCollection {
 }
 
 export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
-  const dynamicSettings = useContext(SettingsContext);
-  const [activeItem, setActiveItem] = useState<string | null>(null);
+  // const [activeItem, setActiveItem] = useState<string | null>(null);
   const { teamspaceId } = useParams();
-  const pathname = usePathname();
+  // const pathname = usePathname();
+  const isMultiTeamspaceEnabled = useFeatureFlag("multi_teamspace");
+  const isQueryHistoryEnabled = useFeatureFlag("query_history");
 
   const sidebarCollections: SidebarCollection[] = [
     {
@@ -145,9 +151,9 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
           ),
           link: teamspaceId ? `/t/${teamspaceId}/admin/tools` : `/admin/tools`,
         },
-        ...(teamspaceId
-          ? []
-          : [
+
+        ...(!teamspaceId
+          ? [
               {
                 name: (
                   <div className="flex items-center gap-2">
@@ -157,43 +163,49 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
                 ),
                 link: "/admin/prompt-library",
               },
-            ]),
+            ]
+          : []),
+        // {
       ],
     },
-    {
-      name: "Configuration",
-      items: teamspaceId
-        ? []
-        : [
-            {
-              name: (
-                <div className="flex items-center gap-2">
-                  <CpuIcon className="my-auto" size={18} />
-                  <div>LLM</div>
-                </div>
-              ),
-              link: "/admin/configuration/llm",
-            },
-            {
-              name: (
-                <div className="flex items-center gap-2">
-                  <FileSearch className="my-auto" size={18} />
-                  <div>Search Settings</div>
-                </div>
-              ),
-              link: "/admin/configuration/search",
-            },
-            {
-              name: (
-                <div className="flex items-center gap-2">
-                  <FileText className="my-auto" size={18} />
-                  <div>Document Processing</div>
-                </div>
-              ),
-              link: "/admin/configuration/document-processing",
-            },
-          ],
-    },
+
+    ...(!teamspaceId
+      ? [
+          {
+            name: "Configuration",
+            items: [
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <CpuIcon className="my-auto" size={18} />
+                    <div>LLM</div>
+                  </div>
+                ),
+                link: "/admin/configuration/llm",
+              },
+              {
+                // error: dynamicSettings?.settings.needs_reindexing,
+                name: (
+                  <div className="flex items-center gap-2">
+                    <FileSearch className="my-auto" size={18} />
+                    <div>Search Settings</div>
+                  </div>
+                ),
+                link: "/admin/configuration/search",
+              },
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <FileText className="my-auto" size={18} />
+                    <div>Document Processing</div>
+                  </div>
+                ),
+                link: "/admin/configuration/document-processing",
+              },
+            ],
+          },
+        ]
+      : []),
     {
       name: "User Management",
       items: [
@@ -206,7 +218,7 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
           ),
           link: teamspaceId ? `/t/${teamspaceId}/admin/users` : `/admin/users`,
         },
-        ...(dynamicSettings?.featureFlags.multi_teamspace && !isTeamspace
+        ...(isMultiTeamspaceEnabled && !isTeamspace
           ? [
               {
                 name: (
@@ -257,7 +269,7 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
             ? `/t/${teamspaceId}/admin/performance/usage`
             : `/admin/performance/usage`,
         },
-        ...(dynamicSettings?.featureFlags.query_history
+        ...(isQueryHistoryEnabled
           ? [
               {
                 name: (
@@ -272,37 +284,60 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
               },
             ]
           : []),
+        // {
+        //   name: (
+        //     <div className="flex items-center gap-2">
+        //       <FiBarChart2 size={18} />
+        //       <div >Custom Analytics</div>
+        //     </div>
+        //   ),
+        //   link: "/admin/performance/custom-analytics",
+        // },
       ],
     },
     {
       name: "Settings",
       items: [
-        {
-          name: (
-            <div className="flex items-center gap-2">
-              <Settings size={18} />
-              <div>{teamspaceId ? "Teamspace" : "Workspace"} Settings</div>
-            </div>
-          ),
-          link: teamspaceId
-            ? `/t/${teamspaceId}/admin/settings`
-            : `/admin/settings`,
-        },
+        ...(isTeamspace
+          ? [
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <Settings size={18} />
+                    <div>Teamspace Settings</div>
+                  </div>
+                ),
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/settings`
+                  : `/admin/settings`,
+              },
+            ]
+          : [
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <Settings size={18} />
+                    <div>Workspace Settings</div>
+                  </div>
+                ),
+                link: "/admin/settings",
+              },
+            ]),
       ],
     },
   ];
-  useEffect(() => {
-    // Find the active item based on the current route
-    const activeCollection = sidebarCollections.find((collection) =>
-      collection.items.some((item) => item.link === pathname)
-    );
+  // useEffect(() => {
+  //   // Find the active item based on the current route
+  //   const activeCollection = sidebarCollections.find((collection) =>
+  //     collection.items.some((item) => item.link === pathname)
+  //   );
 
-    const activeMenuItem = activeCollection?.items.find(
-      (item) => item.link === pathname
-    );
+  //   const activeMenuItem = activeCollection?.items.find(
+  //     (item) => item.link === pathname
+  //   );
 
-    setActiveItem(activeMenuItem ? (activeMenuItem.name as string) : null);
-  }, [pathname, sidebarCollections]);
+  //   setActiveItem(activeMenuItem ? (activeMenuItem.name as string) : null);
+  // }, [pathname, sidebarCollections]);
 
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
@@ -311,20 +346,18 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
   const workspaces = combinedSettings.workspaces;
 
   return (
-    <Sidebar collapsible="none" className="flex-1 flex">
-      <SidebarHeader className="gap-3.5 border-b py-[17px] md:py-[9px] mx-3">
-        <div className="flex h-full justify-center items-center gap-1">
-          {workspaces && workspaces.use_custom_logo ? (
-            <Logo />
-          ) : (
-            <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-          )}
-          <span className="text-lg font-semibold whitespace-nowrap">
-            {workspaces && workspaces.workspace_name
-              ? workspaces.workspace_name
-              : "Arnold AI"}
-          </span>
-        </div>
+    <Sidebar collapsible="none" className="flex-1 flex overflow-hidden">
+      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px]">
+        {workspaces && workspaces.custom_header_logo ? (
+          <img
+            src={buildImgUrl(workspaces?.custom_header_logo)}
+            alt="Logo"
+            className="h-8 object-contain w-full"
+          />
+        ) : (
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
+        )}
+        <Separator className="mt-[9px]" />
       </SidebarHeader>
       <SidebarContent className="gap-0">
         {sidebarCollections
@@ -336,11 +369,8 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
                 <SidebarMenu>
                   {collection.items.map((item, itemIndex) => (
                     <SidebarMenuItem key={itemIndex}>
-                      {/* <div className="shrink-0 truncate flex w-full items-center gap-2 overflow-hidden rounded-sm p-2 text-left text-sm outline-none hover:bg-hover-light">
-                        <a href={item.link}>{item.name}</a>
-                      </div> */}
                       <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate">
-                        <a href={item.link}>{item.name}</a>
+                        <Link href={item.link}>{item.name}</Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}

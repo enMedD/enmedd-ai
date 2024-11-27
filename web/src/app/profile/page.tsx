@@ -7,7 +7,7 @@ import {
 import { redirect } from "next/navigation";
 import { fetchSS } from "@/lib/utilsSS";
 import Profile from "./profile";
-import { BarLayout } from "@/components/BarLayout";
+// import { BarLayout } from "@/components/BarLayout";
 import { fetchSettingsSS } from "@/components/settings/lib";
 import { CombinedSettings } from "../admin/settings/interfaces";
 import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
@@ -54,9 +54,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="h-full flex relative flex-row">
-      <div className="flex">
-        <BarLayout user={user} />
-      </div>
+      <div className="flex">{/* <BarLayout user={user} /> */}</div>
       <div className="h-full w-full overflow-hidden overflow-y-auto">
         <Profile user={user} combinedSettings={combinedSettings} />
       </div>

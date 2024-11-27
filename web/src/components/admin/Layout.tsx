@@ -10,6 +10,7 @@ import { HealthCheckBanner } from "../health/healthcheck";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { GlobalSidebar } from "../globalSidebar/GlobalSidebar";
+import Sidebar from "../Sidebar";
 
 export async function Layout({
   children,
@@ -59,24 +60,9 @@ export async function Layout({
   return (
     <>
       <HealthCheckBanner />
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "350px",
-          } as React.CSSProperties
-        }
-        className="h-full w-full"
-      >
-        <GlobalSidebar user={user}>
-          <AdminSidebar />
-        </GlobalSidebar>
-        <SidebarInset className="w-full overflow-hidden">
-          <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0">
-            <SidebarTrigger className="-ml-1" />
-          </header>
-          {children}
-        </SidebarInset>
-      </SidebarProvider>
+      <Sidebar user={user} sidebar={<AdminSidebar />}>
+        {children}
+      </Sidebar>
     </>
   );
 }
