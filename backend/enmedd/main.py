@@ -112,6 +112,9 @@ from enmedd.server.middleware.latency_logging import add_latency_logging_middlew
 from enmedd.server.middleware.tenant_identification import (
     add_tenant_identification_middleware,
 )
+from enmedd.server.middleware.trim_whitespace import (
+    add_trim_whitespace_middleware,
+)
 from enmedd.server.query_and_chat.chat_backend import router as chat_router
 from enmedd.server.query_and_chat.query_backend import (
     admin_router as admin_query_router,
@@ -619,6 +622,7 @@ def get_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    add_trim_whitespace_middleware(application)
     if LOG_ENDPOINT_LATENCY:
         add_latency_logging_middleware(application, logger)
     add_tenant_identification_middleware(application, logger)
