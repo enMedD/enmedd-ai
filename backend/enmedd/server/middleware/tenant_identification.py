@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Awaitable
 from collections.abc import Callable
+from typing import Optional
 
 from fastapi import FastAPI
 from fastapi import Request
@@ -18,3 +19,10 @@ def add_tenant_identification_middleware(
         logger.debug(f"Tenant ID: {tenant_id}")
         response = await call_next(request)
         return response
+
+
+def get_tenant_id(request: Request) -> Optional[str]:
+    tenant_id = request.headers.get("X-Tenant-ID")
+    if tenant_id:
+        return tenant_id.lower().replace("-", "_")
+    return None

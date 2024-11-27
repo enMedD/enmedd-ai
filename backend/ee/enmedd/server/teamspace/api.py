@@ -1,8 +1,11 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
 from fastapi import UploadFile
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import check_assistant_document_set
@@ -30,6 +33,7 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.models import UserRole
 from enmedd.db.users import get_user_by_email
 from enmedd.file_store.file_store import get_default_file_store
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.store import store_settings
 from enmedd.utils.logger import setup_logger
@@ -45,7 +49,12 @@ def get_teamspace_by_id(
     teamspace_id: int,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     teamspace_model = (
         db_session.query(TeamspaceModel)
         .filter(TeamspaceModel.id == teamspace_id)
@@ -75,7 +84,12 @@ def get_teamspace_by_id(
 def list_user_teamspaces(
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> list[Teamspace]:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     teamspaces = (
         db_session.query(TeamspaceModel)
         .filter(TeamspaceModel.is_up_for_deletion == False)  # noqa E712
@@ -109,7 +123,12 @@ def list_teamspaces(
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> list[Teamspace]:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     if include_deleted:
         teamspaces = db_session.query(TeamspaceModel).all()
     else:
@@ -144,7 +163,12 @@ def create_teamspace(
     teamspace: TeamspaceCreate,
     current_user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     try:
         updated_document_set_ids = set()
         for assistant_id in teamspace.assistant_ids:
@@ -191,7 +215,12 @@ def patch_teamspace(
     teamspace: TeamspaceUpdate,
     _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     try:
         updated_document_set_ids = set()
         updated_cc_pair_ids = set()
@@ -230,7 +259,12 @@ def delete_teamspace(
     teamspace_id: int,
     _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     try:
         prepare_teamspace_for_deletion(db_session, teamspace_id)
     except ValueError as e:
@@ -243,7 +277,12 @@ def update_teamspace_name_and_description(
     teamspace_update: TeamspaceUpdateName,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     db_teamspace = fetch_teamspace(db_session, teamspace_id)
 
     if db_teamspace is None:
@@ -277,7 +316,12 @@ def leave_teamspace(
     teamspace_id: int,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
     if not teamspace:
         raise HTTPException(status_code=404, detail="Teamspace not found")
@@ -321,7 +365,12 @@ def update_teamspace_user_role(
     body: UpdateUserRoleRequest,
     user: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     user_to_update = get_user_by_email(email=body.user_email, db_session=db_session)
     if not user_to_update:
         raise HTTPException(status_code=404, detail="User not found")
@@ -365,7 +414,12 @@ def add_teamspace_users(
     emails: list[str],
     _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     added_users = []
     for email in emails:
         user_to_add = get_user_by_email(email=email, db_session=db_session)
@@ -405,7 +459,12 @@ def remove_teamspace_users(
     emails: list[str],
     user: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
     if not teamspace:
         raise HTTPException(status_code=404, detail="Teamspace not found")
@@ -452,7 +511,12 @@ def remove_teamspace_connector(
     cc_pair_id: int,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     connector_pair = (
         db_session.query(Teamspace__ConnectorCredentialPair)
         .filter_by(teamspace_id=teamspace_id, cc_pair_id=cc_pair_id)
@@ -476,7 +540,12 @@ def put_teamspace_logo(
     file: UploadFile,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     upload_teamspace_logo(teamspace_id=teamspace_id, file=file, db_session=db_session)
 
 
@@ -485,7 +554,12 @@ def remove_teamspace_logo(
     teamspace_id: int,
     db_session: Session = Depends(get_session),
     _: User = Depends(current_teamspace_admin_user),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     try:
         file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 
@@ -512,7 +586,12 @@ def fetch_teamspace_logo(
     teamspace_id: int,
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
     try:
         file_path = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 

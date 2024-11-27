@@ -12,6 +12,7 @@ from enmedd.db.models import User
 from enmedd.db.models import WorkspaceSettings
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.models import WorkspaceThemes
 from enmedd.utils.logger import setup_logger
@@ -87,7 +88,7 @@ def store_settings(
     db_session: Session,
     workspace_id: Optional[int] = None,
     teamspace_id: Optional[int] = None,
-    schema_name: Optional[str] = None,
+    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if schema_name:
         db_session.execute(
