@@ -1,16 +1,11 @@
-import { CustomTooltip } from "@/components/CustomTooltip";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
-import { ChevronLeft, ChevronRight, PanelRightClose } from "lucide-react";
 import { TeamspaceSidebarContent } from "./TeamspaceSidebarContent";
-import { AnimatePresence, motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { useGradient } from "@/hooks/useGradient";
+import { SidebarContent } from "@/components/ui/sidebar";
 
 interface TeamspaceSidebarProps {
   selectedTeamspace?: Teamspace;
-  onClose: () => void;
-  isExpanded: boolean;
   assistants: Assistant[];
   ccPairs: ConnectorIndexingStatus<any, any>[];
   documentSets: DocumentSet[];
@@ -19,85 +14,25 @@ interface TeamspaceSidebarProps {
 
 export const TeamspaceSidebar = ({
   selectedTeamspace,
-  onClose,
-  isExpanded,
   assistants,
   ccPairs,
   documentSets,
   refreshTeamspaces,
 }: TeamspaceSidebarProps) => {
   return (
-    <>
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            className={`fixed w-full h-full bg-background-inverted bg-opacity-20 inset-0 z-overlay lg:hidden`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isExpanded ? 1 : 0 }}
-            exit={{ opacity: 0 }}
-            transition={{
-              duration: 0.2,
-              opacity: { delay: isExpanded ? 0 : 0.3 },
-            }}
-            style={{ pointerEvents: isExpanded ? "auto" : "none" }}
-            onClick={onClose}
-          />
-        )}
-      </AnimatePresence>
-
-      <div
-        className={`fixed flex-none h-full z-overlay top-0 right-0 transition-all ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:relative ${
-          isExpanded
-            ? "translate-x-0 w-[85vw] md:w-[450px]"
-            : "translate-x-full w-0"
-        }`}
-      >
-        {isExpanded && (
-          <div className="h-full flex items-center justify-center absolute right-full pointer-events-none">
-            <CustomTooltip
-              trigger={
-                <button
-                  className="border rounded-l py-2 border-r-0 bg-background hidden lg:flex pointer-events-auto"
-                  onClick={onClose}
-                >
-                  <ChevronRight size={16} />
-                </button>
-              }
-              asChild
-              side="left"
-            >
-              Close
-            </CustomTooltip>
-          </div>
-        )}
-
-        <div
-          className={`h-full bg-background border-l w-full transition-opacity duration-300 ease-in-out overflow-y-auto relative ${
-            isExpanded ? "lg:opacity-100 delay-300" : "lg:opacity-0"
-          }`}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 left-4 z-overlay lg:hidden"
-            onClick={onClose}
-          >
-            <PanelRightClose stroke="#ffffff" />
-          </Button>
-          {selectedTeamspace && (
-            <TeamspaceSidebarContent
-              teamspace={{
-                ...selectedTeamspace,
-                gradient: useGradient(selectedTeamspace.name),
-              }}
-              assistants={assistants}
-              ccPairs={ccPairs}
-              documentSets={documentSets}
-              refreshTeamspaces={refreshTeamspaces}
-            />
-          )}
-        </div>
-      </div>
-    </>
+    <SidebarContent>
+      {selectedTeamspace && (
+        <TeamspaceSidebarContent
+          teamspace={{
+            ...selectedTeamspace,
+            gradient: useGradient(selectedTeamspace.name),
+          }}
+          assistants={assistants}
+          ccPairs={ccPairs}
+          documentSets={documentSets}
+          refreshTeamspaces={refreshTeamspaces}
+        />
+      )}
+    </SidebarContent>
   );
 };

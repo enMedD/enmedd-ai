@@ -14,12 +14,20 @@ import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { useParams } from "next/navigation";
 import { useGradient } from "@/hooks/useGradient";
 
+import {
+  Sidebar,
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+
 export const Main = ({ assistants }: { assistants: Assistant[] }) => {
   const { teamspaceId } = useParams();
+  const [open, setOpen] = useState(false);
   const [selectedTeamspaceId, setSelectedTeamspaceId] = useState<number | null>(
     null
   );
-  const [isExpanded, setIsExpanded] = useState(false);
+
   const { isLoading, error, data, refreshTeamspaces } = useTeamspaces();
 
   const {
@@ -59,10 +67,10 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
   const handleShowTeamspace = (teamspaceId: number) => {
     if (teamspaceId === selectedTeamspaceId) {
       setSelectedTeamspaceId(null);
-      setIsExpanded(false);
+      setOpen(false);
     } else {
       setSelectedTeamspaceId(teamspaceId);
-      setIsExpanded(true);
+      setOpen(true);
     }
   };
 
@@ -75,36 +83,48 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     gradient: useGradient(teamspace.name),
   }));
 
-  const handleCloseSidebar = () => {
-    setSelectedTeamspaceId(null);
-    setIsExpanded(false);
-  };
-
   return (
-    <>
-      <div className="h-full w-full overflow-y-auto">
-        <div className="container">
-          <TeamspaceContent
-            assistants={assistants}
-            onClick={handleShowTeamspace}
-            data={teamspacesWithGradients}
-            refreshTeamspaces={refreshTeamspaces}
-            ccPairs={ccPairs}
-            users={users}
-            documentSets={documentSets}
-          />
+    <SidebarProvider
+      open={open}
+      onOpenChange={setOpen}
+      style={
+        {
+          "--sidebar-width": "400px",
+        } as React.CSSProperties
+      }
+      className="h-full w-full"
+    >
+      <SidebarInset className="w-full overflow-hidden">
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 right-0">
+          {open && <SidebarTrigger className="-ml-1" />}
+        </header>
+        <div className="h-full w-full overflow-y-auto">
+          <div className="container">
+            <TeamspaceContent
+              assistants={assistants}
+              onClick={handleShowTeamspace}
+              data={teamspacesWithGradients}
+              refreshTeamspaces={refreshTeamspaces}
+              ccPairs={ccPairs}
+              users={users}
+              documentSets={documentSets}
+            />
+          </div>
         </div>
-      </div>
+      </SidebarInset>
 
-      <TeamspaceSidebar
-        assistants={assistants}
-        selectedTeamspace={selectedTeamspace}
-        onClose={handleCloseSidebar}
-        isExpanded={isExpanded}
-        ccPairs={ccPairs}
-        documentSets={documentSets || []}
-        refreshTeamspaces={refreshTeamspaces}
-      />
-    </>
+      <Sidebar
+        className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+        side="right"
+      >
+        <TeamspaceSidebar
+          assistants={assistants}
+          selectedTeamspace={selectedTeamspace}
+          ccPairs={ccPairs}
+          documentSets={documentSets || []}
+          refreshTeamspaces={refreshTeamspaces}
+        />
+      </Sidebar>
+    </SidebarProvider>
   );
 };

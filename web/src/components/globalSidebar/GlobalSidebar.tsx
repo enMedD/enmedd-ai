@@ -78,11 +78,11 @@ export function GlobalSidebar({
       {/* This will make the sidebar appear as icons. */}
       <Sidebar
         collapsible="none"
-        className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r"
+        className="!w-[calc(var(--sidebar-width-icon)_+_8px)] border-r"
       >
-        <SidebarHeader className="">
-          <SidebarMenu>
-            <SidebarGroupContent className="space-y-2.5">
+        <SidebarHeader className="p-0">
+          <SidebarGroup>
+            <SidebarMenu className="space-y-2.5">
               <SidebarMenuItem className="border-b pb-2.5">
                 <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
                   <a href="#">
@@ -133,8 +133,8 @@ export function GlobalSidebar({
                   </CustomTooltip>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            </SidebarGroupContent>
-          </SidebarMenu>
+            </SidebarMenu>
+          </SidebarGroup>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>

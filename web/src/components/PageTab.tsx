@@ -134,7 +134,7 @@ export function PageTab({
             }}
             onDragLeave={() => setIsDragOver(false)}
             onDrop={handleDropToRemoveFromFolder}
-            className={`transition duration-300 ease-in-out w-[calc(100%_-_16px)] mx-auto px-0 ${
+            className={`transition duration-300 ease-in-out w-[calc(100%_-_24px)] mx-auto px-0 ${
               isDragOver ? "bg-hover" : ""
             } rounded-xs`}
           >

@@ -253,7 +253,7 @@ const FolderItem = ({
       {isExpanded && folders && (
         <SidebarGroup
           className={
-            "pl-2 ml-[15px] border-l border-border w-[calc(100%_-_8px)]"
+            "pl-2 py-0 ml-[15px] border-l border-border w-[calc(100%_-_4px)]"
           }
         >
           <SidebarGroupContent className="">

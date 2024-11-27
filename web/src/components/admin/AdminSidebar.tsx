@@ -369,9 +369,11 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
                 <SidebarMenu>
                   {collection.items.map((item, itemIndex) => (
                     <SidebarMenuItem key={itemIndex}>
-                      <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate">
-                        <Link href={item.link}>{item.name}</Link>
-                      </SidebarMenuButton>
+                      <Link href={item.link}>
+                        <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate">
+                          {item.name}
+                        </SidebarMenuButton>
+                      </Link>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
