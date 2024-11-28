@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import field_validator
 
 from enmedd.db.models import Teamspace as TeamspaceModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
@@ -146,6 +147,12 @@ class TeamspaceCreate(BaseModel):
     assistant_ids: Optional[List[int]] = None
     workspace_id: Optional[int] = 0
 
+    @field_validator("name", "descriptions", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class TeamspaceUpdate(BaseModel):
     user_ids: list[UUID]
@@ -158,7 +165,19 @@ class TeamspaceUpdateName(BaseModel):
     name: str
     description: Optional[str] = None
 
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class UpdateUserRoleRequest(BaseModel):
     user_email: str
     new_role: TeamspaceUserRole
+
+    @field_validator("user_email", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
