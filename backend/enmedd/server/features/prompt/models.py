@@ -13,9 +13,7 @@ class CreatePromptRequest(BaseModel):
     datetime_aware: bool = False
     assistant_ids: list[int] | None = None
 
-    @field_validator(
-        "name", "description", "system_prompt", "task_prompt", mode="before"
-    )
+    @field_validator("name", "description", mode="before")
     def strip_whitespace(cls, value):
         if isinstance(value, str):
             return value.strip()

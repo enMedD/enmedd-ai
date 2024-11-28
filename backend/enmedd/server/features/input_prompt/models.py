@@ -14,7 +14,7 @@ class CreateInputPromptRequest(BaseModel):
     content: str
     is_public: bool
 
-    @field_validator("prompt", "content", mode="before")
+    @field_validator("prompt", mode="before")
     def strip_whitespace(cls, value):
         if isinstance(value, str):
             return value.strip()
@@ -26,7 +26,7 @@ class UpdateInputPromptRequest(BaseModel):
     content: str
     active: bool
 
-    @field_validator("prompt", "content", mode="before")
+    @field_validator("prompt", mode="before")
     def strip_whitespace(cls, value):
         if isinstance(value, str):
             return value.strip()
