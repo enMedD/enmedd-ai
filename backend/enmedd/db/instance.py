@@ -1,11 +1,15 @@
+from typing import List
 from uuid import UUID
 
+from fastapi import HTTPException
 from sqlalchemy import inspect
 from sqlalchemy import select
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from ee.enmedd.server.workspace.models import UserRole
+from ee.enmedd.server.workspace.models import UserWithRole
 from ee.enmedd.server.workspace.models import WorkspaceCreate
 from enmedd.db.enums import InstanceSubscriptionPlan
 from enmedd.db.models import Instance
@@ -175,6 +179,46 @@ def insert_workspace_data(
     workspace_id = result.scalar()
     db_session.commit()
     return workspace_id
+
+
+def copy_users_to_new_schema(
+    db_session: Session, schema_name: str, users: List[UserWithRole]
+):
+    user_ids = [user.user_id for user in users]
+    user_ids_placeholder = ", ".join([f"'{str(uid)}'" for uid in user_ids])
+
+    copy_query = text(
+        f"""
+        INSERT INTO {schema_name}.user
+        SELECT * FROM public.user
+        WHERE id IN ({user_ids_placeholder});
+    """
+    )
+
+    try:
+        db_session.execute(copy_query)
+
+        for user in users:
+            role = (user.role or UserRole.BASIC).upper()
+            update_query = text(
+                f"""
+                UPDATE {schema_name}.user
+                SET role = :role
+                WHERE id = :user_id;
+            """
+            )
+            db_session.execute(
+                update_query, {"role": role, "user_id": str(user.user_id)}
+            )
+
+        db_session.commit()
+
+    except Exception as e:
+        db_session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to copy user data: {str(e)}",
+        )
 
 
 def upsert_instance(
