@@ -6,6 +6,7 @@ from typing import Optional
 
 from fastapi_users import schemas
 from pydantic import EmailStr
+from pydantic import field_validator
 
 
 class UserRole(str, Enum):
@@ -55,6 +56,14 @@ class UserCreate(schemas.BaseUserCreate):
     billing_email_address: Optional[EmailStr] = None
     vat: Optional[str] = None
 
+    @field_validator(
+        "full_name", "company_name", "company_billing", "vat", mode="before"
+    )
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class UserUpdate(schemas.BaseUserUpdate):
     role: Optional[UserRole] = None
@@ -66,7 +75,21 @@ class UserUpdate(schemas.BaseUserUpdate):
     billing_email_address: Optional[EmailStr] = None
     vat: Optional[str] = None
 
+    @field_validator(
+        "full_name", "company_name", "company_billing", "vat", mode="before"
+    )
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class ChangePassword(schemas.BaseUserUpdate):
     new_password: str
     current_password: str
+
+    @field_validator("new_password", "current_password", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value

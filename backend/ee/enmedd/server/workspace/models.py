@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import field_validator
 
 from ee.enmedd.server.teamspace.models import Teamspace
 from enmedd.db.models import Workspace as WorkspaceModel
@@ -78,6 +79,12 @@ class WorkspaceCreate(BaseModel):
     secondary_color: Optional[str] = None
     user_ids: list[UUID]
 
+    @field_validator("workspace_name", "workspace_description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class WorkspaceUpdate(BaseModel):
     workspace_name: Optional[str] = None
@@ -90,6 +97,12 @@ class WorkspaceUpdate(BaseModel):
     secondary_color: Optional[str] = None
     user_ids: Optional[list[UUID]] = None
 
+    @field_validator("workspace_name", "workspace_description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class InstanceSubscriptionPlan(str, Enum):
     ENTERPRISE = "enterprise"
@@ -100,6 +113,12 @@ class Instance(BaseModel):
     instance_name: Optional[str] = None
     subscription_plan: InstanceSubscriptionPlan
     owner_id: UUID
+
+    @field_validator("instance_name", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class AnalyticsScriptUpload(BaseModel):

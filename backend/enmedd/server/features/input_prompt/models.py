@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import field_validator
 
 from enmedd.db.models import InputPrompt
 from enmedd.utils.logger import setup_logger
@@ -13,11 +14,23 @@ class CreateInputPromptRequest(BaseModel):
     content: str
     is_public: bool
 
+    @field_validator("prompt", "content", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class UpdateInputPromptRequest(BaseModel):
     prompt: str
     content: str
     active: bool
+
+    @field_validator("prompt", "content", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class InputPromptResponse(BaseModel):
