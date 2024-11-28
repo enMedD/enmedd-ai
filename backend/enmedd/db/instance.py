@@ -56,6 +56,91 @@ def delete_schema(db_session: Session, schema_name: str) -> None:
     db_session.commit()
 
 
+def copy_filtered_data(db_session: Session, schema_name: str) -> None:
+    """Copy filtered data based on specified rules from public to new schema."""
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.prompt
+            SELECT * FROM public.prompt
+            WHERE default_prompt = true;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.llm_provider
+            SELECT * FROM public.llm_provider
+            WHERE is_default_provider = true;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.key_value_store
+            SELECT * FROM public.key_value_store
+            WHERE key = 'enmedd_feature_flag';
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.inputprompt
+            SELECT * FROM public.inputprompt
+            WHERE id < 0;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.assistant
+            SELECT * FROM public.assistant
+            WHERE id BETWEEN -2147483648 AND 0;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.tool
+            SELECT * FROM public.tool
+            WHERE id BETWEEN 1 AND 3;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.search_settings
+            SELECT * FROM public.search_settings
+            WHERE id BETWEEN 1 AND 2;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.instance
+            SELECT * FROM public.instance;
+        """
+        )
+    )
+
+    db_session.commit()
+
+
 def insert_workspace_data(
     db_session: Session, schema_name: str, workspace: WorkspaceCreate
 ) -> int:

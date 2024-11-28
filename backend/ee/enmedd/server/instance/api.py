@@ -12,6 +12,7 @@ from ee.enmedd.server.workspace.models import WorkspaceCreate
 from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
+from enmedd.db.instance import copy_filtered_data
 from enmedd.db.instance import create_new_schema
 from enmedd.db.instance import delete_schema
 from enmedd.db.instance import fetch_all_schemas
@@ -45,6 +46,8 @@ def create_new_workspace(
         create_new_schema(db_session, schema_name)
 
         migrate_public_schema_to_new_schema(db_session, schema_name)
+
+        copy_filtered_data(db_session, schema_name)
 
         workspace_id = insert_workspace_data(db_session, schema_name, workspace)
 
