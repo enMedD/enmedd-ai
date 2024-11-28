@@ -82,7 +82,7 @@ export function GlobalSidebar({
       >
         <SidebarHeader className="p-0">
           <SidebarGroup>
-            <SidebarMenu className="space-y-2.5">
+            <SidebarMenu className="gap-2.5">
               <SidebarMenuItem className="border-b pb-2.5">
                 <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
                   <a href="#">

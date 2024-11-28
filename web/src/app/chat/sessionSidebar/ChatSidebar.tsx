@@ -133,7 +133,10 @@ export const ChatSidebar = ({
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate">
+                <SidebarMenuButton
+                  className="whitespace-nowrap shrink-0 truncate"
+                  asChild
+                >
                   <Link
                     href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
                     className={`flex items-center gap-2 justify-between w-full`}
@@ -152,7 +155,10 @@ export const ChatSidebar = ({
               {settings.chat_page_enabled && (
                 <>
                   <SidebarMenuItem>
-                    <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate bg-brand-500 text-inverted hover:bg-brand-500">
+                    <SidebarMenuButton
+                      className="whitespace-nowrap shrink-0 truncate bg-brand-500 text-inverted hover:bg-brand-500"
+                      asChild
+                    >
                       <Link
                         href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
                         className={`flex items-center gap-2 justify-between w-full`}

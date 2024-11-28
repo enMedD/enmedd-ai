@@ -65,7 +65,7 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
   }
 
   const handleShowTeamspace = (teamspaceId: number) => {
-    if (teamspaceId === selectedTeamspaceId) {
+    if (teamspaceId === selectedTeamspaceId && open) {
       setSelectedTeamspaceId(null);
       setOpen(false);
     } else {
@@ -96,7 +96,9 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     >
       <SidebarInset className="w-full overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 right-0">
-          {open && <SidebarTrigger className="-ml-1" />}
+          {open && (
+            <SidebarTrigger className="-ml-1" onClick={() => setOpen(false)} />
+          )}
         </header>
         <div className="h-full w-full overflow-y-auto">
           <div className="container">

@@ -124,6 +124,7 @@ export function PageTab({
                   Drag a chat into a folder to save for later
                 </SidebarGroupLabel>
               )}
+              <Separator className="mt-2" />
             </SidebarGroup>
           )}
 
