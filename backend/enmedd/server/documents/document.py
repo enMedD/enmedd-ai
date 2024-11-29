@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -19,6 +18,7 @@ from enmedd.search.models import IndexFilters
 from enmedd.search.preprocessing.access_filters import build_access_filters_for_user
 from enmedd.server.documents.models import ChunkInfo
 from enmedd.server.documents.models import DocumentInfo
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 
@@ -35,9 +35,7 @@ def get_document_info(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> DocumentInfo:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     search_settings = get_current_search_settings(db_session)
 
     document_index = get_default_document_index(
@@ -87,9 +85,7 @@ def get_chunk_info(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChunkInfo:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     search_settings = get_current_search_settings(db_session)
 
     document_index = get_default_document_index(

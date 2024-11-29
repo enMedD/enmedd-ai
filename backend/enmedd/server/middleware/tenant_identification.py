@@ -6,6 +6,8 @@ from typing import Optional
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import Response
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 
 def add_tenant_identification_middleware(
@@ -26,3 +28,10 @@ def get_tenant_id(request: Request) -> Optional[str]:
     if tenant_id:
         return tenant_id.lower().replace("-", "_")
     return None
+
+
+def db_session_filter(tenant_id: str, db_session: Session) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )

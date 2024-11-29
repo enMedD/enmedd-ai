@@ -5,7 +5,6 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
-from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -27,6 +26,7 @@ from enmedd.db.notification import get_notifications
 from enmedd.db.notification import update_notification_last_shown
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Notification
 from enmedd.server.settings.models import Settings
@@ -75,9 +75,7 @@ def put_settings(
     | None = Depends(current_teamspace_admin_user or current_workspace_admin_user),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         settings.check_validity()
     except ValueError as e:
@@ -98,9 +96,7 @@ def fetch_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> UserSettings:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     """Settings and notifications are stuffed into this single endpoint to reduce number of
     Postgres calls"""
     general_settings = load_settings(db_session, workspace_id, teamspace_id)
@@ -127,9 +123,7 @@ def dismiss_notification_endpoint(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         notification = get_notification_by_id(notification_id, user, db_session)
     except PermissionError:
@@ -208,9 +202,7 @@ def update_smtp_settings(
     _: User | None = Depends(current_workspace_admin_user),
 ):
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     workspace = (
         db_session.query(WorkspaceSettings)
         .filter(WorkspaceSettings.workspace_id == workspace_id)

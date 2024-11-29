@@ -3,7 +3,6 @@ from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.token_limit import fetch_all_teamspace_token_rate_limits_by_teamspace
@@ -14,6 +13,7 @@ from ee.enmedd.db.token_limit import insert_user_token_rate_limit
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.token_limit import any_rate_limit_exists
 from enmedd.server.token_rate_limits.models import TokenRateLimitArgs
@@ -34,9 +34,7 @@ def get_all_group_token_limit_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict[str, list[TokenRateLimitDisplay]]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     teamspaces_to_token_rate_limits = (
         fetch_all_teamspace_token_rate_limits_by_teamspace(db_session)
     )
@@ -58,9 +56,7 @@ def get_group_token_limit_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[TokenRateLimitDisplay]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return [
         TokenRateLimitDisplay.from_db(token_rate_limit)
         for token_rate_limit in fetch_teamspace_token_rate_limits(
@@ -78,9 +74,7 @@ def create_group_token_limit_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> TokenRateLimitDisplay:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     rate_limit_display = TokenRateLimitDisplay.from_db(
         insert_teamspace_token_rate_limit(
             db_session=db_session,
@@ -105,9 +99,7 @@ def get_user_token_limit_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[TokenRateLimitDisplay]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return [
         TokenRateLimitDisplay.from_db(token_rate_limit)
         for token_rate_limit in fetch_all_user_token_rate_limits(db_session)
@@ -122,9 +114,7 @@ def create_user_token_limit_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> TokenRateLimitDisplay:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     rate_limit_display = TokenRateLimitDisplay.from_db(
         insert_user_token_rate_limit(db_session, token_limit_settings)
     )

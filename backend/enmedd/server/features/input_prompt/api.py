@@ -3,7 +3,6 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -20,6 +19,7 @@ from enmedd.db.models import User
 from enmedd.server.features.input_prompt.models import CreateInputPromptRequest
 from enmedd.server.features.input_prompt.models import InputPromptSnapshot
 from enmedd.server.features.input_prompt.models import UpdateInputPromptRequest
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
@@ -37,9 +37,7 @@ def list_input_prompts(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[InputPromptSnapshot]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_prompts = fetch_input_prompts_by_user(
         user_id=user.id if user is not None else None,
         db_session=db_session,
@@ -56,9 +54,7 @@ def get_input_prompt(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> InputPromptSnapshot:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     input_prompt = fetch_input_prompt_by_id(
         id=input_prompt_id,
         user_id=user.id if user is not None else None,
@@ -75,9 +71,7 @@ def create_input_prompt(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> InputPromptSnapshot:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     input_prompt = insert_input_prompt(
         prompt=create_input_prompt_request.prompt,
         content=create_input_prompt_request.content,
@@ -97,9 +91,7 @@ def patch_input_prompt(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> InputPromptSnapshot:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         updated_input_prompt = update_input_prompt(
             user=user,
@@ -125,9 +117,7 @@ def delete_input_prompt(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         remove_input_prompt(user, input_prompt_id, db_session)
 
@@ -145,9 +135,7 @@ def delete_public_input_prompt(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         remove_public_input_prompt(input_prompt_id, db_session)
 
@@ -164,9 +152,7 @@ def list_public_input_prompts(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[InputPromptSnapshot]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_prompts = fetch_public_input_prompts(
         db_session=db_session,
     )

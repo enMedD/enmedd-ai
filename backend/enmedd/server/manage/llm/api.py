@@ -5,7 +5,6 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -27,6 +26,7 @@ from enmedd.server.manage.llm.models import FullLLMProvider
 from enmedd.server.manage.llm.models import LLMProviderDescriptor
 from enmedd.server.manage.llm.models import LLMProviderUpsertRequest
 from enmedd.server.manage.llm.models import TestLLMRequest
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.threadpool_concurrency import run_functions_tuples_in_parallel
@@ -120,9 +120,7 @@ def list_llm_providers(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[FullLLMProvider]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return [
         FullLLMProvider.from_model(llm_provider_model)
         for llm_provider_model in fetch_existing_llm_providers(db_session)
@@ -141,9 +139,7 @@ def put_llm_provider(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> FullLLMProvider:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     # validate request (e.g. if we're intending to create but the name already exists we should throw an error)
     # NOTE: may involve duplicate fetching to Postgres, but we're assuming SQLAlchemy is smart enough to cache
     # the result
@@ -172,9 +168,7 @@ def delete_llm_provider(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     remove_llm_provider(db_session, provider_id)
 
 
@@ -186,9 +180,7 @@ def set_provider_as_default(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     update_default_provider(provider_id=provider_id, db_session=db_session)
 
 
@@ -202,9 +194,7 @@ def list_llm_provider_basics(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[LLMProviderDescriptor]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return [
         LLMProviderDescriptor.from_model(llm_provider_model)
         for llm_provider_model in fetch_existing_llm_providers(db_session, user)

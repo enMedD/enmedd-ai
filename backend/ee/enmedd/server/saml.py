@@ -13,7 +13,6 @@ from fastapi_users import exceptions
 from fastapi_users.password import PasswordHelper
 from onelogin.saml2.auth import OneLogin_Saml2_Auth  # type: ignore
 from pydantic import BaseModel
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.configs.app_configs import SAML_CONF_DIR
@@ -31,6 +30,7 @@ from enmedd.db.auth import get_user_db
 from enmedd.db.engine import get_async_session
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
@@ -119,9 +119,7 @@ async def saml_login_callback(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     req = await prepare_from_fastapi_request(request)
     auth = OneLogin_Saml2_Auth(req, custom_base_path=SAML_CONF_DIR)
     auth.process_response()
@@ -184,9 +182,7 @@ def saml_logout(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     saved_cookie = extract_hashed_cookie(request)
 
     if saved_cookie:

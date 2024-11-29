@@ -5,7 +5,6 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from pydantic import BaseModel
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.analytics import fetch_per_user_query_analytics
@@ -13,6 +12,7 @@ from ee.enmedd.db.analytics import fetch_query_analytics
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 router = APIRouter(prefix="/analytics")
@@ -35,9 +35,7 @@ def get_query_analytics(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[QueryAnalyticsResponse]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     start = start or (datetime.datetime.utcnow() - datetime.timedelta(days=30))
     end = end or datetime.datetime.utcnow()
 
@@ -73,9 +71,7 @@ def get_user_analytics(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[UserAnalyticsResponse]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     daily_query_usage_info_per_user = fetch_per_user_query_analytics(
         start=start
         or (

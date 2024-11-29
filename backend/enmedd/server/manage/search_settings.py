@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -32,6 +31,7 @@ from enmedd.search.models import SavedSearchSettings
 from enmedd.search.models import SearchSettingsCreationRequest
 from enmedd.server.manage.embedding.models import SearchSettingsDeleteRequest
 from enmedd.server.manage.models import FullModelVersionResponse
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import IdReturn
 from enmedd.utils.logger import setup_logger
@@ -49,9 +49,7 @@ def set_new_search_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> IdReturn:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     """Creates a new EmbeddingModel row and cancels the previous secondary indexing if any
     Gives an error if the same model name is used as the current or secondary index
     """
@@ -134,9 +132,7 @@ def cancel_new_embedding(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     secondary_search_settings = get_secondary_search_settings(db_session)
 
     if secondary_search_settings:
@@ -159,9 +155,7 @@ def delete_search_settings_endpoint(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         delete_search_settings(
             db_session=db_session,
@@ -178,9 +172,7 @@ def get_current_search_settings_endpoint(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> SavedSearchSettings:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     current_search_settings = get_current_search_settings(db_session)
     return SavedSearchSettings.from_db_model(current_search_settings)
 
@@ -192,9 +184,7 @@ def get_secondary_search_settings_endpoint(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> SavedSearchSettings | None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     secondary_search_settings = get_secondary_search_settings(db_session)
     if not secondary_search_settings:
         return None
@@ -209,9 +199,7 @@ def get_all_search_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> FullModelVersionResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     current_search_settings = get_current_search_settings(db_session)
     secondary_search_settings = get_secondary_search_settings(db_session)
     return FullModelVersionResponse(
@@ -231,9 +219,7 @@ def update_saved_search_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     update_current_search_settings(
         search_settings=search_settings, db_session=db_session
     )

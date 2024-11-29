@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import validate_user_creation_permissions
@@ -29,6 +28,7 @@ from enmedd.server.features.document_set.models import CheckDocSetPublicResponse
 from enmedd.server.features.document_set.models import DocumentSet
 from enmedd.server.features.document_set.models import DocumentSetCreationRequest
 from enmedd.server.features.document_set.models import DocumentSetUpdateRequest
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 
@@ -43,9 +43,7 @@ def create_document_set(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> int:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     validate_user_creation_permissions(
         db_session=db_session,
         user=user,
@@ -70,9 +68,7 @@ def patch_document_set(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     validate_user_creation_permissions(
         db_session=db_session,
         user=user,
@@ -97,9 +93,7 @@ def delete_document_set(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         mark_document_set_as_to_be_deleted(
             db_session=db_session,
@@ -119,9 +113,7 @@ def list_document_sets_admin(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[DocumentSet]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if teamspace_id:
         return [
             DocumentSet.from_model(ds)
@@ -148,9 +140,7 @@ def list_document_sets(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[DocumentSet]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if teamspace_id:
         document_set_info = fetch_document_sets_by_teamspace_non_admin(
             teamspace_id=teamspace_id, db_session=db_session
@@ -197,9 +187,7 @@ def document_set_public(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CheckDocSetPublicResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     is_public = check_document_sets_are_public(
         document_set_ids=check_public_request.document_set_ids, db_session=db_session
     )

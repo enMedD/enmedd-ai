@@ -61,6 +61,7 @@ from enmedd.db.models import Teamspace
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.telemetry import optional_telemetry
@@ -412,9 +413,7 @@ async def optional_user(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User | None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     versioned_fetch_user = fetch_versioned_implementation(
         "enmedd.auth.users", "optional_user_"
     )
@@ -504,9 +503,7 @@ async def current_teamspace_admin_user(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

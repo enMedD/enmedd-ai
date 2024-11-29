@@ -12,7 +12,6 @@ from fastapi import status
 from fastapi import UploadFile
 from pydantic import BaseModel
 from pydantic import Field
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
@@ -35,6 +34,7 @@ from enmedd.db.models import Workspace
 from enmedd.db.workspace import get_workspace_settings
 from enmedd.db.workspace import upsert_workspace
 from enmedd.file_store.file_store import get_default_file_store
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
@@ -159,9 +159,7 @@ def put_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         settings.check_validity()  # Validate settings before proceeding
     except ValueError as e:
@@ -207,9 +205,7 @@ def fetch_settings(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Workspaces:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     settings = get_workspace_settings(db_session=db_session)
     if settings is None:
         raise HTTPException(status_code=404, detail="Workspace settings not found")
@@ -225,9 +221,7 @@ def put_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     upload_logo(workspace_id=workspace_id, file=file, db_session=db_session)
 
 
@@ -240,9 +234,7 @@ def put_header_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     upload_header_logo(workspace_id=workspace_id, file=file, db_session=db_session)
 
 
@@ -267,9 +259,7 @@ def fetch_logotype(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return fetch_logo_or_logotype(is_logotype=True, db_session=db_session)
 
 
@@ -281,9 +271,7 @@ def fetch_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         file_path = f"{workspace_id}{_LOGO_FILENAME}"
 
@@ -304,9 +292,7 @@ def remove_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         workspace = (
             db_session.query(Workspace).filter(Workspace.id == workspace_id).first()
@@ -339,9 +325,7 @@ def remove_header_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         workspace = (
             db_session.query(Workspace).filter(Workspace.id == workspace_id).first()

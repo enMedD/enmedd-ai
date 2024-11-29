@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -32,6 +31,7 @@ from enmedd.search.preprocessing.access_filters import build_access_filters_for_
 from enmedd.search.utils import chunks_or_sections_to_search_docs
 from enmedd.secondary_llm_flows.query_validation import get_query_answerability
 from enmedd.secondary_llm_flows.query_validation import stream_query_answerability
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.models import AdminSearchRequest
 from enmedd.server.query_and_chat.models import AdminSearchResponse
@@ -59,9 +59,7 @@ def admin_search(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AdminSearchResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     query = question.query
     logger.notice(f"Received admin search query: {query}")
     user_acl_filters = build_access_filters_for_user(user, db_session)
@@ -107,9 +105,7 @@ def get_tags(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> TagResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if not allow_prefix:
         raise NotImplementedError("Cannot disable prefix match for now")
 
@@ -162,9 +158,7 @@ def get_user_search_sessions(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatSessionsResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_id = user.id if user is not None else None
 
     try:
@@ -217,9 +211,7 @@ def get_search_session(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> SearchSessionDetailResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_id = user.id if user is not None else None
 
     try:

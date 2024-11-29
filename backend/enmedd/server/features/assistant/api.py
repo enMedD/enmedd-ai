@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from fastapi import Query
 from fastapi import UploadFile
 from pydantic import BaseModel
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_teamspace_admin_user
@@ -32,6 +31,7 @@ from enmedd.server.features.assistant.models import AssistantShareRequest
 from enmedd.server.features.assistant.models import AssistantSnapshot
 from enmedd.server.features.assistant.models import CreateAssistantRequest
 from enmedd.server.features.assistant.models import PromptTemplateResponse
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import DisplayPriorityRequest
 from enmedd.tools.utils import is_image_generation_available
@@ -61,9 +61,7 @@ def patch_assistant_visibility(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     update_assistant_visibility(
         assistant_id=assistant_id,
         is_visible=is_visible_request.is_visible,
@@ -81,9 +79,7 @@ def patch_user_assistant_public_status(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         update_assistant_public_status(
             assistant_id=assistant_id,
@@ -104,9 +100,7 @@ def patch_assistant_display_priority(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     update_all_assistants_display_priority(
         display_priority_map=display_priority_request.display_priority_map,
         db_session=db_session,
@@ -125,9 +119,7 @@ def list_assistants_admin(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[AssistantSnapshot]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return [
         AssistantSnapshot.from_model(assistant)
         for assistant in get_assistants(
@@ -149,9 +141,7 @@ def undelete_assistant(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     mark_assistant_as_not_deleted(
         assistant_id=assistant_id,
         user=user,
@@ -168,9 +158,7 @@ def upload_file(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict[str, str]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     file_store = get_default_file_store(db_session)
     file_type = ChatFileType.IMAGE
     file_id = str(uuid.uuid4())
@@ -195,9 +183,7 @@ def create_assistant(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AssistantSnapshot:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return create_update_assistant(
         assistant_id=None,
         create_assistant_request=create_assistant_request,
@@ -215,9 +201,7 @@ def update_assistant(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AssistantSnapshot:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return create_update_assistant(
         assistant_id=assistant_id,
         create_assistant_request=update_assistant_request,
@@ -235,9 +219,7 @@ def share_assistant(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     update_assistant_shared_users(
         assistant_id=assistant_id,
         user_ids=assistant_share_request.user_ids,
@@ -255,9 +237,7 @@ def delete_assistant(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     mark_assistant_as_deleted(
         teamspace_id=teamspace_id,
         assistant_id=assistant_id,
@@ -276,9 +256,7 @@ def list_assistants(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[AssistantSnapshot]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     assistants = get_assistants(
         user=user,
         teamspace_id=teamspace_id,
@@ -315,9 +293,7 @@ def get_assistant(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AssistantSnapshot:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     return AssistantSnapshot.from_model(
         get_assistant_by_id(
             assistant_id=assistant_id,

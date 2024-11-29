@@ -33,6 +33,7 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.models import UserRole
 from enmedd.db.users import get_user_by_email
 from enmedd.file_store.file_store import get_default_file_store
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.store import store_settings
@@ -52,9 +53,7 @@ def get_teamspace_by_id(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     teamspace_model = (
         db_session.query(TeamspaceModel)
         .filter(TeamspaceModel.id == teamspace_id)
@@ -87,9 +86,7 @@ def list_user_teamspaces(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[Teamspace]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     teamspaces = (
         db_session.query(TeamspaceModel)
         .filter(TeamspaceModel.is_up_for_deletion == False)  # noqa E712
@@ -126,9 +123,7 @@ def list_teamspaces(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[Teamspace]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if include_deleted:
         teamspaces = db_session.query(TeamspaceModel).all()
     else:
@@ -166,9 +161,7 @@ def create_teamspace(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         updated_document_set_ids = set()
         for assistant_id in teamspace.assistant_ids:
@@ -218,9 +211,7 @@ def patch_teamspace(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         updated_document_set_ids = set()
         updated_cc_pair_ids = set()
@@ -262,9 +253,7 @@ def delete_teamspace(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         prepare_teamspace_for_deletion(db_session, teamspace_id)
     except ValueError as e:
@@ -319,9 +308,7 @@ def leave_teamspace(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
     if not teamspace:
         raise HTTPException(status_code=404, detail="Teamspace not found")
@@ -368,9 +355,7 @@ def update_teamspace_user_role(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_update = get_user_by_email(email=body.user_email, db_session=db_session)
     if not user_to_update:
         raise HTTPException(status_code=404, detail="User not found")
@@ -417,9 +402,7 @@ def add_teamspace_users(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     added_users = []
     for email in emails:
         user_to_add = get_user_by_email(email=email, db_session=db_session)
@@ -462,9 +445,7 @@ def remove_teamspace_users(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
     if not teamspace:
         raise HTTPException(status_code=404, detail="Teamspace not found")
@@ -514,9 +495,7 @@ def remove_teamspace_connector(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     connector_pair = (
         db_session.query(Teamspace__ConnectorCredentialPair)
         .filter_by(teamspace_id=teamspace_id, cc_pair_id=cc_pair_id)
@@ -543,9 +522,7 @@ def put_teamspace_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     upload_teamspace_logo(teamspace_id=teamspace_id, file=file, db_session=db_session)
 
 
@@ -557,9 +534,7 @@ def remove_teamspace_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 
@@ -589,9 +564,7 @@ def fetch_teamspace_logo(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         file_path = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 

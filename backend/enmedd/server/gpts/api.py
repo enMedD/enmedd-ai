@@ -5,7 +5,6 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from pydantic import BaseModel
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.db.engine import get_session
@@ -14,6 +13,7 @@ from enmedd.llm.factory import get_default_llms
 from enmedd.search.models import SearchRequest
 from enmedd.search.pipeline import SearchPipeline
 from enmedd.server.enmedd_api.ingestion import api_key_dep
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
@@ -73,9 +73,7 @@ def gpt_search(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> GptSearchResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     llm, fast_llm = get_default_llms()
     top_sections = SearchPipeline(
         search_request=SearchRequest(

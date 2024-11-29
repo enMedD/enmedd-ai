@@ -20,7 +20,6 @@ from sqlalchemy import Column
 from sqlalchemy import delete
 from sqlalchemy import desc
 from sqlalchemy import select
-from sqlalchemy import text
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
@@ -73,6 +72,7 @@ from enmedd.server.manage.models import UserByEmail
 from enmedd.server.manage.models import UserInfo
 from enmedd.server.manage.models import UserPreferences
 from enmedd.server.manage.models import UserRoleResponse
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import FullUserSnapshot
 from enmedd.server.models import InvitedUserSnapshot
@@ -95,9 +95,7 @@ async def generate_otp(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     otp_code = "".join(random.choices(string.digits, k=6))
 
     smtp_credentials = get_smtp_credentials(workspace_id, db_session)
@@ -131,9 +129,7 @@ async def verify_otp(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     otp_code = otp_code.otp_code
 
     otp_entry = (
@@ -165,9 +161,7 @@ async def validate_token_invite(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user = get_user_by_email(email=email, db_session=db_session)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -201,9 +195,7 @@ async def change_password(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     password_helper = PasswordHelper()
     verified, updated_hashed_password = password_helper.verify_and_update(
         hashed_password=current_user.hashed_password,
@@ -261,9 +253,7 @@ def promote_admin(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_promote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -283,9 +273,7 @@ def demote_admin(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_demote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -310,9 +298,7 @@ def promote_workspace_admin(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_promote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -332,9 +318,7 @@ def demote_workspace_admin(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_demote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -362,9 +346,7 @@ def list_all_users(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AllUsersResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if not q:
         q = ""
 
@@ -434,9 +416,7 @@ def bulk_invite_users(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> int:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     """emails are string validated. If any email fails validation, no emails are
     invited and an exception is raised."""
     if user is None:
@@ -486,9 +466,7 @@ def deactivate_user(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if current_user is None:
         raise HTTPException(
             status_code=400, detail="Auth is disabled, cannot deactivate user"
@@ -520,9 +498,7 @@ async def delete_user(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_delete = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -590,9 +566,7 @@ def activate_user(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     user_to_activate = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -627,9 +601,7 @@ def list_all_users_basic_info(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[MinimalUserwithNameSnapshot]:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     users = list_users(
         db_session,
         q=q,
@@ -684,9 +656,7 @@ def put_profile(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     upload_profile(file=file, db_session=db_session, user=current_user)
 
 
@@ -697,9 +667,7 @@ def fetch_profile(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         file_path = f"{current_user.id}{_PROFILE_FILENAME}"
 
@@ -718,9 +686,7 @@ def remove_profile(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     try:
         file_name = f"{current_user.id}{_PROFILE_FILENAME}"
 
@@ -747,9 +713,7 @@ def verify_user_logged_in(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> UserInfo:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     # NOTE: this does not use `current_user` / `current_workspace_admin_user` because we don't want
     # to enforce user verification here - the frontend always wants to get the info about
     # the current user regardless of if they are currently verified
@@ -814,9 +778,7 @@ def update_user_default_model(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if user is None:
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_kv_store()
@@ -847,9 +809,7 @@ def update_user_assistant_list(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if user is None:
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_kv_store()
@@ -906,9 +866,7 @@ def update_user_assistant_visibility(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     if user is None:
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_kv_store()

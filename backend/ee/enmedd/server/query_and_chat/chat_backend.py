@@ -4,7 +4,6 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.query_and_chat.models import BasicCreateChatMessageRequest
@@ -38,6 +37,7 @@ from enmedd.search.models import OptionalSearchSetting
 from enmedd.search.models import RetrievalDetails
 from enmedd.search.models import SavedSearchDoc
 from enmedd.secondary_llm_flows.query_expansion import thread_based_query_rephrase
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.models import ChatMessageDetail
 from enmedd.server.query_and_chat.models import CreateChatMessageRequest
@@ -141,9 +141,7 @@ def handle_simplified_chat_message(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatBasicResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     """This is a Non-Streaming version that only gives back a minimal set of information"""
     logger.notice(f"Received new simple api chat message: {chat_message_req.message}")
 
@@ -203,9 +201,7 @@ def handle_send_message_simple_with_history(
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatBasicResponse:
     if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+        db_session_filter(tenant_id, db_session)
     """This is a Non-Streaming version that only gives back a minimal set of information.
     takes in chat history maintained by the caller
     and does query rephrasing similar to answer-with-quote"""
