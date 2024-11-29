@@ -190,8 +190,20 @@ export default function UserTeamspace() {
                         )}
                       </div>
                     </div>
+                    <p className="space-x-2 flex gap-2 items-center text-subtle">
+                      <Users size={16} />
+                      {teamspace.users.length}
+                    </p>
+                    <p className="text-subtle">
+                      Role:{" "}
+                      <span className="text-strong">
+                        {teamspace.users.find((user) => user.role === "basic")
+                          ? "Basic"
+                          : "Admin"}
+                      </span>
+                    </p>
 
-                    <p className="line-clamp text-subtle">
+                    <p className="line-clamp">
                       Lorem ipsum dolor sit amet, consectetur adipisicing elit.
                       Voluptates perspiciatis suscipit, repellat, reiciendis
                       repellendus quisquam a velit qui amet minus natus harum
@@ -200,7 +212,7 @@ export default function UserTeamspace() {
                     </p>
 
                     {/* <div className="flex justify-end pt-8"> */}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pt-4">
                       <Button
                         variant="destructive"
                         onClick={() => {
