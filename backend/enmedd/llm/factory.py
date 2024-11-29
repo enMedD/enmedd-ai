@@ -1,3 +1,8 @@
+from typing import Optional
+
+from fastapi import Depends
+from sqlalchemy import text
+
 from enmedd.configs.app_configs import DISABLE_GENERATIVE_AI
 from enmedd.configs.chat_configs import QA_TIMEOUT
 from enmedd.configs.model_configs import GEN_AI_TEMPERATURE
@@ -9,6 +14,7 @@ from enmedd.llm.chat_llm import DefaultMultiLLM
 from enmedd.llm.exceptions import GenAIDisabledException
 from enmedd.llm.interfaces import LLM
 from enmedd.llm.override_models import LLMOverride
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.headers import build_llm_extra_headers
 
 
@@ -22,6 +28,7 @@ def get_llms_for_assistant(
     assistant: Assistant,
     llm_override: LLMOverride | None = None,
     additional_headers: dict[str, str] | None = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> tuple[LLM, LLM]:
     model_provider_override = llm_override.model_provider if llm_override else None
     model_version_override = llm_override.model_version if llm_override else None
@@ -35,6 +42,10 @@ def get_llms_for_assistant(
         )
 
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         llm_provider = fetch_provider(db_session, provider_name)
 
     if not llm_provider:
@@ -65,11 +76,16 @@ def get_default_llms(
     timeout: int = QA_TIMEOUT,
     temperature: float = GEN_AI_TEMPERATURE,
     additional_headers: dict[str, str] | None = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> tuple[LLM, LLM]:
     if DISABLE_GENERATIVE_AI:
         raise GenAIDisabledException()
 
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         llm_provider = fetch_default_provider(db_session)
 
     if not llm_provider:

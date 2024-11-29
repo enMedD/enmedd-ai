@@ -1,6 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.standard_answer import fetch_standard_answer
@@ -19,6 +22,7 @@ from ee.enmedd.server.manage.models import StandardAnswerCreationRequest
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 router = APIRouter(prefix="/manage")
 
@@ -28,7 +32,12 @@ def create_standard_answer(
     standard_answer_creation_request: StandardAnswerCreationRequest,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StandardAnswer:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     standard_answer_model = insert_standard_answer(
         keyword=standard_answer_creation_request.keyword,
         answer=standard_answer_creation_request.answer,
@@ -44,7 +53,12 @@ def create_standard_answer(
 def list_standard_answers(
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[StandardAnswer]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     standard_answer_models = fetch_standard_answers(db_session=db_session)
     return [
         StandardAnswer.from_model(standard_answer_model)
@@ -58,7 +72,12 @@ def patch_standard_answer(
     standard_answer_creation_request: StandardAnswerCreationRequest,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StandardAnswer:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     existing_standard_answer = fetch_standard_answer(
         standard_answer_id=standard_answer_id,
         db_session=db_session,
@@ -84,7 +103,12 @@ def delete_standard_answer(
     standard_answer_id: int,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return remove_standard_answer(
         standard_answer_id=standard_answer_id,
         db_session=db_session,
@@ -96,7 +120,12 @@ def create_standard_answer_category(
     standard_answer_category_creation_request: StandardAnswerCategoryCreationRequest,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StandardAnswerCategory:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     standard_answer_category_model = insert_standard_answer_category(
         category_name=standard_answer_category_creation_request.name,
         db_session=db_session,
@@ -108,7 +137,12 @@ def create_standard_answer_category(
 def list_standard_answer_categories(
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[StandardAnswerCategory]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     standard_answer_category_models = fetch_standard_answer_categories(
         db_session=db_session
     )
@@ -124,7 +158,12 @@ def patch_standard_answer_category(
     standard_answer_category_creation_request: StandardAnswerCategoryCreationRequest,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StandardAnswerCategory:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     existing_standard_answer_category = fetch_standard_answer_category(
         standard_answer_category_id=standard_answer_category_id,
         db_session=db_session,

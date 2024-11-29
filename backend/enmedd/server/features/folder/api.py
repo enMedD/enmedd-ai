@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Path
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -25,6 +26,7 @@ from enmedd.server.features.folder.models import FolderCreationRequest
 from enmedd.server.features.folder.models import FolderResponse
 from enmedd.server.features.folder.models import FolderUpdateRequest
 from enmedd.server.features.folder.models import GetUserFoldersResponse
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import DisplayPriorityRequest
 from enmedd.server.query_and_chat.models import ChatSessionDetails
 from enmedd.utils.logger import setup_logger
@@ -38,7 +40,12 @@ def get_folders(
     user: User = Depends(current_user),
     teamspace_id: Optional[int] = None,
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> GetUserFoldersResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if teamspace_id:
         folders = get_user_folders_in_teamspace(
             user_id=user.id if user else None,
@@ -82,7 +89,12 @@ def put_folder_display_priority(
     display_priority_request: DisplayPriorityRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     update_folder_display_priority(
         user_id=user.id if user else None,
         display_priority_map=display_priority_request.display_priority_map,
@@ -96,7 +108,12 @@ def create_folder_endpoint(
     user: User = Depends(current_user),
     teamspace_id: Optional[int] = None,
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> int:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     chat_folder = create_folder(
         user_id=user.id if user else None,
         folder_name=request.folder_name,
@@ -119,7 +136,12 @@ def patch_folder_endpoint(
     folder_id: int = Path(..., description="The ID of the folder to rename"),
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         rename_folder(
             user_id=user.id if user else None,
@@ -137,7 +159,12 @@ def delete_folder_endpoint(
     folder_id: int = Path(..., description="The ID of the folder to delete"),
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user else None
     try:
         delete_folder(
@@ -158,7 +185,12 @@ def add_chat_to_folder_endpoint(
     ),
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user else None
     try:
         chat_session = get_chat_session_by_id(
@@ -184,7 +216,12 @@ def remove_chat_from_folder_endpoint(
     ),
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user else None
     try:
         chat_session = get_chat_session_by_id(

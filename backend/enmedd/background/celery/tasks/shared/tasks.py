@@ -1,6 +1,10 @@
+from typing import Optional
+
 from celery import shared_task
 from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.access.access import get_access_for_document
@@ -16,6 +20,7 @@ from enmedd.document_index.document_index_utils import get_both_index_names
 from enmedd.document_index.factory import get_default_document_index
 from enmedd.document_index.interfaces import VespaDocumentFields
 from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 
 @shared_task(
@@ -30,6 +35,7 @@ def document_by_cc_pair_cleanup_task(
     document_id: str,
     connector_id: int,
     credential_id: int,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> bool:
     """A lightweight subtask used to clean up document to cc pair relationships.
     Created by connection deletion and connector pruning parent tasks."""
@@ -48,6 +54,12 @@ def document_by_cc_pair_cleanup_task(
     """
     try:
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
             action = "skip"
             chunks_affected = 0
 

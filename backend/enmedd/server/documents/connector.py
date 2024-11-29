@@ -11,6 +11,7 @@ from fastapi import Request
 from fastapi import Response
 from fastapi import UploadFile
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import validate_user_creation_permissions
@@ -98,6 +99,7 @@ from enmedd.server.documents.models import GoogleServiceAccountKey
 from enmedd.server.documents.models import IndexAttemptSnapshot
 from enmedd.server.documents.models import ObjectCreationIdResponse
 from enmedd.server.documents.models import RunConnectorRequest
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import MinimalTeamspaceSnapshotName
 from enmedd.server.models import StatusResponse
 from enmedd.utils.logger import setup_logger
@@ -279,7 +281,12 @@ def upsert_service_account_credential(
     service_account_credential_request: GoogleServiceAccountCredentialRequest,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ObjectCreationIdResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """Special API which allows the creation of a credential for a service account.
     Combines the input with the saved service account key to create an entry in the
     `Credential` table."""
@@ -305,7 +312,12 @@ def upsert_gmail_service_account_credential(
     service_account_credential_request: GoogleServiceAccountCredentialRequest,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ObjectCreationIdResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """Special API which allows the creation of a credential for a service account.
     Combines the input with the saved service account key to create an entry in the
     `Credential` table."""
@@ -331,7 +343,12 @@ def check_drive_tokens(
     credential_id: int,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AuthStatus:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     db_credentials = fetch_credential_by_id(credential_id, user, db_session)
     if (
         not db_credentials
@@ -368,7 +385,12 @@ def upload_files(
     files: list[UploadFile],
     _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> FileUploadResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     for file in files:
         if not file.filename:
             raise HTTPException(status_code=400, detail="File name cannot be empty")
@@ -399,7 +421,12 @@ def get_currently_failed_indexing_status(
     get_editable: bool = Query(
         False, description="If true, return editable document sets"
     ),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[FailedConnectorIndexingStatus]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     # Get the latest failed indexing attempts
     latest_failed_indexing_attempts = get_latest_index_attempts_by_status(
         secondary_index=secondary_index,
@@ -488,7 +515,12 @@ def get_connector_indexing_status(
     get_editable: bool = Query(
         False, description="If true, return editable document sets"
     ),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[ConnectorIndexingStatus]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     indexing_statuses: list[ConnectorIndexingStatus] = []
 
     if teamspace_id:
@@ -643,7 +675,12 @@ def create_connector_from_model(
     connector_data: ConnectorBase,
     _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ObjectCreationIdResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         _validate_connector_allowed(connector_data.source)
         return create_connector(connector_data=connector_data, db_session=db_session)
@@ -657,7 +694,12 @@ def create_connector_with_mock_credential(
     connector_data: ConnectorUpdateRequest,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         _validate_connector_allowed(connector_data.source)
         connector_response = create_connector(
@@ -693,7 +735,12 @@ def update_connector_from_model(
     connector_data: ConnectorUpdateRequest,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ConnectorSnapshot | StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         _validate_connector_allowed(connector_data.source)
         validate_user_creation_permissions(
@@ -734,7 +781,12 @@ def delete_connector_by_id(
     connector_id: int,
     _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         with db_session.begin():
             return delete_connector(
@@ -750,7 +802,12 @@ def connector_run_once(
     run_info: RunConnectorRequest,
     _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[list[int]]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     connector_id = run_info.connector_id
     specified_credential_ids = run_info.credential_ids
 
@@ -865,7 +922,12 @@ def gmail_callback(
     callback: GmailCallback = Depends(),
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credential_id_cookie = request.cookies.get(_GMAIL_CREDENTIAL_ID_COOKIE_NAME)
     if credential_id_cookie is None or not credential_id_cookie.isdigit():
         raise HTTPException(
@@ -892,7 +954,12 @@ def google_drive_callback(
     callback: GDriveCallback = Depends(),
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credential_id_cookie = request.cookies.get(_GOOGLE_DRIVE_CREDENTIAL_ID_COOKIE_NAME)
     if credential_id_cookie is None or not credential_id_cookie.isdigit():
         raise HTTPException(
@@ -915,7 +982,12 @@ def google_drive_callback(
 def get_connectors(
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[ConnectorSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     connectors = fetch_connectors(db_session)
     return [
         ConnectorSnapshot.from_connector_db_model(connector)
@@ -931,7 +1003,12 @@ def get_connector_by_id(
     connector_id: int,
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ConnectorSnapshot | StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     connector = fetch_connector_by_id(connector_id, db_session)
     if connector is None:
         raise HTTPException(
@@ -966,7 +1043,12 @@ def get_basic_connector_indexing_status(
     teamspace_id: Optional[int] = None,
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[BasicCCPairInfo]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if teamspace_id:
         cc_pairs = (
             db_session.query(ConnectorCredentialPair)

@@ -3,6 +3,10 @@ RUN THIS AFTER SEED_DUMMY_DOCS.PY
 """
 import random
 import time
+from typing import Optional
+
+from fastapi import Depends
+from sqlalchemy import text
 
 from enmedd.configs.constants import DocumentSource
 from enmedd.configs.model_configs import DOC_EMBEDDING_DIM
@@ -10,6 +14,7 @@ from enmedd.db.engine import get_session_context_manager
 from enmedd.db.search_settings import get_current_search_settings
 from enmedd.document_index.vespa.index import VespaIndex
 from enmedd.search.models import IndexFilters
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from scripts.query_time_check.seed_dummy_docs import TOTAL_ACL_ENTRIES_PER_CATEGORY
 from scripts.query_time_check.seed_dummy_docs import TOTAL_DOC_SETS
 from shared_configs.model_server_models import Embedding
@@ -58,9 +63,13 @@ def _random_filters() -> IndexFilters:
 
 
 def test_hybrid_retrieval_times(
-    number_of_queries: int,
+    number_of_queries: int, tenant_id: Optional[str] = Depends(get_tenant_id)
 ) -> None:
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         search_settings = get_current_search_settings(db_session)
         index_name = search_settings.index_name
 

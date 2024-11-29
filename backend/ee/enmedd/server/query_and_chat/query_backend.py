@@ -1,6 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.query_and_chat.models import DocumentSearchRequest
@@ -25,6 +28,7 @@ from enmedd.search.pipeline import SearchPipeline
 from enmedd.search.utils import dedupe_documents
 from enmedd.search.utils import drop_llm_indices
 from enmedd.search.utils import relevant_sections_to_indices
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
 
@@ -42,7 +46,12 @@ def handle_search_request(
     search_request: DocumentSearchRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> DocumentSearchResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """Simple search endpoint, does not create a new message or records in the DB"""
     query = search_request.message
     logger.notice(f"Received document search query: {query}")
@@ -123,7 +132,12 @@ def get_answer_with_quote(
     query_request: DirectQARequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> OneShotQAResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     query = query_request.messages[0].message
     logger.notice(f"Received query for one shot answer API with quotes: {query}")
 

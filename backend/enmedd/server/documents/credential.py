@@ -1,7 +1,10 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import validate_user_creation_permissions
@@ -24,6 +27,7 @@ from enmedd.server.documents.models import CredentialDataUpdateRequest
 from enmedd.server.documents.models import CredentialSnapshot
 from enmedd.server.documents.models import CredentialSwapRequest
 from enmedd.server.documents.models import ObjectCreationIdResponse
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import StatusResponse
 from enmedd.utils.logger import setup_logger
 
@@ -44,7 +48,12 @@ def _ignore_credential_permissions(source: DocumentSource) -> bool:
 def list_credentials_admin(
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[CredentialSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """Lists all public credentials"""
     credentials = fetch_credentials(
         db_session=db_session,
@@ -65,7 +74,12 @@ def get_cc_source_full_info(
     get_editable: bool = Query(
         False, description="If true, return editable credentials"
     ),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[CredentialSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credentials = fetch_credentials_by_source(
         db_session=db_session,
         user=user,
@@ -82,7 +96,12 @@ def get_cc_source_full_info(
 def list_credentials_by_id(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[CredentialSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credentials = fetch_credentials(db_session=db_session, user=user)
     return [
         CredentialSnapshot.from_credential_db_model(credential)
@@ -95,7 +114,12 @@ def delete_credential_by_id_admin(
     credential_id: int,
     _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """Same as the user endpoint, but can delete any credential (not just the user's own)"""
     delete_credential(db_session=db_session, credential_id=credential_id, user=None)
     return StatusResponse(
@@ -108,7 +132,12 @@ def swap_credentials_for_connector(
     credential_swap_req: CredentialSwapRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     connector_credential_pair = swap_credentials_connector(
         new_credential_id=credential_swap_req.new_credential_id,
         connector_id=credential_swap_req.connector_id,
@@ -128,7 +157,12 @@ def create_credential_from_model(
     credential_info: CredentialBase,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ObjectCreationIdResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if not _ignore_credential_permissions(credential_info.source):
         validate_user_creation_permissions(
             db_session=db_session,
@@ -150,7 +184,12 @@ def create_credential_from_model(
 def list_credentials(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[CredentialSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credentials = fetch_credentials(db_session=db_session, user=user)
     return [
         CredentialSnapshot.from_credential_db_model(credential)
@@ -163,7 +202,12 @@ def get_credential_by_id(
     credential_id: int,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CredentialSnapshot | StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credential = fetch_credential_by_id(credential_id, user, db_session)
     if credential is None:
         raise HTTPException(
@@ -180,7 +224,12 @@ def update_credential_data(
     credential_update: CredentialDataUpdateRequest,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CredentialBase:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     credential = alter_credential(credential_id, credential_update, user, db_session)
 
     if credential is None:
@@ -198,7 +247,12 @@ def update_credential_from_model(
     credential_data: CredentialBase,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CredentialSnapshot | StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     updated_credential = update_credential(
         credential_id, credential_data, user, db_session
     )
@@ -225,7 +279,12 @@ def delete_credential_by_id(
     credential_id: int,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     delete_credential(
         credential_id,
         user,
@@ -242,7 +301,12 @@ def force_delete_credential_by_id(
     credential_id: int,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     delete_credential(credential_id, user, db_session, True)
 
     return StatusResponse(

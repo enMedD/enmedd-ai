@@ -3,7 +3,10 @@ import traceback
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Optional
 
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.background.indexing.checkpointing import get_time_windows_for_index_attempt
@@ -32,6 +35,7 @@ from enmedd.document_index.factory import get_default_document_index
 from enmedd.indexing.embedder import DefaultIndexingEmbedder
 from enmedd.indexing.indexing_heartbeat import IndexingHeartbeat
 from enmedd.indexing.indexing_pipeline import build_indexing_pipeline
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import IndexAttemptSingleton
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
@@ -400,7 +404,10 @@ def _prepare_index_attempt(db_session: Session, index_attempt_id: int) -> IndexA
 
 
 def run_indexing_entrypoint(
-    index_attempt_id: int, connector_credential_pair_id: int, is_ee: bool = False
+    index_attempt_id: int,
+    connector_credential_pair_id: int,
+    is_ee: bool = False,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     """Entrypoint for indexing run when using dask distributed.
     Wraps the actual logic in a `try` block so that we can catch any exceptions
@@ -417,6 +424,12 @@ def run_indexing_entrypoint(
         )
 
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
             # make sure that it is valid to run this indexing attempt + mark it
             # as in progress
             attempt = _prepare_index_attempt(db_session, index_attempt_id)

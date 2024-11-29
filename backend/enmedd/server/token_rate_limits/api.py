@@ -1,5 +1,8 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.token_limit import delete_token_rate_limit
@@ -9,6 +12,7 @@ from ee.enmedd.db.token_limit import update_token_rate_limit
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.token_limit import any_rate_limit_exists
 from enmedd.server.token_rate_limits.models import TokenRateLimitArgs
 from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
@@ -25,7 +29,12 @@ Global Token Limit Settings
 def get_global_token_limit_settings(
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[TokenRateLimitDisplay]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return [
         TokenRateLimitDisplay.from_db(token_rate_limit)
         for token_rate_limit in fetch_all_global_token_rate_limits(db_session)
@@ -37,7 +46,12 @@ def create_global_token_limit_settings(
     token_limit_settings: TokenRateLimitArgs,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> TokenRateLimitDisplay:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     rate_limit_display = TokenRateLimitDisplay.from_db(
         insert_global_token_rate_limit(db_session, token_limit_settings)
     )
@@ -57,7 +71,12 @@ def update_token_limit_settings(
     token_limit_settings: TokenRateLimitArgs,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> TokenRateLimitDisplay:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return TokenRateLimitDisplay.from_db(
         update_token_rate_limit(
             db_session=db_session,
@@ -72,7 +91,12 @@ def delete_token_limit_settings(
     token_rate_limit_id: int,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return delete_token_rate_limit(
         db_session=db_session,
         token_rate_limit_id=token_rate_limit_id,

@@ -2,9 +2,12 @@ from collections.abc import Callable
 from io import BytesIO
 from typing import Any
 from typing import cast
+from typing import Optional
 from uuid import uuid4
 
 import requests
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.configs.constants import FileOrigin
@@ -13,6 +16,7 @@ from enmedd.db.models import ChatMessage
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.file_store.models import FileDescriptor
 from enmedd.file_store.models import InMemoryChatFile
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.threadpool_concurrency import run_functions_tuples_in_parallel
 
 
@@ -52,11 +56,17 @@ def load_all_chat_files(
     return files
 
 
-def save_file_from_url(url: str) -> str:
+def save_file_from_url(
+    url: str, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> str:
     """NOTE: using multiple sessions here, since this is often called
     using multithreading. In practice, sharing a session has resulted in
     weird errors."""
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         response = requests.get(url)
         response.raise_for_status()
 

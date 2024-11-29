@@ -27,6 +27,7 @@ from fastapi_users.authentication.strategy.db import AccessTokenDatabase
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
 from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.invited_users import get_invited_users
@@ -60,6 +61,7 @@ from enmedd.db.models import Teamspace
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.telemetry import optional_telemetry
 from enmedd.utils.telemetry import RecordType
@@ -131,8 +133,15 @@ def verify_email_is_invited(email: str) -> None:
     raise PermissionError("User not on allowed user whitelist")
 
 
-def verify_email_in_whitelist(email: str) -> None:
+def verify_email_in_whitelist(
+    email: str, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
+
         if not get_user_by_email(email, db_session):
             verify_email_is_invited(email)
 
@@ -236,11 +245,19 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         token: str,
         request: Optional[Request] = None,
+        tenant_id: Optional[str] = Depends(get_tenant_id),
     ) -> None:
         if not user.email:
             logger.error(f"User {user.id} does not have a valid email.")
             return
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
+
             logger.notice(
                 f"User {user.id} has forgot their password. Reset token: {token}"
             )
@@ -258,9 +275,16 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         token: str,
         request: Optional[Request] = None,
+        tenant_id: Optional[str] = Depends(get_tenant_id),
     ) -> None:
         with Session(get_sqlalchemy_engine()) as db_session:
             verify_email_domain(user.email)
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
 
             logger.notice(
                 f"Verification requested for user {user.id}. Verification token: {token}"
@@ -385,7 +409,12 @@ async def optional_user(
     request: Request,
     user: User | None = Depends(optional_fastapi_current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User | None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     versioned_fetch_user = fetch_versioned_implementation(
         "enmedd.auth.users", "optional_user_"
     )
@@ -437,6 +466,7 @@ async def current_user(
     return await double_check_user(user)
 
 
+# TODO: Modified this to check if the user is an admin to the main schema
 async def current_admin_user(
     user: User | None = Depends(current_user),
 ) -> User | None:
@@ -471,7 +501,12 @@ async def current_teamspace_admin_user(
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

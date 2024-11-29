@@ -1,11 +1,14 @@
 import logging
 import time
 from datetime import datetime
+from typing import Optional
 
 import dask
 from dask.distributed import Client
 from dask.distributed import Future
 from distributed import LocalCluster
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.background.indexing.dask_utils import ResourceLogger
@@ -40,6 +43,7 @@ from enmedd.db.search_settings import get_secondary_search_settings
 from enmedd.db.swap_index import check_index_swap
 from enmedd.natural_language_processing.search_nlp_models import EmbeddingModel
 from enmedd.natural_language_processing.search_nlp_models import warm_up_bi_encoder
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
 from enmedd.utils.variable_functionality import set_is_ee_based_on_env_variable
@@ -153,13 +157,20 @@ def _mark_run_failed(
 """Main funcs"""
 
 
-def create_indexing_jobs(existing_jobs: dict[int, Future | SimpleJob]) -> None:
+def create_indexing_jobs(
+    existing_jobs: dict[int, Future | SimpleJob],
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """Creates new indexing jobs for each connector / credential pair which is:
     1. Enabled
     2. `refresh_frequency` time has passed since the last indexing run for this pair
     3. There is not already an ongoing indexing attempt for this pair
     """
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         ongoing: set[tuple[int | None, int]] = set()
         for attempt_id in existing_jobs:
             attempt = get_index_attempt(
@@ -215,10 +226,15 @@ def create_indexing_jobs(existing_jobs: dict[int, Future | SimpleJob]) -> None:
 def cleanup_indexing_jobs(
     existing_jobs: dict[int, Future | SimpleJob],
     timeout_hours: int = CLEANUP_INDEXING_JOBS_TIMEOUT,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict[int, Future | SimpleJob]:
     existing_jobs_copy = existing_jobs.copy()
     # clean up completed jobs
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         for attempt_id, job in existing_jobs.items():
             index_attempt = get_index_attempt(
                 db_session=db_session, index_attempt_id=attempt_id
@@ -295,6 +311,7 @@ def kickoff_indexing_jobs(
     existing_jobs: dict[int, Future | SimpleJob],
     client: Client | SimpleJobClient,
     secondary_client: Client | SimpleJobClient,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict[int, Future | SimpleJob]:
     existing_jobs_copy = existing_jobs.copy()
     engine = get_sqlalchemy_engine()
@@ -302,6 +319,10 @@ def kickoff_indexing_jobs(
     # Don't include jobs waiting in the Dask queue that just haven't started running
     # Also (rarely) don't include for jobs that started but haven't updated the indexing tables yet
     with Session(engine) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         # get_not_started_index_attempts orders its returned results from oldest to newest
         # we must process attempts in a FIFO manner to prevent connector starvation
         new_indexing_attempts = [
@@ -333,6 +354,12 @@ def kickoff_indexing_jobs(
                 f"Skipping index attempt as Connector has been deleted: {attempt}"
             )
             with Session(engine) as db_session:
+                if tenant_id:
+                    db_session.execute(
+                        text("SET search_path TO :schema_name").params(
+                            schema_name=tenant_id
+                        )
+                    )
                 mark_attempt_failed(
                     attempt, db_session, failure_reason="Connector is null"
                 )
@@ -342,6 +369,12 @@ def kickoff_indexing_jobs(
                 f"Skipping index attempt as Credential has been deleted: {attempt}"
             )
             with Session(engine) as db_session:
+                if tenant_id:
+                    db_session.execute(
+                        text("SET search_path TO :schema_name").params(
+                            schema_name=tenant_id
+                        )
+                    )
                 mark_attempt_failed(
                     attempt, db_session, failure_reason="Credential is null"
                 )
@@ -402,9 +435,14 @@ def update_loop(
     delay: int = 10,
     num_workers: int = NUM_INDEXING_WORKERS,
     num_secondary_workers: int = NUM_SECONDARY_INDEXING_WORKERS,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     engine = get_sqlalchemy_engine()
     with Session(engine) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         # update default num_indexing_workers value coming from the db
         # settings = load_settings(db_session)
         # num_workers = settings.num_indexing_workers
@@ -471,6 +509,12 @@ def update_loop(
 
         try:
             with Session(get_sqlalchemy_engine()) as db_session:
+                if tenant_id:
+                    db_session.execute(
+                        text("SET search_path TO :schema_name").params(
+                            schema_name=tenant_id
+                        )
+                    )
                 check_index_swap(db_session)
             existing_jobs = cleanup_indexing_jobs(existing_jobs=existing_jobs)
             create_indexing_jobs(existing_jobs=existing_jobs)

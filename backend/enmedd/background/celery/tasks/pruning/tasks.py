@@ -1,5 +1,9 @@
+from typing import Optional
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.background.celery.celery_app import celery_app
@@ -17,6 +21,7 @@ from enmedd.db.document import get_documents_for_connector_credential_pair
 from enmedd.db.engine import get_sqlalchemy_engine
 from enmedd.document_index.document_index_utils import get_both_index_names
 from enmedd.document_index.factory import get_default_document_index
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 
 # use this within celery tasks to get celery task specific logging
@@ -27,11 +32,15 @@ task_logger = get_task_logger(__name__)
     name="check_for_prune_task",
     soft_time_limit=JOB_TIMEOUT,
 )
-def check_for_prune_task() -> None:
+def check_for_prune_task(tenant_id: Optional[str] = Depends(get_tenant_id)) -> None:
     """Runs periodically to check if any prune tasks should be run and adds them
     to the queue"""
 
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         all_cc_pairs = get_connector_credential_pairs(db_session)
 
         for cc_pair in all_cc_pairs:
@@ -52,11 +61,19 @@ def check_for_prune_task() -> None:
 
 @build_celery_task_wrapper(name_cc_prune_task)
 @celery_app.task(name="prune_documents_task", soft_time_limit=JOB_TIMEOUT)
-def prune_documents_task(connector_id: int, credential_id: int) -> None:
+def prune_documents_task(
+    connector_id: int,
+    credential_id: int,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """connector pruning task. For a cc pair, this task pulls all document IDs from the source
     and compares those IDs to locally stored documents and deletes all locally stored IDs missing
     from the most recently pulled document ID list"""
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         try:
             cc_pair = get_connector_credential_pair(
                 db_session=db_session,

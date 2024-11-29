@@ -1,6 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_workspace_admin_user
@@ -16,6 +19,7 @@ from enmedd.natural_language_processing.search_nlp_models import EmbeddingModel
 from enmedd.server.manage.embedding.models import CloudEmbeddingProvider
 from enmedd.server.manage.embedding.models import CloudEmbeddingProviderCreationRequest
 from enmedd.server.manage.embedding.models import TestEmbeddingRequest
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from shared_configs.configs import MODEL_SERVER_HOST
 from shared_configs.configs import MODEL_SERVER_PORT
@@ -66,7 +70,12 @@ def test_embedding_configuration(
 def list_embedding_models(
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[EmbeddingModelDetail]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     search_settings = get_all_search_settings(db_session)
     return [EmbeddingModelDetail.from_db_model(setting) for setting in search_settings]
 
@@ -75,7 +84,12 @@ def list_embedding_models(
 def list_embedding_providers(
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[CloudEmbeddingProvider]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return [
         CloudEmbeddingProvider.from_request(embedding_provider_model)
         for embedding_provider_model in fetch_existing_embedding_providers(db_session)
@@ -87,7 +101,12 @@ def delete_embedding_provider(
     provider_type: EmbeddingProvider,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     embedding_provider = get_current_db_embedding_provider(db_session=db_session)
     if (
         embedding_provider is not None
@@ -105,5 +124,10 @@ def put_cloud_embedding_provider(
     provider: CloudEmbeddingProviderCreationRequest,
     _: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CloudEmbeddingProvider:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return upsert_cloud_embedding_provider(db_session, provider)

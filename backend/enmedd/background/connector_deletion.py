@@ -10,10 +10,14 @@ are multiple connector / credential pairs that have indexed it
 connector / credential pair from the access list
 (6) delete all relevant entries from postgres
 """
+from typing import Optional
+
 from celery import shared_task
 from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.access.access import get_access_for_document
@@ -35,6 +39,7 @@ from enmedd.document_index.interfaces import DocumentIndex
 from enmedd.document_index.interfaces import UpdateRequest
 from enmedd.document_index.interfaces import VespaDocumentFields
 from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -50,12 +55,17 @@ def delete_connector_credential_pair_batch(
     connector_id: int,
     credential_id: int,
     document_index: DocumentIndex,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     """
     Removes a batch of documents ids from a cc-pair. If no other cc-pair uses a document anymore
     it gets permanently deleted.
     """
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         # acquire lock for all documents in this batch so that indexing can't
         # override the deletion
         with prepare_to_modify_documents(
@@ -134,12 +144,22 @@ def delete_connector_credential_pair_batch(
     max_retries=3,
 )
 def document_by_cc_pair_cleanup_task(
-    self: Task, document_id: str, connector_id: int, credential_id: int
+    self: Task,
+    document_id: str,
+    connector_id: int,
+    credential_id: int,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> bool:
     task_logger.info(f"document_id={document_id}")
 
     try:
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
             curr_ind_name, sec_ind_name = get_both_index_names(db_session)
             document_index = get_default_document_index(
                 primary_index_name=curr_ind_name, secondary_index_name=sec_ind_name

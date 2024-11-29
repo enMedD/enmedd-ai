@@ -13,6 +13,7 @@ from fastapi import Response
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -54,6 +55,7 @@ from enmedd.natural_language_processing.utils import get_tokenizer
 from enmedd.secondary_llm_flows.chat_session_naming import (
     get_renamed_conversation_name,
 )
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.models import ChatFeedbackRequest
 from enmedd.server.query_and_chat.models import ChatMessageIdentifier
 from enmedd.server.query_and_chat.models import ChatRenameRequest
@@ -82,7 +84,12 @@ def get_user_chat_sessions(
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatSessionsResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
 
     try:
@@ -119,7 +126,12 @@ def update_chat_session_model(
     update_thread_req: UpdateChatSessionThreadRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     chat_session = get_chat_session_by_id(
         chat_session_id=update_thread_req.chat_session_id,
         user_id=user.id if user is not None else None,
@@ -137,7 +149,12 @@ def get_chat_session(
     is_shared: bool = False,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatSessionDetailResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
     try:
         chat_session = get_chat_session_by_id(
@@ -190,7 +207,12 @@ def create_new_chat_session(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CreateChatSessionID:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
     try:
         new_chat_session = create_chat_session(
@@ -214,7 +236,12 @@ def rename_chat_session(
     request: Request,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> RenameChatSessionResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     name = rename_req.name
     chat_session_id = rename_req.chat_session_id
     user_id = user.id if user is not None else None
@@ -260,7 +287,12 @@ def patch_chat_session(
     chat_session_update_req: ChatSessionUpdateRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
     update_chat_session(
         db_session=db_session,
@@ -276,7 +308,12 @@ def delete_chat_session_by_id(
     session_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
     try:
         delete_chat_session(user_id, session_id, db_session)
@@ -355,7 +392,12 @@ def set_message_as_latest(
     message_identifier: ChatMessageIdentifier,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
 
     chat_message = get_chat_message(
@@ -376,7 +418,12 @@ def create_chat_feedback(
     feedback: ChatFeedbackRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user else None
 
     create_chat_message_feedback(
@@ -394,7 +441,12 @@ def create_search_feedback(
     feedback: SearchFeedbackRequest,
     _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """This endpoint isn't protected - it does not check if the user has access to the document
     Users could try changing boosts of arbitrary docs but this does not leak any data.
     """
@@ -424,7 +476,12 @@ def get_max_document_tokens(
     assistant_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> MaxSelectedDocumentTokens:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         assistant = get_assistant_by_id(
             assistant_id=assistant_id,
@@ -468,7 +525,12 @@ def seed_chat(
     # NOTE: realistically, this will be an API key not an actual user
     _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatSeedResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         new_chat_session = create_chat_session(
             db_session=db_session,
@@ -522,7 +584,12 @@ def upload_files_for_chat(
     files: list[UploadFile],
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict[str, list[FileDescriptor]]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     image_content_types = {"image/jpeg", "image/png", "image/webp"}
     text_content_types = {
         "text/plain",
@@ -629,7 +696,12 @@ def fetch_chat_file(
     file_id: str,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     file_store = get_default_file_store(db_session)
     file_io = file_store.read_file(file_id, mode="b")
     # NOTE: specifying "image/jpeg" here, but it still works for pngs

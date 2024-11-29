@@ -1,9 +1,11 @@
 from typing import Any
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -18,6 +20,7 @@ from enmedd.db.tools import update_tool
 from enmedd.server.features.tool.models import CustomToolCreate
 from enmedd.server.features.tool.models import CustomToolUpdate
 from enmedd.server.features.tool.models import ToolSnapshot
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.tools.custom.openapi_parsing import MethodSpec
 from enmedd.tools.custom.openapi_parsing import openapi_to_method_specs
 from enmedd.tools.custom.openapi_parsing import validate_openapi_schema
@@ -38,7 +41,12 @@ def create_custom_tool(
     tool_data: CustomToolCreate,
     db_session: Session = Depends(get_session),
     user: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ToolSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     _validate_tool_definition(tool_data.definition)
     tool = create_tool(
         name=tool_data.name,
@@ -57,7 +65,12 @@ def update_custom_tool(
     tool_data: CustomToolUpdate,
     db_session: Session = Depends(get_session),
     user: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ToolSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if tool_data.definition:
         _validate_tool_definition(tool_data.definition)
     updated_tool = update_tool(
@@ -77,7 +90,12 @@ def delete_custom_tool(
     tool_id: int,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         delete_tool(tool_id, db_session)
     except ValueError as e:
@@ -113,7 +131,12 @@ def get_custom_tool(
     tool_id: int,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ToolSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         tool = get_tool_by_id(tool_id, db_session)
     except ValueError as e:
@@ -125,6 +148,11 @@ def get_custom_tool(
 def list_tools(
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[ToolSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     tools = get_tools(db_session)
     return [ToolSnapshot.from_model(tool) for tool in tools]

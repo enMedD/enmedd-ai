@@ -20,6 +20,7 @@ from sqlalchemy import Column
 from sqlalchemy import delete
 from sqlalchemy import desc
 from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
@@ -72,6 +73,7 @@ from enmedd.server.manage.models import UserByEmail
 from enmedd.server.manage.models import UserInfo
 from enmedd.server.manage.models import UserPreferences
 from enmedd.server.manage.models import UserRoleResponse
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import FullUserSnapshot
 from enmedd.server.models import InvitedUserSnapshot
 from enmedd.server.models import MinimalUserwithNameSnapshot
@@ -89,17 +91,24 @@ USERS_PAGE_SIZE = 10
 async def generate_otp(
     current_user: User = Depends(current_user),
     workspace_id: Optional[int] = 0,  # Temporary set to 0
-    db: Session = Depends(get_session),
+    db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     otp_code = "".join(random.choices(string.digits, k=6))
 
-    smtp_credentials = get_smtp_credentials(workspace_id, db)
+    smtp_credentials = get_smtp_credentials(workspace_id, db_session)
 
     subject, body = generate_2fa_email(current_user.full_name, otp_code)
     send_2fa_email(current_user.email, subject, body, smtp_credentials)
 
     existing_otp = (
-        db.query(TwofactorAuth).filter(TwofactorAuth.user_id == current_user.id).first()
+        db_session.query(TwofactorAuth)
+        .filter(TwofactorAuth.user_id == current_user.id)
+        .first()
     )
 
     if existing_otp:
@@ -107,9 +116,9 @@ async def generate_otp(
         existing_otp.created_at = datetime.now(timezone.utc)
     else:
         new_otp = TwofactorAuth(user_id=current_user.id, code=otp_code)
-        db.add(new_otp)
+        db_session.add(new_otp)
 
-    db.commit()
+    db_session.commit()
 
     return {"message": "OTP code generated and sent!"}
 
@@ -118,12 +127,17 @@ async def generate_otp(
 async def verify_otp(
     otp_code: OTPVerificationRequest,
     current_user: User = Depends(current_user),
-    db: Session = Depends(get_session),
+    db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     otp_code = otp_code.otp_code
 
     otp_entry = (
-        db.query(TwofactorAuth)
+        db_session.query(TwofactorAuth)
         .filter(TwofactorAuth.user_id == current_user.id)
         .order_by(TwofactorAuth.created_at.desc())
         .first()
@@ -148,7 +162,12 @@ async def validate_token_invite(
     token: str,
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user = get_user_by_email(email=email, db_session=db_session)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -179,7 +198,12 @@ async def change_password(
     current_user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
     async_session: AsyncSession = Depends(get_async_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ):
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     password_helper = PasswordHelper()
     verified, updated_hashed_password = password_helper.verify_and_update(
         hashed_password=current_user.hashed_password,
@@ -234,7 +258,12 @@ def promote_admin(
     user_email: UserByEmail,
     _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_to_promote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -251,7 +280,12 @@ def demote_admin(
     user_email: UserByEmail,
     user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_to_demote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -273,7 +307,12 @@ def promote_workspace_admin(
     user_email: UserByEmail,
     _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_to_promote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -290,7 +329,12 @@ def demote_workspace_admin(
     user_email: UserByEmail,
     user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_to_demote = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -315,7 +359,12 @@ def list_all_users(
     teamspace_id: int | None = None,
     _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> AllUsersResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if not q:
         q = ""
 
@@ -382,7 +431,12 @@ def bulk_invite_users(
     user: User | None = Depends(current_teamspace_admin_user),
     workspace_id: Optional[int] = 0,  # Temporary set to 0
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> int:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """emails are string validated. If any email fails validation, no emails are
     invited and an exception is raised."""
     if user is None:
@@ -429,7 +483,12 @@ def deactivate_user(
     user_email: UserByEmail,
     current_user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if current_user is None:
         raise HTTPException(
             status_code=400, detail="Auth is disabled, cannot deactivate user"
@@ -458,7 +517,12 @@ async def delete_user(
     user_email: UserByEmail,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_to_delete = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -523,7 +587,12 @@ def activate_user(
     user_email: UserByEmail,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_to_activate = get_user_by_email(
         email=user_email.user_email, db_session=db_session
     )
@@ -555,7 +624,12 @@ def list_all_users_basic_info(
     teamspace_id: Optional[int] = None,
     include_teamspace_user: bool = True,
     q: str = "",
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[MinimalUserwithNameSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     users = list_users(
         db_session,
         q=q,
@@ -607,7 +681,12 @@ def put_profile(
     file: UploadFile,
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     upload_profile(file=file, db_session=db_session, user=current_user)
 
 
@@ -615,7 +694,12 @@ def put_profile(
 def fetch_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         file_path = f"{current_user.id}{_PROFILE_FILENAME}"
 
@@ -631,7 +715,12 @@ def fetch_profile(
 def remove_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),  # Get the current user
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         file_name = f"{current_user.id}{_PROFILE_FILENAME}"
 
@@ -655,7 +744,12 @@ def verify_user_logged_in(
     teamspace_id: Optional[int] = None,
     # workspace_id: Optional[int] = None,
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> UserInfo:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     # NOTE: this does not use `current_user` / `current_workspace_admin_user` because we don't want
     # to enforce user verification here - the frontend always wants to get the info about
     # the current user regardless of if they are currently verified
@@ -717,7 +811,12 @@ def update_user_default_model(
     request: ChosenDefaultModelRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if user is None:
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_kv_store()
@@ -745,7 +844,12 @@ def update_user_assistant_list(
     request: ChosenAssistantsRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if user is None:
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_kv_store()
@@ -799,7 +903,12 @@ def update_user_assistant_visibility(
     show: bool,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     if user is None:
         if AUTH_TYPE == AuthType.DISABLED:
             store = get_kv_store()

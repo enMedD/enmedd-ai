@@ -3,12 +3,14 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from functools import lru_cache
+from typing import Optional
 
 from dateutil import tz
 from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy import func
 from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.token_limit import fetch_all_global_token_rate_limits
@@ -18,6 +20,7 @@ from enmedd.db.models import ChatMessage
 from enmedd.db.models import ChatSession
 from enmedd.db.models import TokenRateLimit
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
 
@@ -51,8 +54,14 @@ Global rate limits
 """
 
 
-def _user_is_rate_limited_by_global() -> None:
+def _user_is_rate_limited_by_global(
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         global_rate_limits = fetch_all_global_token_rate_limits(
             db_session=db_session, enabled_only=True, ordered=False
         )
@@ -120,11 +129,15 @@ def _is_rate_limited(
 
 
 @lru_cache()
-def any_rate_limit_exists() -> bool:
+def any_rate_limit_exists(tenant_id: Optional[str] = Depends(get_tenant_id)) -> bool:
     """Checks if any rate limit exists in the database. Is cached, so that if no rate limits
     are setup, we don't have any effect on average query latency."""
     logger.debug("Checking for any rate limits...")
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         return (
             db_session.scalar(
                 select(TokenRateLimit.id).where(

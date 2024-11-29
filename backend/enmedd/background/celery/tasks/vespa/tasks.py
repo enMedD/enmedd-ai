@@ -1,12 +1,15 @@
 import traceback
 from typing import cast
+from typing import Optional
 
 import redis
 from celery import shared_task
 from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
+from fastapi import Depends
 from redis import Redis
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.access.access import get_access_for_document
@@ -42,6 +45,7 @@ from enmedd.document_index.document_index_utils import get_both_index_names
 from enmedd.document_index.factory import get_default_document_index
 from enmedd.document_index.interfaces import UpdateRequest
 from enmedd.redis.redis_pool import get_redis_client
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
 from enmedd.utils.variable_functionality import (
     fetch_versioned_implementation_with_fallback,
@@ -60,7 +64,9 @@ task_logger = get_task_logger(__name__)
     soft_time_limit=JOB_TIMEOUT,
     trail=False,
 )
-def check_for_vespa_sync_task() -> None:
+def check_for_vespa_sync_task(
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """Runs periodically to check if any document needs syncing.
     Generates sets of tasks for Celery if syncing is needed."""
 
@@ -77,6 +83,12 @@ def check_for_vespa_sync_task() -> None:
             return
 
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
             try_generate_stale_document_sync_tasks(db_session, r, lock_beat)
 
             # check if any document sets are not synced
@@ -322,7 +334,9 @@ def monitor_document_set_taskset(
     r.delete(rds.fence_key)
 
 
-def monitor_connector_deletion_taskset(key_bytes: bytes, r: Redis) -> None:
+def monitor_connector_deletion_taskset(
+    key_bytes: bytes, r: Redis, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     fence_key = key_bytes.decode("utf-8")
     cc_pair_id = RedisConnectorDeletion.get_id_from_fence_key(fence_key)
     if cc_pair_id is None:
@@ -349,6 +363,10 @@ def monitor_connector_deletion_taskset(key_bytes: bytes, r: Redis) -> None:
         return
 
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         cc_pair = get_connector_credential_pair_from_id(cc_pair_id, db_session)
         if not cc_pair:
             return
@@ -417,7 +435,7 @@ def monitor_connector_deletion_taskset(key_bytes: bytes, r: Redis) -> None:
 
 
 @shared_task(name="monitor_vespa_sync", soft_time_limit=300)
-def monitor_vespa_sync() -> None:
+def monitor_vespa_sync(tenant_id: Optional[str] = Depends(get_tenant_id)) -> None:
     """This is a celery beat task that monitors and finalizes metadata sync tasksets.
     It scans for fence values and then gets the counts of any associated tasksets.
     If the count is 0, that means all tasks finished and we should clean up.
@@ -444,6 +462,12 @@ def monitor_vespa_sync() -> None:
             monitor_connector_deletion_taskset(key_bytes, r)
 
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
             for key_bytes in r.scan_iter(RedisDocumentSet.FENCE_PREFIX + "*"):
                 monitor_document_set_taskset(key_bytes, r, db_session)
 
@@ -477,11 +501,19 @@ def monitor_vespa_sync() -> None:
     time_limit=60,
     max_retries=3,
 )
-def vespa_metadata_sync_task(self: Task, document_id: str) -> bool:
+def vespa_metadata_sync_task(
+    self: Task, document_id: str, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> bool:
     task_logger.info(f"document_id={document_id}")
 
     try:
         with Session(get_sqlalchemy_engine()) as db_session:
+            if tenant_id:
+                db_session.execute(
+                    text("SET search_path TO :schema_name").params(
+                        schema_name=tenant_id
+                    )
+                )
             curr_ind_name, sec_ind_name = get_both_index_names(db_session)
             document_index = get_default_document_index(
                 primary_index_name=curr_ind_name, secondary_index_name=sec_ind_name

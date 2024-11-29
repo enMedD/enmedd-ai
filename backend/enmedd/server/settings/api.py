@@ -5,6 +5,7 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -26,6 +27,7 @@ from enmedd.db.notification import get_notifications
 from enmedd.db.notification import update_notification_last_shown
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Notification
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.models import SmtpUpdate
@@ -65,19 +67,24 @@ def put_workspace_themes(
 @admin_router.put("")
 def put_settings(
     settings: Settings,
-    db: Session = Depends(get_session),
+    db_session: Session = Depends(get_session),
     workspace_id: Optional[int] = 0,  # temporary set to 0
     teamspace_id: Optional[int] = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
     _: User
     | None = Depends(current_teamspace_admin_user or current_workspace_admin_user),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         settings.check_validity()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     try:
-        store_settings(settings, db, workspace_id, teamspace_id)
+        store_settings(settings, db_session, workspace_id, teamspace_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -88,7 +95,12 @@ def fetch_settings(
     workspace_id: Optional[int] = 0,  # temporary set to 0
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> UserSettings:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     """Settings and notifications are stuffed into this single endpoint to reduce number of
     Postgres calls"""
     general_settings = load_settings(db_session, workspace_id, teamspace_id)
@@ -112,7 +124,12 @@ def dismiss_notification_endpoint(
     notification_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         notification = get_notification_by_id(notification_id, user, db_session)
     except PermissionError:
@@ -186,11 +203,16 @@ def get_user_notifications(
 def update_smtp_settings(
     workspace_id: int,
     smtp_data: SmtpUpdate,
-    db: Session = Depends(get_session),
+    db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
     _: User | None = Depends(current_workspace_admin_user),
 ):
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     workspace = (
-        db.query(WorkspaceSettings)
+        db_session.query(WorkspaceSettings)
         .filter(WorkspaceSettings.workspace_id == workspace_id)
         .first()
     )
@@ -221,8 +243,8 @@ def update_smtp_settings(
             status_code=400, detail=f"Failed to connect to the SMTP server: {str(e)}"
         )
 
-    db.query(WorkspaceSettings).filter(
+    db_session.query(WorkspaceSettings).filter(
         WorkspaceSettings.workspace_id == workspace_id
     ).update(update_data)
-    db.commit()
+    db_session.commit()
     return {"message": "SMTP settings updated and verified successfully"}

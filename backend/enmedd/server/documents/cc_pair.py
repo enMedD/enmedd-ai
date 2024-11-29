@@ -1,10 +1,12 @@
 import math
 from http import HTTPStatus
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -40,6 +42,7 @@ from enmedd.server.documents.models import CeleryTaskStatus
 from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
 from enmedd.server.documents.models import ConnectorCredentialPairMetadata
 from enmedd.server.documents.models import PaginatedIndexAttempts
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import StatusResponse
 from enmedd.utils.logger import setup_logger
 
@@ -54,7 +57,12 @@ def get_cc_pair_index_attempts(
     page_size: int = Query(10, ge=1, le=1000),
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> PaginatedIndexAttempts:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     cc_pair = get_connector_credential_pair_from_id(
         cc_pair_id, db_session, user, get_editable=False
     )
@@ -84,7 +92,12 @@ def get_cc_pair_full_info(
     cc_pair_id: int,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CCPairFullInfo:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     cc_pair = get_connector_credential_pair_from_id(
         cc_pair_id, db_session, user, get_editable=False
     )
@@ -142,7 +155,12 @@ def update_cc_pair_status(
     status_update_request: CCStatusUpdateRequest,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     cc_pair = get_connector_credential_pair_from_id(
         cc_pair_id=cc_pair_id,
         db_session=db_session,
@@ -174,7 +192,12 @@ def update_cc_pair_name(
     new_name: str,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     cc_pair = get_connector_credential_pair_from_id(
         cc_pair_id=cc_pair_id,
         db_session=db_session,
@@ -202,7 +225,12 @@ def get_cc_pair_latest_prune(
     cc_pair_id: int,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CeleryTaskStatus:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     cc_pair = get_connector_credential_pair_from_id(
         cc_pair_id=cc_pair_id,
         db_session=db_session,
@@ -240,7 +268,12 @@ def prune_cc_pair(
     cc_pair_id: int,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[list[int]]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     # avoiding circular refs
     from enmedd.background.celery.tasks.pruning.tasks import prune_documents_task
 
@@ -288,7 +321,12 @@ def get_cc_pair_latest_sync(
     cc_pair_id: int,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> CeleryTaskStatus:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     cc_pair = get_connector_credential_pair_from_id(
         cc_pair_id=cc_pair_id,
         db_session=db_session,
@@ -324,7 +362,12 @@ def sync_cc_pair(
     cc_pair_id: int,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[list[int]]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     # avoiding circular refs
     from ee.enmedd.background.celery.celery_app import (
         sync_external_doc_permissions_task,
@@ -379,7 +422,12 @@ def associate_credential_to_connector(
     metadata: ConnectorCredentialPairMetadata,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     validate_user_creation_permissions(
         db_session=db_session,
         user=user,
@@ -409,7 +457,12 @@ def dissociate_credential_from_connector(
     credential_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse[int]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return remove_credential_from_connector(
         connector_id, credential_id, user, db_session
     )

@@ -1,6 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.auth.users import api_key_dep
@@ -21,6 +24,7 @@ from enmedd.indexing.indexing_pipeline import build_indexing_pipeline
 from enmedd.server.enmedd_api.models import DocMinimalInfo
 from enmedd.server.enmedd_api.models import IngestionDocument
 from enmedd.server.enmedd_api.models import IngestionResult
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -34,7 +38,12 @@ def get_docs_by_connector_credential_pair(
     cc_pair_id: int,
     _: User | None = Depends(api_key_dep),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[DocMinimalInfo]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     db_docs = get_documents_by_cc_pair(cc_pair_id=cc_pair_id, db_session=db_session)
     return [
         DocMinimalInfo(
@@ -50,7 +59,12 @@ def get_docs_by_connector_credential_pair(
 def get_ingestion_docs(
     _: User | None = Depends(api_key_dep),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[DocMinimalInfo]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     db_docs = get_ingestion_documents(db_session)
     return [
         DocMinimalInfo(
@@ -67,7 +81,12 @@ def upsert_ingestion_doc(
     doc_info: IngestionDocument,
     _: User | None = Depends(api_key_dep),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> IngestionResult:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     doc_info.document.from_ingestion_api = True
 
     document = Document.from_base(doc_info.document)

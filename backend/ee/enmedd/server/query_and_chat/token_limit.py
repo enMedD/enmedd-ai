@@ -4,12 +4,15 @@ from datetime import datetime
 from itertools import groupby
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Tuple
 from uuid import UUID
 
+from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy import func
 from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.api_key import is_api_key_email_address
@@ -22,6 +25,7 @@ from enmedd.db.models import TokenRateLimit
 from enmedd.db.models import TokenRateLimit__Teamspace
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.token_limit import _get_cutoff_time
 from enmedd.server.query_and_chat.token_limit import _is_rate_limited
 from enmedd.server.query_and_chat.token_limit import _user_is_rate_limited_by_global
@@ -52,8 +56,14 @@ User rate limits
 """
 
 
-def _user_is_rate_limited(user_id: UUID) -> None:
+def _user_is_rate_limited(
+    user_id: UUID, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         user_rate_limits = fetch_all_user_token_rate_limits(
             db_session=db_session, enabled_only=True, ordered=False
         )
@@ -93,8 +103,14 @@ Teamspace rate limits
 """
 
 
-def _user_is_rate_limited_by_teamspace(user_id: UUID) -> None:
+def _user_is_rate_limited_by_teamspace(
+    user_id: UUID, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         group_rate_limits = _fetch_all_teamspace_rate_limits(user_id, db_session)
 
         if group_rate_limits:

@@ -3,7 +3,6 @@ from typing import Optional
 
 from fastapi import Depends
 from fastapi import HTTPException
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_workspace_admin_user
@@ -12,7 +11,6 @@ from enmedd.db.models import User
 from enmedd.db.models import WorkspaceSettings
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
-from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.models import WorkspaceThemes
 from enmedd.utils.logger import setup_logger
@@ -88,13 +86,7 @@ def store_settings(
     db_session: Session,
     workspace_id: Optional[int] = None,
     teamspace_id: Optional[int] = None,
-    schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
-        )
-
     if teamspace_id:
         settings_record = (
             db_session.query(TeamspaceSettings)
@@ -145,6 +137,3 @@ def store_settings(
     except Exception:
         db_session.rollback()
         raise HTTPException(status_code=500, detail="Failed to store settings.")
-    finally:
-        if schema_name:
-            db_session.execute(text("SET search_path TO public"))

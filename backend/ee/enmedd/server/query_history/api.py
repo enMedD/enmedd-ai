@@ -12,6 +12,7 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.query_history import fetch_chat_sessions_eagerly_by_time
@@ -27,6 +28,7 @@ from enmedd.db.engine import get_session
 from enmedd.db.models import ChatMessage
 from enmedd.db.models import ChatSession
 from enmedd.db.models import User
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import MinimalTeamspaceSnapshot
 
 router = APIRouter()
@@ -346,7 +348,12 @@ def get_chat_session_history(
     _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[ChatSessionMinimal]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return fetch_and_process_chat_session_history_minimal(
         db_session=db_session,
         start=start
@@ -364,7 +371,12 @@ def get_chat_session_admin(
     chat_session_id: int,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> ChatSessionSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         chat_session = get_chat_session_by_id(
             chat_session_id=chat_session_id,
@@ -394,7 +406,12 @@ def get_query_history_as_csv(
     _: User | None = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StreamingResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     complete_chat_session_history = fetch_and_process_chat_session_history(
         db_session=db_session,
         start=datetime.fromtimestamp(0, tz=timezone.utc),

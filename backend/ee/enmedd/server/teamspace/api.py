@@ -49,11 +49,11 @@ def get_teamspace_by_id(
     teamspace_id: int,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     teamspace_model = (
         db_session.query(TeamspaceModel)
@@ -84,11 +84,11 @@ def get_teamspace_by_id(
 def list_user_teamspaces(
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[Teamspace]:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     teamspaces = (
         db_session.query(TeamspaceModel)
@@ -123,11 +123,11 @@ def list_teamspaces(
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[Teamspace]:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     if include_deleted:
         teamspaces = db_session.query(TeamspaceModel).all()
@@ -163,11 +163,11 @@ def create_teamspace(
     teamspace: TeamspaceCreate,
     current_user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         updated_document_set_ids = set()
@@ -215,11 +215,11 @@ def patch_teamspace(
     teamspace: TeamspaceUpdate,
     _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         updated_document_set_ids = set()
@@ -259,11 +259,11 @@ def delete_teamspace(
     teamspace_id: int,
     _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         prepare_teamspace_for_deletion(db_session, teamspace_id)
@@ -316,11 +316,11 @@ def leave_teamspace(
     teamspace_id: int,
     user: User = Depends(current_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
     if not teamspace:
@@ -365,11 +365,11 @@ def update_teamspace_user_role(
     body: UpdateUserRoleRequest,
     user: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     user_to_update = get_user_by_email(email=body.user_email, db_session=db_session)
     if not user_to_update:
@@ -414,11 +414,11 @@ def add_teamspace_users(
     emails: list[str],
     _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     added_users = []
     for email in emails:
@@ -459,11 +459,11 @@ def remove_teamspace_users(
     emails: list[str],
     user: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
     if not teamspace:
@@ -511,11 +511,11 @@ def remove_teamspace_connector(
     cc_pair_id: int,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     connector_pair = (
         db_session.query(Teamspace__ConnectorCredentialPair)
@@ -540,11 +540,11 @@ def put_teamspace_logo(
     file: UploadFile,
     _: User = Depends(current_teamspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     upload_teamspace_logo(teamspace_id=teamspace_id, file=file, db_session=db_session)
 
@@ -554,11 +554,11 @@ def remove_teamspace_logo(
     teamspace_id: int,
     db_session: Session = Depends(get_session),
     _: User = Depends(current_teamspace_admin_user),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
@@ -586,11 +586,11 @@ def fetch_teamspace_logo(
     teamspace_id: int,
     _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         file_path = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"

@@ -156,11 +156,11 @@ def put_settings(
     settings: Workspaces,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         settings.check_validity()  # Validate settings before proceeding
@@ -204,11 +204,11 @@ def put_settings(
 @basic_router.get("")
 def fetch_settings(
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Workspaces:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     settings = get_workspace_settings(db_session=db_session)
     if settings is None:
@@ -222,11 +222,11 @@ def put_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     upload_logo(workspace_id=workspace_id, file=file, db_session=db_session)
 
@@ -237,11 +237,11 @@ def put_header_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_workspace_admin_user),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     upload_header_logo(workspace_id=workspace_id, file=file, db_session=db_session)
 
@@ -264,11 +264,11 @@ def fetch_logo_or_logotype(is_logotype: bool, db_session: Session) -> Response:
 @basic_router.get("/logotype")
 def fetch_logotype(
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     return fetch_logo_or_logotype(is_logotype=True, db_session=db_session)
 
@@ -278,11 +278,11 @@ def fetch_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
     _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         file_path = f"{workspace_id}{_LOGO_FILENAME}"
@@ -301,11 +301,11 @@ def remove_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
     db_session: Session = Depends(get_session),
     _: User = Depends(current_workspace_admin_user),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         workspace = (
@@ -336,11 +336,11 @@ def remove_header_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
     db_session: Session = Depends(get_session),
     _: User = Depends(current_workspace_admin_user),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> dict:
-    if schema_name:
+    if tenant_id:
         db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
         )
     try:
         workspace = (

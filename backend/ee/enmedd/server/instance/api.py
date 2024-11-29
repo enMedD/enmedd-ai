@@ -49,11 +49,14 @@ def create_new_workspace(
         workspace_id = insert_workspace_data(db_session, schema_name, workspace)
 
         default_settings = Settings()
+
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
         store_settings(
             settings=default_settings,
             db_session=db_session,
             workspace_id=workspace_id,
-            schema_name=schema_name,
         )
 
     except IntegrityError:

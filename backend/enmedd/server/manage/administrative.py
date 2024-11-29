@@ -2,10 +2,12 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from typing import cast
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_workspace_admin_user
@@ -37,6 +39,7 @@ from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
 from enmedd.server.manage.models import BoostDoc
 from enmedd.server.manage.models import BoostUpdateRequest
 from enmedd.server.manage.models import HiddenUpdateRequest
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.models import StatusResponse
 from enmedd.utils.logger import setup_logger
 
@@ -52,7 +55,12 @@ def get_most_boosted_docs(
     limit: int,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[BoostDoc]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     boost_docs = fetch_docs_ranked_by_boost(
         ascending=ascending,
         limit=limit,
@@ -77,7 +85,12 @@ def document_boost_update(
     boost_update: BoostUpdateRequest,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     update_document_boost(
         db_session=db_session,
         document_id=boost_update.document_id,
@@ -92,7 +105,12 @@ def document_hidden_update(
     hidden_update: HiddenUpdateRequest,
     user: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> StatusResponse:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     curr_ind_name, sec_ind_name = get_both_index_names(db_session)
     document_index = get_default_document_index(
         primary_index_name=curr_ind_name, secondary_index_name=sec_ind_name
@@ -145,7 +163,12 @@ def create_deletion_attempt_for_connector_id(
     connector_credential_pair_identifier: ConnectorCredentialPairIdentifier,
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     connector_id = connector_credential_pair_identifier.connector_id
     credential_id = connector_credential_pair_identifier.credential_id
 

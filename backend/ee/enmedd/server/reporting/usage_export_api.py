@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.usage_export import get_all_usage_reports
@@ -18,6 +19,7 @@ from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.file_store.constants import STANDARD_CHUNK_SIZE
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 router = APIRouter()
 
@@ -33,7 +35,12 @@ def generate_report(
     user: User = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> UsageReportMetadata:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     period = None
     if params.period_from and params.period_to:
         try:
@@ -55,7 +62,12 @@ def read_usage_report(
     report_name: str,
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         file = get_usage_report_data(db_session, report_name)
     except ValueError as e:
@@ -80,7 +92,12 @@ def fetch_usage_reports(
     _: User | None = Depends(current_workspace_admin_user),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[UsageReportMetadata]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         return get_all_usage_reports(db_session, teamspace_id)
     except ValueError as e:

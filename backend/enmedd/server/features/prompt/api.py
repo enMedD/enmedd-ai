@@ -1,6 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -14,6 +17,7 @@ from enmedd.db.engine import get_session
 from enmedd.db.models import User
 from enmedd.server.features.prompt.models import CreatePromptRequest
 from enmedd.server.features.prompt.models import PromptSnapshot
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
 
@@ -62,7 +66,12 @@ def create_prompt(
     create_prompt_request: CreatePromptRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> PromptSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         return create_update_prompt(
             prompt_id=None,
@@ -90,7 +99,12 @@ def update_prompt(
     update_prompt_request: CreatePromptRequest,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> PromptSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     try:
         return create_update_prompt(
             prompt_id=prompt_id,
@@ -117,7 +131,12 @@ def delete_prompt(
     prompt_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     mark_prompt_as_deleted(
         prompt_id=prompt_id,
         user=user,
@@ -129,7 +148,12 @@ def delete_prompt(
 def list_prompts(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[PromptSnapshot]:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     user_id = user.id if user is not None else None
     return [
         PromptSnapshot.from_model(prompt)
@@ -142,7 +166,12 @@ def get_prompt(
     prompt_id: int,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> PromptSnapshot:
+    if tenant_id:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+        )
     return PromptSnapshot.from_model(
         get_prompt_by_id(
             prompt_id=prompt_id,

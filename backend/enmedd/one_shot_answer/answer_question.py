@@ -1,7 +1,10 @@
 from collections.abc import Callable
 from collections.abc import Iterator
 from typing import cast
+from typing import Optional
 
+from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.query_and_chat.utils import create_temporary_assistant
@@ -50,6 +53,7 @@ from enmedd.search.utils import chunks_or_sections_to_search_docs
 from enmedd.search.utils import dedupe_documents
 from enmedd.secondary_llm_flows.answer_validation import get_answer_validity
 from enmedd.secondary_llm_flows.query_expansion import thread_based_query_rephrase
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.models import ChatMessageDetail
 from enmedd.server.utils import get_json_line
 from enmedd.tools.force import ForceUseTool
@@ -332,15 +336,20 @@ def stream_search_answer(
     max_document_tokens: int | None,
     max_history_tokens: int | None,
     teamspace_id: int | None = None,
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Iterator[str]:
-    with get_session_context_manager() as session:
+    with get_session_context_manager() as db_session:
+        if tenant_id:
+            db_session.execute(
+                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+            )
         objects = stream_answer_objects(
             query_req=query_req,
             user=user,
             max_document_tokens=max_document_tokens,
             max_history_tokens=max_history_tokens,
             teamspace_id=teamspace_id,
-            db_session=session,
+            db_session=db_session,
         )
         for obj in objects:
             yield get_json_line(obj.model_dump())
