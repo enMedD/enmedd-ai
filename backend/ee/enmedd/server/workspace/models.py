@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Any
+from typing import List
 from typing import Optional
 from uuid import UUID
 
@@ -68,6 +69,16 @@ class NavigationItem(BaseModel):
         return instance
 
 
+class UserRole(str, Enum):
+    BASIC = "basic"
+    ADMIN = "admin"
+
+
+class UserWithRole(BaseModel):
+    user_id: UUID
+    role: Optional[str] = UserRole.BASIC
+
+
 class WorkspaceCreate(BaseModel):
     workspace_name: str
     workspace_description: Optional[str] = None
@@ -77,7 +88,7 @@ class WorkspaceCreate(BaseModel):
     custom_header_content: Optional[str] = None
     brand_color: Optional[str] = None
     secondary_color: Optional[str] = None
-    user_ids: list[UUID]
+    users: List[UserWithRole]
 
     @field_validator("workspace_name", "workspace_description", mode="before")
     def strip_whitespace(cls, value):
