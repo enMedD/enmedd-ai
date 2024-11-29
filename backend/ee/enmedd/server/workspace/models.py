@@ -97,6 +97,7 @@ class WorkspaceCreate(BaseModel):
         return value
 
 
+
 class WorkspaceUpdate(BaseModel):
     workspace_name: Optional[str] = None
     workspace_description: Optional[str] = None
