@@ -85,7 +85,11 @@ export function GlobalSidebar({
           <SidebarGroup>
             <SidebarMenu className="gap-2.5">
               <SidebarMenuItem className="border-b pb-2.5">
-                <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
+                <SidebarMenuButton
+                  size="lg"
+                  asChild
+                  className="md:h-8 p-0 justify-center"
+                >
                   <a href="#">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                       <Image
@@ -105,7 +109,7 @@ export function GlobalSidebar({
               </SidebarMenuItem>
 
               <SidebarMenuItem className="border-b pb-2.5">
-                <SidebarMenuButton size="lg" asChild className="w-8 h-8 md:p-0">
+                <SidebarMenuButton size="lg" asChild className="w-8 h-8">
                   <CustomTooltip
                     trigger={
                       <Link
@@ -139,10 +143,14 @@ export function GlobalSidebar({
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupContent className="px-1.5 md:px-0">
+            {/* <SidebarGroupContent className="px-1.5 md:px-0"> */}
+            <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
                 {displayedTeamspaces.map((teamspace) => (
-                  <SidebarMenuItem key={teamspace.id}>
+                  <SidebarMenuItem
+                    key={teamspace.id}
+                    className="flex items-center justify-center"
+                  >
                     <SidebarMenuButton
                       tooltip={{
                         children: teamspace.name,
