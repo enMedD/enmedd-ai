@@ -78,7 +78,8 @@ export function GlobalSidebar({
       {/* This will make the sidebar appear as icons. */}
       <Sidebar
         collapsible="none"
-        className="!w-[calc(var(--sidebar-width-icon)_+_8px)] border-r"
+        // className="!w-[calc(var(--sidebar-width-icon)_+_8px)] border-r"
+        className="!w-[calc(var(--sidebar-width-icon)_+_0px)] border-r"
       >
         <SidebarHeader className="p-0">
           <SidebarGroup>
