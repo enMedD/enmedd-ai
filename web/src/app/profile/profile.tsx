@@ -4,7 +4,7 @@ import ProfileTab from "./tabContent/ProfileTab";
 import SecurityTab from "./tabContent/SecurityTab";
 import { CreditCard, Link2, Lock, User, UserRoundPen } from "lucide-react";
 import { CombinedSettings } from "../admin/settings/interfaces";
-import MyTeamspace from "./tabContent/MyTeamspace";
+import UserTeamspace from "./tabContent/UserTeamspace";
 
 export default function Profile({
   user,
@@ -13,10 +13,8 @@ export default function Profile({
   user: UserTypes | null;
   combinedSettings: CombinedSettings | null;
 }) {
-  const showAdminPanel = !user || user.role === "admin";
-
   return (
-    <div className="h-full">
+    <div className="container">
       <h1 className="flex items-center font-bold text-xl md:text-[28px] text-strong gap-x-2">
         <UserRoundPen size={32} /> Profile Settings
       </h1>
@@ -37,7 +35,7 @@ export default function Profile({
           <ProfileTab user={user} combinedSettings={combinedSettings} />
         </TabsContent>
         <TabsContent value="my_teamspace">
-          <MyTeamspace user={user} />
+          <UserTeamspace />
         </TabsContent>
         <TabsContent value="security">
           <SecurityTab />

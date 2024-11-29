@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import field_validator
 
 from enmedd.db.models import DocumentSet as DocumentSetDBModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
@@ -22,6 +23,12 @@ class DocumentSetCreationRequest(BaseModel):
     users: list[UUID] = Field(default_factory=list)
     groups: list[int] = Field(default_factory=list)
 
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
 
 class DocumentSetUpdateRequest(BaseModel):
     id: int
@@ -31,6 +38,12 @@ class DocumentSetUpdateRequest(BaseModel):
     # For Private Document Sets, who should be able to access these
     users: List[UUID]
     groups: List[int]
+
+    @field_validator("description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class CheckDocSetPublicRequest(BaseModel):

@@ -27,7 +27,6 @@ from fastapi_users.authentication.strategy.db import AccessTokenDatabase
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
 from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from enmedd.auth.invited_users import get_invited_users
@@ -60,7 +59,6 @@ from enmedd.db.models import AccessToken
 from enmedd.db.models import Teamspace
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
-from enmedd.db.models import Workspace__Users
 from enmedd.db.users import get_user_by_email
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.telemetry import optional_telemetry
@@ -180,22 +178,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             # Handle case where user has used product outside of web and is now creating an account through web
             raise exceptions.UserAlreadyExists()
 
-        if user:
-            await self.add_user_to_workspace(user.id, user_create.role)
-
         return user
-
-    async def add_user_to_workspace(self, user_id: uuid.UUID, role: UserRole) -> None:
-        with Session(get_sqlalchemy_engine()) as db_session:
-            workspace = (
-                db_session.query(Workspace__Users).filter_by(user_id=user_id).first()
-            )
-            if not workspace:
-                # temporary setting workspace_id to 0
-                db_session.add(
-                    Workspace__Users(workspace_id=0, user_id=user_id, role=role)
-                )
-                db_session.commit()
 
     async def oauth_callback(
         self: "BaseUserManager[models.UOAP, models.ID]",
@@ -454,7 +437,9 @@ async def current_user(
     return await double_check_user(user)
 
 
-async def current_admin_user(user: User | None = Depends(current_user)) -> User | None:
+async def current_admin_user(
+    user: User | None = Depends(current_user),
+) -> User | None:
     if DISABLE_AUTH:
         return None
 
@@ -468,41 +453,18 @@ async def current_admin_user(user: User | None = Depends(current_user)) -> User 
 
 
 async def current_workspace_admin_user(
-    workspace_id: Optional[int] = 0,  # Temporary setting workspace_id to 0
-    user: User = Depends(current_user),
-    db_session: Session = Depends(get_session),
+    user: User | None = Depends(current_user),
 ) -> User | None:
-    if user is None:
+    if DISABLE_AUTH:
+        return None
+
+    if not user or not hasattr(user, "role") or user.role != UserRole.ADMIN:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authenticated"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. User must be an admin to perform this action.",
         )
 
-    try:
-        workspace = (
-            db_session.query(Workspace__Users)
-            .filter(
-                Workspace__Users.workspace_id == workspace_id,
-                Workspace__Users.user_id == user.id,
-                Workspace__Users.role == UserRole.ADMIN,
-            )
-            .one_or_none()
-        )
-
-        if workspace is None:
-            if user.role != UserRole.ADMIN:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="User does not have admin rights for this workspace",
-                )
-            user.role = UserRole.ADMIN
-            return user
-        user.role = UserRole.ADMIN
-        return user
-
-    except NoResultFound:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Workspace not found"
-        )
+    return user
 
 
 async def current_teamspace_admin_user(
@@ -517,7 +479,7 @@ async def current_teamspace_admin_user(
         )
 
     if teamspace_id is None:
-        return await current_workspace_admin_user(user=user, db_session=db_session)
+        return await current_workspace_admin_user(user=user)
 
     user_teamspace = (
         db_session.query(User__Teamspace)

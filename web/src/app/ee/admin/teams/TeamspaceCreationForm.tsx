@@ -20,7 +20,6 @@ import { DocumentSets } from "./DocumentSets";
 import { Assistants } from "./Assistants";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/app/admin/settings/ImageUpload";
-import { useUser } from "@/components/user/UserProvider";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -41,7 +40,6 @@ export const TeamspaceCreationForm = ({
 }: TeamspaceCreationFormProps) => {
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File | null>(null);
-  const { user } = useUser();
   // const [tokenBudget, setTokenBudget] = useState(0);
   // const [periodHours, setPeriodHours] = useState(0);
   const isUpdate = existingTeamspace !== undefined;
@@ -158,7 +156,7 @@ export const TeamspaceCreationForm = ({
           <Form>
             <div className="space-y-6">
               <div className="flex flex-col justify-between gap-2 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">Name</p>
+                <p className="w-1/2 font-semibold whitespace-nowrap">Name*</p>
                 <TextFormField
                   name="name"
                   placeholder="Teamspace name"
@@ -180,7 +178,7 @@ export const TeamspaceCreationForm = ({
 
               <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select members
+                  Select members*
                 </p>
                 <div className="w-full">
                   <UserEditor
@@ -202,7 +200,7 @@ export const TeamspaceCreationForm = ({
 
               <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select assistants
+                  Select assistants*
                 </p>
                 <div className="w-full">
                   <Assistants

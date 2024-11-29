@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import field_validator
 
 from enmedd.db.models import Teamspace as TeamspaceModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
@@ -23,6 +24,7 @@ from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 class Teamspace(BaseModel):
     id: int
     name: str
+    description: Optional[str] = None
     creator: MinimalUserwithNameSnapshot
     users: list[UserInfo]
     cc_pairs: list[ConnectorCredentialPairDescriptor]
@@ -138,11 +140,18 @@ class UserWithRole(BaseModel):
 
 class TeamspaceCreate(BaseModel):
     name: str
+    descriptions: Optional[str] = None
     users: List[UserWithRole]
     cc_pair_ids: Optional[List[int]] = None
     document_set_ids: Optional[List[int]] = None
     assistant_ids: Optional[List[int]] = None
     workspace_id: Optional[int] = 0
+
+    @field_validator("name", "descriptions", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class TeamspaceUpdate(BaseModel):
@@ -154,8 +163,21 @@ class TeamspaceUpdate(BaseModel):
 
 class TeamspaceUpdateName(BaseModel):
     name: str
+    description: Optional[str] = None
+
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class UpdateUserRoleRequest(BaseModel):
     user_email: str
     new_role: TeamspaceUserRole
+
+    @field_validator("user_email", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value

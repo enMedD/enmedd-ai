@@ -61,7 +61,6 @@ from enmedd.db.models import SamlAccount
 from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
-from enmedd.db.models import Workspace__Users
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
@@ -272,7 +271,7 @@ def demote_admin(
 @router.patch("/manage/promote-workspace-user-to-admin")
 def promote_workspace_admin(
     user_email: UserByEmail,
-    _: User = Depends(current_workspace_admin_user),
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_promote = get_user_by_email(
@@ -281,23 +280,15 @@ def promote_workspace_admin(
     if not user_to_promote:
         raise HTTPException(status_code=404, detail="User not found")
 
-    workspace_user = (
-        db_session.query(Workspace__Users)
-        .filter(Workspace__Users.user_id == user_to_promote.id)
-        .first()
-    )
-    if not workspace_user:
-        raise HTTPException(status_code=404, detail="User not part of any workspace")
-
-    workspace_user.role = UserRole.ADMIN
-    db_session.add(workspace_user)
+    user_to_promote.role = UserRole.ADMIN
+    db_session.add(user_to_promote)
     db_session.commit()
 
 
 @router.patch("/manage/demote-workspace-admin-to-basic")
 def demote_workspace_admin(
     user_email: UserByEmail,
-    user: User = Depends(current_workspace_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_demote = get_user_by_email(
@@ -306,21 +297,13 @@ def demote_workspace_admin(
     if not user_to_demote:
         raise HTTPException(status_code=404, detail="User not found")
 
-    workspace_user = (
-        db_session.query(Workspace__Users)
-        .filter(Workspace__Users.user_id == user_to_demote.id)
-        .first()
-    )
-    if not workspace_user:
-        raise HTTPException(status_code=404, detail="User not part of any workspace")
-
-    if workspace_user.user_id == user.id:
+    if user_to_demote.id == user.id:
         raise HTTPException(
             status_code=400, detail="Cannot demote yourself from admin role!"
         )
 
-    workspace_user.role = UserRole.BASIC
-    db_session.add(workspace_user)
+    user_to_demote.role = UserRole.BASIC
+    db_session.add(user_to_demote)
     db_session.commit()
 
 
@@ -344,11 +327,7 @@ def list_all_users(
             .all()
         )
     else:
-        users_with_roles = (
-            db_session.query(User, Workspace__Users.role)
-            .join(Workspace__Users, Workspace__Users.user_id == User.id)
-            .all()
-        )
+        users_with_roles = db_session.query(User, User.role).all()
 
     accepted_users = [
         FullUserSnapshot(
@@ -710,28 +689,10 @@ def verify_user_logged_in(
         if user_teamspace is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Teamspace or role not found",
+                detail="Teamspace role not found",
             )
 
         role = user_teamspace.role
-    # elsif workspace_id:
-    else:
-        workspace_user = (
-            db_session.query(Workspace__Users)
-            .filter(
-                Workspace__Users.user_id == user.id,
-                Workspace__Users.workspace_id == 0,  # Temporary set to 0
-            )
-            .first()
-        )
-
-        if workspace_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Workspace or role not found",
-            )
-
-        role = workspace_user.role
 
     token_created_at = get_current_token_creation(user, db_session)
     user_info = UserInfo.from_model(
