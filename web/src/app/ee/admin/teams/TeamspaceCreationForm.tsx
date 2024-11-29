@@ -20,7 +20,6 @@ import { DocumentSets } from "./DocumentSets";
 import { Assistants } from "./Assistants";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/app/admin/settings/ImageUpload";
-import { useUser } from "@/components/user/UserProvider";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -41,7 +40,6 @@ export const TeamspaceCreationForm = ({
 }: TeamspaceCreationFormProps) => {
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File | null>(null);
-  const { user } = useUser();
   // const [tokenBudget, setTokenBudget] = useState(0);
   // const [periodHours, setPeriodHours] = useState(0);
   const isUpdate = existingTeamspace !== undefined;
@@ -186,9 +184,7 @@ export const TeamspaceCreationForm = ({
                   <UserEditor
                     selectedUserIds={values.users.map((user) => user.user_id)}
                     allUsers={users}
-                    existingUsers={
-                      user ? [{ user_id: user.id, role: "admin" }] : []
-                    }
+                    existingUsers={values.users}
                     onAddUser={(newUser) => {
                       setFieldValue("users", [...values.users, newUser]);
                     }}
