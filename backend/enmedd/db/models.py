@@ -1604,6 +1604,7 @@ class User__Teamspace(Base):
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, native_enum=False, default=UserRole.BASIC)
     )
+    user: Mapped["User"] = relationship("User", lazy="joined")
 
 
 class Teamspace__ConnectorCredentialPair(Base):
