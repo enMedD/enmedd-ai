@@ -24,6 +24,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/context/ChatContext";
 import { DeleteModal } from "@/components/DeleteModal";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 const FolderItem = ({
   folder,
@@ -127,7 +133,7 @@ const FolderItem = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (event: React.DragEvent<HTMLLIElement>) => {
     event.preventDefault();
     setIsDragOver(false);
     const chatSessionId = event.dataTransfer.getData(CHAT_SESSION_ID_KEY);
@@ -149,7 +155,7 @@ const FolderItem = ({
   });
 
   return (
-    <div
+    <SidebarMenuItem
       key={folder.folder_id}
       onDragOver={(event) => {
         event.preventDefault();
@@ -245,19 +251,27 @@ const FolderItem = ({
         />
       )}
       {isExpanded && folders && (
-        <div className={"ml-[23px] pl-2 border-l border-border"}>
-          {folders.map((chatSession) => (
-            <ChatSessionDisplay
-              key={chatSession.id}
-              chatSession={chatSession}
-              isSelected={chatSession.id === currentChatId}
-              skipGradient={isDragOver}
-              chatSessionIdRef={chatSessionIdRef}
-            />
-          ))}
-        </div>
+        <SidebarGroup
+          className={
+            "pl-2 py-0 ml-[15px] border-l border-border w-[calc(100%_-_4px)]"
+          }
+        >
+          <SidebarGroupContent className="">
+            <SidebarMenu className="">
+              {folders.map((chatSession) => (
+                <ChatSessionDisplay
+                  key={chatSession.id}
+                  chatSession={chatSession}
+                  isSelected={chatSession.id === currentChatId}
+                  skipGradient={isDragOver}
+                  chatSessionIdRef={chatSessionIdRef}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       )}
-    </div>
+    </SidebarMenuItem>
   );
 };
 
@@ -279,25 +293,21 @@ export const FolderList = ({
   }
 
   return (
-    <div className="mt-1 mb-1 overflow-visible">
-      {folders.map((folder) => (
-        <FolderItem
-          key={folder.folder_id}
-          folder={folder}
-          currentChatId={currentChatId}
-          isInitiallyExpanded={
-            openedFolders ? openedFolders[folder.folder_id] || false : false
-          }
-          chatSessionIdRef={chatSessionIdRef}
-          teamspaceId={teamspaceId}
-        />
-      ))}
-      {folders.length == 1 && folders[0].chat_sessions.length == 0 && (
-        <p className="text-xs font-normal text-subtle mt-2 px-4 ">
-          {" "}
-          Drag a chat into a folder to save for later{" "}
-        </p>
-      )}
-    </div>
+    <SidebarGroupContent>
+      <SidebarMenu>
+        {folders.map((folder) => (
+          <FolderItem
+            key={folder.folder_id}
+            folder={folder}
+            currentChatId={currentChatId}
+            isInitiallyExpanded={
+              openedFolders ? openedFolders[folder.folder_id] || false : false
+            }
+            chatSessionIdRef={chatSessionIdRef}
+            teamspaceId={teamspaceId}
+          />
+        ))}
+      </SidebarMenu>
+    </SidebarGroupContent>
   );
 };

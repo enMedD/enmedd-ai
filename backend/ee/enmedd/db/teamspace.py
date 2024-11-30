@@ -406,7 +406,9 @@ def _add_workspace__teamspace_relationship(
 def insert_teamspace(
     db_session: Session, teamspace: TeamspaceCreate, creator_id: UUID
 ) -> Teamspace:
-    db_teamspace = Teamspace(name=teamspace.name, creator_id=creator_id)
+    db_teamspace = Teamspace(
+        name=teamspace.name, creator_id=creator_id, description=teamspace.descriptions
+    )
     db_session.add(db_teamspace)
     db_session.flush()  # give the group an ID
 

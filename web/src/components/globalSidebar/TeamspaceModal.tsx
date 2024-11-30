@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { useGradient } from "@/hooks/useGradient";
+import { SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
 
 interface TeamspaceModalProps {
   teamspace?: MinimalTeamspaceSnapshot[] | undefined;
@@ -31,14 +32,18 @@ export const TeamspaceModal = ({
       trigger={
         <CustomTooltip
           trigger={
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsModalVisible(true)}
-              className="w-full"
-            >
-              <Ellipsis size={16} />
-            </Button>
+            <SidebarMenuItem className="flex items-center justify-center">
+              <SidebarMenuButton
+                tooltip={{
+                  children: "More",
+                  hidden: false,
+                }}
+                onClick={() => setIsModalVisible(true)}
+                className="w-8 h-8 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
+              >
+                <Ellipsis size={16} />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           }
           asChild
           side="right"

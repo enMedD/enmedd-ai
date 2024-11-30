@@ -194,6 +194,7 @@ export const TeamspaceDocumentSet = ({
 
   return (
     <CustomModal
+      className="pb-0"
       trigger={
         <div
           className={`rounded-md bg-background-subtle w-full p-4 min-h-36 flex flex-col justify-between ${teamspace.is_up_to_date && !teamspace.is_up_for_deletion && "cursor-pointer"}`}
@@ -248,35 +249,38 @@ export const TeamspaceDocumentSet = ({
       open={isDocumentSetModalOpen}
       onClose={handleCloseModal}
     >
-      <div className="space-y-12">
-        <DocumentSetContent
-          searchTerm={searchTermCurrent}
-          setSearchTerm={setSearchTermCurrent}
-          filteredDocumentSets={tempCurrentDocumentSets.filter((documentSet) =>
-            documentSet.name
-              ?.toLowerCase()
-              .includes(searchTermCurrent.toLowerCase())
-          )}
-          onSelect={handleSelectDocumentSet}
-        />
+      <div className="flex flex-col h-full">
+        <div className="flex-grow space-y-12 pb-20">
+          <DocumentSetContent
+            searchTerm={searchTermCurrent}
+            setSearchTerm={setSearchTermCurrent}
+            filteredDocumentSets={tempCurrentDocumentSets.filter(
+              (documentSet) =>
+                documentSet.name
+                  ?.toLowerCase()
+                  .includes(searchTermCurrent.toLowerCase())
+            )}
+            onSelect={handleSelectDocumentSet}
+          />
 
-        <DocumentSetContent
-          searchTerm={searchTermGlobal}
-          setSearchTerm={setSearchTermGlobal}
-          filteredDocumentSets={tempGlobalDocumentSets.filter((documentSet) =>
-            documentSet.name
-              ?.toLowerCase()
-              .includes(searchTermGlobal.toLowerCase())
-          )}
-          isGlobal
-          onSelect={handleSelectDocumentSet}
-        />
-      </div>
-      <div className="flex justify-end mt-10 gap-2">
-        <Button onClick={handleCloseModal} variant="ghost">
-          Cancel
-        </Button>
-        <Button onClick={handleSaveChanges}>Save changes</Button>
+          <DocumentSetContent
+            searchTerm={searchTermGlobal}
+            setSearchTerm={setSearchTermGlobal}
+            filteredDocumentSets={tempGlobalDocumentSets.filter((documentSet) =>
+              documentSet.name
+                ?.toLowerCase()
+                .includes(searchTermGlobal.toLowerCase())
+            )}
+            isGlobal
+            onSelect={handleSelectDocumentSet}
+          />
+        </div>
+        <div className="sticky bottom-0 left-0 right-0 py-6 bg-white border-t border-gray-200 z-10 flex justify-end gap-2">
+          <Button onClick={handleCloseModal} variant="ghost">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveChanges}>Save changes</Button>
+        </div>
       </div>
     </CustomModal>
   );

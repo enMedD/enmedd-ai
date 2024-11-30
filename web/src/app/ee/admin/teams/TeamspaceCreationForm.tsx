@@ -78,6 +78,9 @@ export const TeamspaceCreationForm = ({
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required("Please enter a name for the group"),
+          description: Yup.string().required(
+            "Please enter a description for the group"
+          ),
           users: Yup.array().of(
             Yup.object().shape({
               user_id: Yup.string().required("User ID is required"),
@@ -163,6 +166,21 @@ export const TeamspaceCreationForm = ({
                   disabled={isUpdate}
                   autoCompleteDisabled={true}
                   fullWidth
+                />
+              </div>
+
+              <div className="flex flex-col justify-between gap-2 lg:flex-row">
+                <p className="w-1/2 font-semibold whitespace-nowrap">
+                  Description*
+                </p>
+                <TextFormField
+                  name="description"
+                  placeholder="Teamspace description"
+                  disabled={isUpdate}
+                  autoCompleteDisabled={true}
+                  fullWidth
+                  isTextArea
+                  maxHeight={120}
                 />
               </div>
 

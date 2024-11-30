@@ -14,12 +14,94 @@ import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { useParams } from "next/navigation";
 import { useGradient } from "@/hooks/useGradient";
 
+import {
+  Sidebar,
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
+import { UsersResponse } from "@/lib/users/interfaces";
+
+const Inset = ({
+  open,
+  assistants,
+  data,
+  refreshTeamspaces,
+  ccPairs,
+  users,
+  documentSets,
+  selectedTeamspaceId,
+  openFalse,
+  openTrue,
+  setSelectedTeamspaceId,
+}: {
+  open: boolean;
+  assistants: Assistant[];
+  data: Teamspace[];
+  refreshTeamspaces: () => void;
+  ccPairs: ConnectorIndexingStatus<any, any>[];
+  users: UsersResponse;
+  documentSets: DocumentSet[] | undefined;
+  selectedTeamspaceId: number | null;
+  openFalse: () => void;
+  openTrue: () => void;
+  setSelectedTeamspaceId: (teamspaceId: number) => void;
+}) => {
+  const { toggleSidebar: toggleRightSidebar, isMobile } = useSidebar();
+
+  const handleCloseSidebar = () => {
+    openFalse();
+  };
+
+  const handleShowTeamspace = (teamspaceId: number) => {
+    if (selectedTeamspaceId === teamspaceId) {
+      if (open) {
+        openFalse();
+      } else {
+        openTrue();
+      }
+    } else {
+      setSelectedTeamspaceId(teamspaceId);
+      if (!open) openTrue();
+    }
+    if (!teamspaceId || isMobile) {
+      toggleRightSidebar();
+    }
+  };
+
+  return (
+    <SidebarInset className="w-full overflow-hidden">
+      <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 right-0">
+        {open && (
+          <SidebarTrigger className="-ml-1" onClick={handleCloseSidebar} />
+        )}
+      </header>
+      <div className="h-full w-full overflow-y-auto">
+        <div className="container">
+          <TeamspaceContent
+            assistants={assistants}
+            onClick={handleShowTeamspace}
+            data={data}
+            refreshTeamspaces={refreshTeamspaces}
+            ccPairs={ccPairs}
+            users={users}
+            documentSets={documentSets}
+          />
+        </div>
+      </div>
+    </SidebarInset>
+  );
+};
+
 export const Main = ({ assistants }: { assistants: Assistant[] }) => {
   const { teamspaceId } = useParams();
+  const [open, setOpen] = useState(false);
   const [selectedTeamspaceId, setSelectedTeamspaceId] = useState<number | null>(
     null
   );
-  const [isExpanded, setIsExpanded] = useState(false);
+
   const { isLoading, error, data, refreshTeamspaces } = useTeamspaces();
 
   const {
@@ -56,16 +138,6 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     return <div className="text-red-600">Error loading connectors</div>;
   }
 
-  const handleShowTeamspace = (teamspaceId: number) => {
-    if (teamspaceId === selectedTeamspaceId) {
-      setSelectedTeamspaceId(null);
-      setIsExpanded(false);
-    } else {
-      setSelectedTeamspaceId(teamspaceId);
-      setIsExpanded(true);
-    }
-  };
-
   const selectedTeamspace = data.find(
     (teamspace) => teamspace.id === selectedTeamspaceId
   );
@@ -75,36 +147,43 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     gradient: useGradient(teamspace.name),
   }));
 
-  const handleCloseSidebar = () => {
-    setSelectedTeamspaceId(null);
-    setIsExpanded(false);
-  };
-
   return (
-    <>
-      <div className="h-full w-full overflow-y-auto">
-        <div className="container">
-          <TeamspaceContent
-            assistants={assistants}
-            onClick={handleShowTeamspace}
-            data={teamspacesWithGradients}
-            refreshTeamspaces={refreshTeamspaces}
-            ccPairs={ccPairs}
-            users={users}
-            documentSets={documentSets}
-          />
-        </div>
-      </div>
-
-      <TeamspaceSidebar
+    <SidebarProvider
+      open={open}
+      onOpenChange={setOpen}
+      style={
+        {
+          "--sidebar-width": "400px",
+        } as React.CSSProperties
+      }
+      className="h-full w-full"
+    >
+      <Inset
+        open={open}
         assistants={assistants}
-        selectedTeamspace={selectedTeamspace}
-        onClose={handleCloseSidebar}
-        isExpanded={isExpanded}
-        ccPairs={ccPairs}
-        documentSets={documentSets || []}
+        data={teamspacesWithGradients}
         refreshTeamspaces={refreshTeamspaces}
+        ccPairs={ccPairs}
+        users={users}
+        documentSets={documentSets}
+        selectedTeamspaceId={selectedTeamspaceId}
+        openFalse={() => setOpen(false)}
+        openTrue={() => setOpen(true)}
+        setSelectedTeamspaceId={setSelectedTeamspaceId}
       />
-    </>
+
+      <Sidebar
+        className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+        side="right"
+      >
+        <TeamspaceSidebar
+          assistants={assistants}
+          selectedTeamspace={selectedTeamspace}
+          ccPairs={ccPairs}
+          documentSets={documentSets || []}
+          refreshTeamspaces={refreshTeamspaces}
+        />
+      </Sidebar>
+    </SidebarProvider>
   );
 };

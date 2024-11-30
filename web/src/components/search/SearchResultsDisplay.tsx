@@ -156,13 +156,21 @@ export const SearchResultsDisplay = ({
 
   const uniqueDocuments = getUniqueDocuments(documents || []);
 
-  console.log(selectedDocumentIds);
-
   return (
     <div>
       {documents && documents.length > 0 && (
         <div className="mt-4">
-          <div className="font-bold flex justify-between text-emphasis border-b pb-3 border-border text-lg">
+          <div
+            className={`font-bold flex items-center justify-between text-emphasis pb-3 text-lg  ${
+              agenticResults &&
+              relevantDocs &&
+              contentEnriched &&
+              relevantDocs.length == 0 &&
+              !showAll
+                ? ""
+                : "border-border border-b"
+            }`}
+          >
             <p>Results</p>
             {!DISABLE_LLM_DOC_RELEVANCE &&
               (contentEnriched || searchResponse.additional_relevance) && (
@@ -211,8 +219,8 @@ export const SearchResultsDisplay = ({
             contentEnriched &&
             relevantDocs.length == 0 &&
             !showAll && (
-              <p className="flex text-lg font-bold">
-                No high quality results found by agentic search.
+              <p className="flex text-lg font-bold border-border border-b pb-3">
+                No high quality results found by smart search.
               </p>
             )}
 

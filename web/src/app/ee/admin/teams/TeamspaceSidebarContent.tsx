@@ -1,14 +1,19 @@
+"use client";
+
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { TeamspaceMember } from "./TeamspaceMember";
 import { TeamspaceAssistant } from "./TeamspaceAssistant";
 import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 import { TeamspaceDataSource } from "./TeamspaceDataSource";
-import { Shield } from "lucide-react";
+import { Check, Pen, Shield, X } from "lucide-react";
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import Image from "next/image";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
@@ -25,6 +30,9 @@ export const TeamspaceSidebarContent = ({
   documentSets,
   refreshTeamspaces,
 }: TeamspaceSidebarContentProps) => {
+  const [isDescriptionHovered, setIsDescriptionHovered] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+
   const { data, error } = useSWR(
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
     errorHandlingFetcher
@@ -58,10 +66,83 @@ export const TeamspaceSidebarContent = ({
       </div>
 
       <div className="flex flex-col items-center px-6 py-14 w-full">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-2 w-full">
           <h1 className="text-center font-bold text-xl md:text-[28px]">
             {teamspace.name}
           </h1>
+          {/* <div
+            className="relative"
+            onMouseEnter={() => setIsDescriptionHovered(true)}
+            onMouseLeave={() => setIsDescriptionHovered(false)}
+          >
+            {isEditingDescription ? (
+              <Textarea className="max-h-24" />
+            ) : (
+              <p className="line-clamp text-sm text-center px-4">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Aspernatur architecto quo maiores voluptate, accusantium sequi
+                expedita dignissimos repellendus eius? Nam magnam officia
+                recusandae sunt aspernatur fugiat eos natus quae est?
+              </p>
+            )}
+            {isDescriptionHovered && (
+              <Button
+                size="smallIcon"
+                className="absolute top-0 right-0"
+                onClick={() => setIsEditingDescription(true)}
+              >
+                <Pen size={14} />
+              </Button>
+            )}
+          </div> */}
+
+          <div
+            className="relative w-full"
+            onMouseEnter={() => setIsDescriptionHovered(true)}
+            onMouseLeave={() => setIsDescriptionHovered(false)}
+          >
+            {isEditingDescription ? (
+              <div className="relative">
+                <Textarea className="min-h-20 max-h-40" />
+                <div className="absolute bottom-2 right-2 flex space-x-2">
+                  <Button
+                    size="smallIcon"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditingDescription(false);
+                    }}
+                  >
+                    <X size={14} />
+                  </Button>
+                  <Button
+                    size="smallIcon"
+                    onClick={() => {
+                      setIsEditingDescription(false);
+                    }}
+                  >
+                    <Check size={14} />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="line-clamp text-sm text-center px-4">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Aspernatur architecto quo maiores voluptate, accusantium sequi
+                expedita dignissimos repellendus eius? Nam magnam officia
+                recusandae sunt aspernatur fugiat eos natus quae est?
+              </p>
+            )}
+
+            {isDescriptionHovered && !isEditingDescription && (
+              <Button
+                size="smallIcon"
+                className="absolute top-0 right-0"
+                onClick={() => setIsEditingDescription(true)}
+              >
+                <Pen size={14} />
+              </Button>
+            )}
+          </div>
           <span className="text-center text-primary pt-1 font-medium text-sm">
             {teamspace.creator.full_name}
           </span>

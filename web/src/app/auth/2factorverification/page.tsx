@@ -102,8 +102,6 @@ const Page = () => {
 
   const handleInputChange = (newValue: string) => {
     setValue(newValue);
-    console.log("new value length ", newValue.length);
-    // console.log("value length ", value.length)
     if (newValue.length === 6) {
       handleContinue(newValue);
     }

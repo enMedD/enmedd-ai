@@ -103,11 +103,16 @@ import BlurBackground from "./shared_chat_search/BlurBackground";
 import { ChatContext, useChatContext } from "@/context/ChatContext";
 import Prism from "prismjs";
 import { useToast } from "@/hooks/use-toast";
-import { DynamicSidebar } from "@/components/DynamicSidebar";
 import { ChatSidebar } from "./sessionSidebar/ChatSidebar";
 import { HelperFab } from "@/components/HelperFab";
 import { Button } from "@/components/ui/button";
-import { CircleArrowDown, PanelLeftClose, PanelRightClose } from "lucide-react";
+import {
+  CircleArrowDown,
+  PanelLeft,
+  PanelLeftClose,
+  PanelRight,
+  PanelRightClose,
+} from "lucide-react";
 
 import Logo from "../../../public/logo-brand.png";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -120,6 +125,7 @@ import { useAssistants } from "@/context/AssistantsContext";
 import { NoAssistantModal } from "@/components/modals/NoAssistantModal";
 import { NoValidAssistantModal } from "./NoValidAssistantModal";
 import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
+import Sidebar from "@/components/Sidebar";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1794,7 +1800,20 @@ export function ChatPage({
   };
 
   return (
-    <>
+    <Sidebar
+      user={user}
+      sidebar={
+        <ChatSidebar
+          existingChats={chatSessions}
+          currentChatSession={selectedChatSession}
+          folders={folders}
+          openedFolders={openedFolders}
+          toggleSideBar={toggleLeftSideBar}
+          teamspaceId={teamspaceId}
+          chatSessionIdRef={chatSessionIdRef}
+        />
+      }
+    >
       <HealthCheckBanner />
 
       {showApiKeyModal && !shouldShowWelcomeModal ? (
@@ -1813,27 +1832,11 @@ export function ChatPage({
       )}
 
       {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit.
-      Only used in the EE version of the app. */}
+Only used in the EE version of the app. */}
 
       <ChatPopup />
 
       <div className="relative flex overflow-x-hidden bg-background default h-full">
-        <DynamicSidebar
-          user={user}
-          openSidebar={openSidebar}
-          toggleLeftSideBar={toggleLeftSideBar}
-        >
-          <ChatSidebar
-            existingChats={chatSessions}
-            currentChatSession={selectedChatSession}
-            folders={folders}
-            openedFolders={openedFolders}
-            toggleSideBar={toggleLeftSideBar}
-            teamspaceId={teamspaceId}
-            chatSessionIdRef={chatSessionIdRef}
-          />
-        </DynamicSidebar>
-
         <div ref={masterFlexboxRef} className="flex w-full overflow-x-hidden">
           {settingsToggled && (
             <SetDefaultModelModal
@@ -1860,19 +1863,19 @@ export function ChatPage({
               {({ getRootProps }) => (
                 <>
                   <div
-                    className={`w-full sm:relative flex flex-col lg:px-10 3xl:px-0 ${
+                    className={`w-full sm:relative flex flex-col${
                       !retrievalEnabled ? "" : ""
                     }
-                      flex-auto transition-margin duration-300
-                      overflow-x-auto  overflow-y-auto
-                      `}
+                flex-auto transition-margin duration-300
+                overflow-x-auto  overflow-y-auto
+                `}
                     {...getRootProps()}
                   >
                     {/* <input {...getInputProps()} /> */}
 
                     <HelperFab />
 
-                    {liveAssistant && (
+                    {/* {liveAssistant && (
                       <div className="relative z-top-bar shrink-0">
                         <div className="flex w-full items-center p-4 lg:px-0 3xl:px-4 justify-between min-h-[72px]">
                           <div className="flex lg:hidden items-center gap-2">
@@ -1925,14 +1928,60 @@ export function ChatPage({
                           </div>
                         </div>
                       </div>
+                    )} */}
+
+                    {liveAssistant && (
+                      <div className="relative shrink-0">
+                        <div className="flex w-full items-center p-4 lg:px-0 3xl:px-4 justify-between min-h-16">
+                          <div className="flex ml-auto gap-2 items-center">
+                            {chatSessionIdRef.current !== null && (
+                              <FeatureFlagWrapper flag="share_chat">
+                                <ShareChatSessionModal
+                                  chatSessionId={chatSessionIdRef.current}
+                                  existingSharedStatus={chatSessionSharedStatus}
+                                  onShare={(shared) =>
+                                    setChatSessionSharedStatus(
+                                      shared
+                                        ? ChatSessionSharedStatus.Public
+                                        : ChatSessionSharedStatus.Private
+                                    )
+                                  }
+                                />
+                              </FeatureFlagWrapper>
+                            )}
+
+                            {retrievalEnabled && (
+                              <CustomTooltip
+                                asChild
+                                trigger={
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={toggleSidebar}
+                                  >
+                                    {showDocSidebar ? (
+                                      <PanelRight />
+                                    ) : (
+                                      <PanelLeft />
+                                    )}
+                                  </Button>
+                                }
+                              >
+                                {showDocSidebar ? "Hide Docs" : "Show Docs"}
+                              </CustomTooltip>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     )}
 
                     <div
-                      className="w-full h-full flex flex-col overflow-x-hidden relative scroll-smooth flex-1 pt-6 lg:pt-0"
+                      className="w-full h-full flex flex-col overflow-x-hidden relative scroll-smooth flex-1 pt-6 lg:pt-0 lg:px-10 3xl:px-0 "
                       ref={scrollableDivRef}
                     >
                       {/* ChatBanner is a custom banner that displays a admin-specified message at
-                      the top of the chat page. Only used in the EE version of the app. */}
+                the top of the chat page. Only used in the EE version of the app. */}
                       {/*  <ChatBanner /> */}
 
                       {messageHistory.length === 0 &&
@@ -1979,7 +2028,7 @@ export function ChatPage({
                         )}
                       <div
                         className={`pb-10 md:pb-14 lg:pb-16 px-5 md:px-8 lg:px-5 2xl:px-0 max-w-full mx-auto 2xl:w-searchbar w-full
-                        } ${messageHistory.length === 0 ? "hidden" : "block"}`}
+                  } ${messageHistory.length === 0 ? "hidden" : "block"}`}
                       >
                         {(messageHistory.length < BUFFER_COUNT
                           ? messageHistory
@@ -2381,7 +2430,7 @@ export function ChatPage({
                           className="absolute bottom-[calc(100%_+_16px)] left-1/2 -translate-x-1/2 pointer-events-auto !rounded-full cursor-pointer bg-background"
                         />
                       )}
-                      <div className="w-full pb-4 md:pb-10 lg:pb-4">
+                      <div className="w-full pb-4 md:pb-10 lg:pb-4 lg:px-10 3xl:px-0 ">
                         <ChatInputBar
                           showConfigureAPIKey={() => setShowApiKeyModal(true)}
                           chatState={currentSessionChatState}
@@ -2499,6 +2548,6 @@ export function ChatPage({
           )}
         </div>
       </div>
-    </>
+    </Sidebar>
   );
 }
