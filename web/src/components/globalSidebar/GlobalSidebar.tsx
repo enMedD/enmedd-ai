@@ -37,6 +37,7 @@ export function GlobalSidebar({
   children?: React.ReactNode;
 }) {
   const { teamspaceId } = useParams();
+  const { setOpen } = useSidebar();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -59,6 +60,12 @@ export function GlobalSidebar({
   // }
   const displayedTeamspaces = teamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
+
+  const generateGradient = (teamspaceName: string) => {
+    const colors = ["#CCCCCC", "#999999", "#666666", "#333333", "#000000"];
+    const index = teamspaceName.charCodeAt(0) % colors.length;
+    return `linear-gradient(135deg, ${colors[index]}, ${colors[(index + 1) % colors.length]})`;
+  };
 
   return (
     <Sidebar
