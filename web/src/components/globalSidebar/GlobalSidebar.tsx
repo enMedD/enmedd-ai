@@ -37,7 +37,6 @@ export function GlobalSidebar({
   children?: React.ReactNode;
 }) {
   const { teamspaceId } = useParams();
-  const { setOpen } = useSidebar();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
