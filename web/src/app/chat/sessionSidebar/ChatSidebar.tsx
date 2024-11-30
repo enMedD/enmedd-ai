@@ -115,7 +115,7 @@ export const ChatSidebar = ({
 
   return (
     <Sidebar collapsible="none" className="flex-1 flex overflow-hidden">
-      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px] px-3">
+      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px] px-3 flex items-center justify-center">
         {workspaces && workspaces.custom_header_logo ? (
           <img
             src={buildImgUrl(workspaces?.custom_header_logo)}
@@ -128,7 +128,7 @@ export const ChatSidebar = ({
         <Separator className="mt-[9px]" />
       </SidebarHeader>
 
-      <SidebarContent className="gap-0">
+      <SidebarContent className="gap-0 overflow-hidden">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

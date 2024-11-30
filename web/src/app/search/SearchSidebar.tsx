@@ -48,7 +48,7 @@ export const SearchSidebar = ({
 
   return (
     <Sidebar collapsible="none" className="flex-1 flex overflow-hidden">
-      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px]">
+      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px] flex items-center justify-center">
         {workspaces && workspaces.custom_header_logo ? (
           <img
             src={buildImgUrl(workspaces?.custom_header_logo)}

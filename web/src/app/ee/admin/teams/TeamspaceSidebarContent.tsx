@@ -39,6 +39,7 @@ export const TeamspaceSidebarContent = ({
   );
 
   const tokenRate = data && data.length > 0 ? data[0] : null;
+  console.log(teamspace);
 
   return (
     <>
@@ -126,10 +127,7 @@ export const TeamspaceSidebarContent = ({
               </div>
             ) : (
               <p className="line-clamp text-sm text-center px-4">
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                Aspernatur architecto quo maiores voluptate, accusantium sequi
-                expedita dignissimos repellendus eius? Nam magnam officia
-                recusandae sunt aspernatur fugiat eos natus quae est?
+                {teamspace.description}
               </p>
             )}
 

@@ -209,6 +209,7 @@ export interface MinimalWorkspaceSnapshot {
 export interface Teamspace {
   id: number;
   name: string;
+  description: string;
   creator: MinimalUserwithNameSnapshot;
   users: User[];
   curator_ids: string[];

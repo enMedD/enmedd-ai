@@ -71,6 +71,7 @@ export const TeamspaceCreationForm = ({
       <Formik
         initialValues={{
           name: existingTeamspace ? existingTeamspace.name : "",
+          description: existingTeamspace ? existingTeamspace.description : "",
           users: [] as { user_id: string; role: string }[],
           cc_pair_ids: [] as number[],
           document_set_ids: [] as number[],
@@ -181,6 +182,7 @@ export const TeamspaceCreationForm = ({
                   fullWidth
                   isTextArea
                   maxHeight={120}
+                  defaultHeight="h-20"
                 />
               </div>
 

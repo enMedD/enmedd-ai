@@ -62,7 +62,7 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
     user && !checkUserIsNoAuthUser(user.id) && !LOGOUT_DISABLED;
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className="items-center">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -89,16 +89,17 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <FeatureFlagWrapper flag="profile_page">
-                <DropdownMenuItem>
-                  <UserIcon size={16} strokeWidth={1.5} />
-                  Profile Settings
-                </DropdownMenuItem>
-              </FeatureFlagWrapper>
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="flex gap-2 items-center">
+                  <FeatureFlagWrapper flag="profile_page">
+                    <UserIcon size={16} strokeWidth={1.5} />
+                    Profile Settings
+                  </FeatureFlagWrapper>
+                </Link>
+              </DropdownMenuItem>
 
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link
-                  // redirect to default page
                   href={
                     teamspaceId
                       ? `/t/${teamspaceId}/${defaultPage}`
@@ -112,7 +113,7 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
               </DropdownMenuItem>
 
               {isTeamspaceAdmin && (
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link
                     href={`/t/${teamspaceId}/admin/indexing/status`}
                     className="flex gap-2 items-center"
@@ -124,7 +125,7 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
               )}
 
               {isAdmin && (
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link
                     href="/admin/indexing/status"
                     className="flex gap-2 items-center"

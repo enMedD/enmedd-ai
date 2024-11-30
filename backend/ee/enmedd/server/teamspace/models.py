@@ -42,6 +42,7 @@ class Teamspace(BaseModel):
         return cls(
             id=teamspace_model.id,
             name=teamspace_model.name,
+            description=teamspace_model.description,
             creator=MinimalUserwithNameSnapshot(
                 id=teamspace_model.creator.id,
                 email=teamspace_model.creator.email,
@@ -140,14 +141,14 @@ class UserWithRole(BaseModel):
 
 class TeamspaceCreate(BaseModel):
     name: str
-    descriptions: Optional[str] = None
+    description: Optional[str] = None
     users: List[UserWithRole]
     cc_pair_ids: Optional[List[int]] = None
     document_set_ids: Optional[List[int]] = None
     assistant_ids: Optional[List[int]] = None
     workspace_id: Optional[int] = 0
 
-    @field_validator("name", "descriptions", mode="before")
+    @field_validator("name", "description", mode="before")
     def strip_whitespace(cls, value):
         if isinstance(value, str):
             return value.strip()

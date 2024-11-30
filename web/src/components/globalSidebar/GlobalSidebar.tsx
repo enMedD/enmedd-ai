@@ -34,10 +34,9 @@ export function GlobalSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user?: User | null;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }) {
   const { teamspaceId } = useParams();
-  const { setOpen } = useSidebar();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -84,19 +83,17 @@ export function GlobalSidebar({
                 <SidebarMenuButton
                   size="lg"
                   asChild
-                  className="md:h-8 p-0 justify-center"
+                  className="md:h-8 p-0 justify-center pointer-events-none"
                 >
-                  <a href="#">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                      <Image
-                        src={ArnoldAi}
-                        alt="Arnold AI Logo"
-                        width={32}
-                        height={32}
-                        className="rounded-regular shrink-0"
-                      />
-                    </div>
-                  </a>
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <Image
+                      src={ArnoldAi}
+                      alt="Arnold AI Logo"
+                      width={32}
+                      height={32}
+                      className="rounded-regular shrink-0"
+                    />
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
@@ -135,7 +132,6 @@ export function GlobalSidebar({
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            {/* <SidebarGroupContent className="px-1.5 md:px-0"> */}
             <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
                 {displayedTeamspaces.map((teamspace) => (
@@ -190,7 +186,7 @@ export function GlobalSidebar({
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <UserSettingsButton />
+          <UserSettingsButton defaultPage={defaultPage} />
         </SidebarFooter>
       </Sidebar>
 
