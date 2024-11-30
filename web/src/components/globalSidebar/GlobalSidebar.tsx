@@ -39,7 +39,6 @@ export function GlobalSidebar({
   isProfile?: boolean;
 }) {
   const { teamspaceId } = useParams();
-  const { setOpen } = useSidebar();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
