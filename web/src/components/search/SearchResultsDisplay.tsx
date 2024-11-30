@@ -220,7 +220,7 @@ export const SearchResultsDisplay = ({
             relevantDocs.length == 0 &&
             !showAll && (
               <p className="flex text-lg font-bold border-border border-b pb-3">
-                No high quality results found by agentic search.
+                No high quality results found by smart search.
               </p>
             )}
 
