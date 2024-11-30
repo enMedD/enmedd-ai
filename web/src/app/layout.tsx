@@ -17,9 +17,13 @@ import ThemeProvider from "@/components/ThemeProvider";
 import { fetchFeatureFlagSS } from "@/components/feature_flag/lib";
 import { FeatureFlagProvider } from "@/components/feature_flag/FeatureFlagContext";
 
+// const inter = Inter({
+//   subsets: ["latin"],
+//   variable: "--font-sans",
+// });
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-inter",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -54,7 +58,7 @@ export default async function RootLayout({
     // Just display a simple full page error if fetching fails.
 
     return (
-      <html lang="en" className={`${inter.variable} font-sans`}>
+      <html lang="en" className={`${inter.variable} font-inter`}>
         <Head>
           <title>Settings Unavailable | Arnold AI</title>
         </Head>
@@ -100,7 +104,7 @@ export default async function RootLayout({
       )}
 
       <body
-        className={`${inter.variable} font-sans text-default bg-background ${
+        className={`${inter.variable} font-inter text-default bg-background ${
           process.env.THEME_IS_DARK?.toLowerCase() === "true" ? "dark" : ""
         }`}
       >

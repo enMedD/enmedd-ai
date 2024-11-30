@@ -66,10 +66,7 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground md:h-8 md:p-0 justify-center p-0"
-            >
+            <SidebarMenuButton className="p-0">
               <UserProfile user={user} size={32} textSize="sm" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>

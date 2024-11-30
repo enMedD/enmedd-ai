@@ -73,12 +73,8 @@ export function GlobalSidebar({
       className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
       {...props}
     >
-      {/* This is the first sidebar */}
-      {/* We disable collapsible and adjust width to icon. */}
-      {/* This will make the sidebar appear as icons. */}
       <Sidebar
         collapsible="none"
-        // className="!w-[calc(var(--sidebar-width-icon)_+_8px)] border-r"
         className="!w-[calc(var(--sidebar-width-icon)_+_0px)] border-r"
       >
         <SidebarHeader className="p-0">
@@ -100,10 +96,6 @@ export function GlobalSidebar({
                         className="rounded-regular shrink-0"
                       />
                     </div>
-                    {/* <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">Acme Inc</span>
-                      <span className="truncate text-xs">Enterprise</span>
-                    </div> */}
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -167,8 +159,7 @@ export function GlobalSidebar({
                           <img
                             src={buildImgUrl(teamspace.logo)}
                             alt="Teamspace Logo"
-                            // className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "w-7 h-7 rounded-[8px]" : "w-full h-full"}`}
-                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[26px] w-[26px] rounded-xs" : "w-full h-full"}`}
+                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-xs" : "w-full h-full"}`}
                             width={28}
                             height={28}
                           />
@@ -177,8 +168,7 @@ export function GlobalSidebar({
                             style={{
                               background: generateGradient(teamspace.name),
                             }}
-                            // className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "w-7 h-7 rounded-[8px]" : "w-full h-full"}`}
-                            className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[26px] w-[26px] rounded-xs" : "w-full h-full"}`}
+                            className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-xs" : "w-full h-full"}`}
                           >
                             {teamspace.name.charAt(0)}
                           </div>
