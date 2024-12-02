@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import field_validator
 
 from enmedd.db.models import Assistant
 from enmedd.db.models import StarterMessage
@@ -42,6 +43,12 @@ class CreateAssistantRequest(BaseModel):
     is_default_assistant: bool = False
     display_priority: int | None = None
     search_start_date: datetime | None = None
+
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class AssistantSnapshot(BaseModel):
