@@ -121,7 +121,7 @@ export const ChatSidebar = ({
             className="h-9 object-contain w-full"
           />
         ) : (
-          <Image src={ArnoldAi} alt="arnoldai-logo" height={40} />
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={36} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>
@@ -233,37 +233,6 @@ export const ChatSidebar = ({
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-
-          {/* <SidebarMenuItem>
-            <CustomTooltip
-              asChild
-              trigger={
-                <SidebarMenuButton
-                  variant="brand"
-                  onClick={() =>
-                    createFolder("New Folder", teamspaceId)
-                      .then((folderId) => {
-                        console.log(`Folder created with ID: ${folderId}`);
-                        router.refresh();
-                      })
-                      .catch((error) => {
-                        console.error("Failed to create folder:", error);
-                        toast({
-                          title: "Folder Creation Failed",
-                          description: `Unable to create the folder: ${error.message}. Please try again.`,
-                          variant: "destructive",
-                        });
-                      })
-                  }
-                >
-                  <FolderPlus size={16} />
-                </SidebarMenuButton>
-              }
-              side="right"
-            >
-              Create New Folder
-            </CustomTooltip>
-          </SidebarMenuItem> */}
           <SidebarMenuItem>
             <SidebarMenuButton
               variant="brand"
