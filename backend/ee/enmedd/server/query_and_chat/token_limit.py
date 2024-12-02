@@ -12,7 +12,6 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy import func
 from sqlalchemy import select
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.api_key import is_api_key_email_address
@@ -25,6 +24,7 @@ from enmedd.db.models import TokenRateLimit
 from enmedd.db.models import TokenRateLimit__Teamspace
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.token_limit import _get_cutoff_time
 from enmedd.server.query_and_chat.token_limit import _is_rate_limited
@@ -61,9 +61,7 @@ def _user_is_rate_limited(
 ) -> None:
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         user_rate_limits = fetch_all_user_token_rate_limits(
             db_session=db_session, enabled_only=True, ordered=False
         )
@@ -108,9 +106,7 @@ def _user_is_rate_limited_by_teamspace(
 ) -> None:
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         group_rate_limits = _fetch_all_teamspace_rate_limits(user_id, db_session)
 
         if group_rate_limits:

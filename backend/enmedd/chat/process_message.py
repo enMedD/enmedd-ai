@@ -6,7 +6,6 @@ from typing import cast
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.chat.chat_utils import create_chat_chain
@@ -72,6 +71,7 @@ from enmedd.search.utils import chunks_or_sections_to_search_docs
 from enmedd.search.utils import dedupe_documents
 from enmedd.search.utils import drop_llm_indices
 from enmedd.search.utils import relevant_sections_to_indices
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.models import ChatMessageDetail
 from enmedd.server.query_and_chat.models import CreateChatMessageRequest
@@ -847,9 +847,7 @@ def stream_chat_message(
 ) -> Iterator[str]:
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         objects = stream_chat_message_objects(
             new_msg_req=new_msg_req,
             user=user,

@@ -4,7 +4,6 @@ from typing import cast
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.query_and_chat.utils import create_temporary_assistant
@@ -53,6 +52,7 @@ from enmedd.search.utils import chunks_or_sections_to_search_docs
 from enmedd.search.utils import dedupe_documents
 from enmedd.secondary_llm_flows.answer_validation import get_answer_validity
 from enmedd.secondary_llm_flows.query_expansion import thread_based_query_rephrase
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.query_and_chat.models import ChatMessageDetail
 from enmedd.server.utils import get_json_line
@@ -340,9 +340,7 @@ def stream_search_answer(
 ) -> Iterator[str]:
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         objects = stream_answer_objects(
             query_req=query_req,
             user=user,

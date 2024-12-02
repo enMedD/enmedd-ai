@@ -13,7 +13,6 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import text
 
 from enmedd.access.models import DocumentAccess
 from enmedd.configs.constants import DocumentSource
@@ -24,6 +23,7 @@ from enmedd.document_index.vespa.index import VespaIndex
 from enmedd.indexing.models import ChunkEmbedding
 from enmedd.indexing.models import DocMetadataAwareIndexChunk
 from enmedd.indexing.models import IndexChunk
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.timing import log_function_time
 from shared_configs.model_server_models import Embedding
@@ -127,9 +127,7 @@ def seed_dummy_docs(
 ) -> None:
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         search_settings = get_current_search_settings(db_session)
         index_name = search_settings.index_name
         embedding_dim = search_settings.model_dim

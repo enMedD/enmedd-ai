@@ -43,6 +43,7 @@ from enmedd.db.search_settings import get_secondary_search_settings
 from enmedd.db.swap_index import check_index_swap
 from enmedd.natural_language_processing.search_nlp_models import EmbeddingModel
 from enmedd.natural_language_processing.search_nlp_models import warm_up_bi_encoder
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
@@ -168,9 +169,7 @@ def create_indexing_jobs(
     """
     with Session(get_sqlalchemy_engine()) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         ongoing: set[tuple[int | None, int]] = set()
         for attempt_id in existing_jobs:
             attempt = get_index_attempt(
@@ -232,9 +231,7 @@ def cleanup_indexing_jobs(
     # clean up completed jobs
     with Session(get_sqlalchemy_engine()) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         for attempt_id, job in existing_jobs.items():
             index_attempt = get_index_attempt(
                 db_session=db_session, index_attempt_id=attempt_id
@@ -320,9 +317,7 @@ def kickoff_indexing_jobs(
     # Also (rarely) don't include for jobs that started but haven't updated the indexing tables yet
     with Session(engine) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         # get_not_started_index_attempts orders its returned results from oldest to newest
         # we must process attempts in a FIFO manner to prevent connector starvation
         new_indexing_attempts = [
@@ -440,9 +435,7 @@ def update_loop(
     engine = get_sqlalchemy_engine()
     with Session(engine) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         # update default num_indexing_workers value coming from the db
         # settings = load_settings(db_session)
         # num_workers = settings.num_indexing_workers

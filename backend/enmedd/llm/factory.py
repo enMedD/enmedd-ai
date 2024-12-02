@@ -1,7 +1,6 @@
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import text
 
 from enmedd.configs.app_configs import DISABLE_GENERATIVE_AI
 from enmedd.configs.chat_configs import QA_TIMEOUT
@@ -14,6 +13,7 @@ from enmedd.llm.chat_llm import DefaultMultiLLM
 from enmedd.llm.exceptions import GenAIDisabledException
 from enmedd.llm.interfaces import LLM
 from enmedd.llm.override_models import LLMOverride
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.headers import build_llm_extra_headers
 
@@ -43,9 +43,7 @@ def get_llms_for_assistant(
 
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         llm_provider = fetch_provider(db_session, provider_name)
 
     if not llm_provider:
@@ -83,9 +81,7 @@ def get_default_llms(
 
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         llm_provider = fetch_default_provider(db_session)
 
     if not llm_provider:

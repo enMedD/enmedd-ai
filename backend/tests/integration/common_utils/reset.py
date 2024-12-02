@@ -5,7 +5,6 @@ from typing import Optional
 import psycopg2
 import requests
 from fastapi import Depends
-from sqlalchemy import text
 
 from alembic import command
 from alembic.config import Config
@@ -23,6 +22,7 @@ from enmedd.document_index.vespa.index import VespaIndex
 from enmedd.indexing.models import IndexingSetting
 from enmedd.main import setup_postgres
 from enmedd.main import setup_vespa
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
@@ -129,9 +129,7 @@ def reset_postgres(
     # do the same thing as we do on API server startup
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         setup_postgres(db_session)
 
 
@@ -139,9 +137,7 @@ def reset_vespa(tenant_id: Optional[str] = Depends(get_tenant_id)) -> None:
     """Wipe all data from the Vespa index."""
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         # swap to the correct default model
         check_index_swap(db_session)
 

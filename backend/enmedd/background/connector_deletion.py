@@ -39,6 +39,7 @@ from enmedd.document_index.interfaces import DocumentIndex
 from enmedd.document_index.interfaces import UpdateRequest
 from enmedd.document_index.interfaces import VespaDocumentFields
 from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 
@@ -63,9 +64,7 @@ def delete_connector_credential_pair_batch(
     """
     with Session(get_sqlalchemy_engine()) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         # acquire lock for all documents in this batch so that indexing can't
         # override the deletion
         with prepare_to_modify_documents(

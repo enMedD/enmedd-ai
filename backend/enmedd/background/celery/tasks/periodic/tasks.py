@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from enmedd.configs.app_configs import JOB_TIMEOUT
 from enmedd.configs.constants import PostgresAdvisoryLocks
 from enmedd.db.engine import get_sqlalchemy_engine  # type: ignore
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 # use this within celery tasks to get celery task specific logging
@@ -45,9 +46,7 @@ def kombu_message_cleanup_task(
     ctx["page_limit"] = KOMBU_MESSAGE_CLEANUP_PAGE_LIMIT
     with Session(get_sqlalchemy_engine()) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         # Exit the task if we can't take the advisory lock
         result = db_session.execute(
             text("SELECT pg_try_advisory_lock(:id)"),

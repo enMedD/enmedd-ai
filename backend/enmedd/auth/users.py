@@ -139,9 +139,7 @@ def verify_email_in_whitelist(
 ) -> None:
     with Session(get_sqlalchemy_engine()) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
 
         if not get_user_by_email(email, db_session):
             verify_email_is_invited(email)

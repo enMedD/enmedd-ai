@@ -6,7 +6,6 @@ import time
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import text
 
 from enmedd.configs.constants import DocumentSource
 from enmedd.configs.model_configs import DOC_EMBEDDING_DIM
@@ -14,6 +13,7 @@ from enmedd.db.engine import get_session_context_manager
 from enmedd.db.search_settings import get_current_search_settings
 from enmedd.document_index.vespa.index import VespaIndex
 from enmedd.search.models import IndexFilters
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from scripts.query_time_check.seed_dummy_docs import TOTAL_ACL_ENTRIES_PER_CATEGORY
 from scripts.query_time_check.seed_dummy_docs import TOTAL_DOC_SETS
@@ -67,9 +67,7 @@ def test_hybrid_retrieval_times(
 ) -> None:
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         search_settings = get_current_search_settings(db_session)
         index_name = search_settings.index_name
 

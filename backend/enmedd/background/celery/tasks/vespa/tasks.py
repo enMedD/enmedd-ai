@@ -45,6 +45,7 @@ from enmedd.document_index.document_index_utils import get_both_index_names
 from enmedd.document_index.factory import get_default_document_index
 from enmedd.document_index.interfaces import UpdateRequest
 from enmedd.redis.redis_pool import get_redis_client
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
 from enmedd.utils.variable_functionality import (
@@ -364,9 +365,7 @@ def monitor_connector_deletion_taskset(
 
     with Session(get_sqlalchemy_engine()) as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         cc_pair = get_connector_credential_pair_from_id(cc_pair_id, db_session)
         if not cc_pair:
             return

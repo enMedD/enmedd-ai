@@ -6,7 +6,6 @@ from typing import Optional
 
 from fastapi import Depends
 from pydantic import BaseModel
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.standard_answer import (
@@ -28,6 +27,7 @@ from enmedd.db.models import Tool
 from enmedd.search.enums import RecencyBiasSetting
 from enmedd.server.features.assistant.models import CreateAssistantRequest
 from enmedd.server.manage.llm.models import LLMProviderUpsertRequest
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.store import store_settings as store_base_settings
@@ -233,9 +233,7 @@ def seed_db(tenant_id: Optional[str] = Depends(get_tenant_id)) -> None:
 
     with get_session_context_manager() as db_session:
         if tenant_id:
-            db_session.execute(
-                text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-            )
+            db_session_filter(tenant_id, db_session)
         if seed_config.llms is not None:
             _seed_llms(db_session, seed_config.llms)
         if seed_config.assistants is not None:
