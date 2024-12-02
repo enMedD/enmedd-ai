@@ -708,7 +708,6 @@ def remove_profile(
 def verify_user_logged_in(
     user: User | None = Depends(optional_user),
     teamspace_id: Optional[int] = None,
-    # workspace_id: Optional[int] = None,
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> UserInfo:

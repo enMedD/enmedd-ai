@@ -11,6 +11,8 @@ from enmedd.key_value_store.interface import JSON_ro
 from enmedd.key_value_store.interface import KeyValueStore
 from enmedd.key_value_store.interface import KvKeyNotFoundError
 from enmedd.redis.redis_pool import get_redis_client
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -27,11 +29,14 @@ class PgRedisKVStore(KeyValueStore):
     @contextmanager
     def get_session(self) -> Iterator[Session]:
         factory = get_session_factory()
-        session: Session = factory()
+        db_session: Session = factory()
+        tenant_id = get_tenant()
         try:
-            yield session
+            if tenant_id:
+                db_session_filter(tenant_id, db_session)
+            yield db_session
         finally:
-            session.close()
+            db_session.close()
 
     def store(self, key: str, val: JSON_ro, encrypt: bool = False) -> None:
         # Not encrypted in Redis, but encrypted in Postgres
@@ -45,8 +50,8 @@ class PgRedisKVStore(KeyValueStore):
 
         encrypted_val = val if encrypt else None
         plain_val = val if not encrypt else None
-        with self.get_session() as session:
-            obj = session.query(KVStore).filter_by(key=key).first()
+        with self.get_session() as db_session:
+            obj = db_session.query(KVStore).filter_by(key=key).first()
             if obj:
                 obj.value = plain_val
                 obj.encrypted_value = encrypted_val
@@ -54,9 +59,9 @@ class PgRedisKVStore(KeyValueStore):
                 obj = KVStore(
                     key=key, value=plain_val, encrypted_value=encrypted_val
                 )  # type: ignore
-                session.query(KVStore).filter_by(key=key).delete()  # just in case
-                session.add(obj)
-            session.commit()
+                db_session.query(KVStore).filter_by(key=key).delete()  # just in case
+                db_session.add(obj)
+            db_session.commit()
 
     def load(self, key: str) -> JSON_ro:
         try:
@@ -67,8 +72,8 @@ class PgRedisKVStore(KeyValueStore):
         except Exception as e:
             logger.error(f"Failed to get value from Redis for key '{key}': {str(e)}")
 
-        with self.get_session() as session:
-            obj = session.query(KVStore).filter_by(key=key).first()
+        with self.get_session() as db_session:
+            obj = db_session.query(KVStore).filter_by(key=key).first()
             if not obj:
                 raise KvKeyNotFoundError
 
@@ -92,8 +97,8 @@ class PgRedisKVStore(KeyValueStore):
         except Exception as e:
             logger.error(f"Failed to delete value from Redis for key '{key}': {str(e)}")
 
-        with self.get_session() as session:
-            result = session.query(KVStore).filter_by(key=key).delete()  # type: ignore
+        with self.get_session() as db_session:
+            result = db_session.query(KVStore).filter_by(key=key).delete()  # type: ignore
             if result == 0:
                 raise KvKeyNotFoundError
-            session.commit()
+            db_session.commit()

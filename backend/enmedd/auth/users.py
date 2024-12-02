@@ -414,6 +414,8 @@ async def optional_user(
 ) -> User | None:
     if tenant_id:
         db_session_filter(tenant_id, db_session)
+    if user is not None:
+        user = db_session.query(User).filter(User.id == user.id).first()
     versioned_fetch_user = fetch_versioned_implementation(
         "enmedd.auth.users", "optional_user_"
     )
