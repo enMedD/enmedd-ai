@@ -46,7 +46,6 @@ export const ChatSidebar = ({
   currentChatSession,
   folders,
   openedFolders,
-  toggleSideBar,
   isAssistant,
   teamspaceId,
   chatSessionIdRef,
@@ -55,7 +54,6 @@ export const ChatSidebar = ({
   currentChatSession: ChatSession | null | undefined;
   folders: Folder[];
   openedFolders: { [key: number]: boolean };
-  toggleSideBar?: () => void;
   isAssistant?: boolean;
   teamspaceId?: string;
   chatSessionIdRef?: React.MutableRefObject<number | null>;
@@ -120,15 +118,15 @@ export const ChatSidebar = ({
           <img
             src={buildImgUrl(workspaces?.custom_header_logo)}
             alt="Logo"
-            className="h-8 object-contain w-full"
+            className="h-9 object-contain w-full"
           />
         ) : (
-          <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={40} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>
 
-      <SidebarContent className="gap-0 overflow-hidden">
+      <SidebarContent className="gap-0 overflow-x-hidden">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -156,7 +154,8 @@ export const ChatSidebar = ({
                 <>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      className="whitespace-nowrap shrink-0 truncate bg-brand-500 text-inverted hover:bg-brand-500"
+                      className="whitespace-nowrap shrink-0 truncate"
+                      variant="brand"
                       asChild
                     >
                       <Link
@@ -206,37 +205,41 @@ export const ChatSidebar = ({
           currentChatId={currentChatId}
           folders={folders}
           openedFolders={openedFolders}
-          toggleSideBar={toggleSideBar}
           teamspaceId={teamspaceId}
           chatSessionIdRef={chatSessionIdRef}
         />
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="flex gap-3">
-          <Link
-            href={
-              `${teamspaceId ? `/t/${teamspaceId}` : ""}/chat` +
-              (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
-              currentChatSession
-                ? `?assistantId=${currentChatSession.assistant_id}`
-                : "")
-            }
-            className=" w-full"
-          >
-            <Button
-              className="transition-all ease-in-out duration-300 w-full"
-              onClick={toggleSideBar}
+        <SidebarMenu className="flex-row">
+          <SidebarMenuItem className="flex-1">
+            <SidebarMenuButton
+              asChild
+              variant="brand"
+              className="flex items-center justify-center"
             >
-              <Plus size={16} />
-              Start new chat
-            </Button>
-          </Link>
-          <div>
+              <Link
+                href={
+                  `${teamspaceId ? `/t/${teamspaceId}` : ""}/chat` +
+                  (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
+                  currentChatSession
+                    ? `?assistantId=${currentChatSession.assistant_id}`
+                    : "")
+                }
+                className=" w-full"
+              >
+                <Plus size={16} />
+                Start new chat
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* <SidebarMenuItem>
             <CustomTooltip
               asChild
               trigger={
-                <Button
+                <SidebarMenuButton
+                  variant="brand"
                   onClick={() =>
                     createFolder("New Folder", teamspaceId)
                       .then((folderId) => {
@@ -252,17 +255,44 @@ export const ChatSidebar = ({
                         });
                       })
                   }
-                  size="icon"
                 >
                   <FolderPlus size={16} />
-                </Button>
+                </SidebarMenuButton>
               }
               side="right"
             >
               Create New Folder
             </CustomTooltip>
-          </div>
-        </div>
+          </SidebarMenuItem> */}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              variant="brand"
+              onClick={() =>
+                createFolder("New Folder", teamspaceId)
+                  .then((folderId) => {
+                    console.log(`Folder created with ID: ${folderId}`);
+                    router.refresh();
+                  })
+                  .catch((error) => {
+                    console.error("Failed to create folder:", error);
+                    toast({
+                      title: "Folder Creation Failed",
+                      description: `Unable to create the folder: ${error.message}. Please try again.`,
+                      variant: "destructive",
+                    });
+                  })
+              }
+              tooltip={{
+                children: "Create New Folder",
+                hidden: false,
+              }}
+              size="icon"
+              className="flex items-center justify-center"
+            >
+              <FolderPlus size={16} />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

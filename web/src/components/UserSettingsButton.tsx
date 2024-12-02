@@ -66,8 +66,8 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton className="p-0">
-              <UserProfile user={user} size={32} textSize="sm" />
+            <SidebarMenuButton className="p-0 !size-9">
+              <UserProfile user={user} size={36} textSize="sm" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

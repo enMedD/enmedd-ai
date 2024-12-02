@@ -1793,11 +1793,6 @@ export function ChatPage({
   }
   const [showNoAssistantModal, setShowNoAssistantModal] =
     useState(noAssistants);
-  const [openSidebar, setOpenSidebar] = useState(false);
-
-  const toggleLeftSideBar = () => {
-    setOpenSidebar((prevState) => !prevState);
-  };
 
   return (
     <Sidebar
@@ -1808,7 +1803,6 @@ export function ChatPage({
           currentChatSession={selectedChatSession}
           folders={folders}
           openedFolders={openedFolders}
-          toggleSideBar={toggleLeftSideBar}
           teamspaceId={teamspaceId}
           chatSessionIdRef={chatSessionIdRef}
         />

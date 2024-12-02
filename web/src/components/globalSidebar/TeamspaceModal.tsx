@@ -1,13 +1,10 @@
 "use client";
 
-import { CustomTooltip } from "@/components/CustomTooltip";
 import { Ellipsis } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { CustomModal } from "../CustomModal";
 import { useState } from "react";
 import { MinimalTeamspaceSnapshot } from "@/lib/types";
 import Link from "next/link";
-import Image from "next/image";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { useGradient } from "@/hooks/useGradient";
 import { SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
@@ -30,27 +27,18 @@ export const TeamspaceModal = ({
   return (
     <CustomModal
       trigger={
-        <CustomTooltip
-          trigger={
-            <SidebarMenuItem className="flex items-center justify-center">
-              <SidebarMenuButton
-                tooltip={{
-                  children: "More",
-                  hidden: false,
-                }}
-                onClick={() => setIsModalVisible(true)}
-                className="w-8 h-8 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
-              >
-                <Ellipsis size={16} />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          }
-          asChild
-          side="right"
-          delayDuration={0}
-        >
-          Show More
-        </CustomTooltip>
+        <SidebarMenuItem className="flex items-center justify-center">
+          <SidebarMenuButton
+            tooltip={{
+              children: "More",
+              hidden: false,
+            }}
+            onClick={() => setIsModalVisible(true)}
+            className="w-9 h-9 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
+          >
+            <Ellipsis size={16} />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       }
       onClose={() => setIsModalVisible(false)}
       open={isModalVisible}
@@ -64,19 +52,19 @@ export const TeamspaceModal = ({
             href={`/t/${team.id}/${defaultPage}`}
           >
             {team.logo ? (
-              <div className="rounded-md w-10 h-10 bg-background overflow-hidden">
+              <div className="rounded-md w-9 h-9 bg-background overflow-hidden">
                 <img
                   src={buildImgUrl(team.logo)}
                   alt="Teamspace Logo"
                   className="object-cover shrink-0 w-full h-full"
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                 />
               </div>
             ) : (
               <div
                 style={{ background: useGradient(team.name) }}
-                className="font-bold text-inverted w-10 h-10 shrink-0 rounded-md bg-brand-500 flex justify-center items-center uppercase"
+                className="font-bold text-inverted w-9 h-9 shrink-0 rounded-md bg-brand-500 flex justify-center items-center uppercase"
               >
                 {team.name.charAt(0)}
               </div>

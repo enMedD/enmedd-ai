@@ -25,8 +25,8 @@ import { SettingsContext } from "../settings/SettingsProvider";
 import { useParams } from "next/navigation";
 import { User } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
-import { Ellipsis } from "lucide-react";
 import { TeamspaceModal } from "./TeamspaceModal";
+import { useGradient } from "@/hooks/useGradient";
 
 export function GlobalSidebar({
   user,
@@ -60,12 +60,6 @@ export function GlobalSidebar({
   const displayedTeamspaces = teamspaces.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
 
-  const generateGradient = (teamspaceName: string) => {
-    const colors = ["#CCCCCC", "#999999", "#666666", "#333333", "#000000"];
-    const index = teamspaceName.charCodeAt(0) % colors.length;
-    return `linear-gradient(135deg, ${colors[index]}, ${colors[(index + 1) % colors.length]})`;
-  };
-
   return (
     <Sidebar
       collapsible="icon"
@@ -74,23 +68,23 @@ export function GlobalSidebar({
     >
       <Sidebar
         collapsible="none"
-        className="!w-[calc(var(--sidebar-width-icon)_+_0px)] border-r"
+        className="!w-[calc(var(--sidebar-width-icon)_-_1px)] border-r"
       >
         <SidebarHeader className="p-0">
           <SidebarGroup>
             <SidebarMenu className="gap-2.5">
-              <SidebarMenuItem className="border-b pb-2.5">
+              <SidebarMenuItem className="border-b pb-2.5 flex justify-center">
                 <SidebarMenuButton
                   size="lg"
                   asChild
-                  className="md:h-8 p-0 justify-center pointer-events-none"
+                  className="!size-9 p-0 justify-center pointer-events-none"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex aspect-square !size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Image
                       src={ArnoldAi}
                       alt="Arnold AI Logo"
-                      width={32}
-                      height={32}
+                      width={36}
+                      height={36}
                       className="rounded-regular shrink-0"
                     />
                   </div>
@@ -98,7 +92,7 @@ export function GlobalSidebar({
               </SidebarMenuItem>
 
               <SidebarMenuItem className="border-b pb-2.5">
-                <SidebarMenuButton size="lg" asChild className="w-8 h-8">
+                <SidebarMenuButton size="lg" asChild className="w-9 h-9">
                   <CustomTooltip
                     trigger={
                       <Link
@@ -106,13 +100,13 @@ export function GlobalSidebar({
                         className="flex items-center justify-center"
                       >
                         {workspaces?.use_custom_logo ? (
-                          <Logo width={32} height={32} />
+                          <Logo width={36} height={36} />
                         ) : (
                           <Image
                             src={ArnoldAi}
                             alt="Arnold AI Logo"
-                            width={32}
-                            height={32}
+                            width={36}
+                            height={36}
                           />
                         )}
                       </Link>
@@ -144,7 +138,7 @@ export function GlobalSidebar({
                         children: teamspace.name,
                         hidden: false,
                       }}
-                      className={`!p-0 w-8 h-8 ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
+                      className={`!p-0 w-9 h-9 ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
                       isActive={teamspace.id.toString() === teamspaceId}
                     >
                       <Link
@@ -156,13 +150,13 @@ export function GlobalSidebar({
                             src={buildImgUrl(teamspace.logo)}
                             alt="Teamspace Logo"
                             className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-xs" : "w-full h-full"}`}
-                            width={28}
-                            height={28}
+                            width={40}
+                            height={40}
                           />
                         ) : (
                           <div
                             style={{
-                              background: generateGradient(teamspace.name),
+                              background: useGradient(teamspace.name),
                             }}
                             className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-xs" : "w-full h-full"}`}
                           >
@@ -174,7 +168,7 @@ export function GlobalSidebar({
                   </SidebarMenuItem>
                 ))}
 
-                {!showEllipsis && (
+                {showEllipsis && (
                   <TeamspaceModal
                     teamspace={teamspaces}
                     defaultPage={defaultPage}
@@ -185,7 +179,7 @@ export function GlobalSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
+        <SidebarFooter className="!py-2.5">
           <UserSettingsButton defaultPage={defaultPage} />
         </SidebarFooter>
       </Sidebar>

@@ -352,10 +352,10 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
           <img
             src={buildImgUrl(workspaces?.custom_header_logo)}
             alt="Logo"
-            className="h-8 object-contain w-full"
+            className="h-9 object-contain w-full"
           />
         ) : (
-          <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={36} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>

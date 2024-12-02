@@ -61,7 +61,7 @@ export default async function ProfilePage() {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "48px",
+          "--sidebar-width": "56px",
         } as React.CSSProperties
       }
       className="h-full w-full"
