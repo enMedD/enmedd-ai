@@ -162,6 +162,7 @@ const Sidebar = React.forwardRef<
     side?: "left" | "right";
     variant?: "sidebar" | "floating" | "inset";
     collapsible?: "offcanvas" | "icon" | "none";
+    widthFit?: boolean;
   }
 >(
   (
@@ -169,6 +170,7 @@ const Sidebar = React.forwardRef<
       side = "left",
       variant = "sidebar",
       collapsible = "offcanvas",
+      widthFit,
       className,
       children,
       ...props
@@ -198,13 +200,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            // className="w-[--sidebar-width] bg-background p-0 text-sidebar-foreground [&>button]:hidden"
-            // style={
-            //   {
-            //     "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            //   } as React.CSSProperties
-            // }
-            className="w-fit bg-background p-0 text-sidebar-foreground [&>button]:hidden"
+            className={`${widthFit ? "w-fit" : "w-[--sidebar-width]"} bg-background p-0 text-sidebar-foreground [&>button]:hidden`}
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -239,17 +235,6 @@ const Sidebar = React.forwardRef<
           )}
         />
         <div
-          // className={cn(
-          //   "duration-200 fixed inset-y-0 z-overlay hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear lg:flex",
-          //   side === "left"
-          //     ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-          //     : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          //   // Adjust the padding for floating and inset variants.
-          //   variant === "floating" || variant === "inset"
-          //     ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-          //     : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
-          //   className
-          // )}
           className={cn(
             "duration-200 fixed inset-y-0 z-overlay hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear lg:flex",
             side === "left"

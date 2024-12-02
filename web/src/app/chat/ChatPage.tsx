@@ -4734,11 +4734,13 @@ Only used in the EE version of the app. */}
                                             : undefined
                                         }
                                         isCurrentlyShowingRetrieved={
-                                          isShowingRetrieved
+                                          settings?.isMobile
+                                            ? false
+                                            : isShowingRetrieved
                                         }
                                         handleToggleSideBar={() => {
                                           if (settings?.isMobile) {
-                                            setOpen(isShowingRetrieved);
+                                            toggleSidebar();
                                           } else {
                                             !isShowingRetrieved
                                               ? setOpen(true)

@@ -66,7 +66,7 @@ export default async function ProfilePage() {
       }
       className="h-full w-full"
     >
-      <GlobalSidebar user={user} />
+      <GlobalSidebar user={user} widthFit />
       <SidebarInset className="w-full overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 lg:hidden">
           <SidebarTrigger className="-ml-1" />
