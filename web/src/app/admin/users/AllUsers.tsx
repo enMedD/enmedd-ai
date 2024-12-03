@@ -213,7 +213,6 @@ export const AllUsers = ({
   );
 
   const deleteUser = async () => {
-    console.log("FFF");
     if (!teamspaceId || !userToDelete) return;
 
     try {

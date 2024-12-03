@@ -29,13 +29,23 @@ import { Logo } from "@/components/Logo";
 import ArnoldAi from "../../../../public/arnold_ai.png";
 import { PageTab } from "@/components/PageTab";
 import { buildImgUrl } from "../files/images/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 export const ChatSidebar = ({
   existingChats,
   currentChatSession,
   folders,
   openedFolders,
-  toggleSideBar,
   isAssistant,
   teamspaceId,
   chatSessionIdRef,
@@ -44,7 +54,6 @@ export const ChatSidebar = ({
   currentChatSession: ChatSession | null | undefined;
   folders: Folder[];
   openedFolders: { [key: number]: boolean };
-  toggleSideBar?: () => void;
   isAssistant?: boolean;
   teamspaceId?: string;
   chatSessionIdRef?: React.MutableRefObject<number | null>;
@@ -103,140 +112,157 @@ export const ChatSidebar = ({
   const workspaces = combinedSettings.workspaces;
 
   return (
-    <>
-      <div
-        className={`
-            flex-col 
-            h-full
-            flex
-            z-overlay
-            w-full py-4
-            `}
-        id="chat-sidebar"
-      >
-        <div className="flex items-center gap-1 w-full relative justify-center px-4 pb-5 pt-1">
-          {workspaces && workspaces.custom_header_logo ? (
-            <img
-              src={buildImgUrl(workspaces?.custom_header_logo)}
-              alt="Logo"
-              className="h-8 object-contain w-full"
-            />
-          ) : (
-            <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-          )}
-        </div>
-
-        {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSideBar}
-            className="lg:hidden"
-          >
-            <PanelLeftClose size={24} />
-          </Button> */}
-
-        <div className="h-full overflow-y-auto">
-          <div className="px-4 text-sm font-medium flex flex-col">
-            <Separator className="mb-4" />
-            {settings.search_page_enabled && (
-              <Link
-                href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
-                className="flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2 justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <Search size={16} className="shrink-0" />
-                  Search
-                </div>
-                <div className="flex items-center gap-1 font-normal">
-                  <Command size={14} />S
-                </div>
-              </Link>
-            )}
-            {settings.chat_page_enabled && (
-              <>
-                <Link
-                  href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
-                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer items-center gap-2 justify-between ${
-                    !isAssistant
-                      ? "bg-brand-500 text-white"
-                      : "hover:bg-hover-light"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <MessageCircleMore size={16} className="shrink-0" />
-                    Chat
-                  </div>
-
-                  <div className="flex items-center gap-1 font-normal">
-                    <Command size={14} />D
-                  </div>
-                </Link>
-              </>
-            )}
-            <Separator className="mt-4" />
-          </div>
-          <PageTab
-            existingChats={existingChats}
-            currentChatId={currentChatId}
-            folders={folders}
-            openedFolders={openedFolders}
-            toggleSideBar={toggleSideBar}
-            teamspaceId={teamspaceId}
-            chatSessionIdRef={chatSessionIdRef}
+    <Sidebar collapsible="none" className="flex-1 flex overflow-hidden">
+      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px] px-3 flex items-center justify-center">
+        {workspaces && workspaces.custom_header_logo ? (
+          <img
+            src={buildImgUrl(workspaces?.custom_header_logo)}
+            alt="Logo"
+            className="h-11 object-contain w-full"
           />
-        </div>
+        ) : (
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={44} />
+        )}
+        <Separator className="mt-[9px]" />
+      </SidebarHeader>
 
-        <div className="flex items-center gap-3 px-4 pt-5 mt-auto">
-          <Link
-            href={
-              `${teamspaceId ? `/t/${teamspaceId}` : ""}/chat` +
-              (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
-              currentChatSession
-                ? `?assistantId=${currentChatSession.assistant_id}`
-                : "")
-            }
-            className=" w-full"
-          >
-            <Button
-              className="transition-all ease-in-out duration-300 w-full"
-              onClick={toggleSideBar}
-            >
-              <Plus size={16} />
-              Start new chat
-            </Button>
-          </Link>
-          <div>
-            <CustomTooltip
-              asChild
-              trigger={
-                <Button
-                  onClick={() =>
-                    createFolder("New Folder", teamspaceId)
-                      .then((folderId) => {
-                        console.log(`Folder created with ID: ${folderId}`);
-                        router.refresh();
-                      })
-                      .catch((error) => {
-                        console.error("Failed to create folder:", error);
-                        toast({
-                          title: "Folder Creation Failed",
-                          description: `Unable to create the folder: ${error.message}. Please try again.`,
-                          variant: "destructive",
-                        });
-                      })
-                  }
-                  size="icon"
+      <SidebarContent className="gap-0 overflow-x-hidden">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  className="whitespace-nowrap shrink-0 truncate"
+                  asChild
                 >
-                  <FolderPlus size={16} />
-                </Button>
-              }
-              side="right"
+                  <Link
+                    href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
+                    className={`flex items-center gap-2 justify-between w-full`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Search size={16} className="shrink-0" />
+                      Search
+                    </div>
+                    <div className="flex items-center gap-1 font-normal">
+                      <Command size={14} />S
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {settings.chat_page_enabled && (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className="whitespace-nowrap shrink-0 truncate"
+                      variant="brand"
+                      asChild
+                    >
+                      <Link
+                        href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
+                        className={`flex items-center gap-2 justify-between w-full`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <MessageCircleMore size={16} className="shrink-0" />
+                          Chat
+                        </div>
+
+                        <div className="flex items-center gap-1 font-normal">
+                          <Command size={14} />D
+                        </div>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* {combinedSettings.featureFlags.explore_assistants && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate">
+                        <Link
+                          href="/assistants/mine"
+                          className={`flex items-center gap-2 justify-between w-full`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Headset size={16} />
+                            Explore Assistants
+                          </div>
+
+                          <div className="flex items-center gap-1 font-normal">
+                            <Command size={14} />A
+                          </div>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )} */}
+                </>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+          <Separator className="mt-2" />
+        </SidebarGroup>
+
+        <PageTab
+          existingChats={existingChats}
+          currentChatId={currentChatId}
+          folders={folders}
+          openedFolders={openedFolders}
+          teamspaceId={teamspaceId}
+          chatSessionIdRef={chatSessionIdRef}
+        />
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu className="flex-row">
+          <SidebarMenuItem className="flex-1">
+            <SidebarMenuButton
+              asChild
+              variant="brand"
+              className="flex items-center justify-center"
             >
-              Create New Folder
-            </CustomTooltip>
-          </div>
-        </div>
-      </div>
-    </>
+              <Link
+                href={
+                  `${teamspaceId ? `/t/${teamspaceId}` : ""}/chat` +
+                  (NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_ASSISTANT &&
+                  currentChatSession
+                    ? `?assistantId=${currentChatSession.assistant_id}`
+                    : "")
+                }
+                className=" w-full"
+              >
+                <Plus size={16} />
+                Start new chat
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              variant="brand"
+              onClick={() =>
+                createFolder("New Folder", teamspaceId)
+                  .then((folderId) => {
+                    console.log(`Folder created with ID: ${folderId}`);
+                    router.refresh();
+                  })
+                  .catch((error) => {
+                    console.error("Failed to create folder:", error);
+                    toast({
+                      title: "Folder Creation Failed",
+                      description: `Unable to create the folder: ${error.message}. Please try again.`,
+                      variant: "destructive",
+                    });
+                  })
+              }
+              tooltip={{
+                children: "Create New Folder",
+                hidden: false,
+              }}
+              size="icon"
+              className="flex items-center justify-center"
+            >
+              <FolderPlus size={16} />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 };

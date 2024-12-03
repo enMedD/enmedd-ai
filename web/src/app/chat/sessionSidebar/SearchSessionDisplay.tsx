@@ -33,6 +33,7 @@ import { WarningCircle } from "@phosphor-icons/react";
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/context/ChatContext";
 import { DeleteModal } from "@/components/DeleteModal";
+import { SidebarMenuItem } from "@/components/ui/sidebar";
 
 export function SearchSessionDisplay({
   chatSession,
@@ -71,68 +72,70 @@ export function SearchSessionDisplay({
   return (
     <CustomTooltip
       trigger={
-        <Link
-          className="flex relative w-full"
-          key={chatSession.id}
-          href={
-            teamspaceId
-              ? `/t/${teamspaceId}/search?searchId=${chatSession.id}`
-              : `/search?searchId=${chatSession.id}`
-          }
-          scroll={false}
-          draggable="true"
-          onDragStart={(event) => {
-            event.dataTransfer.setData(
-              CHAT_SESSION_ID_KEY,
-              chatSession.id.toString()
-            );
-            event.dataTransfer.setData(
-              FOLDER_ID_KEY,
-              chatSession.folder_id?.toString() || ""
-            );
-          }}
-          onClick={toggleSideBar}
-        >
-          <BasicSelectable fullWidth selected={isSelected}>
-            <>
-              <div className="flex relative items-center gap-2 w-full">
-                <MessageCircleMore size={16} className="shrink-0" />
-                <p className="mr-3 break-all truncate">
-                  {chatName || `Chat ${chatSession.id}`}
-                </p>
-                {isSelected && (
-                  <div className="ml-auto my-auto flex z-30 gap-1">
-                    <div className="flex items-center">
-                      {showRetentionWarning && (
-                        <CustomTooltip
-                          trigger={
-                            <div className="mr-1 hover:bg-black/10 p-1 -m-1 rounded z-50">
-                              <WarningCircle className="text-warning" />
-                            </div>
-                          }
-                        >
-                          <p>
-                            This chat will expire{" "}
-                            {daysUntilExpiration < 1
-                              ? "today"
-                              : `in ${daysUntilExpiration} day${daysUntilExpiration !== 1 ? "s" : ""}`}
-                          </p>
-                        </CustomTooltip>
-                      )}
-                    </div>
+        <SidebarMenuItem>
+          <Link
+            className="flex relative w-full"
+            key={chatSession.id}
+            href={
+              teamspaceId
+                ? `/t/${teamspaceId}/search?searchId=${chatSession.id}`
+                : `/search?searchId=${chatSession.id}`
+            }
+            scroll={false}
+            draggable="true"
+            onDragStart={(event) => {
+              event.dataTransfer.setData(
+                CHAT_SESSION_ID_KEY,
+                chatSession.id.toString()
+              );
+              event.dataTransfer.setData(
+                FOLDER_ID_KEY,
+                chatSession.folder_id?.toString() || ""
+              );
+            }}
+            onClick={toggleSideBar}
+          >
+            <BasicSelectable fullWidth selected={isSelected}>
+              <>
+                <div className="flex relative items-center gap-2 w-full">
+                  <MessageCircleMore size={16} className="shrink-0" />
+                  <p className="mr-3 break-all truncate">
+                    {chatName || `Chat ${chatSession.id}`}
+                  </p>
+                  {isSelected && (
+                    <div className="ml-auto my-auto flex z-30 gap-1">
+                      <div className="flex items-center">
+                        {showRetentionWarning && (
+                          <CustomTooltip
+                            trigger={
+                              <div className="mr-1 hover:bg-black/10 p-1 -m-1 rounded z-50">
+                                <WarningCircle className="text-warning" />
+                              </div>
+                            }
+                          >
+                            <p>
+                              This chat will expire{" "}
+                              {daysUntilExpiration < 1
+                                ? "today"
+                                : `in ${daysUntilExpiration} day${daysUntilExpiration !== 1 ? "s" : ""}`}
+                            </p>
+                          </CustomTooltip>
+                        )}
+                      </div>
 
-                    <div
-                      className="hover:bg-background-inverted/10 p-1 rounded"
-                      onClick={() => setOpenDeleteModal(true)}
-                    >
-                      <Trash size={16} />
+                      <div
+                        className="hover:bg-background-inverted/10 p-1 rounded"
+                        onClick={() => setOpenDeleteModal(true)}
+                      >
+                        <Trash size={16} />
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </>
-          </BasicSelectable>
-        </Link>
+                  )}
+                </div>
+              </>
+            </BasicSelectable>
+          </Link>
+        </SidebarMenuItem>
       }
       side="right"
       asChild

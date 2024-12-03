@@ -1,25 +1,41 @@
 "use client";
 
-import { UserSettingsButton } from "@/components/UserSettingsButton";
-import ArnoldAi from "../../../public/arnold_ai.png";
-import { Separator } from "@/components/ui/separator";
-import { User } from "@/lib/types";
-import { CustomTooltip } from "@/components/CustomTooltip";
-import { Logo } from "@/components/Logo";
 import { useContext } from "react";
-import { SettingsContext } from "@/components/settings/SettingsProvider";
-import Link from "next/link";
-import { TeamspaceBubble } from "@/components/TeamspaceBubble";
+import ArnoldAi from "../../../public/arnold_ai.png";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarInput,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { UserSettingsButton } from "../UserSettingsButton";
 import Image from "next/image";
-import { TeamspaceModal } from "./TeamspaceModal";
+import { CustomTooltip } from "../CustomTooltip";
+import Link from "next/link";
+import { Logo } from "../Logo";
+import { SettingsContext } from "../settings/SettingsProvider";
 import { useParams } from "next/navigation";
+import { User } from "@/lib/types";
+import { buildImgUrl } from "@/app/chat/files/images/utils";
+import { TeamspaceModal } from "./TeamspaceModal";
+import { useGradient } from "@/hooks/useGradient";
 
-interface GlobalSidebarProps {
-  openSidebar?: boolean;
+export function GlobalSidebar({
+  user,
+  children,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
   user?: User | null;
-}
-
-export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
+  children?: React.ReactNode;
+}) {
   const { teamspaceId } = useParams();
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
@@ -45,71 +61,133 @@ export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
   const showEllipsis = user?.groups && user.groups.length > 8;
 
   return (
-    <div className={`bg-background h-full p-4 border-r border-border z-10`}>
-      <div
-        className={`h-full flex flex-col justify-between transition-opacity duration-300 ease-in-out lg:!opacity-100  ${
-          openSidebar ? "opacity-100 delay-200" : "opacity-0 delay-100"
-        }`}
+    <Sidebar
+      collapsible="icon"
+      className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+      {...props}
+    >
+      <Sidebar
+        collapsible="none"
+        className="!w-[calc(var(--sidebar-width-icon)_-_1px)] border-r"
       >
-        <div className="flex flex-col items-center h-full overflow-y-auto">
-          <Image
-            src={ArnoldAi}
-            alt="Arnold AI Logo"
-            width={40}
-            height={40}
-            className="rounded-regular shrink-0"
-          />
-          <Separator className="mt-4" />
-          <div className="flex flex-col items-center gap-4 pt-4">
-            <CustomTooltip
-              trigger={
-                <Link href={`/${defaultPage}`} className="flex items-center">
-                  {workspaces?.use_custom_logo ? (
-                    <Logo />
-                  ) : (
+        <SidebarHeader className="p-0">
+          <SidebarGroup>
+            <SidebarMenu className="gap-2.5">
+              <SidebarMenuItem className="border-b pb-2.5 flex justify-center">
+                <SidebarMenuButton
+                  size="lg"
+                  asChild
+                  className="!size-11 p-0 justify-center pointer-events-none"
+                >
+                  <div className="flex aspect-square !size-11 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Image
                       src={ArnoldAi}
                       alt="Arnold AI Logo"
-                      width={40}
-                      height={40}
+                      width={44}
+                      height={44}
+                      className="rounded-regular shrink-0"
                     />
-                  )}
-                </Link>
-              }
-              side="right"
-              delayDuration={0}
-              asChild
-            >
-              {workspaces?.workspace_name
-                ? workspaces.workspace_name
-                : "Arnold AI"}
-            </CustomTooltip>
-          </div>
-          <Separator className="mt-4" />
-          {user?.groups && (
-            <div className="flex flex-col items-center gap-3 pt-4">
-              {displayedTeamspaces?.map((teamspace) => (
-                <TeamspaceBubble
-                  key={teamspace.id}
-                  teamspace={teamspace}
-                  link={`t/${teamspace.id}/${defaultPage}`}
-                  teamspaceId={teamspaceId}
-                />
-              ))}
-              {showEllipsis && (
-                <TeamspaceModal
-                  teamspace={teamspaces}
-                  defaultPage={defaultPage}
-                  teamspaceId={teamspaceId}
-                />
-              )}
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col items-center gap-4 mt-5">
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem className="border-b pb-2.5">
+                <SidebarMenuButton size="lg" asChild className="w-11 h-11">
+                  <CustomTooltip
+                    trigger={
+                      <Link
+                        href={`/${defaultPage}`}
+                        className="flex items-center justify-center"
+                      >
+                        {workspaces?.use_custom_logo ? (
+                          <Logo width={44} height={44} />
+                        ) : (
+                          <Image
+                            src={ArnoldAi}
+                            alt="Arnold AI Logo"
+                            width={44}
+                            height={44}
+                          />
+                        )}
+                      </Link>
+                    }
+                    side="right"
+                    delayDuration={0}
+                    asChild
+                  >
+                    {workspaces?.workspace_name
+                      ? workspaces.workspace_name
+                      : "Arnold AI"}
+                  </CustomTooltip>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {displayedTeamspaces.map((teamspace) => (
+                  <SidebarMenuItem
+                    key={teamspace.id}
+                    className="flex items-center justify-center"
+                  >
+                    <SidebarMenuButton
+                      tooltip={{
+                        children: teamspace.name,
+                        hidden: false,
+                      }}
+                      className={`!p-0 w-11 h-11 rounded-full ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
+                      isActive={teamspace.id.toString() === teamspaceId}
+                    >
+                      <Link
+                        href={`/t/${teamspace.id}/${defaultPage}`}
+                        className="w-full h-full flex items-center justify-center"
+                      >
+                        {teamspace.logo ? (
+                          <img
+                            src={buildImgUrl(teamspace.logo)}
+                            alt="Teamspace Logo"
+                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full" : "w-full h-full"}`}
+                            width={40}
+                            height={40}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              background: useGradient(teamspace.name),
+                            }}
+                            className={`font-bold text-inverted text-lg shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full" : "w-full h-full"}`}
+                          >
+                            {teamspace.name.charAt(0)}
+                          </div>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+
+                {showEllipsis && (
+                  <TeamspaceModal
+                    teamspace={teamspaces}
+                    defaultPage={defaultPage}
+                    teamspaceId={teamspaceId}
+                  />
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
           <UserSettingsButton defaultPage={defaultPage} />
-        </div>
-      </div>
-    </div>
+        </SidebarFooter>
+      </Sidebar>
+
+      {/* This is the second sidebar */}
+      {/* We disable collapsible and let it fill remaining space */}
+
+      {children}
+    </Sidebar>
   );
-};
+}

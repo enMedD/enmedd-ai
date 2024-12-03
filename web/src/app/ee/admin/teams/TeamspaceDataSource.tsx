@@ -55,7 +55,7 @@ const DataSourceContent = ({
           {filteredDataSources?.map((dataSource) => (
             <div
               key={dataSource.id}
-              className="border rounded-md flex items-start gap-4 p-4 cursor-pointer"
+              className="border rounded-md flex items-start gap-4 p-4 cursor-pointer hover:bg-background-subtle"
               onClick={() => onSelect && onSelect(dataSource)}
             >
               <Globe className="shrink-0 my-auto" />
@@ -200,6 +200,7 @@ export const TeamspaceDataSource = ({
 
   return (
     <CustomModal
+      className="pb-0"
       trigger={
         <div
           className={`rounded-md bg-background-subtle w-full p-4 min-h-36 flex flex-col justify-between ${teamspace.is_up_to_date && !teamspace.is_up_for_deletion && "cursor-pointer"}`}
@@ -250,36 +251,38 @@ export const TeamspaceDataSource = ({
       open={isDataSourceModalOpen}
       onClose={handleCloseModal}
     >
-      <div className="space-y-12">
-        <DataSourceContent
-          searchTerm={searchTermCurrent}
-          setSearchTerm={setSearchTermCurrent}
-          filteredDataSources={tempCurrentDataSources.filter((dataSource) =>
-            dataSource.name
-              ?.toLowerCase()
-              .includes(searchTermCurrent.toLowerCase())
-          )}
-          isGlobal={false}
-          onSelect={handleSelectDataSource}
-        />
-        <DataSourceContent
-          searchTerm={searchTermGlobal}
-          setSearchTerm={setSearchTermGlobal}
-          filteredDataSources={tempGlobalDataSources.filter((dataSource) =>
-            dataSource.name
-              ?.toLowerCase()
-              .includes(searchTermGlobal.toLowerCase())
-          )}
-          isGlobal={true}
-          onSelect={handleSelectDataSource}
-        />
-      </div>
+      <div className="flex flex-col h-full">
+        <div className="flex-grow space-y-12 pb-20">
+          <DataSourceContent
+            searchTerm={searchTermCurrent}
+            setSearchTerm={setSearchTermCurrent}
+            filteredDataSources={tempCurrentDataSources.filter((dataSource) =>
+              dataSource.name
+                ?.toLowerCase()
+                .includes(searchTermCurrent.toLowerCase())
+            )}
+            isGlobal={false}
+            onSelect={handleSelectDataSource}
+          />
+          <DataSourceContent
+            searchTerm={searchTermGlobal}
+            setSearchTerm={setSearchTermGlobal}
+            filteredDataSources={tempGlobalDataSources.filter((dataSource) =>
+              dataSource.name
+                ?.toLowerCase()
+                .includes(searchTermGlobal.toLowerCase())
+            )}
+            isGlobal={true}
+            onSelect={handleSelectDataSource}
+          />
+        </div>
 
-      <div className="flex justify-end mt-10 gap-2">
-        <Button onClick={handleCloseModal} variant="ghost">
-          Cancel
-        </Button>
-        <Button onClick={handleSaveChanges}>Save changes</Button>
+        <div className="sticky bottom-0 left-0 right-0 py-6 bg-white border-t border-gray-200 z-10 flex justify-end gap-2">
+          <Button onClick={handleCloseModal} variant="ghost">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveChanges}>Save changes</Button>
+        </div>
       </div>
     </CustomModal>
   );

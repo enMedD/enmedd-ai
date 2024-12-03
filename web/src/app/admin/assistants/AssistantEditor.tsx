@@ -703,6 +703,7 @@ export function AssistantEditor({
                   );
                 }}
                 defaultHeight="h-40"
+                maxHeight={150}
                 error={finalPromptError}
               />
 
@@ -1067,6 +1068,7 @@ export function AssistantEditor({
                         defaultHeight="h-40"
                         explanationText="Learn about prompting in our docs!"
                         optional
+                        maxHeight={150}
                       />
                     </>
                   )}

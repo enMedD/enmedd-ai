@@ -36,8 +36,6 @@ export function DeletionButton({
     tooltip = `You must pause the connector before ${teamspaceId ? "removing" : "deleting"} it`;
   }
 
-  console.log(ccPair);
-
   return (
     <>
       {isDeleteModalOpen && (

@@ -1,29 +1,36 @@
 "use client";
 
 import React from "react";
-import { Search, MessageCircleMore, Command } from "lucide-react";
 import { useContext } from "react";
-import Link from "next/link";
 import Image from "next/image";
 
-import EnmeddLogo from "../../../public/logo-brand.png";
-import { Separator } from "@/components/ui/separator";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { PageTab } from "@/components/PageTab";
 import { useSearchContext } from "@/context/SearchContext";
 import { ChatSession } from "../chat/interfaces";
 import { Logo } from "@/components/Logo";
 import ArnoldAi from "../../../public/arnold_ai.png";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import { Command, MessageCircleMore, Search } from "lucide-react";
+import { PageTab } from "@/components/PageTab";
 import { buildImgUrl } from "../chat/files/images/utils";
+import { Separator } from "@/components/ui/separator";
 
 export const SearchSidebar = ({
-  isExpanded,
   currentSearchSession,
   openSidebar,
   teamspaceId,
   toggleSideBar,
 }: {
-  isExpanded?: boolean;
   currentSearchSession?: ChatSession | null | undefined;
   openSidebar?: boolean;
   teamspaceId?: string;
@@ -40,76 +47,101 @@ export const SearchSidebar = ({
   const currentSearchId = currentSearchSession?.id;
 
   return (
-    <>
-      <div
-        className={`
-            flex-col 
-            h-full
-            flex
-            z-overlay
-            w-full py-4
-            `}
-        id="chat-sidebar"
-      >
-        <div className="flex items-center gap-1 w-full relative justify-center px-4 pb-5 pt-1">
-          {workspaces && workspaces.custom_header_logo ? (
-            <img
-              src={buildImgUrl(workspaces?.custom_header_logo)}
-              alt="Logo"
-              className="h-8 object-contain w-full"
-            />
-          ) : (
-            <Image src={ArnoldAi} alt="arnoldai-logo" height={32} />
-          )}
-        </div>
+    <Sidebar collapsible="none" className="flex-1 flex overflow-hidden">
+      <SidebarHeader className="gap-0 pb-0 pt-[17px] md:pt-[9px] flex items-center justify-center">
+        {workspaces && workspaces.custom_header_logo ? (
+          <img
+            src={buildImgUrl(workspaces?.custom_header_logo)}
+            alt="Logo"
+            className="h-11 object-contain w-full"
+          />
+        ) : (
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={44} />
+        )}
+        <Separator className="mt-[9px]" />
+      </SidebarHeader>
 
-        <div className="h-full overflow-y-auto">
-          <div className="px-4 text-sm font-medium flex flex-col">
-            {settings.search_page_enabled && (
-              <>
-                <Separator className="mb-4" />
-                <Link
-                  href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
-                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer bg-brand-500 text-white items-center gap-2 justify-between`}
+      <SidebarContent className="gap-0">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="whitespace-nowrap shrink-0 truncate bg-brand-500 text-inverted hover:bg-brand-500"
                 >
-                  <div className="flex items-center gap-2">
-                    <Search size={16} className="shrink-0" />
-                    Search
-                  </div>
-                  <div className="flex items-center gap-1 font-normal">
-                    <Command size={14} />S
-                  </div>
-                </Link>
-              </>
-            )}
-            {settings.chat_page_enabled && (
-              <>
-                <Link
-                  href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
-                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2 justify-between`}
-                >
-                  <div className="flex items-center gap-2">
-                    <MessageCircleMore size={16} className="shrink-0" />
-                    Chat
-                  </div>
+                  <Link
+                    href={teamspaceId ? `/t/${teamspaceId}/search` : "/search"}
+                    className={`flex items-center gap-2 justify-between w-full`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Search size={16} className="shrink-0" />
+                      Search
+                    </div>
+                    <div className="flex items-center gap-1 font-normal">
+                      <Command size={14} />S
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
-                  <div className="flex items-center gap-1 font-normal">
-                    <Command size={14} />D
-                  </div>
-                </Link>
-              </>
-            )}
-            <Separator className="mt-4" />
-            <PageTab
-              existingChats={querySessions}
-              currentChatId={currentSearchId}
-              toggleSideBar={toggleSideBar}
-              teamspaceId={teamspaceId}
-              isSearch
-            />
-          </div>
-        </div>
-      </div>
-    </>
+              {settings.chat_page_enabled && (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className="whitespace-nowrap shrink-0 truncate"
+                      asChild
+                    >
+                      <Link
+                        href={teamspaceId ? `/t/${teamspaceId}/chat` : "/chat"}
+                        className={`flex items-center gap-2 justify-between w-full`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <MessageCircleMore size={16} className="shrink-0" />
+                          Chat
+                        </div>
+
+                        <div className="flex items-center gap-1 font-normal">
+                          <Command size={14} />D
+                        </div>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* {combinedSettings.featureFlags.explore_assistants && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton className="whitespace-nowrap shrink-0 truncate">
+                        <Link
+                          href="/assistants/mine"
+                          className={`flex items-center gap-2 justify-between w-full`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Headset size={16} />
+                            Explore Assistants
+                          </div>
+
+                          <div className="flex items-center gap-1 font-normal">
+                            <Command size={14} />A
+                          </div>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )} */}
+                </>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+          <Separator className="mt-2" />
+        </SidebarGroup>
+
+        <PageTab
+          existingChats={querySessions}
+          currentChatId={currentSearchId}
+          toggleSideBar={toggleSideBar}
+          teamspaceId={teamspaceId}
+          isSearch
+        />
+      </SidebarContent>
+    </Sidebar>
   );
 };

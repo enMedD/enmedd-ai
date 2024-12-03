@@ -69,7 +69,5 @@ export function useTheme() {
       const color = secondary[key];
       document.documentElement.style.setProperty(`--secondary-${key}`, color);
     });
-
-    console.log("CSS variables updated with the theme colors");
   }
 }

@@ -1,16 +1,30 @@
 "use client";
 
-import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { Form, Formik } from "formik";
+import { Input } from "@/components/ui/input";
 import {
-  SelectorFormField,
-  TextFormField,
-} from "@/components/admin/connectors/Field";
-import { Teamspace } from "@/lib/types";
-import { Scope } from "./types";
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Scope } from "./types";
+import { Teamspace } from "@/lib/types";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { Combobox } from "@/components/Combobox";
 
 interface CreateRateLimitModalProps {
   onSubmit: (
@@ -26,6 +40,19 @@ interface CreateRateLimitModalProps {
   onClose: () => void;
 }
 
+const schema = z.object({
+  target_scope: z.nativeEnum(Scope),
+  teamspace_id: z.number().optional(),
+  period_hours: z
+    .number()
+    .min(1, { message: "Time Window must be at least 1 hour" }),
+  token_budget: z
+    .number()
+    .min(1, { message: "Token Budget must be at least 1" }),
+});
+
+type FormValues = z.infer<typeof schema>;
+
 export const CreateRateLimitModal = ({
   onSubmit,
   forSpecificScope,
@@ -34,23 +61,23 @@ export const CreateRateLimitModal = ({
   setIsOpen,
   onClose,
 }: CreateRateLimitModalProps) => {
-  const [modalTeamspaces, setModalTeamspaces] = useState([]);
+  const { toast } = useToast();
+  const [modalTeamspaces, setModalTeamspaces] = useState<Teamspace[]>([]);
   const [shouldFetchTeamspaces, setShouldFetchTeamspaces] = useState(
     forSpecificScope === Scope.TEAMSPACE
   );
-  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTeamspaces = async () => {
       try {
         const response = await fetch("/api/manage/admin/teamspace");
         const data = await response.json();
-        const options = data.map((teamspace: Teamspace) => ({
-          name: teamspace.name,
-          value: teamspace.id,
-        }));
-
-        setModalTeamspaces(options);
+        setModalTeamspaces(
+          data.map((teamspace: Teamspace) => ({
+            id: teamspace.id,
+            name: teamspace.name,
+          }))
+        );
         setShouldFetchTeamspaces(false);
       } catch (error) {
         toast({
@@ -61,117 +88,169 @@ export const CreateRateLimitModal = ({
       }
     };
 
-    if (shouldFetchTeamspaces) {
-      fetchData();
-    }
-  }, [shouldFetchTeamspaces]);
+    if (shouldFetchTeamspaces) fetchTeamspaces();
+  }, [shouldFetchTeamspaces, toast]);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      target_scope: forSpecificScope || Scope.GLOBAL,
+      teamspace_id: forSpecificTeamspace,
+      period_hours: undefined,
+      token_budget: undefined,
+    },
+  });
+
+  const handleFormSubmit = (values: FormValues) => {
+    onSubmit(
+      values.target_scope,
+      values.period_hours,
+      values.token_budget,
+      values.teamspace_id ?? 0
+    );
+    setIsOpen(false);
+  };
 
   return (
-    <div>
-      <Formik
-        initialValues={{
-          enabled: true,
-          period_hours: "",
-          token_budget: "",
-          target_scope: forSpecificScope || Scope.GLOBAL,
-          teamspace_id: forSpecificTeamspace,
-        }}
-        validationSchema={Yup.object().shape({
-          period_hours: Yup.number()
-            .required("Time Window is a required field")
-            .min(1, "Time Window must be at least 1 hour"),
-          token_budget: Yup.number()
-            .required("Token Budget is a required field")
-            .min(1, "Token Budget must be at least 1"),
-          target_scope: Yup.string().required(
-            "Target Scope is a required field"
-          ),
-          teamspace_id: Yup.string().test(
-            "teamspace_id",
-            "Teamspace is a required field",
-            (value, context) => {
-              return (
-                context.parent.target_scope !== "teamspace" ||
-                (context.parent.target_scope === "teamspace" &&
-                  value !== undefined)
-              );
-            }
-          ),
-        })}
-        onSubmit={async (values, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
-          onSubmit(
-            values.target_scope,
-            Number(values.period_hours),
-            Number(values.token_budget),
-            Number(values.teamspace_id)
-          );
-          setIsOpen(false);
-          return formikHelpers.setSubmitting(false);
-        }}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-4"
       >
-        {({ isSubmitting, values, setFieldValue }) => (
-          <Form>
-            {!forSpecificScope && (
-              <SelectorFormField
-                name="target_scope"
-                label="Target Scope"
-                options={[
-                  { name: "Global", value: Scope.GLOBAL },
-                  { name: "User", value: Scope.USER },
-                  { name: "Teamspace", value: Scope.TEAMSPACE },
-                ]}
-                includeDefault={false}
-                onSelect={(selected) => {
-                  setFieldValue("target_scope", selected);
-                  if (selected === Scope.TEAMSPACE) {
-                    setShouldFetchTeamspaces(true);
-                  }
-                }}
+        {!forSpecificScope && (
+          <FormField
+            control={form.control}
+            name="target_scope"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Target Scope</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value as Scope);
+                      if (value === Scope.TEAMSPACE) {
+                        setShouldFetchTeamspaces(true);
+                      }
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Scope" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={Scope.GLOBAL}>Global</SelectItem>
+                      <SelectItem value={Scope.USER}>User</SelectItem>
+                      <SelectItem value={Scope.TEAMSPACE}>Teamspace</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <div className="w-full relative">
+          {forSpecificTeamspace === undefined &&
+            form.watch("target_scope") === Scope.TEAMSPACE && (
+              <FormField
+                control={form.control}
+                name="teamspace_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teamspace</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => field.onChange(Number(value))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Teamspace" />
+                        </SelectTrigger>
+                        <SelectContent className="max-w-[500px]">
+                          {modalTeamspaces.map((teamspace) => (
+                            <SelectItem
+                              key={teamspace.id}
+                              value={teamspace.id.toString()}
+                              className="max-w-[500px]"
+                            >
+                              {teamspace.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* <Combobox
+                        items={modalTeamspaces.map((teamspace) => ({
+                          value: teamspace.id.toString(),
+                          label: teamspace.name,
+                        }))}
+                        onSelect={(selectedValues) => {
+                          const selectedIds = selectedValues.map((value) =>
+                            parseInt(value, 10)
+                          );
+                          field.onChange(selectedIds);
+                        }}
+                        placeholder="Select data source"
+                        label="Select data source"
+                        selected={
+                          Array.isArray(field.value)
+                            ? field.value.map((id) => id.toString())
+                            : []
+                        }
+                        isOnModal
+                      /> */}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             )}
-            {forSpecificTeamspace === undefined &&
-              values.target_scope === Scope.TEAMSPACE && (
-                <SelectorFormField
-                  name="teamspace_id"
-                  label="Teamspace"
-                  options={modalTeamspaces}
-                  includeDefault={false}
+        </div>
+
+        <FormField
+          control={form.control}
+          name="period_hours"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Time Window (Hours)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Enter time in hours"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value) || "")}
                 />
-              )}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <div className="pt-2" />
-            <TextFormField
-              name="period_hours"
-              label="Time Window (Hours)"
-              type="number"
-              placeholder=""
-            />
+        <FormField
+          control={form.control}
+          name="token_budget"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Token Budget (Thousands)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Enter token budget"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value) || "")}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <div className="pt-2" />
-            <TextFormField
-              name="token_budget"
-              label="Token Budget (Thousands)"
-              type="number"
-              placeholder=""
-            />
-            <div className="flex pt-4 justify-end gap-2">
-              <Button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => onClose()}
-                variant="ghost"
-              >
-                Cancel
-              </Button>
-
-              <Button type="submit" disabled={isSubmitting}>
-                Create
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Formik>
-    </div>
+        <div className="flex justify-end gap-2 pt-4">
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit">Create</Button>
+        </div>
+      </form>
+    </Form>
   );
 };

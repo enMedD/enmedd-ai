@@ -20,9 +20,7 @@ import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { assistantComparator } from "../admin/assistants/lib";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
-import { ChatPopup } from "../chat/ChatPopup";
 import { SearchSidebar } from "./SearchSidebar";
-import { BarLayout } from "@/components/BarLayout";
 import { HelperFab } from "@/components/HelperFab";
 import {
   FetchAssistantsResponse,
@@ -34,11 +32,10 @@ import { ChatSession } from "../chat/interfaces";
 import {
   AGENTIC_SEARCH_TYPE_COOKIE_NAME,
   DISABLE_LLM_DOC_RELEVANCE,
-  NEXT_PUBLIC_DEFAULT_SIDEBAR_OPEN,
 } from "@/lib/constants";
-import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
 import { SearchProvider } from "@/context/SearchContext";
+import Sidebar from "@/components/Sidebar";
 
 export default async function Home() {
   // Disable caching so we always get the up to date connector / document set / assistant info
@@ -173,40 +170,42 @@ export default async function Home() {
     : false;
 
   return (
-    <div className="h-full">
+    <>
       <HealthCheckBanner />
-      <div className="relative flex h-full">
-        <SearchProvider
-          value={{
-            querySessions,
-            ccPairs,
-            documentSets,
-            assistants,
-            tags,
-            agenticSearchEnabled,
-            disabledAgentic: DISABLE_LLM_DOC_RELEVANCE,
-            shouldShowWelcomeModal,
-            shouldDisplayNoSources: shouldDisplayNoSourcesModal,
-          }}
-        >
-          <BarLayout user={user} BarComponent={SearchSidebar} />
-          {shouldShowWelcomeModal && <WelcomeModal user={user} />}
-          {shouldDisplayNoSourcesModal && <NoSourcesModal />}
-          {shouldDisplaySourcesIncompleteModal && (
-            <NoCompleteSourcesModal ccPairs={ccPairs} />
-          )}
-          {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
-        Only used in the EE version of the app. */}
-          {/* <ChatPopup /> */}
-          <InstantSSRAutoRefresh />
-          <div className="w-full h-full overflow-hidden overflow-y-auto min-h-screen">
-            <div className="pt-20 lg:pt-14 lg:px-14 container">
-              <SearchSection defaultSearchType={searchTypeDefault} />
+
+      <SearchProvider
+        value={{
+          querySessions,
+          ccPairs,
+          documentSets,
+          assistants,
+          tags,
+          agenticSearchEnabled,
+          disabledAgentic: DISABLE_LLM_DOC_RELEVANCE,
+          shouldShowWelcomeModal,
+          shouldDisplayNoSources: shouldDisplayNoSourcesModal,
+        }}
+      >
+        <Sidebar user={user} sidebar={<SearchSidebar />}>
+          <div className="relative flex h-full">
+            {shouldShowWelcomeModal && <WelcomeModal user={user} />}
+            {shouldDisplayNoSourcesModal && <NoSourcesModal />}
+            {shouldDisplaySourcesIncompleteModal && (
+              <NoCompleteSourcesModal ccPairs={ccPairs} />
+            )}
+            {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
+         Only used in the EE version of the app. */}
+            {/* <ChatPopup /> */}
+            <InstantSSRAutoRefresh />
+            <div className="w-full h-full overflow-hidden overflow-y-auto min-h-screen">
+              <div className="pt-20 lg:pt-14 lg:px-14 container">
+                <SearchSection defaultSearchType={searchTypeDefault} />
+              </div>
             </div>
           </div>
-        </SearchProvider>
-      </div>
-      {/* <HelperFab /> */}
-    </div>
+        </Sidebar>
+      </SearchProvider>
+      <HelperFab />
+    </>
   );
 }
