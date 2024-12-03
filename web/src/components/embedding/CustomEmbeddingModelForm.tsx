@@ -1,14 +1,44 @@
-import {
-  CloudEmbeddingModel,
-  CloudEmbeddingProvider,
-  EmbeddingProvider,
-} from "./interfaces";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import { TextFormField, BooleanFormField } from "../admin/connectors/Field";
+import { CloudEmbeddingModel, EmbeddingProvider } from "./interfaces";
 import { Dispatch, SetStateAction } from "react";
 import { Button, Text } from "@tremor/react";
 import { EmbeddingDetails } from "@/app/admin/embeddings/EmbeddingModelSelectionForm";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "../ui/checkbox";
+
+const formSchema = z.object({
+  model_name: z.string().min(1, "Model name is required"),
+  model_dim: z.number().min(1, "Model dimension is required"),
+  normalize: z.boolean(),
+  query_prefix: z.string().optional(),
+  passage_prefix: z.string().optional(),
+  provider_type: z.string().min(1, "Provider type is required"),
+  api_key: z.string().optional(),
+  enabled: z.boolean(),
+  api_url: z
+    .string()
+    .url("Must be a valid URL")
+    .min(1, "API base URL is required"),
+  description: z.string().optional(),
+  index_name: z.string().nullable(),
+  pricePerMillion: z.number().optional(),
+  mtebScore: z.number().optional(),
+  maxContext: z.number().optional(),
+  max_tokens: z.number().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function CustomEmbeddingModelForm({
   setShowTentativeModel,
@@ -21,106 +51,148 @@ export function CustomEmbeddingModelForm({
   provider: EmbeddingDetails;
   embeddingType: EmbeddingProvider;
 }) {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      model_name: "",
+      model_dim: 768,
+      normalize: false,
+      query_prefix: "",
+      passage_prefix: "",
+      provider_type: embeddingType,
+      api_key: "",
+      enabled: true,
+      api_url: provider.api_url,
+      description: "",
+      index_name: "",
+      pricePerMillion: 0,
+      mtebScore: 0,
+      maxContext: 4096,
+      max_tokens: 1024,
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    setShowTentativeModel(values as CloudEmbeddingModel);
+  };
+
   return (
-    <div>
-      <Formik
-        initialValues={
-          currentValues || {
-            model_name: "",
-            model_dim: 768,
-            normalize: false,
-            query_prefix: "",
-            passage_prefix: "",
-            provider_type: embeddingType,
-            api_key: "",
-            enabled: true,
-            api_url: provider.api_url,
-            description: "",
-            index_name: "",
-            pricePerMillion: 0,
-            mtebScore: 0,
-            maxContext: 4096,
-            max_tokens: 1024,
-          }
-        }
-        validationSchema={Yup.object().shape({
-          model_name: Yup.string().required("Model name is required"),
-          model_dim: Yup.number().required("Model dimension is required"),
-          normalize: Yup.boolean().required(),
-          query_prefix: Yup.string(),
-          passage_prefix: Yup.string(),
-          provider_type: Yup.string().required("Provider type is required"),
-          api_key: Yup.string().optional(),
-          enabled: Yup.boolean(),
-          api_url: Yup.string().required("API base URL is required"),
-          description: Yup.string(),
-          index_name: Yup.string().nullable(),
-          pricePerMillion: Yup.number(),
-          mtebScore: Yup.number(),
-          maxContext: Yup.number(),
-          max_tokens: Yup.number(),
-        })}
-        onSubmit={async (values) => {
-          setShowTentativeModel(values as CloudEmbeddingModel);
-        }}
-      >
-        {({ isSubmitting, submitForm, errors }) => (
-          <Form>
-            <Text className="text-xl text-text-900 font-bold mb-4">
-              Specify details for your{" "}
-              {embeddingType === EmbeddingProvider.AZURE ? "Azure" : "LiteLLM"}{" "}
-              Provider&apos;s model
-            </Text>
-            <TextFormField
-              name="model_name"
-              label="Model Name:"
-              subtext={`The name of the ${embeddingType === EmbeddingProvider.AZURE ? "Azure" : "LiteLLM"} model`}
-              placeholder="e.g. 'all-MiniLM-L6-v2'"
-              autoCompleteDisabled={true}
-            />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <Text className="text-xl text-text-900 font-bold mb-4">
+          Specify details for your{" "}
+          {embeddingType === EmbeddingProvider.AZURE ? "Azure" : "LiteLLM"}{" "}
+          Provider&apos;s model
+        </Text>
 
-            <TextFormField
-              name="model_dim"
-              label="Model Dimension:"
-              subtext="The dimension of the model's embeddings"
-              placeholder="e.g. '1536'"
-              type="number"
-              autoCompleteDisabled={true}
-            />
+        <FormField
+          control={form.control}
+          name="model_name"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel htmlFor="model_name">Model Name</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. 'all-MiniLM-L6-v2'" {...field} />
+              </FormControl>
+              <FormDescription>
+                The name of the $
+                {embeddingType === EmbeddingProvider.AZURE
+                  ? "Azure"
+                  : "LiteLLM"}{" "}
+                model
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <BooleanFormField
-              name="normalize"
-              label="Normalize"
-              subtext="Whether to normalize the embeddings"
-            />
+        <FormField
+          control={form.control}
+          name="model_dim"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel htmlFor="model_dim">Model Dimension</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="e.g. '1536'"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(Number(e.target.value) || "")}
+                />
+              </FormControl>
+              <FormDescription>
+                The dimension of the model's embeddings
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <TextFormField
-              name="query_prefix"
-              label="Query Prefix:"
-              subtext="Prefix for query embeddings"
-              autoCompleteDisabled={true}
-            />
+        <FormField
+          control={form.control}
+          name="normalize"
+          render={({ field }) => (
+            <FormItem className="flex gap-2">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked)}
+                />
+              </FormControl>
+              <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                <span>Normalize</span>
+                <p className="text-sm text-muted-foreground font-normal">
+                  Whether to normalize the embeddings
+                </p>
+              </FormLabel>
+            </FormItem>
+          )}
+        />
 
-            <TextFormField
-              name="passage_prefix"
-              label="Passage Prefix:"
-              subtext="Prefix for passage embeddings"
-              autoCompleteDisabled={true}
-            />
+        <FormField
+          control={form.control}
+          name="query_prefix"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel htmlFor="query_prefix">
+                [Optional] Query Prefix
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="E.g. 'query: '" {...field} />
+              </FormControl>
+              <FormDescription>Prefix for query embeddings</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <Button
-              type="submit"
-              onClick={() => console.log(errors)}
-              disabled={isSubmitting}
-              className="w-64 mx-auto"
-            >
-              Configure{" "}
-              {embeddingType === EmbeddingProvider.AZURE ? "Azure" : "LiteLLM"}{" "}
-              Model
-            </Button>
-          </Form>
-        )}
-      </Formik>
-    </div>
+        <FormField
+          control={form.control}
+          name="passage_prefix"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel htmlFor="passage_prefix">
+                [Optional] Passage Prefix
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="E.g. 'passage: '" {...field} />
+              </FormControl>
+              <FormDescription>Prefix for passage embeddings</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-64 mx-auto"
+        >
+          Configure{" "}
+          {embeddingType === EmbeddingProvider.AZURE ? "Azure" : "LiteLLM"}{" "}
+          Model
+        </Button>
+      </form>
+    </Form>
   );
 }
