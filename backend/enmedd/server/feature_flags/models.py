@@ -46,6 +46,7 @@ class FeatureFlagsManager:
         except TypeError:
             return False
 
+
 class FeatureFlags(BaseModel):
     """Features Control"""
 
