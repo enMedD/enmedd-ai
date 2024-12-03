@@ -121,7 +121,7 @@ export function CustomEmbeddingModelForm({
                 />
               </FormControl>
               <FormDescription>
-                The dimension of the model's embeddings
+                The dimension of the model&apos;s embeddings
               </FormDescription>
               <FormMessage />
             </FormItem>
