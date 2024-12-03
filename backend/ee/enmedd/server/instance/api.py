@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import WorkspaceCreate
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.instance import copy_filtered_data
 from enmedd.db.instance import copy_users_to_new_schema
@@ -20,7 +19,6 @@ from enmedd.db.instance import fetch_all_schemas
 from enmedd.db.instance import insert_workspace_data
 from enmedd.db.instance import migrate_public_schema_to_new_schema
 from enmedd.db.models import User
-from enmedd.db.models import Workspace
 from enmedd.server.models import MinimalWorkspaceInfo
 from enmedd.server.settings.models import Settings
 from enmedd.server.settings.store import store_settings
@@ -81,12 +79,10 @@ def create_new_workspace(
 # delete workspace by instance admin or workspace admin
 @admin_router.delete("/delete-workspace")
 def delete_workspace(
-    workspace_id: int,
-    _: User = Depends(current_workspace_admin_user),
+    schema_name: str,
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> dict:
-    workspace = db_session.query(Workspace).filter_by(id=workspace_id).first()
-    schema_name = workspace.workspace_name.lower().replace(" ", "_")
     try:
         delete_schema(db_session, schema_name)
     except Exception as e:
