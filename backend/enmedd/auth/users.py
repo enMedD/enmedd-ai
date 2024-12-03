@@ -1,5 +1,5 @@
-import uuid
 import json
+import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from datetime import timezone
@@ -165,10 +165,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         request: Optional[Request] = None,
     ) -> User:
         # additional checks for user that is being invited
-        if (request != None):
+        if request is not None:
             requestBody: str = await request.body()
             requestBody: dict = json.loads(requestBody)
-            if ("token" in requestBody.keys() and requestBody.get("token") != ""):
+            if "token" in requestBody.keys() and requestBody.get("token") != "":
                 verify_email_is_invited(user_create.email)
 
         # strict checking of allowed domain (invited or not)
