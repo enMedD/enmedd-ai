@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { basicLogin, basicSignup, validateInvite } from "@/lib/user";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -68,7 +68,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     defaultValues: {
       full_name: "",
       company_name: "",
-      email: "",
+      email: email,
       password: "",
       confirm_password: "",
     },
@@ -182,7 +182,11 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
+                  <Input
+                    disabled={email !== ""}
+                    placeholder="Enter your email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

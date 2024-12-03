@@ -51,7 +51,7 @@ const PromoterButton = ({
       disabled={isMutating}
       variant={promote ? "default" : "outline"}
     >
-      {promote ? "Promote" : "Demote"} to {promote ? "Admin" : "Basic"} User
+      {promote ? "Promote" : "Demote"} to {promote ? "Admin" : "User"}
     </Button>
   );
 };
@@ -131,7 +131,7 @@ const SignedUpUserTable = ({
     onError(`Unable to promote user - ${errorMsg}`);
   };
   const onDemotionSuccess = () => {
-    onSuccess("Admin demoted to basic user!");
+    onSuccess("Admin demoted to user!");
   };
   const onDemotionError = (errorMsg: string) => {
     onError(`Unable to demote admin - ${errorMsg}`);
