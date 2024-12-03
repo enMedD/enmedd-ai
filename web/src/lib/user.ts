@@ -61,7 +61,8 @@ export const basicSignup = async (
   full_name: string,
   company_name: string,
   email: string,
-  password: string
+  password: string,
+  token?: string
 ) => {
   const response = await fetch("/api/auth/register", {
     method: "POST",
@@ -74,6 +75,7 @@ export const basicSignup = async (
       company_name,
       email,
       password,
+      token,
     }),
   });
   return response;
