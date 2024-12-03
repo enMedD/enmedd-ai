@@ -103,7 +103,8 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       values.full_name,
       values.company_name,
       values.email,
-      values.password
+      values.password,
+      token
     );
 
     if (!response.ok) {
@@ -124,6 +125,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       return;
     }
 
+    // logs in data after signing up
     const loginResponse = await basicLogin(values.email, values.password);
     if (loginResponse.ok) {
       if (token) {
