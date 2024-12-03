@@ -74,7 +74,7 @@ export const UserSelector = ({
             <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="basic">Basic</SelectItem>
+            <SelectItem value="basic">User</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>

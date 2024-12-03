@@ -313,7 +313,8 @@ def _cleanup_user__teamspace_relationships__no_commit(
 
     user__teamspace_relationships = db_session.scalars(
         select(User__Teamspace).where(where_clause)
-    ).all()
+    ).unique()
+
     for user__teamspace_relationship in user__teamspace_relationships:
         db_session.delete(user__teamspace_relationship)
 

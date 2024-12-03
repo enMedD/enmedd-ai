@@ -166,7 +166,7 @@ export default function UserTeamspace() {
                             {teamspace.users.find(
                               (user) => user.role === "basic"
                             )
-                              ? "Basic"
+                              ? "User"
                               : "Admin"}
                           </Badge>
                         </div>

@@ -252,7 +252,7 @@ function Main() {
                     {apiKey.api_key_role === "admin" ? (
                       <Badge>ADMIN</Badge>
                     ) : (
-                      <Badge variant="secondary">BASIC</Badge>
+                      <Badge variant="secondary">USER</Badge>
                     )}
                   </TableCell>
                   <TableCell>

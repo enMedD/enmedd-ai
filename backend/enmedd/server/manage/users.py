@@ -57,6 +57,7 @@ from enmedd.db.engine import get_session
 from enmedd.db.models import AccessToken
 from enmedd.db.models import Assistant__User
 from enmedd.db.models import DocumentSet__User
+from enmedd.db.models import InviteToken
 from enmedd.db.models import SamlAccount
 from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
@@ -153,24 +154,29 @@ async def validate_token_invite(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    teamspace_id = decode_invite_token(token, email, db_session)
-    if teamspace_id is None:
-        return None
+    result = decode_invite_token(token, email, db_session)
 
-    teamspace = (
-        db_session.query(User__Teamspace)
-        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
-        .first()
-    )
-    if not teamspace:
-        db_session.add(
-            User__Teamspace(
-                teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
-            )
+    if (
+        isinstance(result, str)
+        and result != "Invalid token"
+        and result != "Token has expired"
+    ):
+        teamspace_id = result
+        teamspace = (
+            db_session.query(User__Teamspace)
+            .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+            .first()
         )
-        db_session.commit()
+        if not teamspace:
+            db_session.add(
+                User__Teamspace(
+                    teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
+                )
+            )
+            db_session.commit()
+        return {"message": "User successfully added to teamspace"}
 
-    return teamspace_id
+    return {"message": result}
 
 
 @router.post("/users/change-password", tags=["users"])
@@ -412,16 +418,46 @@ def bulk_invite_users(
     return write_invited_users(all_emails, teamspace_id)
 
 
+def remove_email_from_invite_tokens(
+    db_session: Session,
+    user_email: str,
+    teamspace_id: Optional[int] = None,
+) -> int:
+    if teamspace_id:
+        result = db_session.execute(
+            update(InviteToken)
+            .where(InviteToken.teamspace_id == teamspace_id)
+            .values(emails=InviteToken.emails.op("-")(user_email))
+        )
+    else:
+        result = db_session.execute(
+            update(InviteToken)
+            .where(InviteToken.teamspace_id.is_(None))
+            .values(emails=InviteToken.emails.op("-")(user_email))
+        )
+    db_session.commit()
+
+    return result.rowcount
+
+
 @router.patch("/manage/admin/remove-invited-user")
 def remove_invited_user(
     user_email: UserByEmail,
     teamspace_id: Optional[int] = None,
     _: User | None = Depends(current_teamspace_admin_user),
+    db_session: Session = Depends(get_session),
 ) -> int:
     user_emails = get_invited_users(teamspace_id)
     remaining_users = [user for user in user_emails if user != user_email.user_email]
+    write_invited_users(remaining_users, teamspace_id)
 
-    return write_invited_users(remaining_users, teamspace_id)
+    rows_updated = remove_email_from_invite_tokens(
+        db_session=db_session,
+        user_email=user_email.user_email,
+        teamspace_id=teamspace_id,
+    )
+
+    return rows_updated
 
 
 @router.patch("/manage/admin/deactivate-user")
