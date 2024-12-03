@@ -154,14 +154,24 @@ async def validate_token_invite(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    result = decode_invite_token(token, email, db_session)
+    teamspace_id = decode_invite_token(token, email, db_session)
+
+    user_emails = get_invited_users(teamspace_id)
+    remaining_users = [
+        invited_user for invited_user in user_emails if invited_user != email
+    ]
+    write_invited_users(remaining_users, teamspace_id)
+    remove_email_from_invite_tokens(
+        db_session=db_session,
+        user_email=email,
+        teamspace_id=teamspace_id,
+    )
 
     if (
-        isinstance(result, str)
-        and result != "Invalid token"
-        and result != "Token has expired"
+        isinstance(teamspace_id, str)
+        and teamspace_id != "Invalid token"
+        and teamspace_id != "Token has expired"
     ):
-        teamspace_id = result
         teamspace = (
             db_session.query(User__Teamspace)
             .filter_by(teamspace_id=teamspace_id, user_id=user.id)
@@ -176,7 +186,7 @@ async def validate_token_invite(
             db_session.commit()
         return {"message": "User successfully added to teamspace"}
 
-    return {"message": result}
+    return {"message": teamspace_id}
 
 
 @router.post("/users/change-password", tags=["users"])
