@@ -231,6 +231,7 @@ class InviteToken(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     token: Mapped[str] = mapped_column(String, unique=True)
     emails: Mapped[JSON_ro] = mapped_column(postgresql.JSONB(), nullable=True)
+    teamspace_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
