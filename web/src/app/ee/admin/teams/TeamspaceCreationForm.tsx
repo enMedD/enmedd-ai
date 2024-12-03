@@ -82,7 +82,7 @@ export const TeamspaceCreationForm = ({
             Yup.object().shape({
               user_id: Yup.string().required("User ID is required"),
               role: Yup.string()
-                .oneOf(["basic", "admin"], "Role must be 'basic' or 'admin'")
+                .oneOf(["basic", "admin"], "Role must be 'user' or 'admin'")
                 .required("Role is required"),
             })
           ),

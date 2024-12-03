@@ -62,7 +62,7 @@ export const InviteUserButton = ({
           variant={teamspaceId ? "outline" : "default"}
         >
           {isTeamspaceModal && <Plus size={16} />}
-          Invite People
+          Invite Users
         </Button>
       }
       description="Your invite link has been created. Share this link to join your teamspace."

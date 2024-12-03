@@ -191,7 +191,7 @@ export const TeamspacesCard = ({
             <div className="flex items-center gap-2">
               <Users size={16} className="shrink-0" />
               <span className="whitespace-nowrap">
-                {teamspace.users.length} People
+                {teamspace.users.length} Members
               </span>
             </div>
 
