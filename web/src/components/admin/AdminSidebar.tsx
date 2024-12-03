@@ -41,9 +41,7 @@ import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Separator } from "../ui/separator";
 import Link from "next/link";
 
-interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  isTeamspace?: boolean;
-}
+interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {}
 
 interface SidebarItem {
   name: string | JSX.Element;
@@ -55,7 +53,7 @@ interface SidebarCollection {
   items: SidebarItem[];
 }
 
-export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
+export function AdminSidebar({ ...props }: AdminSidebarProps) {
   // const [activeItem, setActiveItem] = useState<string | null>(null);
   const { teamspaceId } = useParams();
   // const pathname = usePathname();
@@ -218,7 +216,7 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
           ),
           link: teamspaceId ? `/t/${teamspaceId}/admin/users` : `/admin/users`,
         },
-        ...(isMultiTeamspaceEnabled && !isTeamspace
+        ...(isMultiTeamspaceEnabled && !teamspaceId
           ? [
               {
                 name: (
@@ -231,7 +229,7 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
               },
             ]
           : []),
-        ...(!isTeamspace
+        ...(!teamspaceId
           ? [
               {
                 name: (
@@ -298,7 +296,7 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
     {
       name: "Settings",
       items: [
-        ...(isTeamspace
+        ...(teamspaceId
           ? [
               {
                 name: (
@@ -352,10 +350,10 @@ export function AdminSidebar({ isTeamspace, ...props }: AdminSidebarProps) {
           <img
             src={buildImgUrl(workspaces?.custom_header_logo)}
             alt="Logo"
-            className="h-9 object-contain w-full"
+            className="h-11 object-contain w-full"
           />
         ) : (
-          <Image src={ArnoldAi} alt="arnoldai-logo" height={36} />
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={44} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>

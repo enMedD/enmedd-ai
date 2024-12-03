@@ -77,14 +77,14 @@ export function GlobalSidebar({
                 <SidebarMenuButton
                   size="lg"
                   asChild
-                  className="!size-9 p-0 justify-center pointer-events-none"
+                  className="!size-11 p-0 justify-center pointer-events-none"
                 >
-                  <div className="flex aspect-square !size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex aspect-square !size-11 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Image
                       src={ArnoldAi}
                       alt="Arnold AI Logo"
-                      width={36}
-                      height={36}
+                      width={44}
+                      height={44}
                       className="rounded-regular shrink-0"
                     />
                   </div>
@@ -92,7 +92,7 @@ export function GlobalSidebar({
               </SidebarMenuItem>
 
               <SidebarMenuItem className="border-b pb-2.5">
-                <SidebarMenuButton size="lg" asChild className="w-9 h-9">
+                <SidebarMenuButton size="lg" asChild className="w-11 h-11">
                   <CustomTooltip
                     trigger={
                       <Link
@@ -100,13 +100,13 @@ export function GlobalSidebar({
                         className="flex items-center justify-center"
                       >
                         {workspaces?.use_custom_logo ? (
-                          <Logo width={36} height={36} />
+                          <Logo width={44} height={44} />
                         ) : (
                           <Image
                             src={ArnoldAi}
                             alt="Arnold AI Logo"
-                            width={36}
-                            height={36}
+                            width={44}
+                            height={44}
                           />
                         )}
                       </Link>
@@ -138,7 +138,7 @@ export function GlobalSidebar({
                         children: teamspace.name,
                         hidden: false,
                       }}
-                      className={`!p-0 w-9 h-9 ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
+                      className={`!p-0 w-11 h-11 rounded-full ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
                       isActive={teamspace.id.toString() === teamspaceId}
                     >
                       <Link
@@ -149,7 +149,7 @@ export function GlobalSidebar({
                           <img
                             src={buildImgUrl(teamspace.logo)}
                             alt="Teamspace Logo"
-                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-xs" : "w-full h-full"}`}
+                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full" : "w-full h-full"}`}
                             width={40}
                             height={40}
                           />
@@ -158,7 +158,7 @@ export function GlobalSidebar({
                             style={{
                               background: useGradient(teamspace.name),
                             }}
-                            className={`font-bold text-inverted shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-xs" : "w-full h-full"}`}
+                            className={`font-bold text-inverted text-lg shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full" : "w-full h-full"}`}
                           >
                             {teamspace.name.charAt(0)}
                           </div>
@@ -179,7 +179,7 @@ export function GlobalSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="!py-2.5">
+        <SidebarFooter>
           <UserSettingsButton defaultPage={defaultPage} />
         </SidebarFooter>
       </Sidebar>

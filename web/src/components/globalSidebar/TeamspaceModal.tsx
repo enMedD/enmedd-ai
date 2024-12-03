@@ -34,7 +34,7 @@ export const TeamspaceModal = ({
               hidden: false,
             }}
             onClick={() => setIsModalVisible(true)}
-            className="w-9 h-9 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center"
+            className="w-11 h-11 hover:bg-light hover:text-accent-foreground focus-visible:ring-light flex items-center justify-center rounded-full"
           >
             <Ellipsis size={16} />
           </SidebarMenuButton>
@@ -48,28 +48,28 @@ export const TeamspaceModal = ({
         {teamspace.map((team) => (
           <Link
             key={team.id}
-            className={`flex items-center gap-4 border rounded-md p-4 cursor-pointer ${Number(teamspaceId) === team.id ? "bg-secondary-500" : ""}`}
+            className={`flex items-center gap-4 border rounded-md p-4 cursor-pointer hover:bg-background-subtle transition-colors duration-200 ease-in-out ${Number(teamspaceId) === team.id ? "bg-background-subtle" : ""}`}
             href={`/t/${team.id}/${defaultPage}`}
           >
             {team.logo ? (
-              <div className="rounded-md w-9 h-9 bg-background overflow-hidden">
+              <div className="rounded-full w-11 h-11 bg-background overflow-hidden">
                 <img
                   src={buildImgUrl(team.logo)}
                   alt="Teamspace Logo"
                   className="object-cover shrink-0 w-full h-full"
-                  width={36}
-                  height={36}
+                  width={48}
+                  height={48}
                 />
               </div>
             ) : (
               <div
                 style={{ background: useGradient(team.name) }}
-                className="font-bold text-inverted w-9 h-9 shrink-0 rounded-md bg-brand-500 flex justify-center items-center uppercase"
+                className="font-bold text-inverted w-11 h-11 shrink-0 rounded-full bg-brand-500 flex justify-center items-center uppercase"
               >
                 {team.name.charAt(0)}
               </div>
             )}
-            <h3>{team.name}</h3>
+            <h3 className="truncate">{team.name}</h3>
           </Link>
         ))}
       </div>

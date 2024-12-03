@@ -276,7 +276,7 @@ const RerankingDetailsForm = forwardRef<
                   trigger={null}
                   open={showLiteLLMConfigurationModal}
                 >
-                  <div className="flex flex-col w-full px-4 gap-y-4">
+                  <div className="flex flex-col w-full gap-y-4">
                     <TextFormField
                       subtext="Set the URL at which your LiteLLM Proxy is hosted"
                       placeholder={values.rerank_api_url || undefined}
@@ -361,7 +361,7 @@ const RerankingDetailsForm = forwardRef<
                   trigger={null}
                   open={isApiKeyModalOpen}
                 >
-                  <div className="w-full px-4">
+                  <div className="w-full">
                     <TextFormField
                       placeholder={
                         values.rerank_api_key

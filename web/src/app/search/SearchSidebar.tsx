@@ -53,10 +53,10 @@ export const SearchSidebar = ({
           <img
             src={buildImgUrl(workspaces?.custom_header_logo)}
             alt="Logo"
-            className="h-9 object-contain w-full"
+            className="h-11 object-contain w-full"
           />
         ) : (
-          <Image src={ArnoldAi} alt="arnoldai-logo" height={36} />
+          <Image src={ArnoldAi} alt="arnoldai-logo" height={44} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>

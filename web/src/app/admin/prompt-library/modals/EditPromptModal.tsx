@@ -1,6 +1,4 @@
-import React from "react";
-import { Formik, Form, Field, ErrorMessage, FieldProps } from "formik";
-import * as Yup from "yup";
+import React, { useEffect } from "react";
 import { useInputPrompt } from "../hooks";
 import { EditPromptModalProps } from "../interfaces";
 import { CustomModal } from "@/components/CustomModal";
@@ -9,23 +7,78 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil } from "lucide-react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
 
-const EditPromptSchema = Yup.object().shape({
-  prompt: Yup.string().required("Title is required"),
-  content: Yup.string().required("Content is required"),
-  active: Yup.boolean(),
+const formSchema = z.object({
+  prompt: z.string().min(1, {
+    message: "Title is required",
+  }),
+  content: z.string().min(1, {
+    message: "Content is required",
+  }),
+  active: z.boolean(),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 const EditPromptModal = ({
   onClose,
   promptId,
   editInputPrompt,
 }: EditPromptModalProps) => {
+  const { toast } = useToast();
   const {
     data: promptData,
     error,
     refreshInputPrompt,
   } = useInputPrompt(promptId);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      prompt: "",
+      content: "",
+      active: false,
+    },
+  });
+
+  useEffect(() => {
+    if (promptData) {
+      form.setValue("prompt", promptData.prompt);
+      form.setValue("content", promptData.content);
+      form.setValue("active", promptData.active);
+    }
+  }, [promptData, form]);
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      await editInputPrompt(promptId, values);
+
+      toast({
+        title: "Prompt Updated Successfully",
+        description: "Prompt updated successfully!",
+        variant: "success",
+      });
+    } catch (error) {
+      toast({
+        title: "Prompt Update Failed",
+        description: "Failed to update the prompt.",
+        variant: "destructive",
+      });
+    }
+    refreshInputPrompt();
+  };
 
   const renderModalContent = () => {
     if (error) {
@@ -37,95 +90,78 @@ const EditPromptModal = ({
     }
 
     return (
-      <Formik
-        initialValues={{
-          prompt: promptData.prompt,
-          content: promptData.content,
-          active: promptData.active,
-        }}
-        validationSchema={EditPromptSchema}
-        onSubmit={(values) => {
-          editInputPrompt(promptId, values);
-          refreshInputPrompt();
-        }}
-      >
-        {({ isSubmitting, setFieldValue, values }) => (
-          <Form>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="prompt"
-                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Title
-                </label>
-                <Input
-                  id="prompt"
-                  name="prompt"
-                  placeholder="Title (e.g. 'Draft email')"
-                  value={values.prompt}
-                  onChange={(e) => setFieldValue("prompt", e.target.value)}
-                />
-                <ErrorMessage
-                  name="prompt"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="prompt"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel htmlFor="prompt">Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Title" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <div>
-                <label
-                  htmlFor="content"
-                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Content
-                </label>
-                <Textarea
-                  id="content"
-                  name="content"
-                  placeholder="Enter prompt content (e.g. 'Write a professional-sounding email about the following content')"
-                  rows={4}
-                  value={values.content}
-                  onChange={(e) => setFieldValue("content", e.target.value)}
-                />
-                <ErrorMessage
-                  name="content"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel htmlFor="content">Content</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Enter prompt content"
+                    {...field}
+                    className="min-h-40 max-h-96"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <Field name="active">
-                    {({ field }: FieldProps) => (
-                      <Checkbox {...field} checked={field.value} />
-                    )}
-                  </Field>
-                  <label className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Active prompt
-                  </label>
-                </div>
-              </div>
-            </div>
+          <FormField
+            control={form.control}
+            name="active"
+            render={({ field }) => (
+              <FormItem className="flex gap-2 items-center">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={(checked) => field.onChange(checked)}
+                  />
+                </FormControl>
+                <FormLabel className="!mt-0">Active prompt</FormLabel>
+              </FormItem>
+            )}
+          />
 
-            <div className="mt-6">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={
-                  isSubmitting ||
-                  (values.prompt === promptData.prompt &&
-                    values.content === promptData.content &&
-                    values.active === promptData.active)
-                }
-              >
-                {isSubmitting ? "Updating..." : "Update prompt"}
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+          <div className="mt-6 flex gap-2 justify-end">
+            <Button
+              disabled={form.formState.isSubmitting}
+              onClick={onClose}
+              variant="ghost"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                form.formState.isSubmitting ||
+                (form.getValues("prompt") === promptData.prompt &&
+                  form.getValues("content") === promptData.content &&
+                  form.getValues("active") === promptData.active)
+              }
+            >
+              {form.formState.isSubmitting ? "Updating..." : "Update prompt"}
+            </Button>
+          </div>
+        </form>
+      </Form>
     );
   };
 

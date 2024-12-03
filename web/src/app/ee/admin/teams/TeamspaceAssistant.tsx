@@ -53,7 +53,7 @@ const AssistantContent = ({
           {filteredAssistants.map((assistant) => (
             <div
               key={assistant.id}
-              className="border rounded-md flex items-start gap-4 cursor-pointer"
+              className="border rounded-md flex items-start gap-4 cursor-pointer hover:bg-background-subtle h-36"
               onClick={() => onSelect && onSelect(assistant)}
             >
               <div className="rounded-l-md h-full w-auto object-contain flex items-center justify-center p-4 border-r">
