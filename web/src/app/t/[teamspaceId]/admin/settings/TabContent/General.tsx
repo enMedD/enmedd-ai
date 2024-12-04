@@ -20,21 +20,25 @@ export default function General({
   const router = useRouter();
   const { toast } = useToast();
   const [teamspaceName, setTeamspaceName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [teamspaceDescription, setTeamspaceDescription] = useState("");
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [teamspaceLogo, setTeamspaceLogo] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTeamspaceData = async () => {
       try {
+        setLoading(true);
         const [teamspaceResponse, logoResponse] = await Promise.all([
           fetch(`/api/manage/admin/teamspace/${teamspaceId}`),
           fetch(`/api/teamspace/logo?teamspace_id=${teamspaceId}`),
         ]);
 
         if (teamspaceResponse.ok) {
-          const { name } = await teamspaceResponse.json();
+          const { name, description } = await teamspaceResponse.json();
           setTeamspaceName(name);
+          setTeamspaceDescription(description);
         } else {
           console.error("Failed to fetch teamspace data");
         }
@@ -48,6 +52,8 @@ export default function General({
         }
       } catch (error) {
         console.error("Error fetching teamspace information:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -55,16 +61,19 @@ export default function General({
   }, [teamspaceId]);
 
   const handleUpdate = async () => {
-    setIsLoading(true);
+    setIsUpdateLoading(true);
 
     try {
-      // Update teamspace name
+      // Update teamspace name and description
       const updateResponse = await fetch(
         `/api/manage/admin/teamspace?teamspace_id=${teamspaceId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: teamspaceName }),
+          body: JSON.stringify({
+            name: teamspaceName,
+            description: teamspaceDescription,
+          }),
         }
       );
 
@@ -114,12 +123,8 @@ export default function General({
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsUpdateLoading(false);
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTeamspaceName(e.target.value);
   };
 
   const handleLogoUpload = () => {
@@ -180,12 +185,28 @@ export default function General({
           <Input
             placeholder="Enter Teamspace Name"
             value={teamspaceName}
-            onChange={handleInputChange}
+            onChange={(e) => setTeamspaceName(e.target.value)}
           />
         ) : teamspaceName ? (
           <h3 className="truncate">{teamspaceName}</h3>
         ) : (
           <Skeleton className="w-full h-8 rounded-md" />
+        )}
+      </Section>
+
+      <Section title="Teamspace Description" isEditing>
+        {loading ? (
+          <Skeleton className="w-full h-8 rounded-md" />
+        ) : isEditing ? (
+          <Input
+            placeholder="Enter Teamspace Description"
+            value={teamspaceDescription}
+            onChange={(e) => setTeamspaceDescription(e.target.value)}
+          />
+        ) : teamspaceDescription ? (
+          <h3 className="truncate">{teamspaceDescription}</h3>
+        ) : (
+          <p className="mt-2 text-gray-500">No description available</p>
         )}
       </Section>
 
@@ -238,11 +259,11 @@ export default function General({
             <Button
               variant="outline"
               onClick={() => setIsEditing(false)}
-              disabled={isLoading}
+              disabled={isUpdateLoading}
             >
               Cancel
             </Button>
-            <Button onClick={handleUpdate} disabled={isLoading}>
+            <Button onClick={handleUpdate} disabled={isUpdateLoading}>
               Save Changes
             </Button>
           </>
