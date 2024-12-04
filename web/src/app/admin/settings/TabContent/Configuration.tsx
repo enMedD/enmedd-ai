@@ -35,10 +35,10 @@ function CheckboxComponent({
   return (
     <div className="flex text-sm mb-4 gap-3">
       <Checkbox checked={checked} onCheckedChange={onChange} id={label} />
-      <div className="grid leading-none">
+      <div className="grid leading-none gap-2">
         <ShadcnLabel
           htmlFor={label}
-          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="text-base font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           {label}
         </ShadcnLabel>
@@ -62,12 +62,12 @@ function Selector({
   onSelect: (value: string | number | null) => void;
 }) {
   return (
-    <div className="mb-8">
+    <div className="my-8">
       <div className="grid gap-1 pb-1.5">
         {label && (
           <ShadcnLabel
             htmlFor={label}
-            className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-base font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             {label}
           </ShadcnLabel>
@@ -92,46 +92,6 @@ function Selector({
         </Select>
       </div>
     </div>
-  );
-}
-
-function IntegerInput({
-  label,
-  sublabel,
-  value,
-  onChange,
-  id,
-  placeholder = "Enter a number",
-}: {
-  label: string;
-  sublabel: string;
-  value: number | null;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id?: string;
-  placeholder?: string;
-}) {
-  return (
-    <label className="flex flex-col text-sm mb-4">
-      <div className="grid gap-1 pb-1.5">
-        <ShadcnLabel
-          htmlFor={label}
-          className="font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-        </ShadcnLabel>
-        <SubLabel>{sublabel}</SubLabel>
-      </div>
-      <Input
-        type="number"
-        className="w-full max-w-xs"
-        value={value ?? ""}
-        onChange={onChange}
-        min="1"
-        step="1"
-        id={id}
-        placeholder={placeholder}
-      />
-    </label>
   );
 }
 
@@ -261,7 +221,7 @@ export function Configuration() {
         </p>
       </div>
 
-      <h3 className="mb-4 pt-8">Page Visibility</h3>
+      <h3 className="py-8">Page Visibility</h3>
 
       <CheckboxComponent
         label="Chat Page Enabled?"
@@ -299,26 +259,35 @@ export function Configuration() {
 
       {isEnterpriseEnabled && (
         <>
-          <h3 className="mb-4">Chat Settings</h3>
-          <IntegerInput
-            label="Chat Retention"
-            sublabel="Enter the maximum number of days you would like Arnold AI to retain chat messages. Leaving this field empty will cause Arnold AI to never delete chat messages."
-            value={chatRetention === "" ? null : Number(chatRetention)}
-            onChange={(e) => {
-              const numValue = parseInt(e.target.value, 10);
-              if (numValue >= 1 || e.target.value === "") {
-                setChatRetention(e.target.value);
-              }
-            }}
-            id="chatRetentionInput"
-            placeholder="Infinite Retention"
-          />
+          <div className="mb-1.5">
+            <h3>Chat Retention</h3>
+            <SubLabel>
+              Enter the maximum number of days you would like Arnold AI to
+              retain chat messages. Leaving this field empty will cause Arnold
+              AI to never delete chat messages.
+            </SubLabel>
+          </div>
           <div className="flex gap-2">
-            <Button onClick={handleClearChatRetention} variant="outline">
-              Retain All
-            </Button>
+            <Input
+              type="number"
+              className="w-full max-w-xs"
+              value={chatRetention === "" ? "" : (Number(chatRetention) ?? "")}
+              onChange={(e) => {
+                const numValue = parseInt(e.target.value, 10);
+                if (numValue >= 1 || e.target.value === "") {
+                  setChatRetention(e.target.value);
+                }
+              }}
+              min="1"
+              step="1"
+              id="chatRetentionInput"
+              placeholder="Infinite Retention"
+            />
             <Button onClick={handleSetChatRetention}>
               Set Retention Limit
+            </Button>
+            <Button onClick={handleClearChatRetention} variant="outline">
+              Retain All
             </Button>
           </div>
         </>
