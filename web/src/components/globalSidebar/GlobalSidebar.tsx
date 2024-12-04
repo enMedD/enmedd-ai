@@ -191,7 +191,7 @@ export function GlobalSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="!py-2.5">
+        <SidebarFooter>
           <UserSettingsButton defaultPage={defaultPage} />
         </SidebarFooter>
       </Sidebar>
