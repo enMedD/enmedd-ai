@@ -495,7 +495,7 @@ export default function General() {
                         </>
                       ) : (
                         <Image
-                          src="/arnold_ai.png"
+                          src="/logo.png"
                           alt="Logo"
                           width={160}
                           height={160}
@@ -548,7 +548,7 @@ export default function General() {
                         </>
                       ) : (
                         <Image
-                          src="/arnold_ai.png"
+                          src="/logo.png"
                           alt="Logo"
                           width={160}
                           height={160}

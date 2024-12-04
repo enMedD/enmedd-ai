@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
-import VanguardAi from "../../../public/arnold_ai.png";
+import VanguardAi from "../../../public/logo.png";
 
 import {
   Sidebar,
