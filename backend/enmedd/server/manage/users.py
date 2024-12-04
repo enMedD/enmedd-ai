@@ -326,15 +326,10 @@ def demote_workspace_admin(
 @router.get("/manage/users")
 def list_all_users(
     q: str | None = None,
-    accepted_page: int | None = 0,
-    invited_page: int | None = 0,
     teamspace_id: int | None = None,
     _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> AllUsersResponse:
-    if not q:
-        q = ""
-
     if teamspace_id:
         users_with_roles = (
             db_session.query(User, User__Teamspace.role)
@@ -364,30 +359,20 @@ def list_all_users(
     ]
 
     invited_emails = get_invited_users(teamspace_id=teamspace_id)
+    accepted_emails = {user.email for user, _ in users_with_roles}
+
+    filtered_invited_emails = [
+        email for email in invited_emails if email not in accepted_emails
+    ]
+
     if q:
         invited_emails = [
             email for email in invited_emails if re.search(r"{}".format(q), email, re.I)
         ]
 
-    USERS_PAGE_SIZE = 10
-    accepted_count = len(accepted_users)
-    invited_count = len(invited_emails)
-
-    accepted_pages = (accepted_count + USERS_PAGE_SIZE - 1) // USERS_PAGE_SIZE
-    invited_pages = (invited_count + USERS_PAGE_SIZE - 1) // USERS_PAGE_SIZE
-
-    paginated_accepted = accepted_users[
-        accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE
-    ]
-    paginated_invited = invited_emails[
-        invited_page * USERS_PAGE_SIZE : (invited_page + 1) * USERS_PAGE_SIZE
-    ]
-
     return AllUsersResponse(
-        accepted=paginated_accepted,
-        invited=[InvitedUserSnapshot(email=email) for email in paginated_invited],
-        accepted_pages=accepted_pages,
-        invited_pages=invited_pages,
+        accepted=accepted_users,
+        invited=[InvitedUserSnapshot(email=email) for email in filtered_invited_emails],
     )
 
 
