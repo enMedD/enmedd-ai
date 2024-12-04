@@ -40,7 +40,7 @@ from enmedd.auth.schemas import ChangePassword
 from enmedd.auth.schemas import UserRole
 from enmedd.auth.schemas import UserStatus
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import optional_user
@@ -329,7 +329,7 @@ def list_all_users(
     accepted_page: int | None = 0,
     invited_page: int | None = 0,
     teamspace_id: int | None = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> AllUsersResponse:
     if not q:
@@ -395,7 +395,7 @@ def list_all_users(
 def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
     teamspace_id: Optional[int] = None,
-    user: User | None = Depends(current_teamspace_admin_user),
+    user: User | None = Depends(current_admin_user_based_on_teamspace_id),
     workspace_id: Optional[int] = 0,  # Temporary set to 0
     db_session: Session = Depends(get_session),
 ) -> int:
@@ -454,7 +454,7 @@ def remove_email_from_invite_tokens(
 def remove_invited_user(
     user_email: UserByEmail,
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> int:
     user_emails = get_invited_users(teamspace_id)

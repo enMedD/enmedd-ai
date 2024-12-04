@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ee.enmedd.db.analytics import fetch_per_user_query_analytics
 from ee.enmedd.db.analytics import fetch_query_analytics
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
 
@@ -28,7 +28,7 @@ def get_query_analytics(
     start: datetime.datetime | None = None,
     end: datetime.datetime | None = None,
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> list[QueryAnalyticsResponse]:
     start = start or (datetime.datetime.utcnow() - datetime.timedelta(days=30))
@@ -61,7 +61,7 @@ def get_user_analytics(
     start: datetime.datetime | None = None,
     end: datetime.datetime | None = None,
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> list[UserAnalyticsResponse]:
     daily_query_usage_info_per_user = fetch_per_user_query_analytics(

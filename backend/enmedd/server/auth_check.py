@@ -5,6 +5,7 @@ from fastapi.dependencies.models import Dependant
 from starlette.routing import BaseRoute
 
 from enmedd.auth.users import current_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_user_with_expired_token
@@ -103,6 +104,7 @@ def check_router_auth(
                     or depends_fn == api_key_dep
                     or depends_fn == current_user_with_expired_token
                     or depends_fn == current_workspace_or_teamspace_admin_user
+                    or depends_fn == current_admin_user_based_on_teamspace_id
                 ):
                     found_auth = True
                     break
