@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CCPairBasicInfo } from "@/lib/types";
+import { CCPairBasicInfo, UserRole } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export function NoCompleteSourcesModal({
   ccPairs,
+  userRole,
 }: {
   ccPairs: CCPairBasicInfo[];
+  userRole: UserRole | undefined;
 }) {
   const { teamspaceId } = useParams();
   const router = useRouter();
@@ -56,24 +58,32 @@ export function NoCompleteSourcesModal({
             ⏳ None of your data sources have finished a full sync yet
           </AlertTitle>
           <AlertDescription>
-            <div>
-              You&apos;ve connected some data sources, but none of them have
-              finished syncing.
-              <br />
-              <br />
-              To view the status of your syncing data sources, head over to the{" "}
-              <Link
-                className="text-link"
-                href={
-                  teamspaceId
-                    ? `/t/${teamspaceId}/admin/indexing/status`
-                    : "/admin/indexing/status"
-                }
-              >
-                Existing Data Sources page
-              </Link>
-              .
-            </div>
+            {userRole === "basic" ? (
+              <p>
+                Some data sources aren't finished syncing yet. Please contact a
+                workspace admin for further assistance.
+              </p>
+            ) : (
+              <div>
+                You&apos;ve connected some data sources, but none of them have
+                finished syncing.
+                <br />
+                <br />
+                To view the status of your syncing data sources, head over to
+                the{" "}
+                <Link
+                  className="text-link"
+                  href={
+                    teamspaceId
+                      ? `/t/${teamspaceId}/admin/indexing/status`
+                      : "/admin/indexing/status"
+                  }
+                >
+                  Existing Data Sources page
+                </Link>
+                .
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       </div>

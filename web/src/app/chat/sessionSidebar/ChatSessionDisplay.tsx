@@ -21,12 +21,6 @@ import {
   MessageCircleMore,
   Trash,
 } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { WarningCircle } from "@phosphor-icons/react";
@@ -63,13 +57,11 @@ export function ChatSessionDisplay({
   chatSessionIdRef?: React.MutableRefObject<number | null>;
 }) {
   const router = useRouter();
-  const combinedSettings = useContext(SettingsContext);
   const [isRenamingChat, setIsRenamingChat] = useState(false);
   const [chatName, setChatName] = useState(chatSession.name);
   const [delayedSkipGradient, setDelayedSkipGradient] = useState(skipGradient);
   const settings = useContext(SettingsContext);
   const { toast } = useToast();
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   let { refreshChatSessions } = useChatContext();
   const [deletingChatSession, setDeletingChatSession] =

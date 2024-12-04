@@ -253,7 +253,7 @@ export default function General() {
   }
 
   return (
-    <div className="pt-6">
+    <div className="pt-8">
       <Formik
         initialValues={{
           workspace_name: workspaces?.workspace_name || null,
@@ -393,6 +393,10 @@ export default function General() {
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (
           <Form>
+            <h2 className="font-bold text:lg md:text-xl">
+              General Information
+            </h2>
+
             <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">

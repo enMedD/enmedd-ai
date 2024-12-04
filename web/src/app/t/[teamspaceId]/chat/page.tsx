@@ -49,7 +49,7 @@ export default async function Page({
       {shouldShowWelcomeModal && <WelcomeModal user={user} />}
 
       {shouldDisplaySourcesIncompleteModal && (
-        <NoCompleteSourcesModal ccPairs={ccPairs} />
+        <NoCompleteSourcesModal ccPairs={ccPairs} userRole={user?.role} />
       )}
 
       <AssistantsProvider

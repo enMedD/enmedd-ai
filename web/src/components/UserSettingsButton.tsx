@@ -21,6 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
 import Link from "next/link";
@@ -37,13 +38,12 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
   const { teamspaceId } = useParams();
   const { toast } = useToast();
   const { isMobile } = useSidebar();
-  const { user, isAdmin, isTeamspaceAdmin } = useUser();
+  const { user, isAdmin, isTeamspaceAdmin, isLoadingUser } = useUser();
 
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
   }
-  const settings = useContext(SettingsContext);
 
   const handleLogout = () => {
     logout().then((isSuccess) => {
@@ -67,7 +67,11 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton className="p-0 !size-11">
-              <UserProfile user={user} size={44} textSize="sm" />
+              {isLoadingUser ? (
+                <Skeleton className="w-11 h-11 rounded-full" />
+              ) : (
+                <UserProfile user={user} size={44} textSize="sm" />
+              )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -78,72 +82,117 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <UserProfile user={user} size={32} textSize="sm" />
+                {isLoadingUser ? (
+                  <div className="flex gap-2">
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <div className="spacey-1">
+                      <Skeleton className="w-full h-4 rounded-sm" />
+                      <Skeleton className="w-full h-4 rounded-sm" />
+                    </div>
+                  </div>
+                ) : (
+                  <UserProfile user={user} size={32} textSize="sm" />
+                )}
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {user?.full_name}
-                  </span>
-                  <span className="truncate text-xs">{user?.email}</span>
+                  {isLoadingUser ? (
+                    <>
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2 mt-1" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="truncate font-semibold">
+                        {user?.full_name}
+                      </span>
+                      <span className="truncate text-xs">{user?.email}</span>
+                    </>
+                  )}
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/profile" className="flex gap-2 items-center">
-                  <FeatureFlagWrapper flag="profile_page">
-                    <UserIcon size={16} strokeWidth={1.5} />
-                    Profile Settings
-                  </FeatureFlagWrapper>
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild>
-                <Link
-                  href={
-                    teamspaceId
-                      ? `/t/${teamspaceId}/${defaultPage}`
-                      : `/${defaultPage}`
-                  }
-                  className="flex gap-2 items-center"
-                >
-                  <MessageCircleMore size={16} strokeWidth={1.5} />
-                  Chat & Search
-                </Link>
-              </DropdownMenuItem>
-
-              {isTeamspaceAdmin && (
+              {isLoadingUser ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
                 <DropdownMenuItem asChild>
-                  <Link
-                    href={`/t/${teamspaceId}/admin/indexing/status`}
-                    className="flex gap-2 items-center"
-                  >
-                    <Wrench size={16} strokeWidth={1.5} />
-                    Teamspace Admin Panel
+                  <Link href="/profile" className="flex gap-2 items-center">
+                    <FeatureFlagWrapper flag="profile_page">
+                      <UserIcon size={16} strokeWidth={1.5} />
+                      Profile Settings
+                    </FeatureFlagWrapper>
                   </Link>
                 </DropdownMenuItem>
               )}
 
-              {isAdmin && (
+              {isLoadingUser ? (
+                <Skeleton className="h-10 w-full" />
+              ) : (
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/admin/indexing/status"
+                    href={
+                      teamspaceId
+                        ? `/t/${teamspaceId}/${defaultPage}`
+                        : `/${defaultPage}`
+                    }
                     className="flex gap-2 items-center"
                   >
-                    <Wrench size={16} strokeWidth={1.5} />
-                    Workspace Admin Panel
+                    <MessageCircleMore size={16} strokeWidth={1.5} />
+                    Chat & Search
                   </Link>
                 </DropdownMenuItem>
               )}
 
-              {showLogout && (
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="focus:bg-destructive-500"
-                >
-                  <LogOut size={16} strokeWidth={1.5} />
-                  Log out
-                </DropdownMenuItem>
+              {isLoadingUser && isTeamspaceAdmin ? (
+                <>
+                  <Skeleton className="h-10 w-full" />
+                </>
+              ) : (
+                isTeamspaceAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/t/${teamspaceId}/admin/indexing/status`}
+                      className="flex gap-2 items-center"
+                    >
+                      <Wrench size={16} strokeWidth={1.5} />
+                      Teamspace Admin Panel
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              )}
+
+              {isLoadingUser && isAdmin ? (
+                <>
+                  <Skeleton className="h-10 w-full" />
+                </>
+              ) : (
+                isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/admin/indexing/status"
+                      className="flex gap-2 items-center"
+                    >
+                      <Wrench size={16} strokeWidth={1.5} />
+                      Workspace Admin Panel
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              )}
+
+              {isLoadingUser ? (
+                <>
+                  <Skeleton className="h-10 w-full" />
+                </>
+              ) : (
+                showLogout && (
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="focus:bg-destructive-500"
+                  >
+                    <LogOut size={16} strokeWidth={1.5} />
+                    Log out
+                  </DropdownMenuItem>
+                )
               )}
             </DropdownMenuGroup>
           </DropdownMenuContent>
