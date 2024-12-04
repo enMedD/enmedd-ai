@@ -31,10 +31,12 @@ import { Skeleton } from "../ui/skeleton";
 export function GlobalSidebar({
   user,
   children,
+  isProfile,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user?: User | null;
   children?: React.ReactNode;
+  isProfile?: boolean;
 }) {
   const { teamspaceId } = useParams();
   const combinedSettings = useContext(SettingsContext);
@@ -57,7 +59,7 @@ export function GlobalSidebar({
     >
       <Sidebar
         collapsible="none"
-        className="!w-[calc(var(--sidebar-width-icon)_-_1px)] border-r"
+        className={`!w-[calc(var(--sidebar-width-icon)_-_1px)] ${isProfile ? "" : "border-r"}`}
       >
         <SidebarHeader className="p-0">
           <SidebarGroup>

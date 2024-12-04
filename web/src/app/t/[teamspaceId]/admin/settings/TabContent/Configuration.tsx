@@ -31,12 +31,12 @@ function CheckboxComponent({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex gap-3 mb-4 text-sm">
+    <div className="flex text-sm mb-8 gap-3">
       <Checkbox checked={checked} onCheckedChange={onChange} id={label} />
-      <div className="grid leading-none">
+      <div className="grid leading-none gap-2">
         <ShadcnLabel
           htmlFor={label}
-          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="text-base font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           {label}
         </ShadcnLabel>
@@ -60,18 +60,20 @@ function Selector({
   onSelect: (value: string | number | null) => void;
 }) {
   return (
-    <div className="mb-8">
-      {label && (
-        <ShadcnLabel
-          htmlFor={label}
-          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-        </ShadcnLabel>
-      )}
-      {subtext && <p className="text-sm text-muted-foreground">{subtext}</p>}
+    <div>
+      <div className="grid gap-1 pb-1.5">
+        {label && (
+          <ShadcnLabel
+            htmlFor={label}
+            className="text-base font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {label}
+          </ShadcnLabel>
+        )}
+        {subtext && <p className="text-sm text-muted-foreground">{subtext}</p>}
+      </div>
 
-      <div className="w-full mt-2 max-w-96">
+      <div className="w-full max-w-96">
         <Select value={selected} onValueChange={onSelect}>
           <SelectTrigger className="flex text-sm bg-background px-3 py-1.5 rounded-regular border border-border cursor-pointer">
             <SelectValue
@@ -290,8 +292,8 @@ export function Configuration() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="mt-8">
+    <form onSubmit={handleSubmit} className="space-y-12">
+      <div className="pt-8">
         <h2 className="font-bold text:lg md:text-xl">Page and Chat Setup</h2>
         <p className="text-sm">
           Manage general Arnold AI settings applicable to all users in the
@@ -300,10 +302,10 @@ export function Configuration() {
       </div>
 
       <div>
-        <h3 className="mb-4">Page Visibility</h3>
+        <h3 className="pb-8">Page Visibility</h3>
         <CheckboxComponent
-          label="Chat Page Enabled"
-          sublabel="Enable the chat page."
+          label="Chat Page Enabled?"
+          sublabel="If set, then the 'Chat' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
           checked={chatPageEnabled}
           onChange={handleCheckboxChange(
             setChatPageEnabled,
@@ -311,8 +313,8 @@ export function Configuration() {
           )}
         />
         <CheckboxComponent
-          label="Search Page Enabled"
-          sublabel="Enable the search page."
+          label="Search Page Enabled?"
+          sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
           checked={searchPageEnabled}
           onChange={handleCheckboxChange(
             setSearchPageEnabled,
@@ -333,19 +335,29 @@ export function Configuration() {
       />
 
       {isEnterpriseEnabled && (
-        <>
-          <h3 className="mb-4">Chat Settings</h3>
-          <IntegerInput
-            label="Chat Retention"
-            sublabel="Enter the maximum number of days you would like Arnold AI to retain chat messages. Leaving this field empty will cause Arnold AI to never delete chat messages."
-            value={chatRetention === null ? null : Number(chatRetention)}
+        <div>
+          <div className="mb-1.5">
+            <h3>Chat Retention</h3>
+            <SubLabel>
+              Enter the maximum number of days you would like Arnold AI to
+              retain chat messages. Leaving this field empty will cause Arnold
+              AI to never delete chat messages.
+            </SubLabel>
+          </div>
+          <Input
+            type="number"
+            className="w-full max-w-xs"
+            value={chatRetention === "" ? "" : (Number(chatRetention) ?? "")}
             onChange={(e) => {
               const value = e.target.value;
               setChatRetention(value === "" ? null : value);
             }}
+            min="1"
+            step="1"
+            id="chatRetentionInput"
             placeholder="Infinite Retention"
           />
-        </>
+        </div>
       )}
 
       <div className="mt-8">

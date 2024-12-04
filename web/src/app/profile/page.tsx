@@ -61,12 +61,12 @@ export default async function ProfilePage() {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "56px",
+          "--sidebar-width": "72px",
         } as React.CSSProperties
       }
       className="h-full w-full"
     >
-      <GlobalSidebar user={user} widthFit />
+      <GlobalSidebar user={user} widthFit isProfile />
       <SidebarInset className="w-full overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 lg:hidden">
           <SidebarTrigger className="-ml-1" />
