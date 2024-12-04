@@ -1763,14 +1763,9 @@ export function ChatPage({
       open={open}
       onOpenChange={setOpen}
       defaultOpen={open}
-      // style={
-      //   {
-      //     "--sidebar-width": "350px",
-      //   } as React.CSSProperties
-      // }
       style={
         {
-          "--sidebar-width": "400px",
+          "--sidebar-width": "350px",
         } as React.CSSProperties
       }
       className="h-full w-full"
@@ -1865,7 +1860,7 @@ Only used in the EE version of the app. */}
                           {liveAssistant && (
                             <div className="relative shrink-0">
                               <div className="flex w-full items-center p-4 lg:px-0 3xl:px-4 justify-between min-h-16">
-                                <div className="flex ml-auto gap-2 items-center">
+                                <div className="flex ml-auto gap-2 items-center pr-12 lg:pr-14 3xl:pr-12">
                                   {chatSessionIdRef.current !== null && (
                                     <FeatureFlagWrapper flag="share_chat">
                                       <ShareChatSessionModal
