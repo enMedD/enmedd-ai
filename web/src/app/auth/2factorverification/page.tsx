@@ -102,8 +102,6 @@ const Page = () => {
 
   const handleInputChange = (newValue: string) => {
     setValue(newValue);
-    console.log("new value length ", newValue.length);
-    // console.log("value length ", value.length)
     if (newValue.length === 6) {
       handleContinue(newValue);
     }
@@ -113,6 +111,7 @@ const Page = () => {
     <main className="h-full">
       {isLoading && <Spinner />}
       <HealthCheckBanner />
+      <WelcomeTopBar goToLogin />
 
       <div className="w-full h-full mx-auto flex flex-col justify-between overflow-y-auto">
         <div className="w-full xl:w-1/2 h-full flex items-center justify-center mx-auto px-6 lg:px-14 3xl:px-0">

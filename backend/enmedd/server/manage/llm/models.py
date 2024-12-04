@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import field_validator
 
 from enmedd.llm.llm_provider_options import fetch_models_for_provider
 
@@ -21,6 +22,12 @@ class TestLLMRequest(BaseModel):
     # model level
     default_model_name: str
     fast_default_model_name: str | None = None
+
+    @field_validator("provider", "default_model_name", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class LLMProviderDescriptor(BaseModel):

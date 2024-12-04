@@ -73,7 +73,7 @@ export default function SearchAnswer({
       ref={answerContainerRef}
       className={`my-4 ${searchAnswerExpanded ? "min-h-[16rem]" : "h-[16rem]"} ${!searchAnswerExpanded && searchAnswerOverflowing ? "overflow-y-hidden" : ""} p-4 border border-border-medium rounded-lg relative overflow-y-auto`}
     >
-      <div>
+      <div className="h-full">
         <div className="flex gap-x-2">
           <h2 className="my-auto mb-1 font-bold text-emphasis">AI Answer</h2>
 
@@ -114,7 +114,9 @@ export default function SearchAnswer({
           )}
         </div>
 
-        <div className={`pt-1 h-auto border-t border-border w-full`}>
+        <div
+          className={`pt-1 border-t border-border w-full min-h-[calc(100%_-_60px)]`}
+        >
           <AnswerSection
             answer={answer}
             quotes={quotes}
@@ -128,7 +130,7 @@ export default function SearchAnswer({
             <QuotesSection quotes={dedupedQuotes} isFetching={isFetching} />
           )}
 
-          {searchResponse.messageId !== null && (
+          {searchResponse.messageId === null && (
             <div className="flex justify-end">
               <CustomTooltip
                 trigger={

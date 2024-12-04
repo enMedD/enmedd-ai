@@ -1,27 +1,9 @@
-from uuid import UUID
-
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import WorkspaceUpdate
-from enmedd.auth.schemas import UserRole
-from enmedd.db.models import User
 from enmedd.db.models import Workspace
-from enmedd.db.models import Workspace__Users
-
-
-def _add_user__workspace_relationships__no_commit(
-    db_session: Session, workspace_id: int, user_ids: list[UUID]
-) -> list[Workspace__Users]:
-    """NOTE: does not commit the transaction."""
-    relationships = [
-        Workspace__Users(user_id=user_id, workspace_id=workspace_id)
-        for user_id in user_ids
-    ]
-    db_session.add_all(relationships)
-    return relationships
 
 
 # def put_workspace(
@@ -112,16 +94,26 @@ def upsert_workspace(
         workspace = db_session.scalar(select(Workspace).where(Workspace.id == id))
 
         if workspace:
-            # Update existing workspace
-            workspace.instance_id = instance_id
-            workspace.workspace_name = workspace_name
-            workspace.custom_logo = custom_logo
-            workspace.custom_header_logo = custom_header_logo
-            workspace.workspace_description = workspace_description
-            workspace.use_custom_logo = use_custom_logo
-            workspace.custom_header_content = custom_header_content
-            workspace.brand_color = brand_color
-            workspace.secondary_color = secondary_color
+            # Update only the fields that have new values
+            if instance_id is not None:
+                workspace.instance_id = instance_id
+            if workspace_name is not None:
+                workspace.workspace_name = workspace_name
+            if custom_logo is not None:
+                workspace.custom_logo = custom_logo
+            if custom_header_logo is not None:
+                workspace.custom_header_logo = custom_header_logo
+            if workspace_description is not None:
+                workspace.workspace_description = workspace_description
+            if use_custom_logo is not None:
+                if not workspace.use_custom_logo or use_custom_logo:
+                    workspace.use_custom_logo = use_custom_logo
+            if custom_header_content is not None:
+                workspace.custom_header_content = custom_header_content
+            if brand_color is not None:
+                workspace.brand_color = brand_color
+            if secondary_color is not None:
+                workspace.secondary_color = secondary_color
         else:
             # Create new workspace
             workspace = Workspace(
@@ -150,33 +142,6 @@ def upsert_workspace(
         # Roll back the changes in case of an error
         db_session.rollback()
         raise Exception(f"Error upserting workspace: {str(e)}") from e
-
-
-def get_workspaces_for_user(user_id: int, db_session: Session) -> list[Workspace]:
-    stmt = (
-        select(Workspace)
-        .join(Workspace__Users)
-        .join(User)
-        .where(User.id == user_id)
-        .options(joinedload(Workspace.users))
-    )
-
-    workspaces = db_session.scalars(stmt).all()
-    return workspaces
-
-
-def get_workspace_for_user_by_id(
-    workspace_id: int,
-    db_session: Session,
-    user: User | None = None,
-) -> Workspace | None:
-    stmt = select(Workspace).where(Workspace.id == workspace_id)
-
-    if user and user.role == UserRole.BASIC:
-        stmt = stmt.join(Workspace__Users).join(User).where(User.id == user.id)
-
-    workspace = db_session.scalar(stmt)
-    return workspace
 
 
 def get_workspace_settings(db_session: Session) -> Workspace | None:

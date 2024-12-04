@@ -9,9 +9,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ee.enmedd.utils.encryption import encrypt_password
-from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
+from enmedd.auth.users import current_workspace_or_teamspace_admin_user
 from enmedd.auth.users import is_user_admin
 from enmedd.configs.constants import KV_REINDEX_KEY
 from enmedd.configs.constants import NotificationType
@@ -68,7 +68,7 @@ def put_settings(
     db: Session = Depends(get_session),
     workspace_id: Optional[int] = 0,  # temporary set to 0
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_workspace_or_teamspace_admin_user),
 ) -> None:
     try:
         settings.check_validity()

@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import field_validator
 from pydantic import model_validator
 
 from enmedd.configs.app_configs import MASK_CREDENTIAL_PREFIX
@@ -50,6 +51,12 @@ class ConnectorBase(BaseModel):
     refresh_freq: int | None = None
     prune_freq: int | None = None
     indexing_start: datetime | None = None
+
+    @field_validator("name", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class ConnectorUpdateRequest(ConnectorBase):
@@ -103,6 +110,12 @@ class CredentialBase(BaseModel):
     source: DocumentSource
     name: str | None = None
     groups: list[int] = Field(default_factory=list)
+
+    @field_validator("name", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class CredentialSnapshot(CredentialBase):

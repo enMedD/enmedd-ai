@@ -1,6 +1,6 @@
 import { CHAT_SESSION_ID_KEY, FOLDER_ID_KEY } from "@/lib/drag/constants";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/context/ChatContext";
@@ -11,6 +11,12 @@ import { removeChatFromFolder } from "@/app/chat/folders/FolderManagement";
 import { FolderList } from "@/app/chat/folders/FolderList";
 import { ChatSessionDisplay } from "@/app/chat/sessionSidebar/ChatSessionDisplay";
 import { SearchSessionDisplay } from "@/app/chat/sessionSidebar/SearchSessionDisplay";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+} from "./ui/sidebar";
 
 export function PageTab({
   existingChats,
@@ -67,48 +73,45 @@ export function PageTab({
   };
 
   return (
-    <div
-      className={`mb-1 transition-all ease-in-out ${!isSearch ? "px-4" : ""}`}
-    >
+    <>
       {isSearch ? (
-        <div className={`transition duration-300 ease-in-out rounded-xs`}>
+        <SidebarGroup>
           {Object.entries(groupedChatSessions).map(
             ([dateRange, chatSessions]) => {
               if (chatSessions.length > 0) {
                 return (
-                  <div key={dateRange} className={`pt-4`}>
-                    <div className="px-4 text-sm text-dark-900 flex pb-2 font-semibold">
-                      {dateRange}
-                    </div>
-                    {chatSessions
-                      .filter((chat) => chat.folder_id === null)
-                      .map((chat) => {
-                        const isSelected = currentChatId === chat.id;
-                        return (
-                          <div key={`${chat.id}-${chat.name}`}>
-                            <SearchSessionDisplay
-                              chatSession={chat}
-                              isSelected={isSelected}
-                              toggleSideBar={toggleSideBar}
-                              teamspaceId={teamspaceId}
-                            />
-                          </div>
-                        );
-                      })}
-                    <Separator className="mt-3" />
-                  </div>
+                  <React.Fragment key={dateRange}>
+                    <SidebarGroupLabel>{dateRange}</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {chatSessions
+                          .filter((chat) => chat.folder_id === null)
+                          .map((chat) => {
+                            const isSelected = currentChatId === chat.id;
+                            return (
+                              <SearchSessionDisplay
+                                chatSession={chat}
+                                isSelected={isSelected}
+                                toggleSideBar={toggleSideBar}
+                                teamspaceId={teamspaceId}
+                                key={`${chat.id}-${chat.name}`}
+                              />
+                            );
+                          })}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                    <Separator className="mt-2" />
+                  </React.Fragment>
                 );
               }
             }
           )}
-        </div>
+        </SidebarGroup>
       ) : (
         <>
           {folders && folders.length > 0 && (
-            <div>
-              <div className="px-4 text-sm text-dark-900 flex pb-2 pt-4 font-semibold">
-                Folders
-              </div>
+            <SidebarGroup>
+              <SidebarGroupLabel>Folders</SidebarGroupLabel>
               <FolderList
                 folders={folders}
                 currentChatId={currentChatId}
@@ -116,18 +119,23 @@ export function PageTab({
                 chatSessionIdRef={chatSessionIdRef}
                 teamspaceId={teamspaceId}
               />
-              <Separator className="mt-3" />
-            </div>
+              {folders.length == 1 && folders[0].chat_sessions.length == 0 && (
+                <SidebarGroupLabel className="text-subtle">
+                  Drag a chat into a folder to save for later
+                </SidebarGroupLabel>
+              )}
+              <Separator className="mt-2" />
+            </SidebarGroup>
           )}
 
-          <div
+          <SidebarGroup
             onDragOver={(event) => {
               event.preventDefault();
               setIsDragOver(true);
             }}
             onDragLeave={() => setIsDragOver(false)}
             onDrop={handleDropToRemoveFromFolder}
-            className={`transition duration-300 ease-in-out ${
+            className={`transition duration-300 ease-in-out w-[calc(100%_-_16px)] mx-auto px-0 ${
               isDragOver ? "bg-hover" : ""
             } rounded-xs`}
           >
@@ -135,36 +143,37 @@ export function PageTab({
               ([dateRange, chatSessions]) => {
                 if (chatSessions.length > 0) {
                   return (
-                    <div key={dateRange} className={`pt-4`}>
-                      <div className="px-4 text-sm text-dark-900 flex pb-2 font-semibold">
-                        {dateRange}
-                      </div>
-                      {chatSessions
-                        .filter((chat) => chat.folder_id === null)
-                        .map((chat) => {
-                          const isSelected = currentChatId === chat.id;
-                          return (
-                            <div key={`${chat.id}-${chat.name}`}>
-                              <ChatSessionDisplay
-                                chatSession={chat}
-                                isSelected={isSelected}
-                                skipGradient={isDragOver}
-                                toggleSideBar={toggleSideBar}
-                                teamspaceId={teamspaceId}
-                                chatSessionIdRef={chatSessionIdRef}
-                              />
-                            </div>
-                          );
-                        })}
-                      <Separator className="mt-3" />
-                    </div>
+                    <React.Fragment key={dateRange}>
+                      <SidebarGroupLabel>{dateRange}</SidebarGroupLabel>
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {chatSessions
+                            .filter((chat) => chat.folder_id === null)
+                            .map((chat) => {
+                              const isSelected = currentChatId === chat.id;
+                              return (
+                                <ChatSessionDisplay
+                                  chatSession={chat}
+                                  isSelected={isSelected}
+                                  skipGradient={isDragOver}
+                                  toggleSideBar={toggleSideBar}
+                                  teamspaceId={teamspaceId}
+                                  chatSessionIdRef={chatSessionIdRef}
+                                  key={`${chat.id}-${chat.name}`}
+                                />
+                              );
+                            })}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                      <Separator className="mt-2" />
+                    </React.Fragment>
                   );
                 }
               }
             )}
-          </div>
+          </SidebarGroup>
         </>
       )}
-    </div>
+    </>
   );
 }

@@ -1,3 +1,5 @@
+import { SidebarMenuButton } from "./ui/sidebar";
+
 export function BasicClickable({
   children,
   onClick,
@@ -51,6 +53,37 @@ export function EmphasizedClickable({
   );
 }
 
+// export function BasicSelectable({
+//   children,
+//   selected,
+//   hasBorder,
+//   fullWidth = false,
+//   padding = "normal",
+// }: {
+//   children: string | JSX.Element;
+//   selected: boolean;
+//   hasBorder?: boolean;
+//   fullWidth?: boolean;
+//   padding?: "none" | "normal" | "extra";
+// }) {
+//   return (
+//     <div
+//       className={`
+//           rounded-regular
+//           text-sm
+//           ${padding && "px-4 py-2"}
+//           select-none
+//           flex items-center
+//           h-10
+//           ${hasBorder ? "border border-border" : ""}
+//           ${selected ? "bg-hover" : "hover:bg-hover-light"}
+//           ${fullWidth ? "w-full" : ""}`}
+//     >
+//       {children}
+//     </div>
+//   );
+// }
+
 export function BasicSelectable({
   children,
   selected,
@@ -65,19 +98,12 @@ export function BasicSelectable({
   padding?: "none" | "normal" | "extra";
 }) {
   return (
-    <div
-      className={`
-          rounded-regular
-          text-sm
-          ${padding && "px-4 py-2"}
-          select-none
-          flex items-center
-          h-10
-          ${hasBorder ? "border border-border" : ""}
-          ${selected ? "bg-hover" : "hover:bg-hover-light"} 
-          ${fullWidth ? "w-full" : ""}`}
+    <SidebarMenuButton
+      className={`${hasBorder ? "border border-border" : ""}
+               ${selected ? "bg-hover hover:bg-hover" : "hover:bg-hover-light"}
+               ${fullWidth ? "w-full" : ""}`}
     >
       {children}
-    </div>
+    </SidebarMenuButton>
   );
 }

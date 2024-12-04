@@ -180,10 +180,8 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     groups: Mapped[list["Teamspace"]] = relationship(
         "Teamspace", secondary="user__teamspace", back_populates="users", lazy="joined"
     )
-    workspace: Mapped[list["Workspace"]] = relationship(
-        "Workspace", secondary="workspace__users", back_populates="users", lazy="joined"
-    )
     teamspace = relationship("Teamspace", back_populates="users")
+    workspaces = relationship("Workspaces", back_populates="creator")
 
 
 class InputPrompt(Base):
@@ -234,6 +232,7 @@ class InviteToken(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     token: Mapped[str] = mapped_column(String, unique=True)
     emails: Mapped[JSON_ro] = mapped_column(postgresql.JSONB(), nullable=True)
+    teamspace_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -379,20 +378,6 @@ class Assistant__Tool(Base):
     )
     tool_id: Mapped[int] = mapped_column(
         ForeignKey("tool.id", ondelete="CASCADE"), primary_key=True
-    )
-
-
-class Workspace__Users(Base):
-    __tablename__ = "workspace__users"
-
-    workspace_id: Mapped[int] = mapped_column(
-        ForeignKey("workspace.id", ondelete="CASCADE"), primary_key=True
-    )
-    user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("user.id", ondelete="CASCADE"), primary_key=True
-    )
-    role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, native_enum=False, default=UserRole.BASIC)
     )
 
 
@@ -1621,6 +1606,7 @@ class User__Teamspace(Base):
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, native_enum=False, default=UserRole.BASIC)
     )
+    user: Mapped["User"] = relationship("User", lazy="joined")
 
 
 class Teamspace__ConnectorCredentialPair(Base):
@@ -1706,6 +1692,7 @@ class Teamspace(Base):
     is_up_for_deletion: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False
     )
+    description: Mapped[str] = mapped_column(Text, nullable=True)
     logo: Mapped[str] = mapped_column(String, nullable=True)
     creator: Mapped[User] = relationship("User", back_populates="teamspace")
     users: Mapped[list[User]] = relationship(
@@ -1930,7 +1917,7 @@ Workspace Tables
 class Workspace(Base):
     __tablename__ = "workspace"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, default=0)
     instance_id: Mapped[int | None] = mapped_column(
         ForeignKey("instance.id", ondelete="CASCADE"), nullable=True
     )
@@ -1942,10 +1929,6 @@ class Workspace(Base):
     custom_header_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     brand_color: Mapped[str | None] = mapped_column(Text, nullable=True)
     secondary_color: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    users: Mapped[list[User]] = relationship(
-        "User", secondary=Workspace__Users.__table__, viewonly=True
-    )
 
     groups: Mapped[list["Teamspace"]] = relationship(
         "Teamspace",
@@ -2026,3 +2009,23 @@ class TeamspaceSettings(Base):
     teamspace: Mapped["Teamspace"] = relationship(
         "Teamspace", back_populates="settings"
     )
+
+
+class Workspaces(Base):
+    __tablename__ = "workspaces"
+
+    name: Mapped[str] = mapped_column(String, primary_key=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    logo: Mapped[str] = mapped_column(String, nullable=True)
+    creator_id: Mapped[UUID] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
+    creator: Mapped[User] = relationship("User", back_populates="workspaces")
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    num_users: Mapped[int] = mapped_column(Integer, nullable=True)
+    num_connectors: Mapped[int] = mapped_column(Integer, nullable=True)
+    num_assistants: Mapped[int] = mapped_column(Integer, nullable=True)
+    num_teamspace: Mapped[int] = mapped_column(Integer, nullable=True)
+    embedding_storage: Mapped[str] = mapped_column(String, nullable=True)

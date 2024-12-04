@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import field_validator
 
 from enmedd.db.models import Teamspace as TeamspaceModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
@@ -16,7 +17,6 @@ from enmedd.server.manage.models import UserPreferences
 from enmedd.server.models import MinimalTeamspaceSnapshot
 from enmedd.server.models import MinimalUserwithNameSnapshot
 from enmedd.server.models import MinimalWorkspaceSnapshot
-from enmedd.server.query_and_chat.models import ChatSessionDetails
 from enmedd.server.settings.models import TeamspaceSettings
 from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 
@@ -24,12 +24,12 @@ from enmedd.server.token_rate_limits.models import TokenRateLimitDisplay
 class Teamspace(BaseModel):
     id: int
     name: str
+    description: Optional[str] = None
     creator: MinimalUserwithNameSnapshot
     users: list[UserInfo]
     cc_pairs: list[ConnectorCredentialPairDescriptor]
     document_sets: list[DocumentSet]
     assistants: list[AssistantSnapshot]
-    chat_sessions: list[ChatSessionDetails]
     is_up_to_date: bool
     is_up_for_deletion: bool
     logo: Optional[str] = None
@@ -42,6 +42,7 @@ class Teamspace(BaseModel):
         return cls(
             id=teamspace_model.id,
             name=teamspace_model.name,
+            description=teamspace_model.description,
             creator=MinimalUserwithNameSnapshot(
                 id=teamspace_model.creator.id,
                 email=teamspace_model.creator.email,
@@ -105,19 +106,6 @@ class Teamspace(BaseModel):
                 for assistant in teamspace_model.assistants
                 if AssistantSnapshot.from_model(assistant) is not None
             ],
-            chat_sessions=[
-                ChatSessionDetails(
-                    id=chat_session.id,
-                    name=chat_session.description,
-                    description=chat_session.description,
-                    assistant_id=chat_session.assistant_id,
-                    time_created=chat_session.time_created.isoformat(),
-                    shared_status=chat_session.shared_status,
-                    folder_id=chat_session.folder_id,
-                    current_alternate_model=chat_session.current_alternate_model,
-                )
-                for chat_session in teamspace_model.chat_sessions
-            ],
             is_up_to_date=teamspace_model.is_up_to_date,
             is_up_for_deletion=teamspace_model.is_up_for_deletion,
             logo=teamspace_model.logo,
@@ -140,13 +128,31 @@ class Teamspace(BaseModel):
         )
 
 
+class TeamspaceUserRole(str, Enum):
+    BASIC = "basic"
+    CREATOR = "creator"
+    ADMIN = "admin"
+
+
+class UserWithRole(BaseModel):
+    user_id: UUID
+    role: Optional[str] = TeamspaceUserRole.BASIC
+
+
 class TeamspaceCreate(BaseModel):
     name: str
-    user_ids: list[UUID]
+    description: Optional[str] = None
+    users: List[UserWithRole]
     cc_pair_ids: Optional[List[int]] = None
     document_set_ids: Optional[List[int]] = None
     assistant_ids: Optional[List[int]] = None
     workspace_id: Optional[int] = 0
+
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class TeamspaceUpdate(BaseModel):
@@ -158,14 +164,21 @@ class TeamspaceUpdate(BaseModel):
 
 class TeamspaceUpdateName(BaseModel):
     name: str
+    description: Optional[str] = None
 
-
-class TeamspaceUserRole(str, Enum):
-    BASIC = "basic"
-    CREATOR = "creator"
-    ADMIN = "admin"
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class UpdateUserRoleRequest(BaseModel):
     user_email: str
     new_role: TeamspaceUserRole
+
+    @field_validator("user_email", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value

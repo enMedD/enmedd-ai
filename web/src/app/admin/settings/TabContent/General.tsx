@@ -6,14 +6,21 @@ import { useContext, useEffect, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
-import { TextFormField } from "@/components/admin/connectors/Field";
+import { SubLabel, TextFormField } from "@/components/admin/connectors/Field";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import getPalette from "tailwindcss-palette-generator";
-import { useTheme } from "@/hooks/useTheme";
+import { HexColorPicker } from "react-colorful";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { buildImgUrl } from "@/app/chat/files/images/utils";
+import Image from "next/image";
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -24,7 +31,6 @@ export default function General() {
 
   const { toast } = useToast();
   const router = useRouter();
-  const themes = useTheme();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [selectedHeaderLogo, setSelectedHeaderLogo] = useState<File | null>(
     null
@@ -40,8 +46,8 @@ export default function General() {
   const [loading, setLoading] = useState(false);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [brand500, setBrand500] = useState("Loading...");
-  const [secondary500, setSecondary500] = useState("Loading...");
+  const [primaryColor, setPrimaryColor] = useState("#65007E");
+  const [secondaryColor, setSecondaryColor] = useState("#EEB3FE");
 
   useEffect(() => {
     const fetchThemes = async () => {
@@ -58,8 +64,9 @@ export default function General() {
         }
 
         const themes = await response.json();
-        setBrand500(themes.brand["500"]);
-        setSecondary500(themes.secondary["500"]);
+
+        setPrimaryColor(themes.brand["500"]);
+        setSecondaryColor(themes.secondary["500"]);
       } catch (error) {
         console.error("Error fetching themes:", error);
       }
@@ -179,15 +186,82 @@ export default function General() {
     }));
   };
 
+  async function deleteLogo() {
+    try {
+      const response = await fetch("/api/admin/workspace/logo", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Workspace Logo Deleted",
+          description: "The workspace logo has been successfully removed.",
+          variant: "success",
+        });
+        window.location.reload();
+      } else {
+        const errorMsg = (await response.json()).detail;
+        toast({
+          title: "Failed to delete workspace logo",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong while deleting the workspace logo.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function deleteHeaderLogo() {
+    try {
+      const response = await fetch("/api/admin/workspace/header-logo", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Header Logo Deleted",
+          description: "The header logo has been successfully removed.",
+          variant: "success",
+        });
+        window.location.reload();
+      } else {
+        const errorMsg = (await response.json()).detail;
+        toast({
+          title: "Failed to delete header logo",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong while deleting the header logo.",
+        variant: "destructive",
+      });
+    }
+  }
+
   return (
-    <div className="pt-6">
+    <div className="pt-8">
       <Formik
         initialValues={{
           workspace_name: workspaces?.workspace_name || null,
           workspace_description: workspaces?.workspace_description || null,
           use_custom_logo: workspaces?.use_custom_logo || false,
           use_custom_logotype: workspaces?.use_custom_logotype || false,
-          custom_header_logo: workspaces?.custom_header_logo || "",
+          custom_logo: workspaces?.custom_logo || null,
+          custom_header_logo: workspaces?.custom_header_logo || null,
           custom_header_content: workspaces?.custom_header_content || "",
           two_lines_for_chat_header:
             workspaces?.two_lines_for_chat_header || false,
@@ -204,6 +278,7 @@ export default function General() {
           workspace_name: Yup.string().nullable(),
           workspace_description: Yup.string().nullable(),
           use_custom_logo: Yup.boolean().required(),
+          custom_logo: Yup.string().nullable(),
           custom_header_logo: Yup.string().nullable(),
           use_custom_logotype: Yup.boolean().required(),
           custom_header_content: Yup.string().nullable(),
@@ -318,6 +393,10 @@ export default function General() {
       >
         {({ isSubmitting, values, setValues, setFieldValue }) => (
           <Form>
+            <h2 className="font-bold text:lg md:text-xl">
+              General Information
+            </h2>
+
             <div className="py-8 ">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
@@ -390,11 +469,41 @@ export default function General() {
                   </p>
                 </div>
 
-                <div className="md:w-[500px]">
+                <div className="md:w-[500px] flex flex-col gap-4">
                   <ImageUpload
                     selectedFile={selectedLogo}
                     setSelectedFile={setSelectedLogo}
                   />
+                  {!selectedLogo && (
+                    <div className="space-y-2">
+                      <SubLabel>Current Logo:</SubLabel>
+                      {workspaces?.custom_logo ? (
+                        <>
+                          <img
+                            // src={"/api/workspace/logo?workspace_id=" + 0}
+                            src={buildImgUrl(workspaces?.custom_logo)}
+                            alt="Logo"
+                            className="h-40 object-contain w-40"
+                          />
+                          <Button
+                            variant="destructive"
+                            type="button"
+                            onClick={deleteLogo}
+                          >
+                            Remove
+                          </Button>
+                        </>
+                      ) : (
+                        <Image
+                          src="/arnold_ai.png"
+                          alt="Logo"
+                          width={160}
+                          height={160}
+                          className="h-40 object-contain w-40"
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -403,7 +512,7 @@ export default function General() {
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
-                    htmlFor="custom_logo"
+                    htmlFor="custom_header_logo"
                     className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
                   >
                     Header Logo
@@ -414,16 +523,45 @@ export default function General() {
                   </p>
                 </div>
 
-                <div className="md:w-[500px]">
+                <div className="md:w-[500px] flex flex-col gap-4">
                   <ImageUpload
                     selectedFile={selectedHeaderLogo}
                     setSelectedFile={setSelectedHeaderLogo}
                   />
+                  {!selectedHeaderLogo && (
+                    <div className="space-y-2">
+                      <SubLabel>Current Header Logo:</SubLabel>
+                      {workspaces?.custom_header_logo ? (
+                        <>
+                          <img
+                            src={buildImgUrl(workspaces?.custom_header_logo)}
+                            alt="Logo"
+                            className="h-40 object-contain w-40"
+                          />
+                          <Button
+                            variant="destructive"
+                            type="button"
+                            onClick={deleteHeaderLogo}
+                          >
+                            Remove
+                          </Button>
+                        </>
+                      ) : (
+                        <Image
+                          src="/arnold_ai.png"
+                          alt="Logo"
+                          width={160}
+                          height={160}
+                          className="h-40 object-contain w-40"
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className="pt-8">
+            <div className="py-8">
               <div className="flex gap-5 flex-col md:flex-row">
                 <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                   <Label
@@ -433,7 +571,7 @@ export default function General() {
                     Brand Theme
                   </Label>
                   <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                    Select your customize brand color.
+                    Select your customized brand color.
                   </p>
                 </div>
 
@@ -442,23 +580,48 @@ export default function General() {
                     <span className="text-sm text-subtle w-32">
                       Primary color:
                     </span>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex gap-2">
-                        <TextFormField
-                          name="brand_color"
-                          width="w-32"
-                          optional
-                          noPadding
-                          value={brand500}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            setBrand500(e.target.value);
-                          }}
-                        />
+                    <div className="flex gap-2">
+                      {/* <Input
+                        name="brand_color"
+                        className="w-32"
+                        value={values.brand_color || primaryColor}
+                        onChange={(e) => {
+                          setFieldValue("brand_color", e.target.value);
+                          setPrimaryColor(e.target.value);
+                        }}
+                        required
+                      /> */}
+                      <Input
+                        name="brand_color"
+                        className="w-32"
+                        value={values.brand_color}
+                        onChange={(e) => {
+                          setFieldValue("brand_color", e.target.value);
+                          setPrimaryColor(e.target.value);
+                        }}
+                        required
+                      />
 
-                        <div className="w-10 h-10 bg-brand-500 rounded-full outline-brand-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
-                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <div
+                            className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                            style={{
+                              backgroundColor: primaryColor,
+                              outlineColor: primaryColor,
+                            }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <HexColorPicker
+                            color={primaryColor}
+                            onChange={(color) => {
+                              setPrimaryColor(color);
+                              setFieldValue("brand_color", color);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
@@ -467,25 +630,54 @@ export default function General() {
                       Secondary color:
                     </span>
                     <div className="flex gap-2">
-                      <TextFormField
+                      {/* <Input
                         name="secondary_color"
-                        width="w-32"
-                        optional
-                        noPadding
-                        value={secondary500}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setSecondary500(e.target.value);
+                        className="w-32"
+                        value={values.secondary_color || secondaryColor}
+                        onChange={(e) => {
+                          setFieldValue("secondary_color", e.target.value);
+                          setSecondaryColor(e.target.value);
                         }}
+                        required
+                      /> */}
+                      <Input
+                        name="secondary_color"
+                        className="w-32"
+                        value={values.secondary_color}
+                        onChange={(e) => {
+                          setFieldValue("secondary_color", e.target.value);
+                          setSecondaryColor(e.target.value);
+                        }}
+                        required
                       />
 
-                      <div className="w-10 h-10 bg-secondary-500 rounded-full outline-secondary-500 outline-1 outline border-white border-2 cursor-pointer shrink-0" />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <div
+                            className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                            style={{
+                              backgroundColor: secondaryColor,
+                              outlineColor: secondaryColor,
+                            }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <HexColorPicker
+                            color={secondaryColor}
+                            onChange={(color) => {
+                              setSecondaryColor(color);
+                              setFieldValue("secondary_color", color);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 pt-6 flex justify-end border-t">
               <Button type="submit">Update</Button>
             </div>
 
@@ -545,8 +737,6 @@ export default function General() {
                               name="smtp_server"
                               label="SMTP Server"
                               placeholder="Enter hostname"
-                              //remove this
-                              optional
                               value={formData?.smtp_server || ""}
                               onChange={handleChange}
                             />
@@ -555,13 +745,8 @@ export default function General() {
                               name="smtp_port"
                               label="SMTP Port"
                               placeholder="Enter port"
-                              optional
                               type="text"
-                              value={
-                                formData.smtp_port
-                                  ? formData.smtp_port.toString()
-                                  : "587"
-                              }
+                              value={formData.smtp_port?.toString() || ""}
                               onChange={handleChange}
                             />
 
@@ -569,8 +754,6 @@ export default function General() {
                               name="smtp_username"
                               label="SMTP Username (email)"
                               placeholder="Enter username"
-                              //remove this
-                              optional
                               value={formData?.smtp_username || ""}
                               onChange={handleChange}
                             />
@@ -579,8 +762,6 @@ export default function General() {
                               name="smtp_password"
                               label="SMTP Password"
                               placeholder="Enter password"
-                              //remove this
-                              optional
                               type="password"
                               value={formData?.smtp_password || ""}
                               onChange={handleChange}
@@ -593,7 +774,9 @@ export default function General() {
                                 SMTP Server:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_server || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_server || "None"}
                               </span>
                             </div>
 
@@ -602,7 +785,9 @@ export default function General() {
                                 SMTP Port:
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_port || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_port || "None"}
                               </span>
                             </div>
 
@@ -611,7 +796,9 @@ export default function General() {
                                 SMTP Username (email):
                               </span>
                               <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {settings.settings.smtp_username || "None"}
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_username || "None"}
                               </span>
                             </div>
 
@@ -620,7 +807,11 @@ export default function General() {
                                 SMTP Password:
                               </span>
                               <span className="font-semibold text-inverted-inverted truncate">
-                                &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;
+                                {loading
+                                  ? "Syncing"
+                                  : settings.settings.smtp_password
+                                    ? "●●●●●●●●"
+                                    : "None"}
                               </span>
                             </div>
                           </>
@@ -640,16 +831,22 @@ export default function General() {
                               <Button
                                 type="button"
                                 onClick={async () => {
-                                  await updateSmtpSettings(0, formData);
-                                  setFormData({
-                                    smtp_server: "",
-                                    smtp_port: 0,
-                                    smtp_username: "",
-                                    smtp_password: "",
-                                  });
                                   setIsEditing(false);
+                                  await updateSmtpSettings(0, formData);
                                 }}
-                                disabled={loading}
+                                disabled={
+                                  loading ||
+                                  JSON.stringify(formData) ===
+                                    JSON.stringify({
+                                      smtp_server:
+                                        settings.settings.smtp_server,
+                                      smtp_port: settings.settings.smtp_port,
+                                      smtp_username:
+                                        settings.settings.smtp_username,
+                                      smtp_password:
+                                        settings.settings.smtp_password,
+                                    })
+                                }
                               >
                                 Save
                               </Button>
@@ -659,6 +856,7 @@ export default function General() {
                               onClick={() => setIsEditing(true)}
                               type="button"
                               variant="outline"
+                              disabled={loading}
                             >
                               Edit
                             </Button>

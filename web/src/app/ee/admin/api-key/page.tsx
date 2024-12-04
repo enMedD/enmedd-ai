@@ -9,12 +9,9 @@ import useSWR, { mutate } from "swr";
 import { Spinner } from "@/components/Spinner";
 import { deleteApiKey, regenerateApiKey } from "./lib";
 import { Button } from "@/components/ui/button";
-import { usePopup } from "@/components/admin/connectors/Popup";
 import { useState } from "react";
-import { Table, Title } from "@tremor/react";
 import { DeleteButton } from "@/components/DeleteButton";
-import { FiCopy, FiEdit2, FiRefreshCw, FiX } from "react-icons/fi";
-import { Modal } from "@/components/Modal";
+import { FiRefreshCw } from "react-icons/fi";
 import { EnmeddApiKeyForm } from "./EnmeddApiKeyForm";
 import { APIKey } from "./types";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -23,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
 import { Divider } from "@/components/Divider";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -31,6 +29,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DeleteModal } from "@/components/DeleteModal";
 
 const API_KEY_TEXT = `
 API Keys allow you to access Vanguard AI APIs programmatically. Click the button below to generate a new API Key.
@@ -46,37 +45,28 @@ function NewApiKeyModal({
   const [isCopyClicked, setIsCopyClicked] = useState(false);
 
   return (
-    <div className="h-full">
-      <div>
-        <p className="pb-4">
-          Make sure you copy your new API key. You won’t be able to see this key
-          again.
-        </p>
-
-        <div className="flex pt-2 pb-10">
-          <b className="my-auto break-all">{apiKey}</b>
-          <CustomTooltip
-            trigger={
-              <Button
-                onClick={() => {
-                  setIsCopyClicked(true);
-                  navigator.clipboard.writeText(apiKey);
-                  setTimeout(() => {
-                    setIsCopyClicked(false);
-                  }, 2000);
-                }}
-                variant="ghost"
-                size="icon"
-                className="ml-2"
-              >
-                {isCopyClicked ? <Check size="16" /> : <Copy size="16" />}
-              </Button>
-            }
+    <div className="flex pb-10">
+      <b className="my-auto break-all">{apiKey}</b>
+      <CustomTooltip
+        trigger={
+          <Button
+            onClick={() => {
+              setIsCopyClicked(true);
+              navigator.clipboard.writeText(apiKey);
+              setTimeout(() => {
+                setIsCopyClicked(false);
+              }, 2000);
+            }}
+            variant="ghost"
+            size="icon"
+            className="ml-2"
           >
-            {isCopyClicked ? "Copied" : "Copy"}
-          </CustomTooltip>
-        </div>
-      </div>
+            {isCopyClicked ? <Check size="16" /> : <Copy size="16" />}
+          </Button>
+        }
+      >
+        {isCopyClicked ? "Copied" : "Copy"}
+      </CustomTooltip>
     </div>
   );
 }
@@ -93,6 +83,8 @@ function Main() {
   const [keyIsGenerating, setKeyIsGenerating] = useState(false);
   const [showCreateUpdateForm, setShowCreateUpdateForm] = useState(false);
   const [selectedApiKey, setSelectedApiKey] = useState<APIKey | undefined>();
+  const [apiKeyToDelete, setApiKeyToDelete] = useState<APIKey | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleEdit = (apiKey: APIKey) => {
     setSelectedApiKey(apiKey);
@@ -130,6 +122,7 @@ function Main() {
           onClose={() => setShowCreateUpdateForm(false)}
           open={showCreateUpdateForm}
           title={isUpdate ? "Update API Key" : "Create a new API Key"}
+          description="Choose a memorable name for your API key. This is optional and can be added or changed later."
         >
           <EnmeddApiKeyForm
             onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
@@ -147,12 +140,43 @@ function Main() {
 
   return (
     <div>
+      {isDeleteModalOpen && apiKeyToDelete && (
+        <DeleteModal
+          title="Are you sure you want to remove this api key?"
+          description="This action will remove the selected api key."
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          onSuccess={async () => {
+            const response = await deleteApiKey(apiKeyToDelete.api_key_id);
+
+            if (response.ok) {
+              toast({
+                title: "Deletion Success",
+                description: `API Key deleted successfully.`,
+                variant: "success",
+              });
+              setIsDeleteModalOpen(false);
+            } else {
+              const errorMsg = (await response.json()).detail;
+              toast({
+                title: "Deletion Failed",
+                description: `Failed to delete API Key: ${errorMsg}`,
+                variant: "destructive",
+              });
+            }
+            mutate("/api/admin/api-key");
+          }}
+        />
+      )}
+
       {fullApiKey && (
         <CustomModal
           trigger={null}
           onClose={() => setFullApiKey(null)}
           open={Boolean(fullApiKey)}
           title="New API Key"
+          description="Make sure you copy your new API key. You won’t be able to see this key
+          again."
         >
           <NewApiKeyModal
             apiKey={fullApiKey}
@@ -170,6 +194,7 @@ function Main() {
         onClose={() => setShowCreateUpdateForm(false)}
         open={showCreateUpdateForm}
         title={isUpdate ? "Update API Key" : "Create a new API Key"}
+        description="Choose a memorable name for your API key. This is optional and can be added or changed later."
       >
         <EnmeddApiKeyForm
           onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
@@ -189,7 +214,7 @@ function Main() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="text-sm">
+              <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>API Key</TableHead>
                 <TableHead>Role</TableHead>
@@ -227,7 +252,7 @@ function Main() {
                     {apiKey.api_key_role === "admin" ? (
                       <Badge>ADMIN</Badge>
                     ) : (
-                      <Badge variant="secondary">BASIC</Badge>
+                      <Badge variant="secondary">USER</Badge>
                     )}
                   </TableCell>
                   <TableCell>
@@ -257,18 +282,9 @@ function Main() {
                   </TableCell>
                   <TableCell>
                     <DeleteButton
-                      onClick={async () => {
-                        const response = await deleteApiKey(apiKey.api_key_id);
-                        if (!response.ok) {
-                          const errorMsg = await response.text();
-                          toast({
-                            title: "Deletion Failed",
-                            description: `Failed to delete API Key: ${errorMsg}`,
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        mutate("/api/admin/api-key");
+                      onClick={() => {
+                        setApiKeyToDelete(apiKey);
+                        setIsDeleteModalOpen(true);
                       }}
                     />
                   </TableCell>

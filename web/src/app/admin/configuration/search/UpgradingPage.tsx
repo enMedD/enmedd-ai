@@ -5,7 +5,7 @@ import {
   FailedConnectorIndexingStatus,
   ValidStatuses,
 } from "@/lib/types";
-import { Button, Text, Title } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import { useMemo, useState } from "react";
 import useSWR, { mutate } from "swr";
 import { ReindexingProgressTable } from "../../../../components/embedding/ReindexingProgressTable";
@@ -17,8 +17,8 @@ import {
 import { Connector } from "@/lib/connectors/connectors";
 import { FailedReIndexAttempts } from "@/components/embedding/FailedReIndexAttempts";
 import { useToast } from "@/hooks/use-toast";
-import { CustomModal } from "@/components/CustomModal";
 import { DeleteModal } from "@/components/DeleteModal";
+import { Button } from "@/components/ui/button";
 
 export default function UpgradingPage({
   futureEmbeddingModel,
@@ -94,18 +94,11 @@ export default function UpgradingPage({
     <>
       {isCancelling && (
         <DeleteModal
-          title="Cancel Embedding Model Switch"
+          title="Are you sure you want to cancel?"
           onClose={() => setIsCancelling(false)}
           open={isCancelling}
-          description={
-            <div>
-              Are you sure you want to cancel?
-              <br />
-              <br />
-              Cancelling will revert to the previous model and all progress will
-              be lost.
-            </div>
-          }
+          description="Cancelling will revert to the previous model and all progress will
+              be lost."
           onSuccess={onCancel}
         />
       )}
@@ -114,15 +107,14 @@ export default function UpgradingPage({
         <div>
           <Title className="mt-8">Current Upgrade Status</Title>
           <div className="mt-4">
-            <div className="italic text-lg mb-2">
+            <p className="italic mb-2">
               Currently in the process of switching to:{" "}
               {futureEmbeddingModel.model_name}
-            </div>
+            </p>
 
             <Button
-              color="red"
-              size="xs"
               className="mt-4"
+              variant="destructive"
               onClick={() => setIsCancelling(true)}
             >
               Cancel
