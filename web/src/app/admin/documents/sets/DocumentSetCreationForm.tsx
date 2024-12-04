@@ -55,18 +55,29 @@ export const DocumentSetCreationForm = ({
   const { toast } = useToast();
   const isUpdate = existingDocumentSet !== undefined;
 
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("documentSetFormData") || "{}"
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: existingDocumentSet?.name ?? "",
-      description: existingDocumentSet?.description ?? "",
+      name: cachedFormData?.name ?? existingDocumentSet?.name ?? "",
+      description:
+        cachedFormData?.description ?? existingDocumentSet?.description ?? "",
       cc_pair_ids:
+        cachedFormData?.cc_pair_ids ??
         existingDocumentSet?.cc_pair_descriptors.map(
           (ccPairDescriptor) => ccPairDescriptor.id
-        ) ?? [],
-      is_public: existingDocumentSet?.is_public ?? true,
-      users: existingDocumentSet?.users ?? [],
-      groups: existingDocumentSet?.groups.map((group) => group.id) ?? [],
+        ) ??
+        [],
+      is_public:
+        cachedFormData?.is_public ?? existingDocumentSet?.is_public ?? true,
+      users: cachedFormData?.users ?? existingDocumentSet?.users ?? [],
+      groups:
+        cachedFormData?.groups ??
+        existingDocumentSet?.groups.map((group) => group.id) ??
+        [],
     },
   });
 
@@ -82,6 +93,14 @@ export const DocumentSetCreationForm = ({
       form.setValue("is_public", false);
     }
   }, [teamspaceId, form]);
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("documentSetFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const onSubmit = async (values: FormValues) => {
     const processedValues = {
@@ -114,6 +133,7 @@ export const DocumentSetCreationForm = ({
         variant: "success",
       });
       onClose();
+      localStorage.removeItem("documentSetFormData");
     } else {
       const errorMsg = await response.text();
       toast({
