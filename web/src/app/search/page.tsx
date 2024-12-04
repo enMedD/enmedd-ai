@@ -191,7 +191,7 @@ export default async function Home() {
             {shouldShowWelcomeModal && <WelcomeModal user={user} />}
             {shouldDisplayNoSourcesModal && <NoSourcesModal />}
             {shouldDisplaySourcesIncompleteModal && (
-              <NoCompleteSourcesModal ccPairs={ccPairs} />
+              <NoCompleteSourcesModal ccPairs={ccPairs} userRole={user?.role} />
             )}
             {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
          Only used in the EE version of the app. */}

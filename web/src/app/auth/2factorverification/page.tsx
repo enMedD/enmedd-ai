@@ -111,7 +111,7 @@ const Page = () => {
     <main className="h-full">
       {isLoading && <Spinner />}
       <HealthCheckBanner />
-      <WelcomeTopBar />
+      <WelcomeTopBar goToLogin />
 
       <div className="w-full h-full mx-auto flex flex-col justify-between overflow-y-auto">
         <div className="w-full xl:w-1/2 h-full flex items-center justify-center mx-auto px-6 lg:px-14 3xl:px-0">
