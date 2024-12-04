@@ -12,8 +12,8 @@ import { useParams } from "next/navigation";
 export function NoSourcesModal() {
   const { teamspaceId } = useParams();
   const settings = useContext(SettingsContext);
-  const [isHidden, setIsHidden] = useState(
-    !settings?.settings.search_page_enabled ?? false
+  const [isHidden, setIsHidden] = useState<boolean>(
+    !settings?.settings.search_page_enabled && false
   );
 
   if (isHidden) {

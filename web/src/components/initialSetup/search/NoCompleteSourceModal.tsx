@@ -60,8 +60,8 @@ export function NoCompleteSourcesModal({
           <AlertDescription>
             {userRole === "basic" ? (
               <p>
-                Some data sources aren't finished syncing yet. Please contact a
-                workspace admin for further assistance.
+                Some data sources aren&apos;t finished syncing yet. Please
+                contact a workspace admin for further assistance.
               </p>
             ) : (
               <div>

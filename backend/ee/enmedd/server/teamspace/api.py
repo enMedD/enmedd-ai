@@ -22,6 +22,7 @@ from ee.enmedd.server.workspace.store import upload_teamspace_logo
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
+from enmedd.auth.users import current_workspace_or_teamspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import Teamspace as TeamspaceModel
 from enmedd.db.models import Teamspace__ConnectorCredentialPair
@@ -189,7 +190,7 @@ def create_teamspace(
 def patch_teamspace(
     teamspace_id: int,
     teamspace: TeamspaceUpdate,
-    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     try:
@@ -228,7 +229,7 @@ def patch_teamspace(
 @admin_router.delete("/admin/teamspace/{teamspace_id}")
 def delete_teamspace(
     teamspace_id: int,
-    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     try:
@@ -363,7 +364,7 @@ def update_teamspace_user_role(
 def add_teamspace_users(
     teamspace_id: int,
     emails: list[str],
-    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     added_users = []
