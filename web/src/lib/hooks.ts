@@ -299,6 +299,27 @@ export const useTeamspaces = (): {
   };
 };
 
+const USER_TEAMSPACES_URL = "/api/teamspace/user-list";
+
+export const useUserTeamspaces = (): {
+  data: Teamspace[] | undefined;
+  isLoading: boolean;
+  error: string;
+  refreshUserTeamspaces: () => void;
+} => {
+  const { data, error, mutate } = useSWR<Teamspace[]>(
+    USER_TEAMSPACES_URL,
+    errorHandlingFetcher
+  );
+
+  return {
+    data,
+    isLoading: !data && !error,
+    error: error?.message || "",
+    refreshUserTeamspaces: () => mutate(),
+  };
+};
+
 const MODEL_DISPLAY_NAMES: { [key: string]: string } = {
   // OpenAI models
   "o1-mini": "O1 Mini",

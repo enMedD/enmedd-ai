@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import ArnoldAi from "../../../public/arnold_ai.png";
 
 import {
@@ -10,11 +10,9 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
-  SidebarInput,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { UserSettingsButton } from "../UserSettingsButton";
 import Image from "next/image";
@@ -27,6 +25,8 @@ import { User } from "@/lib/types";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { TeamspaceModal } from "./TeamspaceModal";
 import { useGradient } from "@/hooks/useGradient";
+import { useUserTeamspaces } from "@/lib/hooks";
+import { Skeleton } from "../ui/skeleton";
 
 export function GlobalSidebar({
   user,
@@ -45,19 +45,8 @@ export function GlobalSidebar({
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
-  let teamspaces = user?.groups || [];
-  // if (teamspaceId) {
-  //   const matchingTeamspace = teamspaces.find(
-  //     (group) => group.id.toString() === teamspaceId
-  //   );
-  //   const otherTeamspaces = teamspaces.filter(
-  //     (group) => group.id.toString() !== teamspaceId
-  //   );
-  //   teamspaces = matchingTeamspace
-  //     ? [matchingTeamspace, ...otherTeamspaces]
-  //     : otherTeamspaces;
-  // }
-  const displayedTeamspaces = teamspaces.slice(0, 8);
+  const { data, isLoading } = useUserTeamspaces();
+  const displayedTeamspaces = data?.slice(0, 8);
   const showEllipsis = user?.groups && user.groups.length > 8;
 
   return (
@@ -128,49 +117,70 @@ export function GlobalSidebar({
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
-                {displayedTeamspaces.map((teamspace) => (
-                  <SidebarMenuItem
-                    key={teamspace.id}
-                    className="flex items-center justify-center"
-                  >
-                    <SidebarMenuButton
-                      tooltip={{
-                        children: teamspace.name,
-                        hidden: false,
-                      }}
-                      className={`!p-0 w-11 h-11 rounded-full ${Number(teamspaceId) === teamspace.id ? "bg-secondary-500 hover:bg-secondary-500" : ""}`}
-                      isActive={teamspace.id.toString() === teamspaceId}
-                    >
-                      <Link
-                        href={`/t/${teamspace.id}/${defaultPage}`}
-                        className="w-full h-full flex items-center justify-center"
+                {isLoading
+                  ? Array.from({ length: 8 }).map((_, index) => (
+                      <SidebarMenuItem
+                        key={`skeleton-${index}`}
+                        className="flex items-center justify-center"
                       >
-                        {teamspace.logo ? (
-                          <img
-                            src={buildImgUrl(teamspace.logo)}
-                            alt="Teamspace Logo"
-                            className={`object-cover shrink-0 ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full" : "w-full h-full"}`}
-                            width={40}
-                            height={40}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              background: useGradient(teamspace.name),
-                            }}
-                            className={`font-bold text-inverted text-lg shrink-0  bg-brand-500 flex justify-center items-center uppercase ${Number(teamspaceId) === teamspace.id ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full" : "w-full h-full"}`}
+                        <Skeleton className="w-11 h-11 rounded-full" />
+                      </SidebarMenuItem>
+                    ))
+                  : displayedTeamspaces?.map((teamspace) => (
+                      <SidebarMenuItem
+                        key={teamspace.id}
+                        className="flex items-center justify-center"
+                      >
+                        <SidebarMenuButton
+                          tooltip={{
+                            children: teamspace.name,
+                            hidden: false,
+                          }}
+                          className={`!p-0 w-11 h-11 rounded-full ${
+                            Number(teamspaceId) === teamspace.id
+                              ? "bg-secondary-500 hover:bg-secondary-500"
+                              : ""
+                          }`}
+                          isActive={teamspace.id.toString() === teamspaceId}
+                        >
+                          <Link
+                            href={`/t/${teamspace.id}/${defaultPage}`}
+                            className="w-full h-full flex items-center justify-center"
                           >
-                            {teamspace.name.charAt(0)}
-                          </div>
-                        )}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                            {teamspace.logo ? (
+                              <img
+                                src={buildImgUrl(teamspace.logo)}
+                                alt="Teamspace Logo"
+                                className={`object-cover shrink-0 ${
+                                  Number(teamspaceId) === teamspace.id
+                                    ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full"
+                                    : "w-full h-full"
+                                }`}
+                                width={40}
+                                height={40}
+                              />
+                            ) : (
+                              <div
+                                style={{
+                                  background: useGradient(teamspace.name),
+                                }}
+                                className={`font-bold text-inverted text-lg shrink-0 bg-brand-500 flex justify-center items-center uppercase ${
+                                  Number(teamspaceId) === teamspace.id
+                                    ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full"
+                                    : "w-full h-full"
+                                }`}
+                              >
+                                {teamspace.name.charAt(0)}
+                              </div>
+                            )}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
 
                 {showEllipsis && (
                   <TeamspaceModal
-                    teamspace={teamspaces}
+                    teamspace={data}
                     defaultPage={defaultPage}
                     teamspaceId={teamspaceId}
                   />
