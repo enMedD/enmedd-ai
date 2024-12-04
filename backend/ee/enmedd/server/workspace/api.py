@@ -22,7 +22,6 @@ from ee.enmedd.server.workspace.store import load_analytics_script
 from ee.enmedd.server.workspace.store import store_analytics_script
 from ee.enmedd.server.workspace.store import upload_header_logo
 from ee.enmedd.server.workspace.store import upload_logo
-from enmedd.auth.users import current_user
 from enmedd.auth.users import current_user_with_expired_token
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import get_user_manager
@@ -263,7 +262,6 @@ def fetch_logotype(db_session: Session = Depends(get_session)) -> Response:
 @basic_router.get("/logo")
 def fetch_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
-    _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> Response:
     try:
