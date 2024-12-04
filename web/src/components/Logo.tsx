@@ -3,7 +3,6 @@
 import { useContext } from "react";
 import { SettingsContext } from "./settings/SettingsProvider";
 import Image from "next/image";
-import { buildImgUrl } from "@/app/chat/files/images/utils";
 
 export function Logo({
   height,
@@ -41,7 +40,7 @@ export function Logo({
   return (
     <div style={{ height, width }} className={`relative ${className}`}>
       <img
-        src={buildImgUrl(settings.workspaces?.custom_logo)}
+        src={"/api/workspace/logo?workspace_id=" + 0}
         alt="Logo"
         style={{ objectFit: "cover", height, width, borderRadius: "8px" }}
         width={width}
