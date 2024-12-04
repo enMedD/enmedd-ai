@@ -48,7 +48,7 @@ export const TeamspaceModal = ({
         {teamspace.map((team) => (
           <Link
             key={team.id}
-            className={`flex items-center gap-4 border rounded-md p-4 cursor-pointer hover:bg-background-subtle transition-colors duration-200 ease-in-out ${Number(teamspaceId) === team.id ? "bg-background-subtle" : ""}`}
+            className={`flex items-center gap-4 border rounded-md p-4 cursor-pointer hover:bg-background-subtle transition-colors duration-200 ease-in-out ${Number(teamspaceId) === team.id ? "bg-brand-50" : ""}`}
             href={`/t/${team.id}/${defaultPage}`}
           >
             {team.logo ? (
