@@ -34,7 +34,7 @@ import { SettingsContext } from "../settings/SettingsProvider";
 import { useParams, usePathname } from "next/navigation";
 import { GroupsIcon, RobotIcon } from "../icons/icons";
 import Image from "next/image";
-import VanguardAi from "../../../public/arnold_ai.png";
+import VanguardAi from "../../../public/logo.png";
 import { useFeatureFlag } from "../feature_flag/FeatureFlagContext";
 import { Logo } from "../Logo";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
