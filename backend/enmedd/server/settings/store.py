@@ -3,9 +3,14 @@ from typing import Optional
 
 from fastapi import Depends
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_workspace_admin_user
+from enmedd.configs.app_configs import SMTP_PASS
+from enmedd.configs.app_configs import SMTP_PORT
+from enmedd.configs.app_configs import SMTP_SERVER
+from enmedd.configs.app_configs import SMTP_USER
 from enmedd.db.models import TeamspaceSettings
 from enmedd.db.models import User
 from enmedd.db.models import WorkspaceSettings
@@ -72,10 +77,10 @@ def load_settings(
             maximum_chat_retention_days=settings_record.maximum_chat_retention_days,
             num_indexing_workers=settings_record.num_indexing_workers,
             vespa_searcher_threads=settings_record.vespa_searcher_threads,
-            smtp_port=settings_record.smtp_port,
-            smtp_server=settings_record.smtp_server,
-            smtp_username=settings_record.smtp_username,
-            smtp_password=settings_record.smtp_password,
+            smtp_port=settings_record.smtp_port or SMTP_PORT,
+            smtp_server=settings_record.smtp_server or SMTP_SERVER,
+            smtp_username=settings_record.smtp_username or SMTP_USER,
+            smtp_password=settings_record.smtp_password or SMTP_PASS,
         )
 
     return Settings()
@@ -84,9 +89,15 @@ def load_settings(
 def store_settings(
     settings: Settings,
     db_session: Session,
-    workspace_id: Optional[int] = 0,
+    workspace_id: Optional[int] = None,
     teamspace_id: Optional[int] = None,
+    schema_name: Optional[str] = None,
 ) -> None:
+    if schema_name:
+        db_session.execute(
+            text("SET search_path TO :schema_name").params(schema_name=schema_name)
+        )
+
     if teamspace_id:
         settings_record = (
             db_session.query(TeamspaceSettings)
@@ -137,3 +148,6 @@ def store_settings(
     except Exception:
         db_session.rollback()
         raise HTTPException(status_code=500, detail="Failed to store settings.")
+    finally:
+        if schema_name:
+            db_session.execute(text("SET search_path TO public"))

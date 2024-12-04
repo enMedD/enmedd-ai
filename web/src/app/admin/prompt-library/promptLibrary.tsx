@@ -159,7 +159,8 @@ export const PromptLibraryTable = ({
     <div className="justify-center py-4">
       {confirmDeletionId != null && (
         <DeleteModal
-          title="Are you sure you want to delete this prompt? You will not be able to recover this prompt."
+          title="Are you sure you want to delete this prompt?"
+          description="You will not be able to recover this prompt."
           onClose={() => setConfirmDeletionId(null)}
           open={confirmDeletionId != null}
           onSuccess={async () => {

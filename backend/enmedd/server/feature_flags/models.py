@@ -1,5 +1,36 @@
 from pydantic import BaseModel
 
+from enmedd.key_value_store.factory import get_kv_store
+
+
+_FEATURE_FLAG_KEY = "enmedd_feature_flag"
+
+
+class FeatureFlagsManager:
+    def __reload_features() -> dict:
+        return get_kv_store().load(_FEATURE_FLAG_KEY)
+
+    def is_feature_enabled(feature: str, default: bool = False) -> bool:
+        try:
+            features = FeatureFlagsManager.__reload_features()
+            return not not features.get(feature)
+        except TypeError:
+            return default
+
+    def get_all_features():
+        try:
+            return FeatureFlagsManager.__reload_features()
+        except TypeError:
+            return {}
+
+    def update_overall_feature(features: dict):
+        get_kv_store().store(_FEATURE_FLAG_KEY, features)
+
+    def store_feature(feature: str, value: bool):
+        existing_features = FeatureFlagsManager.get_all_features()
+        existing_features.update({feature: value})
+        FeatureFlagsManager.update_overall_feature(existing_features)
+
 
 class FeatureFlags(BaseModel):
     """Features Control"""

@@ -109,6 +109,9 @@ from enmedd.server.manage.llm.models import LLMProviderUpsertRequest
 from enmedd.server.manage.search_settings import router as search_settings_router
 from enmedd.server.manage.users import router as user_router
 from enmedd.server.middleware.latency_logging import add_latency_logging_middleware
+from enmedd.server.middleware.tenant_identification import (
+    add_tenant_identification_middleware,
+)
 from enmedd.server.query_and_chat.chat_backend import router as chat_router
 from enmedd.server.query_and_chat.query_backend import (
     admin_router as admin_query_router,
@@ -618,7 +621,7 @@ def get_application() -> FastAPI:
     )
     if LOG_ENDPOINT_LATENCY:
         add_latency_logging_middleware(application, logger)
-
+    add_tenant_identification_middleware(application, logger)
     # Ensure all routes have auth enabled or are explicitly marked as public
     check_router_auth(application)
 

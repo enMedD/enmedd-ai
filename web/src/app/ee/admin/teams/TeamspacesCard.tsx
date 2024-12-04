@@ -74,6 +74,7 @@ export const TeamspacesCard = ({
 
   return (
     <div className="relative w-full max-w-[400px]">
+      {/* <div className="w-full sm:w-[calc(50%_-_16px)] xl:w-[calc(33%_-_18px)]"> */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           asChild
@@ -146,11 +147,11 @@ export const TeamspacesCard = ({
         <CardContent className="relative flex flex-col justify-between min-h-48 bg-muted/50">
           <div className="absolute top-0 w-12 h-12 -translate-y-1/2 right-4 flex items-center justify-center">
             {teamspace.logo ? (
-              <div className="rounded-md w-10 h-10 bg-background overflow-hidden">
+              <div className="rounded-md w-10 h-10 bg-background overflow-hidden shrink-0">
                 <img
                   src={buildImgUrl(teamspace.logo)}
                   alt="Teamspace Logo"
-                  className="object-cover w-full h-full shrink-0"
+                  className="object-cover w-full h-full"
                   width={40}
                   height={40}
                 />
@@ -165,8 +166,8 @@ export const TeamspacesCard = ({
             )}
           </div>
           <div className="pb-6">
-            <h2 className="w-full font-bold break-all whitespace-normal">
-              <span className="inline">{teamspace.name}</span>
+            <h2 className="w-full font-bold truncate flex">
+              <span className="inline truncate">{teamspace.name}</span>
               <CustomTooltip
                 trigger={
                   <div
@@ -190,7 +191,7 @@ export const TeamspacesCard = ({
             <div className="flex items-center gap-2">
               <Users size={16} className="shrink-0" />
               <span className="whitespace-nowrap">
-                {teamspace.users.length} People
+                {teamspace.users.length} Members
               </span>
             </div>
 

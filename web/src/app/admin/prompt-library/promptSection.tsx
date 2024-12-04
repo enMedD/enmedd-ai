@@ -113,13 +113,6 @@ export const PromptSection = ({
     <div
       className={`w-full ${centering ? "flex-col flex justify-center" : ""} mb-8`}
     >
-      {/* {newPrompt && (
-        <AddPromptModal
-          onSubmit={createInputPrompt}
-          onClose={() => setNewPrompt(false)}
-        />
-      )} */}
-
       {newPromptId && (
         <EditPromptModal
           promptId={newPromptId}

@@ -7,10 +7,15 @@ import {
 import { redirect } from "next/navigation";
 import { fetchSS } from "@/lib/utilsSS";
 import Profile from "./profile";
-import { BarLayout } from "@/components/BarLayout";
 import { fetchSettingsSS } from "@/components/settings/lib";
 import { CombinedSettings } from "../admin/settings/interfaces";
 import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { GlobalSidebar } from "@/components/globalSidebar/GlobalSidebar";
 
 export default async function ProfilePage() {
   const tasks = [
@@ -53,13 +58,23 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="h-full flex relative flex-row">
-      <div className="flex">
-        <BarLayout user={user} />
-      </div>
-      <div className="h-full container overflow-y-auto">
-        <Profile user={user} combinedSettings={combinedSettings} />
-      </div>
-    </div>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "72px",
+        } as React.CSSProperties
+      }
+      className="h-full w-full"
+    >
+      <GlobalSidebar user={user} widthFit isProfile />
+      <SidebarInset className="w-full overflow-hidden">
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 lg:hidden">
+          <SidebarTrigger className="-ml-1" />
+        </header>
+        <div className="h-full w-full overflow-hidden overflow-y-auto">
+          <Profile user={user} combinedSettings={combinedSettings} />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

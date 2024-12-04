@@ -12,9 +12,11 @@ import { mutate } from "swr";
 export const InviteUserButton = ({
   teamspaceId,
   refreshUsers,
+  isTeamspaceModal,
 }: {
   teamspaceId?: string | string[];
-  refreshUsers: () => void;
+  refreshUsers?: () => void;
+  isTeamspaceModal?: boolean;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
@@ -28,7 +30,9 @@ export const InviteUserButton = ({
             : "/api/manage/users"
         )
     );
-    refreshUsers();
+    if (refreshUsers) {
+      refreshUsers();
+    }
     setIsModalOpen(false);
     toast({
       title: "Users Invited",
@@ -47,7 +51,9 @@ export const InviteUserButton = ({
 
   return (
     <CustomModal
-      title="Bulk Invite Users"
+      title={
+        isTeamspaceModal ? "Invite to Your Teamspace" : "Bulk Invite Users"
+      }
       onClose={() => setIsModalOpen(false)}
       open={isModalOpen}
       trigger={
@@ -55,9 +61,12 @@ export const InviteUserButton = ({
           onClick={() => setIsModalOpen(true)}
           variant={teamspaceId ? "outline" : "default"}
         >
-          Invite People
+          {isTeamspaceModal && <Plus size={16} />}
+          Invite Users
         </Button>
       }
+      description="Your invite link has been created. Share this link to join your teamspace."
+      className={isTeamspaceModal ? "!max-w-[700px]" : ""}
     >
       <div className="flex flex-col gap-y-3">
         <Label>

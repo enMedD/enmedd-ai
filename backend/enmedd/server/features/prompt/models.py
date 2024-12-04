@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from pydantic import field_validator
 
 from enmedd.db.models import Prompt
 
@@ -11,6 +12,12 @@ class CreatePromptRequest(BaseModel):
     include_citations: bool = False
     datetime_aware: bool = False
     assistant_ids: list[int] | None = None
+
+    @field_validator("name", "description", mode="before")
+    def strip_whitespace(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
 class PromptSnapshot(BaseModel):

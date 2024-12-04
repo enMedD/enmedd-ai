@@ -40,7 +40,7 @@ from enmedd.auth.schemas import ChangePassword
 from enmedd.auth.schemas import UserRole
 from enmedd.auth.schemas import UserStatus
 from enmedd.auth.users import current_admin_user
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import optional_user
@@ -57,11 +57,11 @@ from enmedd.db.engine import get_session
 from enmedd.db.models import AccessToken
 from enmedd.db.models import Assistant__User
 from enmedd.db.models import DocumentSet__User
+from enmedd.db.models import InviteToken
 from enmedd.db.models import SamlAccount
 from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
-from enmedd.db.models import Workspace__Users
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
@@ -155,23 +155,38 @@ async def validate_token_invite(
         raise HTTPException(status_code=404, detail="User not found")
 
     teamspace_id = decode_invite_token(token, email, db_session)
-    if teamspace_id is None:
-        return None
 
-    teamspace = (
-        db_session.query(User__Teamspace)
-        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
-        .first()
+    user_emails = get_invited_users(teamspace_id)
+    remaining_users = [
+        invited_user for invited_user in user_emails if invited_user != email
+    ]
+    write_invited_users(remaining_users, teamspace_id)
+    remove_email_from_invite_tokens(
+        db_session=db_session,
+        user_email=email,
+        teamspace_id=teamspace_id,
     )
-    if not teamspace:
-        db_session.add(
-            User__Teamspace(
-                teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
-            )
-        )
-        db_session.commit()
 
-    return teamspace_id
+    if (
+        isinstance(teamspace_id, str)
+        and teamspace_id != "Invalid token"
+        and teamspace_id != "Token has expired"
+    ):
+        teamspace = (
+            db_session.query(User__Teamspace)
+            .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+            .first()
+        )
+        if not teamspace:
+            db_session.add(
+                User__Teamspace(
+                    teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
+                )
+            )
+            db_session.commit()
+        return {"message": "User successfully added to teamspace"}
+
+    return {"message": teamspace_id}
 
 
 @router.post("/users/change-password", tags=["users"])
@@ -272,7 +287,7 @@ def demote_admin(
 @router.patch("/manage/promote-workspace-user-to-admin")
 def promote_workspace_admin(
     user_email: UserByEmail,
-    _: User = Depends(current_workspace_admin_user),
+    _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_promote = get_user_by_email(
@@ -281,23 +296,15 @@ def promote_workspace_admin(
     if not user_to_promote:
         raise HTTPException(status_code=404, detail="User not found")
 
-    workspace_user = (
-        db_session.query(Workspace__Users)
-        .filter(Workspace__Users.user_id == user_to_promote.id)
-        .first()
-    )
-    if not workspace_user:
-        raise HTTPException(status_code=404, detail="User not part of any workspace")
-
-    workspace_user.role = UserRole.ADMIN
-    db_session.add(workspace_user)
+    user_to_promote.role = UserRole.ADMIN
+    db_session.add(user_to_promote)
     db_session.commit()
 
 
 @router.patch("/manage/demote-workspace-admin-to-basic")
 def demote_workspace_admin(
     user_email: UserByEmail,
-    user: User = Depends(current_workspace_admin_user),
+    user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_demote = get_user_by_email(
@@ -306,21 +313,13 @@ def demote_workspace_admin(
     if not user_to_demote:
         raise HTTPException(status_code=404, detail="User not found")
 
-    workspace_user = (
-        db_session.query(Workspace__Users)
-        .filter(Workspace__Users.user_id == user_to_demote.id)
-        .first()
-    )
-    if not workspace_user:
-        raise HTTPException(status_code=404, detail="User not part of any workspace")
-
-    if workspace_user.user_id == user.id:
+    if user_to_demote.id == user.id:
         raise HTTPException(
             status_code=400, detail="Cannot demote yourself from admin role!"
         )
 
-    workspace_user.role = UserRole.BASIC
-    db_session.add(workspace_user)
+    user_to_demote.role = UserRole.BASIC
+    db_session.add(user_to_demote)
     db_session.commit()
 
 
@@ -330,7 +329,7 @@ def list_all_users(
     accepted_page: int | None = 0,
     invited_page: int | None = 0,
     teamspace_id: int | None = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> AllUsersResponse:
     if not q:
@@ -344,11 +343,7 @@ def list_all_users(
             .all()
         )
     else:
-        users_with_roles = (
-            db_session.query(User, Workspace__Users.role)
-            .join(Workspace__Users, Workspace__Users.user_id == User.id)
-            .all()
-        )
+        users_with_roles = db_session.query(User, User.role).all()
 
     accepted_users = [
         FullUserSnapshot(
@@ -400,7 +395,7 @@ def list_all_users(
 def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
     teamspace_id: Optional[int] = None,
-    user: User | None = Depends(current_teamspace_admin_user),
+    user: User | None = Depends(current_admin_user_based_on_teamspace_id),
     workspace_id: Optional[int] = 0,  # Temporary set to 0
     db_session: Session = Depends(get_session),
 ) -> int:
@@ -433,16 +428,46 @@ def bulk_invite_users(
     return write_invited_users(all_emails, teamspace_id)
 
 
+def remove_email_from_invite_tokens(
+    db_session: Session,
+    user_email: str,
+    teamspace_id: Optional[int] = None,
+) -> int:
+    if teamspace_id:
+        result = db_session.execute(
+            update(InviteToken)
+            .where(InviteToken.teamspace_id == teamspace_id)
+            .values(emails=InviteToken.emails.op("-")(user_email))
+        )
+    else:
+        result = db_session.execute(
+            update(InviteToken)
+            .where(InviteToken.teamspace_id.is_(None))
+            .values(emails=InviteToken.emails.op("-")(user_email))
+        )
+    db_session.commit()
+
+    return result.rowcount
+
+
 @router.patch("/manage/admin/remove-invited-user")
 def remove_invited_user(
     user_email: UserByEmail,
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_workspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
+    db_session: Session = Depends(get_session),
 ) -> int:
     user_emails = get_invited_users(teamspace_id)
     remaining_users = [user for user in user_emails if user != user_email.user_email]
+    write_invited_users(remaining_users, teamspace_id)
 
-    return write_invited_users(remaining_users, teamspace_id)
+    rows_updated = remove_email_from_invite_tokens(
+        db_session=db_session,
+        user_email=user_email.user_email,
+        teamspace_id=teamspace_id,
+    )
+
+    return rows_updated
 
 
 @router.patch("/manage/admin/deactivate-user")
@@ -710,28 +735,10 @@ def verify_user_logged_in(
         if user_teamspace is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Teamspace or role not found",
+                detail="Teamspace role not found",
             )
 
         role = user_teamspace.role
-    # elsif workspace_id:
-    else:
-        workspace_user = (
-            db_session.query(Workspace__Users)
-            .filter(
-                Workspace__Users.user_id == user.id,
-                Workspace__Users.workspace_id == 0,  # Temporary set to 0
-            )
-            .first()
-        )
-
-        if workspace_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Workspace or role not found",
-            )
-
-        role = workspace_user.role
 
     token_created_at = get_current_token_creation(user, db_session)
     user_info = UserInfo.from_model(

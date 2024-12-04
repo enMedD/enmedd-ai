@@ -60,12 +60,12 @@ export function ImageUpload({
 
           {tmpImageUrl && (
             <>
-              <div className="mt-4 mb-8">
+              <div className="mt-4">
                 <SubLabel>Uploaded Image:</SubLabel>
                 <Image
                   src={tmpImageUrl}
                   alt="uploaded-image"
-                  className="mt-2 max-w-xs max-h-64"
+                  className="mt-2 max-w-xs max-h-64 object-cover"
                   width={256}
                   height={256}
                 />

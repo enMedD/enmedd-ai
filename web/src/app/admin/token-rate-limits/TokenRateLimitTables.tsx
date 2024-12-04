@@ -16,7 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { DeleteModal } from "@/components/DeleteModal";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 type TokenRateLimitTableArgs = {
   tokenRateLimits: TokenRateLimitDisplay[];
@@ -35,6 +37,10 @@ export const TokenRateLimitTable = ({
   hideHeading,
   isAdmin,
 }: TokenRateLimitTableArgs) => {
+  const { toast } = useToast();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [tokenRateToDelete, setTokenRateToDelete] =
+    useState<TokenRateLimitDisplay | null>(null);
   const shouldRenderGroupName = () =>
     tokenRateLimits.length > 0 && tokenRateLimits[0].group_name !== undefined;
 
@@ -56,11 +62,6 @@ export const TokenRateLimitTable = ({
     });
   };
 
-  const handleDelete = (id: number) =>
-    deleteTokenRateLimit(id).then(() => {
-      mutate(fetchUrl);
-    });
-
   if (tokenRateLimits.length === 0) {
     return (
       <div>
@@ -77,6 +78,39 @@ export const TokenRateLimitTable = ({
 
   return (
     <div>
+      {isDeleteModalOpen && tokenRateToDelete && (
+        <DeleteModal
+          title="Are you sure you want to remove this token rate?"
+          description={`This action will remove the selected token rate on ${tokenRateToDelete.group_name}.`}
+          onClose={() => setIsDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
+          onSuccess={async () => {
+            const response = await deleteTokenRateLimit(
+              tokenRateToDelete.token_id
+            );
+
+            if (response.ok) {
+              toast({
+                title: "Deletion Success",
+                description: `Token rate "${tokenRateToDelete.group_name}" deletion success.`,
+                variant: "success",
+              });
+
+              mutate(fetchUrl);
+
+              setIsDeleteModalOpen(false);
+            } else {
+              const errorMsg = (await response.json()).detail;
+              toast({
+                title: "Deletion Failed",
+                description: `Failed to delete token rate - ${errorMsg}`,
+                variant: "destructive",
+              });
+            }
+          }}
+        />
+      )}
+
       {!hideHeading && title && <h3>{title}</h3>}
       {!hideHeading && description && (
         <p className="mt-2 mb-4 text-sm">{description}</p>
@@ -104,11 +138,7 @@ export const TokenRateLimitTable = ({
                             ? () => handleEnabledChange(tokenRateLimit.token_id)
                             : undefined
                         }
-                        className={`py-0.5 rounded select-none w-24 ${
-                          isAdmin
-                            ? "hover:bg-hover-light cursor-pointer"
-                            : "opacity-50"
-                        }`}
+                        className="cursor-pointer"
                       >
                         <div className="flex items-center">
                           <CustomCheckbox
@@ -141,8 +171,14 @@ export const TokenRateLimitTable = ({
                     </TableCell>
                     {isAdmin && (
                       <TableCell>
-                        <DeleteButton
+                        {/* <DeleteButton
                           onClick={() => handleDelete(tokenRateLimit.token_id)}
+                        /> */}
+                        <DeleteButton
+                          onClick={() => {
+                            setTokenRateToDelete(tokenRateLimit);
+                            setIsDeleteModalOpen(true);
+                          }}
                         />
                       </TableCell>
                     )}

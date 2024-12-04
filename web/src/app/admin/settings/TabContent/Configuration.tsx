@@ -33,12 +33,12 @@ function CheckboxComponent({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex text-sm mb-4 gap-3">
+    <div className="flex text-sm mb-8 gap-3">
       <Checkbox checked={checked} onCheckedChange={onChange} id={label} />
-      <div className="grid leading-none">
+      <div className="grid leading-none gap-2">
         <ShadcnLabel
           htmlFor={label}
-          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="text-base font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           {label}
         </ShadcnLabel>
@@ -62,12 +62,12 @@ function Selector({
   onSelect: (value: string | number | null) => void;
 }) {
   return (
-    <div className="mb-8">
+    <div className="pt-4 pb-12">
       <div className="grid gap-1 pb-1.5">
         {label && (
           <ShadcnLabel
             htmlFor={label}
-            className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-base font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             {label}
           </ShadcnLabel>
@@ -92,46 +92,6 @@ function Selector({
         </Select>
       </div>
     </div>
-  );
-}
-
-function IntegerInput({
-  label,
-  sublabel,
-  value,
-  onChange,
-  id,
-  placeholder = "Enter a number",
-}: {
-  label: string;
-  sublabel: string;
-  value: number | null;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id?: string;
-  placeholder?: string;
-}) {
-  return (
-    <label className="flex flex-col text-sm mb-4">
-      <div className="grid gap-1 pb-1.5">
-        <ShadcnLabel
-          htmlFor={label}
-          className="font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-        </ShadcnLabel>
-        <SubLabel>{sublabel}</SubLabel>
-      </div>
-      <Input
-        type="number"
-        className="w-full max-w-xs"
-        value={value ?? ""}
-        onChange={onChange}
-        min="1"
-        step="1"
-        id={id}
-        placeholder={placeholder}
-      />
-    </label>
   );
 }
 
@@ -253,16 +213,15 @@ export function Configuration() {
 
   return (
     <div className="pt-8">
-      <h3 className="mb-4 pt-6">Page Visibility</h3>
+      <div>
+        <h2 className="font-bold text:lg md:text-xl">Page and Chat Setup</h2>
+        <p className="text-sm">
+          Manage general Vanguard AI settings applicable to all users in the
+          workspace.
+        </p>
+      </div>
 
-      <CheckboxComponent
-        label="Search Page Enabled?"
-        sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
-        checked={settings.search_page_enabled}
-        onChange={(checked) =>
-          handleToggleSettingsField("search_page_enabled", checked)
-        }
-      />
+      <h3 className="pt-12 pb-8">Page Visibility</h3>
 
       <CheckboxComponent
         label="Chat Page Enabled?"
@@ -270,6 +229,15 @@ export function Configuration() {
         checked={settings.chat_page_enabled}
         onChange={(checked) =>
           handleToggleSettingsField("chat_page_enabled", checked)
+        }
+      />
+
+      <CheckboxComponent
+        label="Search Page Enabled?"
+        sublabel="If set, then the 'Search' page will be accessible to all users and will show up as an option on the top navbar. If unset, then this page will not be available."
+        checked={settings.search_page_enabled}
+        onChange={(checked) =>
+          handleToggleSettingsField("search_page_enabled", checked)
         }
       />
 
@@ -291,26 +259,37 @@ export function Configuration() {
 
       {isEnterpriseEnabled && (
         <>
-          <h3 className="mb-4">Chat Settings</h3>
-          <IntegerInput
-            label="Chat Retention"
-            sublabel="Enter the maximum number of days you would like Vanguard AI to retain chat messages. Leaving this field empty will cause Vanguard AI to never delete chat messages."
-            value={chatRetention === "" ? null : Number(chatRetention)}
-            onChange={(e) => {
-              const numValue = parseInt(e.target.value, 10);
-              if (numValue >= 1 || e.target.value === "") {
-                setChatRetention(e.target.value);
-              }
-            }}
-            id="chatRetentionInput"
-            placeholder="Infinite Retention"
-          />
-          <Button onClick={handleSetChatRetention} className="mr-3">
-            Set Retention Limit
-          </Button>
-          <Button onClick={handleClearChatRetention} variant="outline">
-            Retain All
-          </Button>
+          <div className="mb-1.5">
+            <h3>Chat Retention</h3>
+            <SubLabel>
+              Enter the maximum number of days you would like Vanguard AI to
+              retain chat messages. Leaving this field empty will cause Vanguard
+              AI to never delete chat messages.
+            </SubLabel>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              className="w-full max-w-xs"
+              value={chatRetention === "" ? "" : (Number(chatRetention) ?? "")}
+              onChange={(e) => {
+                const numValue = parseInt(e.target.value, 10);
+                if (numValue >= 1 || e.target.value === "") {
+                  setChatRetention(e.target.value);
+                }
+              }}
+              min="1"
+              step="1"
+              id="chatRetentionInput"
+              placeholder="Infinite Retention"
+            />
+            <Button onClick={handleSetChatRetention}>
+              Set Retention Limit
+            </Button>
+            <Button onClick={handleClearChatRetention} variant="outline">
+              Retain All
+            </Button>
+          </div>
         </>
       )}
     </div>

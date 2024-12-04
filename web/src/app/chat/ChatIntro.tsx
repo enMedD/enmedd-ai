@@ -4,9 +4,6 @@ import { Assistant } from "../admin/assistants/interfaces";
 import { Badge } from "@/components/ui/badge";
 import { Bookmark, Info } from "lucide-react";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import Logo from "../../../public/logo.png";
-import Image from "next/image";
-import { useEffect } from "react";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 
 export function ChatIntro({
@@ -30,9 +27,9 @@ export function ChatIntro({
             <h1 className="text-[1.5rem] md:text-[2.5rem] font-semibold leading-[1.2] tracking-tighter text-dark-900 text-center">
               {liveAssistant?.name || "Vanguard AI"}
             </h1>
-            <div className="flex items-center gap-2 text-subtle">
+            {/* <div className="flex items-center gap-2 text-subtle">
               By: {liveAssistant?.owner?.email || "Vanguard AI"}
-            </div>
+            </div> */}
             <p className="text-center text-dark-900 w-full md:w-3/4 line-clamp">
               {liveAssistant?.description || ""}
             </p>

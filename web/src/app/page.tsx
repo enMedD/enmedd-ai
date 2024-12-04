@@ -3,8 +3,11 @@ import { redirect } from "next/navigation";
 
 export default async function Page() {
   const settings = await fetchSettingsSS();
+
+  // The default page setting must only be available to authenticated users
+  // If the user is not authenticated, they must be redirected to the landing page
   if (!settings) {
-    redirect("/search");
+    redirect("/chat");
   }
 
   if (settings.settings.default_page === "search") {
@@ -12,4 +15,6 @@ export default async function Page() {
   } else {
     redirect("/chat");
   }
+
+  return <></>;
 }

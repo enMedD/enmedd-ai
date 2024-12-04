@@ -21,7 +21,8 @@ export function Logo({
   if (
     !settings ||
     !settings.workspaces ||
-    !settings.workspaces.use_custom_logo
+    !settings.workspaces.use_custom_logo ||
+    !settings.workspaces.custom_logo
   ) {
     return (
       <div style={{ height, width }} className={className}>
@@ -39,9 +40,11 @@ export function Logo({
   return (
     <div style={{ height, width }} className={`relative ${className}`}>
       <img
-        src={"/api/workspace/logo?workspace_id=" + 0} //temporary id for workspace
+        src={"/api/workspace/logo?workspace_id=" + 0}
         alt="Logo"
         style={{ objectFit: "cover", height, width, borderRadius: "8px" }}
+        width={width}
+        height={height}
       />
     </div>
   );
