@@ -14,45 +14,23 @@ import { useRouter } from "next/navigation";
 import { ThreeDotsLoader } from "@/components/Loading";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { useUserTeamspaces } from "@/lib/hooks";
 
 export default function UserTeamspace() {
   const router = useRouter();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [teamspaces, setTeamspaces] = useState<Teamspace[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTeamspace, setSelectedTeamspace] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchTeamspaces = async () => {
-      try {
-        const response = await fetch("/api/teamspace/user-list", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        setLoading(true);
+  const { data: teamspaces, isLoading } = useUserTeamspaces();
 
-        if (response.ok) {
-          const data = await response.json();
-          setTeamspaces(data);
-        } else {
-          const errorData = await response.json();
-          console.log(errorData);
-        }
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (isLoading) {
+    return <ThreeDotsLoader />;
+  }
 
-    fetchTeamspaces();
-  }, []);
-
-  const filteredTeamspaces = teamspaces.filter((teamspace) =>
+  const filteredTeamspaces = teamspaces?.filter((teamspace) =>
     teamspace.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -91,10 +69,6 @@ export default function UserTeamspace() {
       });
     }
   };
-
-  if (loading) {
-    return <ThreeDotsLoader />;
-  }
 
   return (
     <>
@@ -139,12 +113,12 @@ export default function UserTeamspace() {
             {filteredTeamspaces?.map((teamspace) => (
               <Card
                 key={teamspace.id}
-                className="w-full h-[288px] sm:w-[calc(50%_-_14px)] xl:w-[calc(33%_-_12.5px)]"
+                className="w-full h-[280px] sm:w-[calc(50%_-_14px)] xl:w-[calc(33%_-_12.5px)]"
               >
                 <CardContent className="h-full">
                   <div className="space-y-5 text-sm flex flex-col justify-between h-full">
                     <div className="flex justify-between gap-5 items-end">
-                      <div>
+                      <div className="w-full max-w-64">
                         <h3 className="text-lg text-strong truncate !font-bold">
                           {teamspace.name}
                         </h3>
@@ -173,7 +147,7 @@ export default function UserTeamspace() {
                       </div>
                       <div className="relative w-16 h-16 rounded-full overflow-hidden flex items-center justify-center shrink-0">
                         {teamspace.logo ? (
-                          <Image
+                          <img
                             src={buildImgUrl(teamspace.logo)}
                             alt="Teamspace Logo"
                             className="object-cover w-full h-full"
@@ -191,12 +165,13 @@ export default function UserTeamspace() {
                       </div>
                     </div>
 
-                    <p className="line-clamp h-[78px]">
-                      {teamspace.description}
+                    <p className="line-clamp h-[78px] break-all text-subtle">
+                      {teamspace.description
+                        ? teamspace.description
+                        : "No description"}
                     </p>
 
-                    {/* <div className="flex justify-end pt-8"> */}
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end pt-2">
                       <Button
                         variant="destructive"
                         onClick={() => {
