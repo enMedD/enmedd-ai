@@ -147,7 +147,7 @@ export const TeamspaceSidebar = ({
             <div className="absolute top-full -translate-y-1/2 left-1/2 -translate-x-1/2">
               {selectedTeamspace.logo ? (
                 <div className="rounded-md w-16 h-16 bg-background overflow-hidden shrink-0">
-                  <Image
+                  <img
                     src={buildImgUrl(selectedTeamspace.logo)}
                     alt="Teamspace Logo"
                     className="object-cover w-full h-full"
