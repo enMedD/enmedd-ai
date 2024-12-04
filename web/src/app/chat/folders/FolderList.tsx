@@ -121,7 +121,14 @@ const FolderItem = ({
       await refreshChatSessions(teamspaceId);
       setShowDeleteConfirm(false);
       router.refresh();
+
+      toast({
+        title: "Folder Deleted",
+        description: "The folder has been successfully deleted.",
+        variant: "success",
+      });
     } catch (error) {
+      setShowDeleteConfirm(false);
       toast({
         title: "Chat Session Addition Failed",
         description:
@@ -253,7 +260,7 @@ const FolderItem = ({
       {isExpanded && folders && (
         <SidebarGroup
           className={
-            "pl-2 py-0 ml-[15px] border-l border-border w-[calc(100%_-_4px)]"
+            "pl-2 py-0 ml-[15px] border-l border-border w-[calc(100%_-_6px)]"
           }
         >
           <SidebarGroupContent className="">
@@ -265,6 +272,7 @@ const FolderItem = ({
                   isSelected={chatSession.id === currentChatId}
                   skipGradient={isDragOver}
                   chatSessionIdRef={chatSessionIdRef}
+                  teamspaceId={teamspaceId}
                 />
               ))}
             </SidebarMenu>
