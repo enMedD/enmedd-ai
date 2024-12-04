@@ -7,7 +7,7 @@ import { useGradient } from "@/hooks/useGradient";
 import { SidebarContent } from "@/components/ui/sidebar";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { Check, Pen, Shield, X } from "lucide-react";
+import { Check, Pen, Plus, Shield, X } from "lucide-react";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ export const TeamspaceSidebar = ({
   };
 
   const handleSaveName = async () => {
-    if (!selectedTeamspace || tempName === null) return;
+    if (!selectedTeamspace || !tempName?.trim()) return;
 
     try {
       const response = await fetch(
@@ -180,6 +180,7 @@ export const TeamspaceSidebar = ({
                         value={tempName || ""}
                         onChange={(e) => setTempName(e.target.value)}
                         className="text-xl md:text-[28px]"
+                        placeholder="Set a name"
                       />
                       <Button
                         size="smallIcon"
@@ -205,7 +206,6 @@ export const TeamspaceSidebar = ({
                   <Button
                     size="smallIcon"
                     className="absolute bottom-full right-0"
-                    // className="absolute right-1/2 bottom-1/2"
                     onClick={startEditingName}
                   >
                     <Pen size={14} />
@@ -226,6 +226,7 @@ export const TeamspaceSidebar = ({
                       className="min-h-20 max-h-40"
                       value={tempDescription || ""}
                       onChange={(e) => setTempDescription(e.target.value)}
+                      placeholder="Set a description"
                     />
                     <div className="absolute bottom-2 right-2 flex space-x-1">
                       <Button
@@ -241,12 +242,18 @@ export const TeamspaceSidebar = ({
                     </div>
                   </div>
                 ) : (
-                  <p
-                    className="line-clamp text-sm text-center px-4 break-all cursor-pointer"
-                    onClick={startEditingDescription}
-                  >
-                    {selectedTeamspace.description}
-                  </p>
+                  <>
+                    {selectedTeamspace.description ? (
+                      <p
+                        className="line-clamp text-sm text-center px-4 break-all cursor-pointer"
+                        onClick={startEditingDescription}
+                      >
+                        {selectedTeamspace.description}
+                      </p>
+                    ) : (
+                      <p>No description</p>
+                    )}
+                  </>
                 )}
 
                 {isDescriptionHovered && !isEditingDescription && (
