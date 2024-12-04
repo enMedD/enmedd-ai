@@ -78,11 +78,13 @@ export function ShareChatSessionModal({
               <Button
                 variant="ghost"
                 size="icon"
+                className="w-7 h-7"
                 onClick={() => setIsShareModalOpen(true)}
               >
                 <Share size={20} />
               </Button>
             }
+            asChild
           >
             Share
           </CustomTooltip>
