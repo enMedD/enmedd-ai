@@ -33,7 +33,7 @@ function CheckboxComponent({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex text-sm mb-4 gap-3">
+    <div className="flex text-sm mb-8 gap-3">
       <Checkbox checked={checked} onCheckedChange={onChange} id={label} />
       <div className="grid leading-none gap-2">
         <ShadcnLabel
@@ -62,7 +62,7 @@ function Selector({
   onSelect: (value: string | number | null) => void;
 }) {
   return (
-    <div className="my-8">
+    <div className="pt-4 pb-12">
       <div className="grid gap-1 pb-1.5">
         {label && (
           <ShadcnLabel
@@ -221,7 +221,7 @@ export function Configuration() {
         </p>
       </div>
 
-      <h3 className="py-8">Page Visibility</h3>
+      <h3 className="pt-12 pb-8">Page Visibility</h3>
 
       <CheckboxComponent
         label="Chat Page Enabled?"
