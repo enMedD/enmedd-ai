@@ -10,10 +10,10 @@ logger = setup_logger()
 
 
 def load_feature_flags() -> FeatureFlags:
-    return FeatureFlags(**FeatureFlagsManager().get_all_features())
+    return FeatureFlags(**FeatureFlagsManager.get_all_features())
 
 
 def store_feature_flags(
     feature_flag: FeatureFlags, _: User | None = Depends(current_workspace_admin_user)
 ) -> None:
-    FeatureFlagsManager().update_overall_feature(feature_flag.model_dump())
+    FeatureFlagsManager.update_overall_feature(feature_flag.model_dump())

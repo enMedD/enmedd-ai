@@ -1,50 +1,35 @@
-import json
-
-import redis as rd
 from pydantic import BaseModel
+
+from enmedd.key_value_store.factory import get_kv_store
+
+
+_FEATURE_FLAG_KEY = "enmedd_feature_flag"
 
 
 class FeatureFlagsManager:
-    def __init__(self, redis_host="localhost", redis_port=6379, redis_db=0) -> None:
-        self.db_key = "enmedd_kv_store:enmedd_feature_flag"
-        self.redis_client = rd.Redis(redis_host, redis_port, redis_db)
+    def __reload_features() -> dict:
+        return get_kv_store().load(_FEATURE_FLAG_KEY)
 
-    def __reload_features(self) -> dict:
-        response: bytes = self.redis_client.get(self.db_key)
-        return json.loads(response)
-
-    def is_feature_enabled(self, feature: str, default: bool = False) -> bool:
+    def is_feature_enabled(feature: str, default: bool = False) -> bool:
         try:
-            if self.redis_client.exists(self.db_key):
-                parsed: dict = self.__reload_features()
-                return not not parsed.get(feature)
-            return default
+            features = FeatureFlagsManager.__reload_features()
+            return not not features.get(feature)
         except TypeError:
             return default
 
-    def get_all_features(self):
+    def get_all_features():
         try:
-            return self.__reload_features()
+            return FeatureFlagsManager.__reload_features()
         except TypeError:
             return {}
 
-    def update_overall_feature(self, features: dict):
-        current_features = self.get_all_features()
-        current_features.update(features)
-        self.redis_client.set(self.db_key, json.dumps(current_features).encode())
+    def update_overall_feature(features: dict):
+        get_kv_store().store(_FEATURE_FLAG_KEY, features)
 
-    def store_feature(self, feature: str, value: bool):
-        try:
-            if self.redis_client.exists(self.db_key):
-                parsed = self.__reload_features()
-                parsed.update({feature: value})
-                self.redis_client.set(self.db_key, json.dumps(parsed).encode())
-                return True
-
-            self.redis_client.set(self.db_key, json.dumps({feature: value}).encode())
-            return True
-        except TypeError:
-            return False
+    def store_feature(feature: str, value: bool):
+        existing_features = FeatureFlagsManager.get_all_features()
+        existing_features.update({feature: value})
+        FeatureFlagsManager.update_overall_feature(existing_features)
 
 
 class FeatureFlags(BaseModel):
