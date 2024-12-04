@@ -60,7 +60,10 @@ export const TeamspaceContent = ({
                   Create team
                 </Button>
               }
-              onClose={() => setShowForm(false)}
+              onClose={() => {
+                setShowForm(false);
+                localStorage.removeItem("teamspaceFormData");
+              }}
               open={showForm}
               title="Create a new Teamspace"
               description="Streamline team collaboration and communication."
@@ -69,6 +72,7 @@ export const TeamspaceContent = ({
                 onClose={() => {
                   refreshTeamspaces();
                   setShowForm(false);
+                  localStorage.removeItem("teamspaceFormData");
                 }}
                 users={users.accepted}
                 ccPairs={ccPairs}

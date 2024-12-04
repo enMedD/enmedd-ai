@@ -10,7 +10,7 @@ import { UserSelector } from "./UserSelector";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/app/admin/settings/ImageUpload";
 import { z } from "zod";
@@ -76,20 +76,39 @@ export const TeamspaceCreationForm = ({
   const isUpdate = existingTeamspace !== undefined;
   const { toast } = useToast();
 
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("teamspaceFormData") || "{}"
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: existingTeamspace?.name ?? "",
-      description: existingTeamspace?.description ?? "",
-      users: existingTeamspace?.users ?? [],
+      name: cachedFormData?.name ?? existingTeamspace?.name ?? "",
+      description:
+        cachedFormData?.description ?? existingTeamspace?.description ?? "",
+      users: cachedFormData?.users ?? existingTeamspace?.users ?? [],
       assistant_ids:
-        existingTeamspace?.assistants.map((assistant) => assistant.id) ?? [],
+        cachedFormData?.assistant_ids ??
+        existingTeamspace?.assistants?.map((assistant) => assistant.id) ??
+        [],
       document_set_ids:
-        existingTeamspace?.document_sets.map((docSet) => docSet.id) ?? [],
+        cachedFormData?.document_set_ids ??
+        existingTeamspace?.document_sets?.map((docSet) => docSet.id) ??
+        [],
       cc_pair_ids:
-        existingTeamspace?.cc_pairs.map((cc_pair) => cc_pair.id) ?? [],
+        cachedFormData?.cc_pair_ids ??
+        existingTeamspace?.cc_pairs?.map((cc_pair) => cc_pair.id) ??
+        [],
     },
   });
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("teamspaceFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const uploadLogo = async (teamspaceId: number, file: File) => {
     const formData = new FormData();
@@ -157,6 +176,7 @@ export const TeamspaceCreationForm = ({
         });
 
         onClose();
+        localStorage.removeItem("teamspaceFormData");
       } else {
         const responseJson = await response.json();
         const errorMsg = responseJson.detail || responseJson.message;
