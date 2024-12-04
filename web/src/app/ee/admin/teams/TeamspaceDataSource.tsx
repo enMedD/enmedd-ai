@@ -55,7 +55,7 @@ const DataSourceContent = ({
           {filteredDataSources?.map((dataSource) => (
             <div
               key={dataSource.id}
-              className="border rounded-md flex items-start gap-4 p-4 cursor-pointer hover:bg-background-subtle"
+              className="border rounded-md flex items-start gap-4 p-4 cursor-pointer hover:bg-background-subtle transition-all duration-200 ease-in-out"
               onClick={() => onSelect && onSelect(dataSource)}
             >
               <Globe className="shrink-0 my-auto" />
@@ -237,7 +237,7 @@ export const TeamspaceDataSource = ({
                 </CustomTooltip>
               ))}
               {teamspace.cc_pairs.length > 8 && (
-                <div className="bg-background w-10 h-full rounded-full flex items-center justify-center text-sm font-semibold">
+                <div className="bg-background w-10 h-[22px] rounded-full flex items-center justify-center text-sm font-semibold">
                   +{teamspace.cc_pairs.length - 8}
                 </div>
               )}
