@@ -141,6 +141,18 @@ export const TeamspaceCreationForm = ({
       return;
     }
 
+    const hasAdmin = values.users.some(
+      (user) => user.role.toLowerCase() === "admin"
+    );
+    if (!hasAdmin) {
+      toast({
+        title: "Teamspace Creation Failed",
+        description: "Please include at least one admin in the users list",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (values.assistant_ids.length === 0) {
       toast({
         title: "Operation Failed",
