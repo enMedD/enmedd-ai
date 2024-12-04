@@ -522,11 +522,11 @@ async def current_workspace_or_teamspace_admin_user(
     db_session: Session = Depends(get_session),
 ) -> User:
     try:
-        return await current_workspace_admin_user(user=user)
-    except HTTPException:
         return await current_teamspace_admin_user(
             teamspace_id=teamspace_id, user=user, db_session=db_session
         )
+    except HTTPException:
+        return await current_workspace_admin_user(user=user)
 
 
 async def current_admin_user_based_on_teamspace_id(
