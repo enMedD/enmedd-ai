@@ -113,17 +113,21 @@ export function AdminSidebar({ ...props }: AdminSidebarProps) {
             ? `/t/${teamspaceId}/admin/documents/explorer`
             : `/admin/documents/explorer`,
         },
-        {
-          name: (
-            <div className="flex items-center gap-2">
-              <ThumbsUpIcon size={18} />
-              <div>Feedback</div>
-            </div>
-          ),
-          link: teamspaceId
-            ? `/t/${teamspaceId}/admin/documents/feedback`
-            : `/admin/documents/feedback`,
-        },
+        ...(!teamspaceId
+          ? [
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <ThumbsUpIcon size={18} />
+                    <div>Feedback</div>
+                  </div>
+                ),
+                link: teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/feedback`
+                  : `/admin/documents/feedback`,
+              },
+            ]
+          : []),
       ],
     },
     {
