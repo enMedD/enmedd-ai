@@ -491,9 +491,6 @@ async def current_teamspace_admin_user(
             detail="Access denied. User is not authenticated.",
         )
 
-    if teamspace_id is None:
-        return await current_workspace_admin_user(user=user)
-
     user_teamspace = (
         db_session.query(User__Teamspace)
         .filter_by(teamspace_id=teamspace_id, user_id=user.id)
@@ -519,14 +516,27 @@ async def current_teamspace_admin_user(
     )
 
 
-def current_workspace_or_teamspace_admin_user(
+async def current_workspace_or_teamspace_admin_user(
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> User:
     try:
-        return current_workspace_admin_user(user=user)
+        return await current_teamspace_admin_user(
+            teamspace_id=teamspace_id, user=user, db_session=db_session
+        )
     except HTTPException:
-        return current_teamspace_admin_user(
+        return await current_workspace_admin_user(user=user)
+
+
+async def current_admin_user_based_on_teamspace_id(
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> User:
+    if teamspace_id is None:
+        return await current_workspace_admin_user(user=user)
+    else:
+        return await current_teamspace_admin_user(
             teamspace_id=teamspace_id, user=user, db_session=db_session
         )

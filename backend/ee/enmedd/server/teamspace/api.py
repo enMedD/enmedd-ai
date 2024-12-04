@@ -19,6 +19,7 @@ from ee.enmedd.server.teamspace.models import TeamspaceUserRole
 from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from ee.enmedd.server.workspace.store import _TEAMSPACELOGO_FILENAME
 from ee.enmedd.server.workspace.store import upload_teamspace_logo
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
@@ -44,7 +45,7 @@ basic_router = APIRouter(prefix="/teamspace")
 @admin_router.get("/admin/teamspace/{teamspace_id}")
 def get_teamspace_by_id(
     teamspace_id: int,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     teamspace_model = (
@@ -242,7 +243,7 @@ def delete_teamspace(
 def update_teamspace_name_and_description(
     teamspace_id: int,
     teamspace_update: TeamspaceUpdateName,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     db_teamspace = fetch_teamspace(db_session, teamspace_id)
@@ -320,7 +321,7 @@ def leave_teamspace(
 def update_teamspace_user_role(
     teamspace_id: int,
     body: UpdateUserRoleRequest,
-    user: User = Depends(current_teamspace_admin_user),
+    user: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
 ) -> None:
     user_to_update = get_user_by_email(email=body.user_email, db_session=db_session)
@@ -475,7 +476,7 @@ def remove_teamspace_connector(
 def put_teamspace_logo(
     teamspace_id: int,
     file: UploadFile,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> None:
     upload_teamspace_logo(teamspace_id=teamspace_id, file=file, db_session=db_session)
