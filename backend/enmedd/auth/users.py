@@ -517,3 +517,16 @@ async def current_teamspace_admin_user(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Access denied. User is neither an admin nor the creator of this teamspace.",
     )
+
+
+def current_workspace_or_teamspace_admin_user(
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> User:
+    try:
+        return current_workspace_admin_user(user=user)
+    except HTTPException:
+        return current_teamspace_admin_user(
+            teamspace_id=teamspace_id, user=user, db_session=db_session
+        )

@@ -9,6 +9,7 @@ from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_user_with_expired_token
 from enmedd.auth.users import current_workspace_admin_user
+from enmedd.auth.users import current_workspace_or_teamspace_admin_user
 from enmedd.configs.app_configs import APP_API_PREFIX
 from enmedd.server.enmedd_api.ingestion import api_key_dep
 
@@ -101,6 +102,7 @@ def check_router_auth(
                     or depends_fn == current_teamspace_admin_user
                     or depends_fn == api_key_dep
                     or depends_fn == current_user_with_expired_token
+                    or depends_fn == current_workspace_or_teamspace_admin_user
                 ):
                     found_auth = True
                     break
