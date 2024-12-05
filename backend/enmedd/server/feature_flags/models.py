@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
+
 from enmedd.utils.logger import setup_logger
 
 
