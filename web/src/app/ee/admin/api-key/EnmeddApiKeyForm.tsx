@@ -1,3 +1,5 @@
+"use client";
+
 import { createApiKey, updateApiKey } from "./lib";
 import { UserRole } from "@/lib/types";
 import { APIKey, APIKeyArgs } from "./types";
@@ -6,21 +8,15 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Form } from "@/components/ui/form";
+import { CheckboxForm, InputForm } from "@/components/admin/connectors/Field";
+import { useEffect } from "react";
 
 interface EnmeddApiKeyFormProps {
   onClose: () => void;
   onCreateApiKey: (apiKey: APIKey) => void;
   apiKey?: APIKey;
+  isUpdate?: boolean;
 }
 
 const formSchema = z.object({
@@ -34,17 +30,31 @@ export const EnmeddApiKeyForm = ({
   onClose,
   onCreateApiKey,
   apiKey,
+  isUpdate,
 }: EnmeddApiKeyFormProps) => {
-  const isUpdate = Boolean(apiKey);
   const { toast } = useToast();
+
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("apiKeyFormData") || "{}"
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: apiKey?.api_key_name || "",
-      is_admin: apiKey?.api_key_role === UserRole.ADMIN,
+      name: isUpdate ? apiKey?.api_key_name : cachedFormData.name || "",
+      is_admin: isUpdate
+        ? apiKey?.api_key_role === UserRole.ADMIN
+        : (cachedFormData.is_admin ?? false),
     },
   });
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("apiKeyFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -72,6 +82,7 @@ export const EnmeddApiKeyForm = ({
           onCreateApiKey(result);
         }
         onClose();
+        localStorage.removeItem("apiKeyFormData");
       } else {
         const error = await response.json();
         const errorMessage = error.detail || error.message || "Unknown error";
@@ -92,47 +103,20 @@ export const EnmeddApiKeyForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {/* Name Field */}
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="name"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="name">Name</FormLabel>
-              <FormControl>
-                <Input
-                  id="name"
-                  placeholder="Enter a name for the API key"
-                  disabled={isUpdate}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Name"
+          placeholder="Enter a name for the API key"
+          disabled={isUpdate}
         />
 
         {/* Is Admin Checkbox */}
-        <FormField
-          control={form.control}
+        <CheckboxForm
+          formControl={form.control}
           name="is_admin"
-          render={({ field }) => (
-            <FormItem className="flex gap-2">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(checked) =>
-                    field.onChange(Boolean(checked))
-                  }
-                />
-              </FormControl>
-              <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
-                Is Admin?
-                <p className="text-sm text-muted-foreground font-normal">
-                  Grant admin-level access to the server APIs.
-                </p>
-              </FormLabel>
-            </FormItem>
-          )}
+          label="Is Admin?"
+          description="Grant admin-level access to the server APIs."
         />
 
         {/* Actions */}

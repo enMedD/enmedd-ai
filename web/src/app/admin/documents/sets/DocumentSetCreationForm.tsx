@@ -5,20 +5,15 @@ import { createDocumentSet, updateDocumentSet } from "./lib";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { Combobox } from "@/components/Combobox";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Form } from "@/components/ui/form";
 import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  Form,
-} from "@/components/ui/form";
+  CheckboxForm,
+  ComboboxForm,
+  InputForm,
+} from "@/components/admin/connectors/Field";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -55,18 +50,29 @@ export const DocumentSetCreationForm = ({
   const { toast } = useToast();
   const isUpdate = existingDocumentSet !== undefined;
 
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("documentSetFormData") || "{}"
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: existingDocumentSet?.name ?? "",
-      description: existingDocumentSet?.description ?? "",
+      name: existingDocumentSet?.name ?? cachedFormData?.name ?? "",
+      description:
+        existingDocumentSet?.description ?? cachedFormData?.description ?? "",
       cc_pair_ids:
         existingDocumentSet?.cc_pair_descriptors.map(
           (ccPairDescriptor) => ccPairDescriptor.id
-        ) ?? [],
-      is_public: existingDocumentSet?.is_public ?? true,
-      users: existingDocumentSet?.users ?? [],
-      groups: existingDocumentSet?.groups.map((group) => group.id) ?? [],
+        ) ??
+        cachedFormData?.cc_pair_ids ??
+        [],
+      is_public:
+        existingDocumentSet?.is_public ?? cachedFormData?.is_public ?? true,
+      users: existingDocumentSet?.users ?? cachedFormData?.users ?? [],
+      groups:
+        existingDocumentSet?.groups.map((group) => group.id) ??
+        cachedFormData?.groups ??
+        [],
     },
   });
 
@@ -76,6 +82,14 @@ export const DocumentSetCreationForm = ({
       value: ccPair.cc_pair_id.toString(),
       label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
     }));
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("documentSetFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   useEffect(() => {
     if (teamspaceId) {
@@ -114,6 +128,7 @@ export const DocumentSetCreationForm = ({
         variant: "success",
       });
       onClose();
+      localStorage.removeItem("documentSetFormData");
     } else {
       const errorMsg = await response.text();
       toast({
@@ -130,94 +145,47 @@ export const DocumentSetCreationForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {/* Name Field */}
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="A name for the document set"
-                  disabled={isUpdate}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Name"
+          placeholder="A name for the document set"
+          disabled={isUpdate}
         />
 
         {/* Description Field */}
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Describe what the document set represents"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Description"
+          placeholder="Describe what the document set represents"
         />
 
-        <FormField
-          control={form.control}
+        <ComboboxForm
+          formControl={form.control}
           name="cc_pair_ids"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pick your connectors</FormLabel>
-              <FormControl>
-                <Combobox
-                  items={connectorItems}
-                  onSelect={(selectedValues) => {
-                    const selectedIds = selectedValues.map((val) =>
-                      parseInt(val, 10)
-                    );
-                    field.onChange(selectedIds);
-                  }}
-                  placeholder="Search connectors"
-                  label="Select data sources"
-                  selected={field.value.map((id) => id.toString())}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Pick your connectors"
+          comboboxLabel="Select data sources"
+          placeholder="Search connectors"
+          items={connectorItems}
         />
 
         {/* Teamspace Selection */}
         {teamspaces && teamspaces.length > 0 && !teamspaceId && (
           <div>
-            <FormField
-              control={form.control}
+            <CheckboxForm
+              formControl={form.control}
               name="is_public"
-              render={({ field }) => (
-                <FormItem className="flex gap-2">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={(checked) => {
-                        field.onChange(checked);
-                      }}
-                    />
-                  </FormControl>
-                  <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
-                    <span>Is Public?</span>
-                    <p className="text-sm text-muted-foreground font-normal">
-                      If the document set is public, it will be visible to{" "}
-                      <b>all users</b>. If not, only users in the specified
-                      teamspace will be able to see it.
-                    </p>
-                  </FormLabel>
-                </FormItem>
-              )}
+              label="Is Public?"
+              description={
+                <>
+                  If the document set is public, it will be visible to{" "}
+                  <b>all users</b>. If not, only users in the specified
+                  teamspace will be able to see it.
+                </>
+              }
             />
+
             {!form.getValues("is_public") && (
               <>
                 <h3 className="mb-1 text-sm">Teamspace with Access</h3>
@@ -226,32 +194,15 @@ export const DocumentSetCreationForm = ({
                   visible only to them. If none, it will be visible to all
                   users.
                 </p>
-                <FormField
-                  control={form.control}
+                <ComboboxForm
+                  formControl={form.control}
                   name="groups"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Teamspaces</FormLabel>
-                      <FormControl>
-                        <Combobox
-                          items={teamspaces.map((teams) => ({
-                            value: teams.id.toString(),
-                            label: teams.name,
-                          }))}
-                          onSelect={(selectedTeamspaceIds) => {
-                            const selectedIds = selectedTeamspaceIds.map(
-                              (val) => parseInt(val, 10)
-                            );
-                            field.onChange(selectedIds);
-                          }}
-                          placeholder="Select teamspaces"
-                          label="Teamspaces"
-                          selected={field.value?.map((id) => id.toString())}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  comboboxLabel="Teamspaces"
+                  placeholder="Search connectors"
+                  items={teamspaces.map((teams) => ({
+                    value: teams.id.toString(),
+                    label: teams.name,
+                  }))}
                 />
               </>
             )}

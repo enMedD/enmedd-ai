@@ -22,6 +22,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
+import { InputForm } from "@/components/admin/connectors/Field";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -146,51 +147,27 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Full Name Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your full name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Full Name"
+            placeholder="Enter your full name"
           />
+
           {/* Company Name Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="company_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your company name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Company Name"
+            placeholder="Enter your company name"
           />
 
           {/* Email Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={email !== ""}
-                    placeholder="Enter your email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email"
+            placeholder="Enter your email"
           />
 
           {/* Password Field */}
@@ -232,22 +209,12 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
           </div>
 
           {/* Confirm Password Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="confirm_password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Confirm your password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            type="password"
           />
 
           {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
