@@ -97,7 +97,6 @@ export function LogInForms({}: {}) {
 
     setIsLoading(false);
   }
-
   return (
     <>
       {isLoading && <Spinner />}
