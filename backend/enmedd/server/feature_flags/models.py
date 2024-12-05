@@ -47,7 +47,7 @@ class FeatureFlagsManager:
 
     def update_overall_feature(features: FeatureFlags):
         logger.info(f"Updating feature flags: {features}")
-        get_kv_store().store(_FEATURE_FLAG_KEY, features.model_dump())
+        get_kv_store().store(_FEATURE_FLAG_KEY, features)
 
     def store_feature(feature: str, value: bool):
         existing_features = FeatureFlagsManager.get_all_features()
