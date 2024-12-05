@@ -1,9 +1,28 @@
 from pydantic import BaseModel
 
 from enmedd.key_value_store.factory import get_kv_store
+from enmedd.utils.logger import setup_logger
 
 
 _FEATURE_FLAG_KEY = "enmedd_feature_flag"
+
+logger = setup_logger()
+
+
+class FeatureFlags(BaseModel):
+    """Features Control"""
+
+    profile_page: bool = True
+    multi_teamspace: bool = True
+    multi_workspace: bool = False
+    query_history: bool = False
+    whitelabelling: bool = True
+    share_chat: bool = False
+    explore_assistants: bool = False
+    two_factor_auth: bool = True
+
+    def check_validity(self) -> None:
+        return
 
 
 class FeatureFlagsManager:
@@ -23,26 +42,11 @@ class FeatureFlagsManager:
         except TypeError:
             return {}
 
-    def update_overall_feature(features: dict):
-        get_kv_store().store(_FEATURE_FLAG_KEY, features)
+    def update_overall_feature(features: FeatureFlags):
+        logger.info(f"Updating feature flags: {features}")
+        get_kv_store().store(_FEATURE_FLAG_KEY, features.model_dump())
 
     def store_feature(feature: str, value: bool):
         existing_features = FeatureFlagsManager.get_all_features()
         existing_features.update({feature: value})
         FeatureFlagsManager.update_overall_feature(existing_features)
-
-
-class FeatureFlags(BaseModel):
-    """Features Control"""
-
-    profile_page: bool = True
-    multi_teamspace: bool = True
-    multi_workspace: bool = False
-    query_history: bool = False
-    whitelabelling: bool = True
-    share_chat: bool = False
-    explore_assistants: bool = False
-    two_factor_auth: bool = True
-
-    def check_validity(self) -> None:
-        return
