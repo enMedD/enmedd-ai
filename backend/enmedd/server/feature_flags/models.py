@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from enmedd.key_value_store.factory import get_kv_store
+from enmedd.key_value_store.interface import KvKeyNotFoundError
 from enmedd.utils.logger import setup_logger
 
 
@@ -39,8 +40,10 @@ class FeatureFlagsManager:
     def get_all_features():
         try:
             return FeatureFlagsManager.__reload_features()
-        except TypeError:
-            return {}
+        except KvKeyNotFoundError:
+            feature_flag = FeatureFlags()
+            FeatureFlagsManager.update_overall_feature(feature_flag)
+            return feature_flag.model_dump()
 
     def update_overall_feature(features: FeatureFlags):
         logger.info(f"Updating feature flags: {features}")
