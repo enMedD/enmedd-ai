@@ -18,10 +18,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { InstantSSRAutoRefresh } from "@/components/SSRAutoRefresh";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
-import { ChatPopup } from "@/app/chat/ChatPopup";
 import { SearchSidebar } from "@/app/search/SearchSidebar";
-import { BarLayout } from "@/components/BarLayout";
-import { HelperFab } from "@/components/HelperFab";
 import {
   FetchAssistantsResponse,
   fetchAssistantsSS,
@@ -32,13 +29,12 @@ import { ChatSession } from "@/app/chat/interfaces";
 import {
   AGENTIC_SEARCH_TYPE_COOKIE_NAME,
   DISABLE_LLM_DOC_RELEVANCE,
-  NEXT_PUBLIC_DEFAULT_SIDEBAR_OPEN,
 } from "@/lib/constants";
-import { ApiKeyModal } from "@/components/llm/ApiKeyModal";
 import { FullEmbeddingModelResponse } from "@/components/embedding/interfaces";
 import { SearchProvider } from "@/context/SearchContext";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { assistantComparator } from "@/app/admin/assistants/lib";
+import Sidebar from "@/components/Sidebar";
 
 export default async function Home({
   params,
@@ -177,47 +173,48 @@ export default async function Home({
     : false;
 
   return (
-    <div className="h-full overflow-y-auto">
+    <>
       <HealthCheckBanner />
-      <div className="relative flex h-full">
-        <SearchProvider
-          value={{
-            querySessions,
-            ccPairs,
-            documentSets,
-            assistants,
-            tags,
-            agenticSearchEnabled,
-            disabledAgentic: DISABLE_LLM_DOC_RELEVANCE,
-            shouldShowWelcomeModal,
-            shouldDisplayNoSources: shouldDisplayNoSourcesModal,
-          }}
+
+      <SearchProvider
+        value={{
+          querySessions,
+          ccPairs,
+          documentSets,
+          assistants,
+          tags,
+          agenticSearchEnabled,
+          disabledAgentic: DISABLE_LLM_DOC_RELEVANCE,
+          shouldShowWelcomeModal,
+          shouldDisplayNoSources: shouldDisplayNoSourcesModal,
+        }}
+      >
+        <Sidebar
+          user={user}
+          sidebar={<SearchSidebar teamspaceId={params.teamspaceId} />}
         >
-          <BarLayout
-            user={user}
-            teamspaceId={params.teamspaceId}
-            BarComponent={SearchSidebar}
-          />
-          {shouldShowWelcomeModal && <WelcomeModal user={user} />}
-          {shouldDisplayNoSourcesModal && <NoSourcesModal />}
-          {shouldDisplaySourcesIncompleteModal && (
-            <NoCompleteSourcesModal ccPairs={ccPairs} />
-          )}
-          {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
-      Only used in the EE version of the app. */}
-          <ChatPopup />
-          <InstantSSRAutoRefresh />
-          <div className="w-full h-full overflow-hidden overflow-y-auto min-h-screen">
-            <div className="pt-20 lg:pt-14 lg:px-14 container">
-              <SearchSection
-                defaultSearchType={searchTypeDefault}
-                teamspaceId={params.teamspaceId}
-              />
+          <div className="relative flex h-full">
+            {shouldShowWelcomeModal && <WelcomeModal user={user} />}
+            {shouldDisplayNoSourcesModal && <NoSourcesModal />}
+            {shouldDisplaySourcesIncompleteModal && (
+              <NoCompleteSourcesModal ccPairs={ccPairs} userRole={user?.role} />
+            )}
+            {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
+        Only used in the EE version of the app. */}
+            {/* <ChatPopup /> */}
+            <InstantSSRAutoRefresh />
+            <div className="w-full h-full overflow-hidden overflow-y-auto min-h-screen">
+              <div className="pt-20 lg:pt-14 lg:px-14 container">
+                <SearchSection
+                  defaultSearchType={searchTypeDefault}
+                  teamspaceId={params.teamspaceId}
+                />
+              </div>
             </div>
           </div>
-        </SearchProvider>
-      </div>
+        </Sidebar>
+      </SearchProvider>
       {/* <HelperFab /> */}
-    </div>
+    </>
   );
 }

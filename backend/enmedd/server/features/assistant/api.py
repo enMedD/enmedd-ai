@@ -9,7 +9,7 @@ from fastapi import UploadFile
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.configs.constants import FileOrigin
@@ -109,13 +109,13 @@ def patch_assistant_display_priority(
 
 @admin_router.get("")
 def list_assistants_admin(
-    user: User | None = Depends(current_teamspace_admin_user),
+    teamspace_id: int | None = None,
     db_session: Session = Depends(get_session),
     include_deleted: bool = False,
     get_editable: bool = Query(
         False, description="If true, return editable assistants"
     ),
-    teamspace_id: int | None = None,
+    user: User | None = Depends(current_admin_user_based_on_teamspace_id),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[AssistantSnapshot]:
     if tenant_id:
@@ -232,7 +232,7 @@ def share_assistant(
 def delete_assistant(
     assistant_id: int,
     teamspace_id: Optional[int] = None,
-    user: User | None = Depends(current_teamspace_admin_user),
+    user: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:

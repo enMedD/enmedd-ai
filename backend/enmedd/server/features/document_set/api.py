@@ -7,7 +7,7 @@ from fastapi import Query
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import validate_user_creation_permissions
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.db.document_set import check_document_sets_are_public
@@ -88,7 +88,7 @@ def patch_document_set(
 def delete_document_set(
     document_set_id: int,
     teamspace_id: Optional[int] = None,
-    user: User = Depends(current_teamspace_admin_user),
+    user: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
@@ -108,7 +108,7 @@ def delete_document_set(
 @router.get("/admin/document-set")
 def list_document_sets_admin(
     teamspace_id: Optional[int] = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> list[DocumentSet]:

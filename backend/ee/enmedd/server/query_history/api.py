@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.query_history import fetch_chat_sessions_eagerly_by_time
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import get_display_email
 from enmedd.chat.chat_utils import create_chat_chain
@@ -345,7 +345,7 @@ def get_chat_session_history(
     feedback_type: QAFeedbackType | None = None,
     start: datetime | None = None,
     end: datetime | None = None,
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
     tenant_id: Optional[str] = Depends(get_tenant_id),
@@ -399,7 +399,7 @@ def get_chat_session_admin(
 
 @router.get("/admin/query-history-csv")
 def get_query_history_as_csv(
-    _: User | None = Depends(current_teamspace_admin_user),
+    _: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     teamspace_id: Optional[int] = None,
     tenant_id: Optional[str] = Depends(get_tenant_id),

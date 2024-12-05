@@ -10,8 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ConnectorIndexingStatus } from "@/lib/types";
-import { TableHeaderCell } from "@tremor/react";
-import { Maximize2 } from "lucide-react";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -27,49 +25,53 @@ export function ReindexingProgressTable({
 
   return (
     <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHeaderCell className="w-1/7 sm:w-1/5">
-              Connector Name
-            </TableHeaderCell>
-            <TableHeaderCell className="w-3/7 sm:w-1/5">Status</TableHeaderCell>
-            <TableHeaderCell className="w-3/7 sm:w-1/5">
-              Docs Re-Indexed
-            </TableHeaderCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {reindexingProgress
-            .slice(numToDisplay * (page - 1), numToDisplay * page)
-            .map((reindexingProgress) => {
-              return (
-                <TableRow key={reindexingProgress.name}>
-                  <TableCell>
-                    <Link
-                      href={`/admin/connector/${reindexingProgress.cc_pair_id}`}
-                      className="text-link cursor-pointer flex"
-                    >
-                      <FiMaximize2 className="my-auto mr-1" />
-                      {reindexingProgress.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {reindexingProgress.latest_index_attempt?.status && (
-                      <IndexAttemptStatus
-                        status={reindexingProgress.latest_index_attempt.status}
-                      />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {reindexingProgress?.latest_index_attempt
-                      ?.total_docs_indexed || "-"}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-        </TableBody>
-      </Table>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-1/7 sm:w-1/5">Connector Name</TableHead>
+                <TableHead className="w-3/7 sm:w-1/5">Status</TableHead>
+                <TableHead className="w-3/7 sm:w-1/5">
+                  Docs Re-Indexed
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {reindexingProgress
+                .slice(numToDisplay * (page - 1), numToDisplay * page)
+                .map((reindexingProgress) => {
+                  return (
+                    <TableRow key={reindexingProgress.name}>
+                      <TableCell>
+                        <Link
+                          href={`/admin/connector/${reindexingProgress.cc_pair_id}`}
+                          className="text-link cursor-pointer flex"
+                        >
+                          <FiMaximize2 className="my-auto mr-1" />
+                          {reindexingProgress.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        {reindexingProgress.latest_index_attempt?.status && (
+                          <IndexAttemptStatus
+                            status={
+                              reindexingProgress.latest_index_attempt.status
+                            }
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {reindexingProgress?.latest_index_attempt
+                          ?.total_docs_indexed || "-"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <div className="mt-3 flex">
         <div className="mx-auto">

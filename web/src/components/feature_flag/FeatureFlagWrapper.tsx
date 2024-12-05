@@ -16,6 +16,5 @@ export const FeatureFlagWrapper: React.FC<FeatureFlagWrapperProps> = ({
   fallback = null,
 }) => {
   const isEnabled = useFeatureFlag(flag);
-  console.log(isEnabled);
   return isEnabled ? <>{children}</> : <>{fallback}</>;
 };

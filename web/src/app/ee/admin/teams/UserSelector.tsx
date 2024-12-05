@@ -19,7 +19,7 @@ interface UserEditorProps {
   onRemoveUser: (userId: string) => void;
 }
 
-export const UserEditor = ({
+export const UserSelector = ({
   selectedUserIds,
   allUsers,
   existingUsers,
@@ -50,7 +50,7 @@ export const UserEditor = ({
 
   return (
     <div>
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2">
         <Select
           onValueChange={(value) => setSelectedUser(value)}
           value={selectedUser || ""}
@@ -74,7 +74,7 @@ export const UserEditor = ({
             <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="basic">Basic</SelectItem>
+            <SelectItem value="basic">User</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
@@ -87,37 +87,39 @@ export const UserEditor = ({
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {selectedUserIds.map((userId) => {
-          const user = allUsers.find((u) => u.id === userId);
-          const userRole = existingUsers.find(
-            (u) => u.user_id === userId
-          )?.role;
+      {selectedUserIds.length > 0 && (
+        <div className="flex flex-wrap gap-2 pt-2">
+          {selectedUserIds.map((userId) => {
+            const user = allUsers.find((u) => u.id === userId);
+            const userRole = existingUsers.find(
+              (u) => u.user_id === userId
+            )?.role;
 
-          return (
-            <Badge
-              key={userId}
-              className="flex items-center gap-1.5 justify-between"
-            >
-              <div className="flex items-center gap-2 overflow-hidden">
-                <span className="truncate inline-block">{user?.email}</span>{" "}
-                <span>
-                  (
-                  {userRole
-                    ? userRole.charAt(0).toUpperCase() + userRole.slice(1)
-                    : ""}
-                  )
-                </span>
-              </div>
-              <X
-                onClick={() => onRemoveUser(userId)}
-                size={14}
-                className="shrink-0 cursor-pointer"
-              />
-            </Badge>
-          );
-        })}
-      </div>
+            return (
+              <Badge
+                key={userId}
+                className="flex items-center gap-1.5 justify-between"
+              >
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <span className="truncate inline-block">{user?.email}</span>{" "}
+                  <span>
+                    (
+                    {userRole
+                      ? userRole.charAt(0).toUpperCase() + userRole.slice(1)
+                      : ""}
+                    )
+                  </span>
+                </div>
+                <X
+                  onClick={() => onRemoveUser(userId)}
+                  size={14}
+                  className="shrink-0 cursor-pointer"
+                />
+              </Badge>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

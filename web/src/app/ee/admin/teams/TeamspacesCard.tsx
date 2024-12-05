@@ -166,8 +166,8 @@ export const TeamspacesCard = ({
             )}
           </div>
           <div className="pb-6">
-            <h2 className="w-full font-bold break-all whitespace-normal">
-              <span className="inline">{teamspace.name}</span>
+            <h2 className="w-full font-bold truncate flex">
+              <span className="inline truncate">{teamspace.name}</span>
               <CustomTooltip
                 trigger={
                   <div
@@ -191,7 +191,7 @@ export const TeamspacesCard = ({
             <div className="flex items-center gap-2">
               <Users size={16} className="shrink-0" />
               <span className="whitespace-nowrap">
-                {teamspace.users.length} People
+                {teamspace.users.length} Members
               </span>
             </div>
 

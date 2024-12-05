@@ -23,12 +23,12 @@ from ee.enmedd.server.workspace.store import load_analytics_script
 from ee.enmedd.server.workspace.store import store_analytics_script
 from ee.enmedd.server.workspace.store import upload_header_logo
 from ee.enmedd.server.workspace.store import upload_logo
-from enmedd.auth.users import current_user
 from enmedd.auth.users import current_user_with_expired_token
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import get_user_manager
 from enmedd.auth.users import UserManager
 from enmedd.db.engine import get_session
+from enmedd.db.instance import delete_schema
 from enmedd.db.models import User
 from enmedd.db.models import Workspace
 from enmedd.db.workspace import get_workspace_settings
@@ -212,6 +212,24 @@ def fetch_settings(
     return Workspaces.from_model(settings)
 
 
+@admin_router.delete("/delete-workspace")
+def delete_workspace(
+    _: User = Depends(current_workspace_admin_user),
+    db_session: Session = Depends(get_session),
+) -> dict:
+    workspace = db_session.query(Workspace).first()
+    schema_name = workspace.workspace_name.lower().replace(" ", "_")
+    try:
+        delete_schema(db_session, schema_name)
+    except Exception as e:
+        db_session.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete workspace: {str(e)}"
+        )
+
+    return {"message": "Workspace deleted successfully."}
+
+
 @admin_router.put("/logo")
 def put_logo(
     file: UploadFile,
@@ -266,7 +284,6 @@ def fetch_logotype(
 @basic_router.get("/logo")
 def fetch_logo(
     workspace_id: int = 0,  # Temporary setting workspace_id to 0
-    _: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Response:

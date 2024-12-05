@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const defaultTheme = {
   brand: {
@@ -29,8 +29,12 @@ const defaultTheme = {
   },
 };
 
+const loadingColor = "#e7e7e7";
+
 export function useTheme() {
   useEffect(() => {
+    applyLoadingColors();
+
     async function fetchAndApplyTheme() {
       try {
         const response = await fetch("/api/themes", {
@@ -45,17 +49,41 @@ export function useTheme() {
         }
 
         const themeData = await response.json();
-        // Apply theme to CSS variables
         applyThemeToCSSVariables(themeData);
       } catch (error) {
         console.error("Error fetching theme:", error);
-        // Apply default theme if fetch fails
         applyThemeToCSSVariables(defaultTheme);
       }
     }
 
     fetchAndApplyTheme();
   }, []);
+
+  function applyLoadingColors() {
+    const keys = [
+      "50",
+      "100",
+      "200",
+      "300",
+      "400",
+      "500",
+      "600",
+      "700",
+      "800",
+      "900",
+      "950",
+    ];
+    keys.forEach((key) => {
+      document.documentElement.style.setProperty(
+        `--brand-${key}`,
+        loadingColor
+      );
+      document.documentElement.style.setProperty(
+        `--secondary-${key}`,
+        loadingColor
+      );
+    });
+  }
 
   function applyThemeToCSSVariables(themeData: any) {
     const { brand, secondary } = themeData;
@@ -69,7 +97,5 @@ export function useTheme() {
       const color = secondary[key];
       document.documentElement.style.setProperty(`--secondary-${key}`, color);
     });
-
-    console.log("CSS variables updated with the theme colors");
   }
 }

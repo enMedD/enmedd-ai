@@ -1,24 +1,24 @@
 "use client";
 
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
-import {
-  createDocumentSet,
-  updateDocumentSet,
-  DocumentSetCreationRequest,
-} from "./lib";
-import {
-  BooleanFormField,
-  TextFormField,
-} from "@/components/admin/connectors/Field";
-import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
+import { createDocumentSet, updateDocumentSet } from "./lib";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
-import { Divider } from "@/components/Divider";
-import { useUser } from "@/components/user/UserProvider";
+import { useEffect } from "react";
 import { Combobox } from "@/components/Combobox";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  Form,
+} from "@/components/ui/form";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -28,6 +28,23 @@ interface SetCreationPopupProps {
   teamspaceId?: string | string[];
 }
 
+const formSchema = z.object({
+  name: z.string().min(1, {
+    message: "Please enter a name for the set",
+  }),
+  description: z.string().min(1, {
+    message: "Please enter a description for the set",
+  }),
+  cc_pair_ids: z.array(z.number()).min(1, {
+    message: "Please select at least one connector",
+  }),
+  is_public: z.boolean(),
+  groups: z.array(z.number()).optional(),
+  users: z.array(z.string()).optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export const DocumentSetCreationForm = ({
   ccPairs,
   teamspaces,
@@ -36,200 +53,221 @@ export const DocumentSetCreationForm = ({
   teamspaceId,
 }: SetCreationPopupProps) => {
   const { toast } = useToast();
-  const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
   const isUpdate = existingDocumentSet !== undefined;
-  const [localCcPairs, setLocalCcPairs] = useState(ccPairs);
-  const { user } = useUser();
 
-  useEffect(() => {
-    if (existingDocumentSet?.is_public) {
-      return;
-    }
-  }, [existingDocumentSet?.is_public]);
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: existingDocumentSet?.name ?? "",
+      description: existingDocumentSet?.description ?? "",
+      cc_pair_ids:
+        existingDocumentSet?.cc_pair_descriptors.map(
+          (ccPairDescriptor) => ccPairDescriptor.id
+        ) ?? [],
+      is_public: existingDocumentSet?.is_public ?? true,
+      users: existingDocumentSet?.users ?? [],
+      groups: existingDocumentSet?.groups.map((group) => group.id) ?? [],
+    },
+  });
 
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredCcPairs = ccPairs.filter((ccPair) =>
-    ccPair.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const connectorItems = filteredCcPairs
+  const connectorItems = ccPairs
     .filter((ccPair) => ccPair.access_type !== "private")
     .map((ccPair) => ({
       value: ccPair.cc_pair_id.toString(),
       label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
     }));
 
-  console.log(existingDocumentSet);
+  useEffect(() => {
+    if (teamspaceId) {
+      form.setValue("is_public", false);
+    }
+  }, [teamspaceId, form]);
+
+  const onSubmit = async (values: FormValues) => {
+    const processedValues = {
+      ...values,
+      groups: teamspaceId
+        ? [Number(teamspaceId)]
+        : values.is_public
+          ? []
+          : (values.groups ?? []),
+      users: values.users ?? [],
+    };
+
+    let response;
+    if (isUpdate) {
+      response = await updateDocumentSet({
+        id: existingDocumentSet.id,
+        ...processedValues,
+        users: processedValues.users,
+      });
+    } else {
+      response = await createDocumentSet(processedValues);
+    }
+
+    if (response.ok) {
+      toast({
+        title: isUpdate ? "Document Set Updated" : "New Document Set Created",
+        description: isUpdate
+          ? "Your document set has been updated successfully."
+          : "Your new document set has been created successfully.",
+        variant: "success",
+      });
+      onClose();
+    } else {
+      const errorMsg = await response.text();
+      toast({
+        title: "Action Failed",
+        description: isUpdate
+          ? `Failed to update document set: ${errorMsg}`
+          : `Failed to create document set: ${errorMsg}`,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <div>
-      <Formik<DocumentSetCreationRequest>
-        initialValues={{
-          name: existingDocumentSet?.name ?? "",
-          description: existingDocumentSet?.description ?? "",
-          cc_pair_ids:
-            existingDocumentSet?.cc_pair_descriptors.map(
-              (ccPairDescriptor) => ccPairDescriptor.id
-            ) ?? [],
-          is_public: existingDocumentSet?.is_public ?? true,
-          users: existingDocumentSet?.users ?? [],
-          groups: existingDocumentSet?.groups.map((group) => group.id) ?? [],
-        }}
-        validationSchema={Yup.object().shape({
-          name: Yup.string().required("Please enter a name for the set"),
-          description: Yup.string().required(
-            "Please enter a description for the set"
-          ),
-          cc_pair_ids: Yup.array()
-            .of(Yup.number().required())
-            .required("Please select at least one connector"),
-          groups: Yup.array().of(Yup.number()),
-        })}
-        onSubmit={async (values, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
-          const processedValues = {
-            ...values,
-            groups: teamspaceId
-              ? [Number(teamspaceId)]
-              : values.is_public
-                ? []
-                : values.groups,
-          };
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Field */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="A name for the document set"
+                  disabled={isUpdate}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          let response;
-          if (isUpdate) {
-            response = await updateDocumentSet({
-              id: existingDocumentSet.id,
-              ...processedValues,
-              users: processedValues.users,
-            });
-          } else {
-            response = await createDocumentSet(processedValues);
-          }
-          formikHelpers.setSubmitting(false);
-          if (response.ok) {
-            toast({
-              title: isUpdate
-                ? "Document Set Updated"
-                : "New Document Set Created",
-              description: isUpdate
-                ? "Your document set has been updated successfully."
-                : "Your new document set has been created successfully.",
-              variant: "success",
-            });
-            onClose();
-          } else {
-            const errorMsg = await response.text();
-            toast({
-              title: "Action Failed",
-              description: isUpdate
-                ? `Failed to update document set: ${errorMsg}`
-                : `Failed to create document set: ${errorMsg}`,
-              variant: "destructive",
-            });
-          }
-        }}
-      >
-        {({ isSubmitting, values, setFieldValue }) => {
-          useEffect(() => {
-            if (teamspaceId) {
-              setFieldValue("is_public", false);
-            }
-          }, [teamspaceId, setFieldValue]);
+        {/* Description Field */}
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Describe what the document set represents"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          return (
-            <Form>
-              <TextFormField
-                name="name"
-                label="Name:"
-                placeholder="A name for the document set"
-                disabled={isUpdate}
-                autoCompleteDisabled={true}
-              />
-              <TextFormField
-                name="description"
-                label="Description:"
-                placeholder="Describe what the document set represents"
-                autoCompleteDisabled={true}
-              />
-
-              <div>
-                <p className="mb-1 text-sm font-semibold">
-                  Pick your connectors:
-                </p>
+        <FormField
+          control={form.control}
+          name="cc_pair_ids"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pick your connectors</FormLabel>
+              <FormControl>
                 <Combobox
                   items={connectorItems}
                   onSelect={(selectedValues) => {
                     const selectedIds = selectedValues.map((val) =>
                       parseInt(val, 10)
                     );
-                    setFieldValue("cc_pair_ids", selectedIds);
+                    field.onChange(selectedIds);
                   }}
                   placeholder="Search connectors"
                   label="Select data sources"
-                  selected={values.cc_pair_ids.map((id) => id.toString())}
+                  selected={field.value.map((id) => id.toString())}
                 />
-              </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-              {teamspaces && teamspaces.length > 0 && !teamspaceId && (
-                <div>
-                  <Divider />
-                  <BooleanFormField
-                    name="is_public"
-                    label="Is Public?"
-                    subtext={
-                      <>
-                        If the document set is public, it will be visible to{" "}
-                        <b>all users</b>. If not, only users in the specified
-                        teamspace will be able to see it.
-                      </>
-                    }
-                    alignTop
-                  />
-                  {!values.is_public && (
-                    <>
-                      <h3 className="mb-1 text-sm">Teamspace with Access</h3>
-                      <p className="mb-2 text-sm text-muted-foreground">
-                        If any teamspaces are specified, this Document Set will
-                        be visible only to them. If none, it will be visible to
-                        all users.
-                      </p>
-                      <Combobox
-                        items={teamspaces.map((teams) => ({
-                          value: teams.id.toString(),
-                          label: teams.name,
-                        }))}
-                        onSelect={(selectedTeamspaceIds) => {
-                          const selectedIds = selectedTeamspaceIds.map((val) =>
-                            parseInt(val, 10)
-                          );
-                          setFieldValue("groups", selectedIds);
-                        }}
-                        placeholder="Select teamspaces"
-                        label="Teamspaces"
-                        selected={values.groups.map((group) =>
-                          group.toString()
-                        )}
-                      />
-                    </>
-                  )}
-                </div>
+        {/* Teamspace Selection */}
+        {teamspaces && teamspaces.length > 0 && !teamspaceId && (
+          <div>
+            <FormField
+              control={form.control}
+              name="is_public"
+              render={({ field }) => (
+                <FormItem className="flex gap-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                    <span>Is Public?</span>
+                    <p className="text-sm text-muted-foreground font-normal">
+                      If the document set is public, it will be visible to{" "}
+                      <b>all users</b>. If not, only users in the specified
+                      teamspace will be able to see it.
+                    </p>
+                  </FormLabel>
+                </FormItem>
               )}
+            />
+            {!form.getValues("is_public") && (
+              <>
+                <h3 className="mb-1 text-sm">Teamspace with Access</h3>
+                <p className="mb-2 text-sm text-muted-foreground">
+                  If any teamspaces are specified, this Document Set will be
+                  visible only to them. If none, it will be visible to all
+                  users.
+                </p>
+                <FormField
+                  control={form.control}
+                  name="groups"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teamspaces</FormLabel>
+                      <FormControl>
+                        <Combobox
+                          items={teamspaces.map((teams) => ({
+                            value: teams.id.toString(),
+                            label: teams.name,
+                          }))}
+                          onSelect={(selectedTeamspaceIds) => {
+                            const selectedIds = selectedTeamspaceIds.map(
+                              (val) => parseInt(val, 10)
+                            );
+                            field.onChange(selectedIds);
+                          }}
+                          placeholder="Select teamspaces"
+                          label="Teamspaces"
+                          selected={field.value?.map((id) => id.toString())}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+          </div>
+        )}
 
-              <div className="flex mt-6">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-64 mx-auto"
-                >
-                  {isUpdate ? "Update" : "Create"}
-                </Button>
-              </div>
-            </Form>
-          );
-        }}
-      </Formik>
-    </div>
+        <div className="flex pt-6">
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="w-64 mx-auto"
+          >
+            {isUpdate ? "Update" : "Create"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };

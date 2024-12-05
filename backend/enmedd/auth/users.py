@@ -1,3 +1,4 @@
+import json
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime
@@ -164,14 +165,26 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = USER_AUTH_SECRET
     verification_token_secret = USER_AUTH_SECRET
 
+    # function called in /auth/register
     async def create(
         self,
         user_create: schemas.UC | UserCreate,
         safe: bool = False,
         request: Optional[Request] = None,
     ) -> User:
-        verify_email_is_invited(user_create.email)
+        # additional checks for user that is being invited
+        if request is not None:
+            requestBody: str = await request.body()
+            requestBody: dict = json.loads(requestBody)
+            if "token" in requestBody.keys() and requestBody.get("token") != "":
+                verify_email_is_invited(user_create.email)
+
+        # strict checking of allowed domain (invited or not)
         verify_email_domain(user_create.email)
+
+        # condition to check if the account created is the first account
+        # first account -> set it to admin by default
+        # other condition -> set the role based on the given role param (BASIC is the default)
         if hasattr(user_create, "role"):
             user_count = await get_user_count()
             if user_count == 0 or user_create.email in get_default_admin_user_emails():
@@ -510,9 +523,6 @@ async def current_teamspace_admin_user(
             detail="Access denied. User is not authenticated.",
         )
 
-    if teamspace_id is None:
-        return await current_workspace_admin_user(user=user)
-
     user_teamspace = (
         db_session.query(User__Teamspace)
         .filter_by(teamspace_id=teamspace_id, user_id=user.id)
@@ -536,3 +546,29 @@ async def current_teamspace_admin_user(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Access denied. User is neither an admin nor the creator of this teamspace.",
     )
+
+
+async def current_workspace_or_teamspace_admin_user(
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> User:
+    try:
+        return await current_teamspace_admin_user(
+            teamspace_id=teamspace_id, user=user, db_session=db_session
+        )
+    except HTTPException:
+        return await current_workspace_admin_user(user=user)
+
+
+async def current_admin_user_based_on_teamspace_id(
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> User:
+    if teamspace_id is None:
+        return await current_workspace_admin_user(user=user)
+    else:
+        return await current_teamspace_admin_user(
+            teamspace_id=teamspace_id, user=user, db_session=db_session
+        )

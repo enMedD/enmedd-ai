@@ -1,15 +1,21 @@
-import { Form, Formik } from "formik";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import {
-  BooleanFormField,
-  TextFormField,
-} from "@/components/admin/connectors/Field";
 import { createApiKey, updateApiKey } from "./lib";
-import { Modal } from "@/components/Modal";
 import { UserRole } from "@/lib/types";
-import { APIKey } from "./types";
+import { APIKey, APIKeyArgs } from "./types";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface EnmeddApiKeyFormProps {
   onClose: () => void;
@@ -17,99 +23,133 @@ interface EnmeddApiKeyFormProps {
   apiKey?: APIKey;
 }
 
+const formSchema = z.object({
+  name: z.string().optional(),
+  is_admin: z.boolean(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export const EnmeddApiKeyForm = ({
   onClose,
   onCreateApiKey,
   apiKey,
 }: EnmeddApiKeyFormProps) => {
-  const isUpdate = apiKey !== undefined;
+  const isUpdate = Boolean(apiKey);
   const { toast } = useToast();
 
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: apiKey?.api_key_name || "",
+      is_admin: apiKey?.api_key_role === UserRole.ADMIN,
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const role: UserRole = values.is_admin ? UserRole.ADMIN : UserRole.BASIC;
+
+      const payload: APIKeyArgs = {
+        name: values.name,
+        role,
+      };
+
+      const response = isUpdate
+        ? await updateApiKey(apiKey!.api_key_id, payload)
+        : await createApiKey(payload);
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({
+          title: "Success",
+          description: isUpdate
+            ? "API key updated successfully!"
+            : "API key created successfully!",
+          variant: "success",
+        });
+        if (!isUpdate) {
+          onCreateApiKey(result);
+        }
+        onClose();
+      } else {
+        const error = await response.json();
+        const errorMessage = error.detail || error.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Failed to ${
+          isUpdate ? "update" : "create"
+        } API key: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div>
-      <Formik
-        initialValues={{
-          name: apiKey?.api_key_name || "",
-          is_admin: apiKey?.api_key_role === "admin",
-        }}
-        onSubmit={async (values, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Field */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel htmlFor="name">Name</FormLabel>
+              <FormControl>
+                <Input
+                  id="name"
+                  placeholder="Enter a name for the API key"
+                  disabled={isUpdate}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          // Map the boolean to a UserRole string
-          const role: UserRole = values.is_admin
-            ? UserRole.ADMIN
-            : UserRole.BASIC;
+        {/* Is Admin Checkbox */}
+        <FormField
+          control={form.control}
+          name="is_admin"
+          render={({ field }) => (
+            <FormItem className="flex gap-2">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) =>
+                    field.onChange(Boolean(checked))
+                  }
+                />
+              </FormControl>
+              <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                Is Admin?
+                <p className="text-sm text-muted-foreground font-normal">
+                  Grant admin-level access to the server APIs.
+                </p>
+              </FormLabel>
+            </FormItem>
+          )}
+        />
 
-          // Prepare the payload with the UserRole
-          const payload = {
-            ...values,
-            role, // Assign the role directly as a UserRole type
-          };
-
-          let response;
-          if (isUpdate) {
-            response = await updateApiKey(apiKey.api_key_id, payload);
-          } else {
-            response = await createApiKey(payload);
-          }
-          formikHelpers.setSubmitting(false);
-          if (response.ok) {
-            toast({
-              title: "API Key Operation Successful",
-              description: isUpdate
-                ? "API key updated successfully!"
-                : "API key created successfully!",
-              variant: "success",
-            });
-            if (!isUpdate) {
-              onCreateApiKey(await response.json());
-            }
-            onClose();
-          } else {
-            const responseJson = await response.json();
-            const errorMsg = responseJson.detail || responseJson.message;
-            toast({
-              title: "API Key Operation Failed",
-              description: isUpdate
-                ? `Error updating API key: ${errorMsg}`
-                : `Error creating API key: ${errorMsg}`,
-              variant: "destructive",
-            });
-          }
-        }}
-      >
-        {({ isSubmitting, values, setFieldValue }) => (
-          <Form>
-            <TextFormField
-              name="name"
-              label="Name (optional):"
-              autoCompleteDisabled={true}
-              optional
-            />
-
-            <BooleanFormField
-              alignTop
-              name="is_admin"
-              label="Is Admin?"
-              subtext="If set, this API key will have access to admin level server API's."
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => onClose()}
-                variant="ghost"
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isUpdate ? "Update" : "Create"}
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Formik>
-    </div>
+        {/* Actions */}
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            disabled={form.formState.isSubmitting}
+            onClick={onClose}
+            variant="ghost"
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {isUpdate ? "Update" : "Create"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };

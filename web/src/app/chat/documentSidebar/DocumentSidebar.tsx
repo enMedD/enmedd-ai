@@ -16,7 +16,7 @@ function SectionHeader({
   closeHeader?: () => void;
 }) {
   return (
-    <div className="flex justify-between w-full mt-auto items-center py-[22px] text-lg font-medium border-b border-border">
+    <div className="flex justify-between w-full mt-auto items-center py-5 text-lg font-medium border-b border-border">
       <p className="flex truncate text-dark-900">
         {icon && <FileText size={22} className="my-auto mr-2" />}
         {name}
@@ -36,31 +36,23 @@ function SectionHeader({
 }
 
 interface DocumentSidebarProps {
-  closeSidebar: () => void;
   selectedMessage: Message | null;
   selectedDocuments: EnmeddDocument[] | null;
   clearSelectedDocuments: () => void;
   selectedDocumentTokens: number;
   maxTokens: number;
   isLoading: boolean;
-  initialWidth: number;
-  showDocSidebar?: boolean;
-  isWide?: boolean;
 }
 
 export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
   (
     {
-      closeSidebar,
       selectedMessage,
       selectedDocuments,
       clearSelectedDocuments,
       selectedDocumentTokens,
       maxTokens,
       isLoading,
-      initialWidth,
-      showDocSidebar,
-      isWide,
     },
     ref: ForwardedRef<HTMLDivElement>
   ) => {
@@ -79,15 +71,17 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
     return (
       <div
         ref={ref}
-        className={`sidebar absolute right-0 h-screen border-l border-l-border w-full`}
+        // className={`sidebar absolute right-0 h-screen border-l border-l-border w-full`}
+        className="w-full"
       >
         <div className="flex flex-col flex-initial w-full h-screen overflow-y-hidden">
           <div
-            className={`flex flex-col h-full ${
-              !showDocSidebar
-                ? "opacity-0 duration-100"
-                : "opacity-100 duration-500 delay-300"
-            }`}
+            // className={`flex flex-col h-full ${
+            //   !showDocSidebar
+            //     ? "opacity-0 duration-100"
+            //     : "opacity-100 duration-500 delay-300"
+            // }`}
+            className={`flex flex-col h-full`}
           >
             <div className="flex px-6">
               <SectionHeader
@@ -96,8 +90,8 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
                     ? "Referenced Documents"
                     : "Retrieved Sources"
                 }
-                icon
-                closeHeader={closeSidebar}
+                // icon
+                // closeHeader={closeSidebar}
               />
             </div>
             {currentDocuments ? (

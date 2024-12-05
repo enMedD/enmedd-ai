@@ -61,7 +61,7 @@ const InviteModal = () => {
                     <SelectValue placeholder="Role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="basic">User</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
@@ -298,8 +298,9 @@ const MemberContent = ({
                                     : "secondary"
                                 }
                               >
-                                {user.role.charAt(0).toUpperCase() +
-                                  user.role.slice(1)}
+                                {user.role === "admin" ? "Admin" : "User"}
+                                {/* {user.role.charAt(0).toUpperCase() +
+                                  user.role.slice(1)} */}
                               </Badge>
                             )}
                           </div>
@@ -318,7 +319,7 @@ const MemberContent = ({
                               <SelectValue placeholder="Role" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="basic">Basic</SelectItem>
+                              <SelectItem value="basic">User</SelectItem>
                               <SelectItem value="admin">Admin</SelectItem>
                             </SelectContent>
                           </Select>
@@ -392,8 +393,10 @@ export const TeamspaceMember = ({
     teamspace.id.toString()
   );
 
-  const filteredUsers = teamspace.users.filter((user) =>
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = teamspace.users.filter(
+    (user) =>
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const usersToDisplay = [

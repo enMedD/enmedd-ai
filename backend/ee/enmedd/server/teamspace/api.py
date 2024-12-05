@@ -22,9 +22,11 @@ from ee.enmedd.server.teamspace.models import TeamspaceUserRole
 from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from ee.enmedd.server.workspace.store import _TEAMSPACELOGO_FILENAME
 from ee.enmedd.server.workspace.store import upload_teamspace_logo
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_teamspace_admin_user
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
+from enmedd.auth.users import current_workspace_or_teamspace_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import Teamspace as TeamspaceModel
 from enmedd.db.models import Teamspace__ConnectorCredentialPair
@@ -48,7 +50,7 @@ basic_router = APIRouter(prefix="/teamspace")
 @admin_router.get("/admin/teamspace/{teamspace_id}")
 def get_teamspace_by_id(
     teamspace_id: int,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
@@ -206,7 +208,7 @@ def create_teamspace(
 def patch_teamspace(
     teamspace_id: int,
     teamspace: TeamspaceUpdate,
-    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
@@ -248,7 +250,7 @@ def patch_teamspace(
 @admin_router.delete("/admin/teamspace/{teamspace_id}")
 def delete_teamspace(
     teamspace_id: int,
-    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
@@ -264,7 +266,7 @@ def delete_teamspace(
 def update_teamspace_name_and_description(
     teamspace_id: int,
     teamspace_update: TeamspaceUpdateName,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     schema_name: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
@@ -350,7 +352,7 @@ def leave_teamspace(
 def update_teamspace_user_role(
     teamspace_id: int,
     body: UpdateUserRoleRequest,
-    user: User = Depends(current_teamspace_admin_user),
+    user: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
@@ -397,7 +399,7 @@ def update_teamspace_user_role(
 def add_teamspace_users(
     teamspace_id: int,
     emails: list[str],
-    _: User = Depends(current_workspace_admin_user or current_teamspace_admin_user),
+    _: User = Depends(current_workspace_or_teamspace_admin_user),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
@@ -517,7 +519,7 @@ def remove_teamspace_connector(
 def put_teamspace_logo(
     teamspace_id: int,
     file: UploadFile,
-    _: User = Depends(current_teamspace_admin_user),
+    _: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:

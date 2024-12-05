@@ -142,9 +142,7 @@ class FullModelVersionResponse(BaseModel):
 
 class AllUsersResponse(BaseModel):
     accepted: list[FullUserSnapshot]
-    invited: list[InvitedUserSnapshot]
-    accepted_pages: int
-    invited_pages: int
+    invited: list[InvitedUserSnapshot]  #
 
 
 class OTPVerificationRequest(BaseModel):

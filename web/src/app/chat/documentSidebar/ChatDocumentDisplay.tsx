@@ -60,7 +60,7 @@ export function ChatDocumentDisplay({
                 {document.semantic_identifier || document.document_id}
               </span>
             </a>
-            {document.score !== null && (
+            {/* {document.score !== null && (
               <div className="ml-auto">
                 {isAIPick && (
                   <div className="w-4 h-4 my-auto mr-1 flex flex-col">
@@ -80,7 +80,7 @@ export function ChatDocumentDisplay({
                   <Badge variant={badgeVariant}>{score.toFixed()}%</Badge>
                 )}
               </div>
-            )}
+            )} */}
           </div>
         </div>
         <div>

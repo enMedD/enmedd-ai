@@ -181,6 +181,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         "Teamspace", secondary="user__teamspace", back_populates="users", lazy="joined"
     )
     teamspace = relationship("Teamspace", back_populates="users")
+    workspaces = relationship("Workspaces", back_populates="creator")
 
 
 class InputPrompt(Base):
@@ -231,6 +232,7 @@ class InviteToken(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     token: Mapped[str] = mapped_column(String, unique=True)
     emails: Mapped[JSON_ro] = mapped_column(postgresql.JSONB(), nullable=True)
+    teamspace_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -2006,3 +2008,23 @@ class TeamspaceSettings(Base):
     teamspace: Mapped["Teamspace"] = relationship(
         "Teamspace", back_populates="settings"
     )
+
+
+class Workspaces(Base):
+    __tablename__ = "workspaces"
+
+    name: Mapped[str] = mapped_column(String, primary_key=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    logo: Mapped[str] = mapped_column(String, nullable=True)
+    creator_id: Mapped[UUID] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
+    creator: Mapped[User] = relationship("User", back_populates="workspaces")
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    num_users: Mapped[int] = mapped_column(Integer, nullable=True)
+    num_connectors: Mapped[int] = mapped_column(Integer, nullable=True)
+    num_assistants: Mapped[int] = mapped_column(Integer, nullable=True)
+    num_teamspace: Mapped[int] = mapped_column(Integer, nullable=True)
+    embedding_storage: Mapped[str] = mapped_column(String, nullable=True)

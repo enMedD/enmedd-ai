@@ -135,3 +135,14 @@ def change_user_password(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {e}",
         )
+
+
+def delete_user_by_email(email: str, db_session: Session):
+    try:
+        user = db_session.query(User).filter_by(email=email).first()
+        if user:
+            db_session.delete(user)
+            db_session.commit()
+    except Exception as e:
+        db_session.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete user: {str(e)}")

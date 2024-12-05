@@ -6,10 +6,9 @@ import {
   getCurrentUserSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { SideBar } from "../SideBar";
-import { BarLayout } from "../BarLayout";
-import { AdminBar } from "./AdminBar";
 import { HealthCheckBanner } from "../health/healthcheck";
+import { AdminSidebar } from "./AdminSidebar";
+import Sidebar from "../Sidebar";
 
 export async function Layout({
   children,
@@ -57,14 +56,11 @@ export async function Layout({
   }
 
   return (
-    <div className="h-full">
+    <>
       <HealthCheckBanner />
-      <div className="flex h-full">
-        <AdminBar user={user}>
-          <SideBar isTeamspace={isTeamspace} />
-        </AdminBar>
+      <Sidebar user={user} sidebar={<AdminSidebar />}>
         {children}
-      </div>
-    </div>
+      </Sidebar>
+    </>
   );
 }

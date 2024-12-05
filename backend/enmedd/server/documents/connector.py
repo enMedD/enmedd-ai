@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import validate_user_creation_permissions
-from enmedd.auth.users import current_teamspace_admin_user
+from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.background.celery.celery_utils import get_deletion_attempt_snapshot
@@ -500,7 +500,7 @@ def get_currently_failed_indexing_status(
 def get_connector_indexing_status(
     teamspace_id: Optional[int] = None,
     secondary_index: bool = False,
-    user: User = Depends(current_teamspace_admin_user),
+    user: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
     get_editable: bool = Query(
         False, description="If true, return editable document sets"

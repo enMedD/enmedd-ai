@@ -1,25 +1,32 @@
 "use client";
 
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
 import {
   ConnectorIndexingStatus,
   User,
   Teamspace,
   DocumentSet,
 } from "@/lib/types";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { createTeamspace } from "./lib";
-import { UserEditor } from "./UserEditor";
-import { ConnectorEditor } from "./ConnectorEditor";
+import { UserSelector } from "./UserSelector";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { useState } from "react";
-import { DocumentSets } from "./DocumentSets";
-import { Assistants } from "./Assistants";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/app/admin/settings/ImageUpload";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { createTeamspace } from "./lib";
+import { Combobox } from "@/components/Combobox";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -29,6 +36,30 @@ interface TeamspaceCreationFormProps {
   assistants: Assistant[];
   documentSets: DocumentSet[] | undefined;
 }
+
+const formSchema = z.object({
+  name: z.string().min(1, {
+    message: "Please enter a name for the teamspace",
+  }),
+  description: z.string().min(1, {
+    message: "Please enter a description for the teamspace",
+  }),
+  users: z
+    .array(
+      z.object({
+        user_id: z.string().min(1, { message: "User ID cannot be empty" }),
+        role: z.string().min(1, { message: "Role cannot be empty" }),
+      })
+    )
+    .min(1, { message: "Please select at least one user with a role" }),
+  assistant_ids: z.array(z.number()).min(1, {
+    message: "Please select at least one assistant",
+  }),
+  document_set_ids: z.array(z.number()).optional(),
+  cc_pair_ids: z.array(z.number()).optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export const TeamspaceCreationForm = ({
   onClose,
@@ -44,6 +75,40 @@ export const TeamspaceCreationForm = ({
   // const [periodHours, setPeriodHours] = useState(0);
   const isUpdate = existingTeamspace !== undefined;
   const { toast } = useToast();
+
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("teamspaceFormData") || "{}"
+  );
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: cachedFormData?.name ?? existingTeamspace?.name ?? "",
+      description:
+        cachedFormData?.description ?? existingTeamspace?.description ?? "",
+      users: cachedFormData?.users ?? existingTeamspace?.users ?? [],
+      assistant_ids:
+        cachedFormData?.assistant_ids ??
+        existingTeamspace?.assistants?.map((assistant) => assistant.id) ??
+        [],
+      document_set_ids:
+        cachedFormData?.document_set_ids ??
+        existingTeamspace?.document_sets?.map((docSet) => docSet.id) ??
+        [],
+      cc_pair_ids:
+        cachedFormData?.cc_pair_ids ??
+        existingTeamspace?.cc_pairs?.map((cc_pair) => cc_pair.id) ??
+        [],
+    },
+  });
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("teamspaceFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const uploadLogo = async (teamspaceId: number, file: File) => {
     const formData = new FormData();
@@ -66,182 +131,271 @@ export const TeamspaceCreationForm = ({
     return response.json();
   };
 
+  const onSubmit = async (values: FormValues) => {
+    if (values.users.length === 0) {
+      toast({
+        title: "Operation Failed",
+        description: "Please select at least one user with a role",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const hasAdmin = values.users.some(
+      (user) => user.role.toLowerCase() === "admin"
+    );
+    if (!hasAdmin) {
+      toast({
+        title: "Teamspace Creation Failed",
+        description: "Please include at least one admin in the users list",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (values.assistant_ids.length === 0) {
+      toast({
+        title: "Operation Failed",
+        description: "Please select an assistant",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formattedValues = {
+      ...values,
+      cc_pair_ids: values.cc_pair_ids?.map((id) => Number(id)) ?? [],
+    };
+
+    let response;
+    try {
+      response = await createTeamspace(formattedValues);
+
+      if (response.ok) {
+        const { id } = await response.json();
+
+        if (selectedFiles) {
+          await uploadLogo(id, selectedFiles);
+        }
+
+        router.refresh();
+        toast({
+          title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
+          description: isUpdate
+            ? "Your teamspace has been updated successfully."
+            : "Your new teamspace has been created successfully.",
+          variant: "success",
+        });
+
+        onClose();
+        localStorage.removeItem("teamspaceFormData");
+      } else {
+        const responseJson = await response.json();
+        const errorMsg = responseJson.detail || responseJson.message;
+        toast({
+          title: "Operation Failed",
+          description: isUpdate
+            ? `Could not update the teamspace: ${errorMsg}`
+            : `Could not create the teamspace: ${errorMsg}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <div>
-      <Formik
-        initialValues={{
-          name: existingTeamspace ? existingTeamspace.name : "",
-          users: [] as { user_id: string; role: string }[],
-          cc_pair_ids: [] as number[],
-          document_set_ids: [] as number[],
-          assistant_ids: [] as number[],
-        }}
-        validationSchema={Yup.object().shape({
-          name: Yup.string().required("Please enter a name for the group"),
-          users: Yup.array().of(
-            Yup.object().shape({
-              user_id: Yup.string().required("User ID is required"),
-              role: Yup.string()
-                .oneOf(["basic", "admin"], "Role must be 'basic' or 'admin'")
-                .required("Role is required"),
-            })
-          ),
-          cc_pair_ids: Yup.array().of(Yup.number().required()),
-          document_set_ids: Yup.array().of(Yup.number().required()),
-          assistant_ids: Yup.array().of(Yup.number().required()),
-        })}
-        onSubmit={async (values, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
-
-          if (values.users.length === 0) {
-            formikHelpers.setSubmitting(false);
-            toast({
-              title: "Operation Failed",
-              description: "Please select at least one user with a role",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          if (values.assistant_ids.length === 0) {
-            formikHelpers.setSubmitting(false);
-            toast({
-              title: "Operation Failed",
-              description: "Please select an assistant",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          let response;
-          try {
-            response = await createTeamspace(values);
-            formikHelpers.setSubmitting(false);
-
-            if (response.ok) {
-              const { id } = await response.json();
-
-              if (selectedFiles) {
-                await uploadLogo(id, selectedFiles);
-              }
-
-              router.refresh();
-              toast({
-                title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
-                description: isUpdate
-                  ? "Your teamspace has been updated successfully."
-                  : "Your new teamspace has been created successfully.",
-                variant: "success",
-              });
-
-              onClose();
-            } else {
-              const responseJson = await response.json();
-              const errorMsg = responseJson.detail || responseJson.message;
-              toast({
-                title: "Operation Failed",
-                description: isUpdate
-                  ? `Could not update the teamspace: ${errorMsg}`
-                  : `Could not create the teamspace: ${errorMsg}`,
-                variant: "destructive",
-              });
-            }
-          } catch (error) {
-            console.error(error);
-            formikHelpers.setSubmitting(false);
-          }
-        }}
-      >
-        {({ isSubmitting, values, setFieldValue }) => (
-          <Form>
-            <div className="space-y-6">
-              <div className="flex flex-col justify-between gap-2 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">Name*</p>
-                <TextFormField
-                  name="name"
-                  placeholder="Teamspace name"
-                  disabled={isUpdate}
-                  autoCompleteDisabled={true}
-                  fullWidth
-                />
-              </div>
-
-              <div className="flex flex-col justify-between gap-2 lg:flex-row pb-6">
-                <p className="w-1/2 font-semibold whitespace-nowrap">Logo</p>
-                <div className="flex items-center w-full gap-2">
-                  <ImageUpload
-                    selectedFile={selectedFiles}
-                    setSelectedFile={setSelectedFiles}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+          <p className="w-1/2 font-semibold whitespace-nowrap">Name*</p>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Input
+                    placeholder="Teamspace name"
+                    disabled={isUpdate}
+                    {...field}
                   />
-                </div>
-              </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select members*
-                </p>
-                <div className="w-full">
-                  <UserEditor
-                    selectedUserIds={values.users.map((user) => user.user_id)}
+        <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+          <p className="w-1/2 font-semibold whitespace-nowrap">Description*</p>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Textarea
+                    placeholder="Teamspace description"
+                    disabled={isUpdate}
+                    className="min-h-20 max-h-40"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="flex flex-col justify-between gap-2 lg:flex-row pb-6">
+          <p className="w-1/2 font-semibold whitespace-nowrap">Logo</p>
+          <div className="flex items-center w-full gap-2">
+            <ImageUpload
+              selectedFile={selectedFiles}
+              setSelectedFile={setSelectedFiles}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+          <p className="w-1/2 font-semibold whitespace-nowrap">
+            Select members*
+          </p>
+          <FormField
+            control={form.control}
+            name="users"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <UserSelector
+                    selectedUserIds={field.value.map((user) => user.user_id)}
                     allUsers={users}
-                    existingUsers={values.users}
+                    existingUsers={field.value}
                     onAddUser={(newUser) => {
-                      setFieldValue("users", [...values.users, newUser]);
+                      field.onChange([...field.value, newUser]);
                     }}
                     onRemoveUser={(userId) => {
-                      setFieldValue(
-                        "users",
-                        values.users.filter((user) => user.user_id !== userId)
+                      field.onChange(
+                        field.value.filter((user) => user.user_id !== userId)
                       );
                     }}
                   />
-                </div>
-              </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select assistants*
-                </p>
-                <div className="w-full">
-                  <Assistants
-                    assistants={assistants}
-                    onSelect={(selectedAssistantIds) => {
-                      setFieldValue("assistant_ids", selectedAssistantIds);
+        <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+          <p className="w-1/2 font-semibold whitespace-nowrap">
+            Select assistants*
+          </p>
+          <FormField
+            control={form.control}
+            name="assistant_ids"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Combobox
+                    items={assistants
+                      .filter((assistant) => assistant.is_public)
+                      .map((assistant) => ({
+                        value: assistant.id.toString(),
+                        label: assistant.name,
+                      }))}
+                    onSelect={(selectedValues) => {
+                      const selectedIds = selectedValues.map((value) =>
+                        parseInt(value, 10)
+                      );
+                      field.onChange(selectedIds);
                     }}
+                    placeholder="Select assistants"
+                    label="Select assistants"
+                    selected={(field.value ?? []).map((id) => id.toString())}
+                    isOnModal
                   />
-                </div>
-              </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select document sets
-                </p>
-                <div className="w-full">
-                  <DocumentSets
-                    documentSets={documentSets}
-                    setSelectedDocumentSetIds={(documentSetIds) =>
-                      setFieldValue("document_set_ids", documentSetIds)
-                    }
+        <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+          <p className="w-1/2 font-semibold whitespace-nowrap">
+            Select document sets
+          </p>
+          <FormField
+            control={form.control}
+            name="document_set_ids"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Combobox
+                    items={documentSets
+                      ?.filter((docSet) => docSet.is_public)
+                      .map((docSet) => ({
+                        value: docSet.id.toString(),
+                        label: docSet.name,
+                      }))}
+                    onSelect={(selectedValues) => {
+                      const selectedIds = selectedValues.map((value) =>
+                        parseInt(value, 10)
+                      );
+                      field.onChange(selectedIds);
+                    }}
+                    placeholder="Select document set"
+                    label="Select document set"
+                    selected={(field.value ?? []).map((id) => id.toString())}
+                    isOnModal
                   />
-                </div>
-              </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
-                <p className="w-1/2 font-semibold whitespace-nowrap">
-                  Select data sources
-                </p>
-                <div className="w-full">
-                  <ConnectorEditor
-                    allCCPairs={ccPairs}
-                    selectedCCPairIds={values.cc_pair_ids}
-                    setSetCCPairIds={(ccPairsIds) =>
-                      setFieldValue("cc_pair_ids", ccPairsIds)
-                    }
+        <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+          <p className="w-1/2 font-semibold whitespace-nowrap">
+            Select data source
+          </p>
+          <FormField
+            control={form.control}
+            name="cc_pair_ids"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Combobox
+                    items={ccPairs
+                      ?.filter((ccPair) => ccPair.access_type === "public")
+                      .map((ccPair) => ({
+                        value: ccPair.cc_pair_id.toString(),
+                        label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
+                      }))}
+                    onSelect={(selectedValues) => {
+                      const selectedIds = selectedValues.map((value) =>
+                        parseInt(value, 10)
+                      );
+                      field.onChange(selectedIds);
+                    }}
+                    placeholder="Select data source"
+                    label="Select data source"
+                    selected={(field.value ?? []).map((id) => id.toString())}
+                    isOnModal
                   />
-                </div>
-              </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              {/* <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
+        {/*  */}
+        {/* <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
                 <p className="w-1/2 font-semibold whitespace-nowrap">
 
                   Set Token Rate Limit
@@ -262,24 +416,21 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div> */}
 
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  disabled={isSubmitting}
-                  className=""
-                  onClick={onClose}
-                  variant="ghost"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting} className="">
-                  {isUpdate ? "Update" : "Create"}
-                </Button>
-              </div>
-            </div>
-          </Form>
-        )}
-      </Formik>
-    </div>
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            disabled={form.formState.isSubmitting}
+            className=""
+            onClick={onClose}
+            variant="ghost"
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {isUpdate ? "Update" : "Create"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
