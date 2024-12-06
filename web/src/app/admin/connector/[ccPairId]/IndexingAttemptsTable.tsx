@@ -314,24 +314,22 @@ export function IndexingAttemptsTable({
                                 : "/admin/indexing/${indexAttempt.id}"
                             }
                           >
-                            <Text className="flex flex-wrap whitespace-normal text-link">
+                            <p className="line-clamp text-link">
                               <SearchIcon />
                               &nbsp;View Errors
-                            </Text>
+                            </p>
                           </Link>
                         )}
 
                         {indexAttempt.status === "success" && (
-                          <Text className="flex flex-wrap whitespace-normal">
-                            {"-"}
-                          </Text>
+                          <p className="line-clamp">{"-"}</p>
                         )}
 
                         {indexAttempt.status === "failed" &&
                           indexAttempt.error_msg && (
-                            <Text className="flex flex-wrap whitespace-normal">
+                            <p className="line-clamp">
                               {indexAttempt.error_msg}
-                            </Text>
+                            </p>
                           )}
 
                         {indexAttempt.full_exception_trace && (
