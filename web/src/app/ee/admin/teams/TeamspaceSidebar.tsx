@@ -179,7 +179,7 @@ export const TeamspaceSidebar = ({
                       <Input
                         value={tempName || ""}
                         onChange={(e) => setTempName(e.target.value)}
-                        className="text-xl md:text-[28px]"
+                        className="text-base font-normal"
                         placeholder="Set a name"
                       />
                       <Button

@@ -166,7 +166,15 @@ export function Main({
   } = ccPair.connector;
   return (
     <>
-      <BackButton />
+      <BackButton
+        behaviorOverride={() =>
+          router.push(
+            teamspaceId
+              ? `/t/${teamspaceId}/admin/indexing/status`
+              : "/admin/indexing/status"
+          )
+        }
+      />
       <div className="flex flex-col sm:flex-row items-start w-full gap-2 pb-5 lg:items-center">
         <div className="flex sm:contents items-center justify-between gap-2 max-w-full">
           <SourceIcon iconSize={24} sourceType={ccPair.connector.source} />
