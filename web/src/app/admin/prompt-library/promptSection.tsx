@@ -141,7 +141,10 @@ export const PromptSection = ({
             New Prompt
           </Button>
         }
-        onClose={() => setNewPrompt(false)}
+        onClose={() => {
+          setNewPrompt(false);
+          localStorage.removeItem("promptFormData");
+        }}
         open={newPrompt}
         title={
           <p className="flex items-center gap-2">

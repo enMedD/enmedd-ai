@@ -81,15 +81,11 @@ function Main() {
 
   const [fullApiKey, setFullApiKey] = useState<string | null>(null);
   const [keyIsGenerating, setKeyIsGenerating] = useState(false);
-  const [showCreateUpdateForm, setShowCreateUpdateForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [selectedApiKey, setSelectedApiKey] = useState<APIKey | undefined>();
   const [apiKeyToDelete, setApiKeyToDelete] = useState<APIKey | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  const handleEdit = (apiKey: APIKey) => {
-    setSelectedApiKey(apiKey);
-    setShowCreateUpdateForm(true);
-  };
 
   const isUpdate = selectedApiKey !== undefined;
 
@@ -107,7 +103,7 @@ function Main() {
   }
 
   const newApiKeyButton = (
-    <Button className="mt-4" onClick={() => setShowCreateUpdateForm(true)}>
+    <Button className="mt-4" onClick={() => setShowCreateForm(true)}>
       Create API Key
     </Button>
   );
@@ -119,19 +115,18 @@ function Main() {
 
         <CustomModal
           trigger={newApiKeyButton}
-          onClose={() => setShowCreateUpdateForm(false)}
-          open={showCreateUpdateForm}
-          title={isUpdate ? "Update API Key" : "Create a new API Key"}
+          onClose={() => setShowCreateForm(false)}
+          open={showCreateForm}
+          title="Create a new API Key"
           description="Choose a memorable name for your API key. This is optional and can be added or changed later."
         >
           <EnmeddApiKeyForm
             onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
             onClose={() => {
-              setShowCreateUpdateForm(false);
+              setShowCreateForm(false);
               setSelectedApiKey(undefined);
               mutate("/api/admin/api-key");
             }}
-            apiKey={selectedApiKey}
           />
         </CustomModal>
       </div>
@@ -191,19 +186,40 @@ function Main() {
 
       <CustomModal
         trigger={newApiKeyButton}
-        onClose={() => setShowCreateUpdateForm(false)}
-        open={showCreateUpdateForm}
-        title={isUpdate ? "Update API Key" : "Create a new API Key"}
+        onClose={() => {
+          setShowCreateForm(false);
+          localStorage.removeItem("apiKeyFormData");
+        }}
+        open={showCreateForm}
+        title="Create a new API Key"
         description="Choose a memorable name for your API key. This is optional and can be added or changed later."
       >
         <EnmeddApiKeyForm
           onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
           onClose={() => {
-            setShowCreateUpdateForm(false);
+            setShowCreateForm(false);
+            setSelectedApiKey(undefined);
+            mutate("/api/admin/api-key");
+          }}
+        />
+      </CustomModal>
+
+      <CustomModal
+        trigger={null}
+        onClose={() => setShowUpdateForm(false)}
+        open={showUpdateForm}
+        title="Update API Key"
+        description="Choose a memorable name for your API key. This is optional and can be added or changed later."
+      >
+        <EnmeddApiKeyForm
+          onCreateApiKey={(apiKey) => setFullApiKey(apiKey.api_key)}
+          onClose={() => {
+            setShowCreateForm(false);
             setSelectedApiKey(undefined);
             mutate("/api/admin/api-key");
           }}
           apiKey={selectedApiKey}
+          isUpdate={isUpdate}
         />
       </CustomModal>
 
@@ -230,7 +246,10 @@ function Main() {
                       trigger={
                         <div
                           className="flex items-center w-full gap-2 cursor-pointer"
-                          onClick={() => handleEdit(apiKey)}
+                          onClick={() => {
+                            setSelectedApiKey(apiKey);
+                            setShowUpdateForm(true);
+                          }}
                         >
                           <Pencil size={16} className="shrink-0" />
 

@@ -35,6 +35,22 @@ import { useState } from "react";
 import { FaMarkdown } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Control,
+  FieldValues,
+  Path,
+  UseFormReset,
+  UseFormReturn,
+} from "react-hook-form";
+import { Combobox } from "@/components/Combobox";
 
 export function SectionHeader({
   children,
@@ -264,6 +280,232 @@ export function TextFormField({
         )
       )}
     </div>
+  );
+}
+
+export function InputForm<T extends FieldValues>({
+  formControl,
+  disabled,
+  name,
+  label,
+  description,
+  placeholder,
+  isTextarea,
+  isDescriptionBelow,
+  className,
+  type = "text",
+}: {
+  formControl: Control<T>;
+  disabled?: boolean;
+  name: Path<T>;
+  label?: string;
+  description?: string | React.ReactNode;
+  placeholder?: string;
+  isTextarea?: boolean;
+  isDescriptionBelow?: boolean;
+  className?: string;
+  type?: string;
+}) {
+  const Component = isTextarea ? Textarea : Input;
+  return (
+    <FormField
+      control={formControl}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          {description && !isDescriptionBelow && (
+            <FormDescription>{description}</FormDescription>
+          )}
+          <FormControl>
+            <Component
+              placeholder={placeholder}
+              disabled={disabled}
+              className={className}
+              type={type}
+              {...field}
+              onChange={(e) => {
+                const value =
+                  type === "number"
+                    ? Number(e.target.value) || ""
+                    : e.target.value;
+                field.onChange(value);
+              }}
+            />
+          </FormControl>
+          {description && isDescriptionBelow && (
+            <FormDescription>{description}</FormDescription>
+          )}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+interface ItemType {
+  value: string;
+  label: string;
+}
+
+export function ComboboxForm<T extends FieldValues>({
+  formControl,
+  name,
+  label,
+  comboboxLabel,
+  description,
+  placeholder,
+  isDescriptionBelow,
+  items,
+  isOnModal,
+}: {
+  formControl: Control<T>;
+  name: Path<T>;
+  label?: string;
+  comboboxLabel: string;
+  description?: string;
+  placeholder?: string;
+  isDescriptionBelow?: boolean;
+  items: ItemType[];
+  isOnModal?: boolean;
+}) {
+  return (
+    <FormField
+      control={formControl}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          {description && !isDescriptionBelow && (
+            <FormDescription>{description}</FormDescription>
+          )}
+          <FormControl>
+            <Combobox
+              items={items}
+              onSelect={(selectedValues) => {
+                const selectedIds = selectedValues.map((val) =>
+                  parseInt(val, 10)
+                );
+                field.onChange(selectedIds);
+              }}
+              placeholder={placeholder}
+              label={comboboxLabel}
+              // selected={field.value.map((id: string) => id.toString())}
+              selected={
+                field.value
+                  ? field.value.map((id: string) => id.toString())
+                  : []
+              }
+              isOnModal={isOnModal}
+            />
+          </FormControl>
+          {description && isDescriptionBelow && (
+            <FormDescription>{description}</FormDescription>
+          )}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+export function CheckboxForm<T extends FieldValues>({
+  formControl,
+  name,
+  label,
+  description,
+}: {
+  formControl: Control<T>;
+  name: Path<T>;
+  label?: string;
+  description?: string | React.ReactNode;
+}) {
+  return (
+    <FormField
+      control={formControl}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex gap-2">
+          <FormControl>
+            <Checkbox
+              checked={field.value}
+              onCheckedChange={(checked) => {
+                field.onChange(checked);
+              }}
+            />
+          </FormControl>
+          <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+            <span>{label}</span>
+            <p className="text-sm text-muted-foreground font-normal">
+              {description}
+            </p>
+          </FormLabel>
+        </FormItem>
+      )}
+    />
+  );
+}
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+export function SelectForm<T extends FieldValues>({
+  formControl,
+  name,
+  label,
+  description,
+  placeholder = "Select an option",
+  options,
+  isDescriptionBelow = false,
+  valueType = "string",
+}: {
+  formControl: Control<T>;
+  name: Path<T>;
+  label?: string;
+  description?: string;
+  placeholder?: string;
+  options: SelectOption[];
+  isDescriptionBelow?: boolean;
+  valueType?: "string" | "number";
+}) {
+  return (
+    <FormField
+      control={formControl}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          {description && !isDescriptionBelow && (
+            <FormDescription>{description}</FormDescription>
+          )}
+          <FormControl>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(valueType === "number" ? +value : value);
+              }}
+              value={field.value}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+              <SelectContent className="w-[--radix-select-trigger-width]">
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormControl>
+          {description && isDescriptionBelow && (
+            <FormDescription>{description}</FormDescription>
+          )}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
 

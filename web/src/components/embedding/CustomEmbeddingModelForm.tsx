@@ -5,17 +5,8 @@ import { EmbeddingDetails } from "@/app/admin/embeddings/EmbeddingModelSelection
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "../ui/checkbox";
+import { Form } from "@/components/ui/form";
+import { CheckboxForm, InputForm } from "../admin/connectors/Field";
 
 const formSchema = z.object({
   model_name: z.string().min(1, "Model name is required"),
@@ -85,102 +76,54 @@ export function CustomEmbeddingModelForm({
           Provider&apos;s model
         </Text>
 
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="model_name"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="model_name">Model Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. 'all-MiniLM-L6-v2'" {...field} />
-              </FormControl>
-              <FormDescription>
-                The name of the $
-                {embeddingType === EmbeddingProvider.AZURE
-                  ? "Azure"
-                  : "LiteLLM"}{" "}
-                model
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Model Name"
+          placeholder="e.g. 'all-MiniLM-L6-v2'"
+          description={
+            <>
+              The name of the{" "}
+              {embeddingType === EmbeddingProvider.AZURE ? "Azure" : "LiteLLM"}{" "}
+              model
+            </>
+          }
+          isDescriptionBelow
         />
 
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="model_dim"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="model_dim">Model Dimension</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="e.g. '1536'"
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(Number(e.target.value) || "")}
-                />
-              </FormControl>
-              <FormDescription>
-                The dimension of the model&apos;s embeddings
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          type="number"
+          label="Model Dimension"
+          placeholder="e.g. '1536'"
+          description="The dimension of the model's embeddings"
+          isDescriptionBelow
         />
 
-        <FormField
-          control={form.control}
+        <CheckboxForm
+          formControl={form.control}
           name="normalize"
-          render={({ field }) => (
-            <FormItem className="flex gap-2">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(checked) => field.onChange(checked)}
-                />
-              </FormControl>
-              <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
-                <span>Normalize</span>
-                <p className="text-sm text-muted-foreground font-normal">
-                  Whether to normalize the embeddings
-                </p>
-              </FormLabel>
-            </FormItem>
-          )}
+          label="Normalize"
+          description="Whether to normalize the embeddings"
         />
 
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="query_prefix"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="query_prefix">
-                [Optional] Query Prefix
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="E.g. 'query: '" {...field} />
-              </FormControl>
-              <FormDescription>Prefix for query embeddings</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="[Optional] Query Prefix"
+          placeholder="E.g. 'query: '"
+          description="Prefix for query embeddings"
+          isDescriptionBelow
         />
 
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="passage_prefix"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="passage_prefix">
-                [Optional] Passage Prefix
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="E.g. 'passage: '" {...field} />
-              </FormControl>
-              <FormDescription>Prefix for passage embeddings</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="[Optional] Passage Prefix"
+          placeholder="E.g. 'passage: '"
+          description="Prefix for passage embeddings"
+          isDescriptionBelow
         />
 
         <Button
