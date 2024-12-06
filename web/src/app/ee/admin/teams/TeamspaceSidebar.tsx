@@ -1,13 +1,12 @@
 "use client";
 
 import useSWR from "swr";
-import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useGradient } from "@/hooks/useGradient";
 import { SidebarContent } from "@/components/ui/sidebar";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { Check, Pen, Plus, Shield, X } from "lucide-react";
+import { Check, Pen, Shield, X } from "lucide-react";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import { TeamspaceAssistant } from "./TeamspaceAssistant";
 import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 import { TeamspaceDataSource } from "./TeamspaceDataSource";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 interface TeamspaceSidebarProps {
   selectedTeamspace?: Teamspace;
@@ -24,6 +24,10 @@ interface TeamspaceSidebarProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
   documentSets: DocumentSet[];
   refreshTeamspaces: () => void;
+  isEditingName: boolean;
+  isEditingDescription: boolean;
+  setIsEditingName: Dispatch<SetStateAction<boolean>>;
+  setIsEditingDescription: Dispatch<SetStateAction<boolean>>;
 }
 
 export const TeamspaceSidebar = ({
@@ -32,14 +36,17 @@ export const TeamspaceSidebar = ({
   ccPairs,
   documentSets,
   refreshTeamspaces,
+  isEditingName,
+  isEditingDescription,
+  setIsEditingName,
+  setIsEditingDescription,
 }: TeamspaceSidebarProps) => {
   const [isNameHovered, setIsNameHovered] = useState(false);
   const [isDescriptionHovered, setIsDescriptionHovered] = useState(false);
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [tempDescription, setTempDescription] = useState<string | null>(null);
-
-  const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const { data, error } = useSWR(
     selectedTeamspace
@@ -52,6 +59,8 @@ export const TeamspaceSidebar = ({
 
   const handleSaveDescription = async () => {
     if (!selectedTeamspace || tempDescription === null) return;
+
+    setIsSaving(true);
 
     try {
       const response = await fetch(
@@ -77,13 +86,30 @@ export const TeamspaceSidebar = ({
       setIsDescriptionHovered(false);
       setTempDescription(null);
       refreshTeamspaces();
+
+      toast({
+        title: "Description Updated",
+        description: `The description for "${selectedTeamspace.name}" has been updated successfully.`,
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error updating teamspace description:", error);
+
+      toast({
+        title: "Update Failed",
+        description:
+          "An error occurred while updating the description. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleSaveName = async () => {
     if (!selectedTeamspace || !tempName?.trim()) return;
+
+    setIsSaving(true);
 
     try {
       const response = await fetch(
@@ -109,8 +135,23 @@ export const TeamspaceSidebar = ({
       setIsNameHovered(false);
       setTempName(null);
       refreshTeamspaces();
+
+      toast({
+        title: "Name Updated",
+        description: `The name for "${tempName}" has been updated successfully.`,
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error updating teamspace name:", error);
+
+      toast({
+        title: "Update Failed",
+        description:
+          "An error occurred while updating the teamspace name. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -186,10 +227,17 @@ export const TeamspaceSidebar = ({
                         size="smallIcon"
                         variant="destructive"
                         onClick={cancelEditingName}
+                        disabled={isSaving}
                       >
                         <X size={14} />
                       </Button>
-                      <Button size="smallIcon" onClick={handleSaveName}>
+                      <Button
+                        size="smallIcon"
+                        onClick={handleSaveName}
+                        disabled={
+                          isSaving || tempName === selectedTeamspace?.name
+                        }
+                      >
                         <Check size={14} />
                       </Button>
                     </div>
@@ -233,10 +281,18 @@ export const TeamspaceSidebar = ({
                         size="smallIcon"
                         variant="destructive"
                         onClick={cancelEditingDescription}
+                        disabled={isSaving}
                       >
                         <X size={14} />
                       </Button>
-                      <Button size="smallIcon" onClick={handleSaveDescription}>
+                      <Button
+                        size="smallIcon"
+                        onClick={handleSaveDescription}
+                        disabled={
+                          isSaving ||
+                          tempDescription === selectedTeamspace?.description
+                        }
+                      >
                         <Check size={14} />
                       </Button>
                     </div>
