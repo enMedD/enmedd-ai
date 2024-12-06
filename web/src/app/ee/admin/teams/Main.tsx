@@ -36,6 +36,8 @@ const Inset = ({
   openFalse,
   openTrue,
   setSelectedTeamspaceId,
+  cancelEditName,
+  cancelEditDescription,
 }: {
   open: boolean;
   assistants: Assistant[];
@@ -48,6 +50,8 @@ const Inset = ({
   openFalse: () => void;
   openTrue: () => void;
   setSelectedTeamspaceId: (teamspaceId: number) => void;
+  cancelEditName: () => void;
+  cancelEditDescription: () => void;
 }) => {
   const { toggleSidebar: toggleRightSidebar, isMobile } = useSidebar();
 
@@ -56,6 +60,9 @@ const Inset = ({
   };
 
   const handleShowTeamspace = (teamspaceId: number) => {
+    cancelEditName();
+    cancelEditDescription();
+
     if (selectedTeamspaceId === teamspaceId) {
       if (open) {
         openFalse();
@@ -98,6 +105,8 @@ const Inset = ({
 export const Main = ({ assistants }: { assistants: Assistant[] }) => {
   const { teamspaceId } = useParams();
   const [open, setOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [selectedTeamspaceId, setSelectedTeamspaceId] = useState<number | null>(
     null
   );
@@ -170,6 +179,8 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
         openFalse={() => setOpen(false)}
         openTrue={() => setOpen(true)}
         setSelectedTeamspaceId={setSelectedTeamspaceId}
+        cancelEditName={() => setIsEditingName(false)}
+        cancelEditDescription={() => setIsEditingDescription(false)}
       />
 
       <Sidebar
@@ -182,6 +193,10 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
           ccPairs={ccPairs}
           documentSets={documentSets || []}
           refreshTeamspaces={refreshTeamspaces}
+          isEditingName={isEditingName}
+          isEditingDescription={isEditingDescription}
+          setIsEditingName={setIsEditingName}
+          setIsEditingDescription={setIsEditingDescription}
         />
       </Sidebar>
     </SidebarProvider>
