@@ -1,5 +1,6 @@
 "use client";
 
+import { basicLogin } from "@/lib/user";
 import { generateOtp } from "@/lib/user";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -59,42 +60,64 @@ export function LogInForms({}: {}) {
 
     setIsLoading(true);
 
-    const loginResponse = await generateOtp(values.email, values.password);
-    if (loginResponse.ok) {
+    try {
       if (isTwoFactorAuthEnabled) {
-        sessionStorage.setItem("password", values.password);
-        router.push(`/auth/2factorverification/?email=${values.email}`);
-      } else {
-        router.push("/");
-      }
-    } else {
-      setIsLoading(false);
-      try {
-        const errorData = await loginResponse.json();
-        const errorDetail = errorData.detail;
+        const otpResponse = await generateOtp(values.email, values.password);
 
-        let errorMsg = "Unknown error";
-        if (errorDetail === "Invalid email") {
-          errorMsg = "Invalid email address";
-        } else if (errorDetail === "Invalid password") {
-          errorMsg = "Invalid password";
+        if (otpResponse.ok) {
+          sessionStorage.setItem("password", values.password);
+          router.push(`/auth/2factorverification/?email=${values.email}`);
+        } else {
+          handleError(otpResponse);
         }
+      } else {
+        const loginResponse = await basicLogin(values.email, values.password);
 
-        toast({
-          title: "Login Failed",
-          description: `Failed to login - ${errorMsg}`,
-          variant: "destructive",
-        });
-      } catch (err) {
-        toast({
-          title: "Login Failed",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
+        if (loginResponse.ok) {
+          router.push("/");
+        } else {
+          handleError(loginResponse);
+        }
       }
+    } catch (err) {
+      toast({
+        title: "Login Failed",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
 
-    setIsLoading(false);
+    function handleError(response: Response) {
+      response
+        .json()
+        .then((errorData) => {
+          const errorDetail = errorData.detail;
+
+          let errorMsg = "Unknown error";
+          if (errorDetail === "Invalid email") {
+            errorMsg = "Invalid email address";
+          } else if (errorDetail === "Invalid password") {
+            errorMsg = "Invalid password";
+          } else if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
+            errorMsg = "Invalid email or password";
+          }
+
+          toast({
+            title: "Login Failed",
+            description: `Failed to login - ${errorMsg}`,
+            variant: "destructive",
+          });
+        })
+        .catch(() => {
+          toast({
+            title: "Login Failed",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          });
+        });
+    }
   }
   return (
     <>
