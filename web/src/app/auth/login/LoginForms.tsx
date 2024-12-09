@@ -1,6 +1,6 @@
 "use client";
 
-import { basicLogin } from "@/lib/user";
+import { generateOtp } from "@/lib/user";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Spinner } from "@/components/Spinner";
@@ -59,17 +59,11 @@ export function LogInForms({}: {}) {
 
     setIsLoading(true);
 
-    const loginResponse = await basicLogin(values.email, values.password);
+    const loginResponse = await generateOtp(values.email, values.password);
     if (loginResponse.ok) {
       if (isTwoFactorAuthEnabled) {
+        sessionStorage.setItem("password", values.password);
         router.push(`/auth/2factorverification/?email=${values.email}`);
-        await fetch("/api/users/generate-otp", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
       } else {
         router.push("/");
       }

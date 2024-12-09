@@ -1,5 +1,6 @@
 "use client";
 
+import { basicLogin } from "@/lib/user";
 import { WelcomeTopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/Spinner";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 
+const password = sessionStorage.getItem("password");
 const Page = () => {
   const { toast } = useToast();
   const [value, setValue] = useState("");
@@ -37,6 +39,7 @@ const Page = () => {
     const handleUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       handleBackButton();
+      sessionStorage.removeItem("password");
     };
 
     window.addEventListener("beforeunload", handleUnload);
@@ -60,6 +63,18 @@ const Page = () => {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Error verifying OTP");
       }
+
+      if (user_email && password) {
+        const loginResponse = await basicLogin(user_email, password);
+        if (!loginResponse.ok) {
+          throw new Error("Basic login failed");
+        }
+      }
+      toast({
+        title: "Authenticated Successfully",
+        description: "You have been logged in and redirected to chat.",
+        variant: "success",
+      });
 
       const data = await response.json();
       console.log(data.message);

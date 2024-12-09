@@ -259,7 +259,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )
 
             smtp_credentials = get_smtp_credentials(
-                workspace_id=0, db_session=db_session
+                db_session=db_session
             )  # Temporary workspace_id
 
             reset_url = f"{WEB_DOMAIN}/auth/reset-password?token={token}"
@@ -280,7 +280,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )
 
             smtp_credentials = get_smtp_credentials(
-                workspace_id=0, db_session=db_session
+                db_session=db_session
             )  # Temporary workspace_id
 
             link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
