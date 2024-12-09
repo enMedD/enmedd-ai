@@ -69,17 +69,29 @@ export function LogInForms({}: {}) {
       }
     } else {
       setIsLoading(false);
-      const errorDetail = (await loginResponse.json()).detail;
+      try {
+        const errorData = await loginResponse.json();
+        const errorDetail = errorData.detail;
 
-      let errorMsg = "Unknown error";
-      if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
-        errorMsg = "Invalid email or password";
+        let errorMsg = "Unknown error";
+        if (errorDetail === "Invalid email") {
+          errorMsg = "Invalid email address";
+        } else if (errorDetail === "Invalid password") {
+          errorMsg = "Invalid password";
+        }
+
+        toast({
+          title: "Login Failed",
+          description: `Failed to login - ${errorMsg}`,
+          variant: "destructive",
+        });
+      } catch (err) {
+        toast({
+          title: "Login Failed",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        });
       }
-      toast({
-        title: "Login Failed",
-        description: `Failed to login - ${errorMsg}`,
-        variant: "destructive",
-      });
     }
 
     setIsLoading(false);

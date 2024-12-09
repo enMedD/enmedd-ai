@@ -51,13 +51,16 @@ const Page = () => {
 
   const handleContinue = async (value: string) => {
     try {
-      const response = await fetch("/api/users/verify-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ otp_code: value }),
-      });
+      const response = await fetch(
+        `/api/users/verify-otp?email=${user_email}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ otp_code: value }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -97,6 +100,7 @@ const Page = () => {
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ email: user_email, password }),
       credentials: "include",
     });
     if (!response.ok) {

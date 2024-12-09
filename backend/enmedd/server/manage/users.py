@@ -68,6 +68,7 @@ from enmedd.db.users import list_users
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.server.manage.models import AllUsersResponse
+from enmedd.server.manage.models import LoginRequest
 from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.manage.models import UserByEmail
 from enmedd.server.manage.models import UserInfo
@@ -88,10 +89,12 @@ USERS_PAGE_SIZE = 10
 
 @router.patch("/users/generate-otp")
 async def generate_otp(
-    email: str,
-    password: str,
+    login_request: LoginRequest,
     db: Session = Depends(get_session),
 ):
+    email = login_request.email
+    password = login_request.password
+
     current_user = get_user_by_email(email, db)
     if not current_user:
         raise HTTPException(
@@ -138,8 +141,8 @@ async def verify_otp(
     email: str,
     db: Session = Depends(get_session),
 ):
-    current_user = get_user_by_email(email, db)
     otp_code = otp_code.otp_code
+    current_user = get_user_by_email(email, db)
 
     otp_entry = (
         db.query(TwofactorAuth)
