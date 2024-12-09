@@ -294,6 +294,7 @@ export function InputForm<T extends FieldValues>({
   isDescriptionBelow,
   className,
   type = "text",
+  fullWidth,
 }: {
   formControl: Control<T>;
   disabled?: boolean;
@@ -305,6 +306,7 @@ export function InputForm<T extends FieldValues>({
   isDescriptionBelow?: boolean;
   className?: string;
   type?: string;
+  fullWidth?: boolean;
 }) {
   const Component = isTextarea ? Textarea : Input;
   return (
@@ -312,7 +314,7 @@ export function InputForm<T extends FieldValues>({
       control={formControl}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className={fullWidth ? "w-full" : ""}>
           {label && <FormLabel>{label}</FormLabel>}
           {description && !isDescriptionBelow && (
             <FormDescription>{description}</FormDescription>

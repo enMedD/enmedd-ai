@@ -183,10 +183,14 @@ export function ChatSessionDisplay({
                           {showRetentionWarning && (
                             <CustomTooltip
                               trigger={
-                                <div className="mr-1 hover:bg-black/10 p-1 -m-1 rounded z-50">
-                                  <WarningCircle className="text-warning" />
+                                <div className="hover:bg-background-inverted/10 p-1 rounded flex items-center justify-center shrink-0 mr-1">
+                                  <WarningCircle
+                                    className="text-warning"
+                                    size={16}
+                                  />
                                 </div>
                               }
+                              asChild
                             >
                               <p>
                                 This chat will expire{" "}

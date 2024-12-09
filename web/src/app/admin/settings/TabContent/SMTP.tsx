@@ -1,9 +1,32 @@
-import { TextFormField } from "@/components/admin/connectors/Field";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const formSchema = z.object({
+  smtp_server: z.string().min(1, "SMTP Server is required."),
+  smtp_port: z
+    .number({ invalid_type_error: "SMTP Port must be a number." })
+    .int("SMTP Port must be an integer.")
+    .positive("SMTP Port must be a positive number."),
+  smtp_username: z.string().min(1, "SMTP Username is required."),
+  smtp_password: z.string().min(1, "SMTP Password is required."),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function SMTP() {
   const settings = useContext(SettingsContext);
@@ -19,6 +42,16 @@ export function SMTP() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      smtp_server: settings.settings.smtp_server || "",
+      smtp_port: settings.settings.smtp_port || 0,
+      smtp_username: settings.settings.smtp_username || "",
+      smtp_password: settings.settings.smtp_password || "",
+    },
+  });
 
   async function updateSmtpSettings(workspaceId: number, smtpSettings: any) {
     setLoading(true);
@@ -55,13 +88,37 @@ export function SMTP() {
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === "smtp_port" ? parseInt(value, 10) : value,
+      [name]: value,
     }));
   };
 
+  const onSubmit = async (data: FormValues) => {
+    setIsEditing(false);
+    await updateSmtpSettings(0, data);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData({
+      smtp_server: settings.settings.smtp_server,
+      smtp_port: settings.settings.smtp_port,
+      smtp_username: settings.settings.smtp_username,
+      smtp_password: settings.settings.smtp_password,
+    });
+    form.reset({
+      smtp_server: settings.settings.smtp_server || "",
+      smtp_port: settings.settings.smtp_port || 0,
+      smtp_username: settings.settings.smtp_username || "",
+      smtp_password: settings.settings.smtp_password || "",
+    });
+  };
+
   return (
-    <div className="py-8 mt-20 border-t">
-      <div className="flex gap-5 flex-col md:flex-row">
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex gap-5 flex-col md:flex-row py-8 border-t mt-16"
+      >
         <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
           <Label
             htmlFor="workspace_description"
@@ -76,43 +133,93 @@ export function SMTP() {
 
         <div className="md:w-[500px]">
           <div className="flex flex-col items-end">
-            <div
-              className={`w-full flex flex-col ${!isEditing ? "gap-4" : ""}`}
-            >
+            <div className="w-full flex flex-col gap-4">
               {isEditing ? (
                 <>
-                  <TextFormField
+                  <FormField
+                    control={form.control}
                     name="smtp_server"
-                    label="SMTP Server"
-                    placeholder="Enter hostname"
-                    value={formData?.smtp_server || ""}
-                    onChange={handleChange}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SMTP Server</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter hostname"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleChange(e);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
 
-                  <TextFormField
+                  <FormField
+                    control={form.control}
                     name="smtp_port"
-                    label="SMTP Port"
-                    placeholder="Enter port"
-                    type="text"
-                    value={formData.smtp_port?.toString() || ""}
-                    onChange={handleChange}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SMTP Port</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter port"
+                            {...field}
+                            type="number"
+                            onChange={(e) => {
+                              const value = Number(e.target.value);
+                              field.onChange(value);
+                              handleChange(e);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
 
-                  <TextFormField
+                  <FormField
+                    control={form.control}
                     name="smtp_username"
-                    label="SMTP Username (email)"
-                    placeholder="Enter username"
-                    value={formData?.smtp_username || ""}
-                    onChange={handleChange}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SMTP Username (email)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter username"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleChange(e);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
 
-                  <TextFormField
+                  <FormField
+                    control={form.control}
                     name="smtp_password"
-                    label="SMTP Password"
-                    placeholder="Enter password"
-                    type="password"
-                    value={formData?.smtp_password || ""}
-                    onChange={handleChange}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SMTP Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter password"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleChange(e);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </>
               ) : (
@@ -165,19 +272,15 @@ export function SMTP() {
                     <Button
                       variant="ghost"
                       type="button"
-                      onClick={() => setIsEditing(false)}
-                      disabled={loading}
+                      onClick={handleCancel}
+                      disabled={form.formState.isSubmitting}
                     >
                       Cancel
                     </Button>
                     <Button
-                      type="button"
-                      onClick={async () => {
-                        setIsEditing(false);
-                        await updateSmtpSettings(0, formData);
-                      }}
+                      type="submit"
                       disabled={
-                        loading ||
+                        form.formState.isSubmitting ||
                         JSON.stringify(formData) ===
                           JSON.stringify({
                             smtp_server: settings.settings.smtp_server,
@@ -195,7 +298,7 @@ export function SMTP() {
                     onClick={() => setIsEditing(true)}
                     type="button"
                     variant="outline"
-                    disabled={loading}
+                    disabled={form.formState.isSubmitting}
                   >
                     Edit
                   </Button>
@@ -204,7 +307,7 @@ export function SMTP() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
 }

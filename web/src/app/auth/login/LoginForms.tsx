@@ -130,7 +130,11 @@ export function LogInForms({}: {}) {
           </div>
 
           <div className="flex pt-6">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Sign In
             </Button>
           </div>
