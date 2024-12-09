@@ -388,7 +388,7 @@ export default function General() {
                   </Label>
                   <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                     {`The custom description metadata you are giving ${
-                      values.workspace_name || "Arnold AI"
+                      workspaces?.workspace_name || "Arnold AI"
                     } for your workspace.\
                   This will be seen when sharing the link or searching through the browser.`}
                   </p>

@@ -210,8 +210,8 @@ export function ChatSessionDisplay({
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
                                 <DropdownMenuGroup>
-                                  <DropdownMenuItem asChild>
-                                    <FeatureFlagWrapper flag="share_chat">
+                                  <FeatureFlagWrapper flag="share_chat">
+                                    <DropdownMenuItem asChild>
                                       <ShareChatSessionModal
                                         chatSessionId={chatSession.id}
                                         existingSharedStatus={
@@ -219,8 +219,8 @@ export function ChatSessionDisplay({
                                         }
                                         onPopover
                                       />
-                                    </FeatureFlagWrapper>
-                                  </DropdownMenuItem>
+                                    </DropdownMenuItem>
+                                  </FeatureFlagWrapper>
 
                                   <DropdownMenuItem
                                     asChild

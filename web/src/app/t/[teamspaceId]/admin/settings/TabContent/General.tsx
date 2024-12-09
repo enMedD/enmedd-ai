@@ -459,8 +459,7 @@ export default function General({
         }
       );
       if (response.ok) {
-        setTeamspaceLogo(null);
-
+        form.setValue("logo", null);
         toast({
           title: "Success",
           description: "Logo removed successfully.",
@@ -584,6 +583,7 @@ export default function General({
             {isEditing ? (
               <>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => setIsEditing(false)}
                   disabled={form.formState.isSubmitting}
@@ -596,8 +596,8 @@ export default function General({
               </>
             ) : (
               <Button
-                variant="outline"
                 type="button"
+                variant="outline"
                 onClick={() => setIsEditing(true)}
               >
                 Edit
