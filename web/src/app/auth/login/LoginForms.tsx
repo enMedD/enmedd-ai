@@ -112,31 +112,29 @@ export function LogInForms({}: {}) {
             type="password"
           />
 
-          {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
-              className="pb-4"
-            />
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {/* <Checkbox id="remember" />
-                <Label className="p-0" htmlFor="remember">
-                  Remember me
-                </Label> */}
-            </div>
+          <div className="flex justify-between w-full flex-row-reverse items-start">
             <Link
               href="/auth/forgot-password"
               className="text-sm font-medium text-link hover:underline"
             >
               Forgot password?
             </Link>
+
+            {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
+                className="pb-4"
+              />
+            )}
           </div>
 
           <div className="flex pt-6">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Sign In
             </Button>
           </div>

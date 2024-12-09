@@ -4,9 +4,7 @@ import { useRouter } from "next/navigation";
 import { Workspaces } from "@/app/admin/settings/interfaces";
 import { useContext, useEffect, useState } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
-import { SubLabel, TextFormField } from "@/components/admin/connectors/Field";
+import { SubLabel } from "@/components/admin/connectors/Field";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "../ImageUpload";
@@ -21,6 +19,41 @@ import {
 } from "@/components/ui/popover";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import Image from "next/image";
+import { SMTP } from "./SMTP";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { InputForm } from "@/components/admin/connectors/Field";
+
+const formSchema = z.object({
+  workspace_name: z.string().nullable(),
+  workspace_description: z.string().nullable(),
+  use_custom_logo: z.boolean().default(false),
+  use_custom_logotype: z.boolean().default(false),
+  custom_logo: z.string().nullable(),
+  custom_header_logo: z.string().nullable(),
+  custom_header_content: z.string().nullable(),
+  two_lines_for_chat_header: z.boolean().nullable(),
+  custom_popup_header: z.string().nullable(),
+  custom_popup_content: z.string().nullable(),
+  custom_lower_disclaimer_content: z.string().nullable(),
+  enable_consent_screen: z.boolean().nullable(),
+  brand_color: z.string(),
+  secondary_color: z.string(),
+  custom_nav_items: z
+    .array(
+      z.object({
+        link: z.string(),
+        icon: z.string().optional(),
+        svg_logo: z.string().optional(),
+        title: z.string(),
+      })
+    )
+    .default([]),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function General() {
   const settings = useContext(SettingsContext);
@@ -36,15 +69,6 @@ export default function General() {
     null
   );
   const [selectedLogotype, setSelectedLogotype] = useState<File | null>(null);
-  const [formData, setFormData] = useState({
-    smtp_server: settings.settings.smtp_server,
-    smtp_port: settings.settings.smtp_port,
-    smtp_username: settings.settings.smtp_username,
-    smtp_password: settings.settings.smtp_password,
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [primaryColor, setPrimaryColor] = useState("#65007E");
   const [secondaryColor, setSecondaryColor] = useState("#EEB3FE");
@@ -75,6 +99,28 @@ export default function General() {
     fetchThemes();
   }, []);
 
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      workspace_name: workspaces?.workspace_name || null,
+      workspace_description: workspaces?.workspace_description || null,
+      use_custom_logo: workspaces?.use_custom_logo || false,
+      use_custom_logotype: workspaces?.use_custom_logotype || false,
+      custom_logo: workspaces?.custom_logo || null,
+      custom_header_logo: workspaces?.custom_header_logo || null,
+      custom_header_content: workspaces?.custom_header_content || "",
+      two_lines_for_chat_header: workspaces?.two_lines_for_chat_header || false,
+      custom_popup_header: workspaces?.custom_popup_header || "",
+      custom_popup_content: workspaces?.custom_popup_content || "",
+      custom_lower_disclaimer_content:
+        workspaces?.custom_lower_disclaimer_content || "",
+      custom_nav_items: workspaces?.custom_nav_items || [],
+      enable_consent_screen: workspaces?.enable_consent_screen || false,
+      brand_color: workspaces?.brand_color || "",
+      secondary_color: workspaces?.secondary_color || "",
+    },
+  });
+
   async function updateWorkspaces(newValues: Workspaces) {
     const response = await fetch("/api/admin/workspace", {
       method: "PUT",
@@ -97,36 +143,6 @@ export default function General() {
       const errorMsg = (await response.json()).detail;
       toast({
         title: "Failed to update settings.",
-        description: errorMsg,
-        variant: "destructive",
-      });
-    }
-  }
-
-  async function updateSmtpSettings(workspaceId: number, smtpSettings: any) {
-    setLoading(true);
-    const response = await fetch(
-      `/api/admin/settings/workspace/${workspaceId}/smtp`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(smtpSettings),
-      }
-    );
-
-    setLoading(false);
-    if (response.ok) {
-      toast({
-        title: "SMTP Settings Updated",
-        description: "The SMTP settings have been successfully updated.",
-        variant: "success",
-      });
-    } else {
-      const errorMsg = (await response.json()).detail;
-      toast({
-        title: "Failed to update SMTP settings.",
         description: errorMsg,
         variant: "destructive",
       });
@@ -176,15 +192,6 @@ export default function General() {
       console.error("Failed to update theme:", error.detail);
     }
   }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: name === "smtp_port" ? parseInt(value, 10) : value,
-    }));
-  };
 
   async function deleteLogo() {
     try {
@@ -252,437 +259,385 @@ export default function General() {
     }
   }
 
+  const onSubmit = async (values: FormValues) => {
+    if (selectedLogo) {
+      values.use_custom_logo = true;
+
+      const formData = new FormData();
+      formData.append("file", selectedLogo);
+      setSelectedLogo(null);
+      const response = await fetch("/api/admin/workspace/logo", {
+        method: "PUT",
+        body: formData,
+      });
+      if (!response.ok) {
+        const errorMsg = (await response.json()).detail;
+        toast({
+          title: "Failed to upload logo",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (selectedHeaderLogo) {
+      const formData = new FormData();
+      formData.append("file", selectedHeaderLogo);
+      setSelectedHeaderLogo(null);
+
+      const response = await fetch("/api/admin/workspace/header-logo", {
+        method: "PUT",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorMsg = (await response.json()).detail;
+        toast({
+          title: "Failed to upload header logo",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (selectedLogotype) {
+      values.use_custom_logotype = true;
+
+      const formData = new FormData();
+      formData.append("file", selectedLogotype);
+      setSelectedLogotype(null);
+      const response = await fetch(
+        "/api/admin/workspace/logo?is_logotype=true",
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        const errorMsg = (await response.json()).detail;
+        alert(`Failed to upload logo. ${errorMsg}`);
+        return;
+      }
+
+      const headerLogoResponse = await fetch(
+        "/api/admin/workspace/header-logo",
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      if (!headerLogoResponse.ok) {
+        const errorMsg = (await headerLogoResponse.json()).detail;
+        toast({
+          title: "Failed to upload header logo after logotype",
+          description: `Error: ${errorMsg}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (
+      values.brand_color !== workspaces?.brand_color ||
+      values.secondary_color !== workspaces?.secondary_color
+    ) {
+      await updateWorkspaceTheme(0, values.brand_color, values.secondary_color);
+    }
+
+    // formikHelpers.setValues(values);
+    await updateWorkspaces(values);
+    window.location.reload();
+  };
+
   return (
     <div className="pt-8">
-      <Formik
-        initialValues={{
-          workspace_name: workspaces?.workspace_name || null,
-          workspace_description: workspaces?.workspace_description || null,
-          use_custom_logo: workspaces?.use_custom_logo || false,
-          use_custom_logotype: workspaces?.use_custom_logotype || false,
-          custom_logo: workspaces?.custom_logo || null,
-          custom_header_logo: workspaces?.custom_header_logo || null,
-          custom_header_content: workspaces?.custom_header_content || "",
-          two_lines_for_chat_header:
-            workspaces?.two_lines_for_chat_header || false,
-          custom_popup_header: workspaces?.custom_popup_header || "",
-          custom_popup_content: workspaces?.custom_popup_content || "",
-          custom_lower_disclaimer_content:
-            workspaces?.custom_lower_disclaimer_content || "",
-          custom_nav_items: workspaces?.custom_nav_items || [],
-          enable_consent_screen: workspaces?.enable_consent_screen || false,
-          brand_color: workspaces?.brand_color || "",
-          secondary_color: workspaces?.secondary_color || "",
-        }}
-        validationSchema={Yup.object().shape({
-          workspace_name: Yup.string().nullable(),
-          workspace_description: Yup.string().nullable(),
-          use_custom_logo: Yup.boolean().required(),
-          custom_logo: Yup.string().nullable(),
-          custom_header_logo: Yup.string().nullable(),
-          use_custom_logotype: Yup.boolean().required(),
-          custom_header_content: Yup.string().nullable(),
-          two_lines_for_chat_header: Yup.boolean().nullable(),
-          custom_popup_header: Yup.string().nullable(),
-          custom_popup_content: Yup.string().nullable(),
-          custom_lower_disclaimer_content: Yup.string().nullable(),
-          enable_consent_screen: Yup.boolean().nullable(),
-        })}
-        onSubmit={async (values, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <h2 className="font-bold text:lg md:text-xl">General Information</h2>
 
-          if (selectedLogo) {
-            values.use_custom_logo = true;
+          <div className="py-8 ">
+            <div className="flex gap-5 flex-col md:flex-row">
+              <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <Label
+                  htmlFor="workspace_name"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                >
+                  Workspace Name
+                </Label>
+                <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                  The custom name you are giving for your workspace. This will
+                  replace &#39;Arnold AI&#39; everywhere in the UI.
+                </p>
+              </div>
 
-            const formData = new FormData();
-            formData.append("file", selectedLogo);
-            setSelectedLogo(null);
-            const response = await fetch("/api/admin/workspace/logo", {
-              method: "PUT",
-              body: formData,
-            });
-            if (!response.ok) {
-              const errorMsg = (await response.json()).detail;
-              toast({
-                title: "Failed to upload logo",
-                description: `Error: ${errorMsg}`,
-                variant: "destructive",
-              });
-              formikHelpers.setSubmitting(false);
-              return;
-            }
-          }
-
-          if (selectedHeaderLogo) {
-            const formData = new FormData();
-            formData.append("file", selectedHeaderLogo);
-            setSelectedHeaderLogo(null);
-
-            const response = await fetch("/api/admin/workspace/header-logo", {
-              method: "PUT",
-              body: formData,
-            });
-
-            if (!response.ok) {
-              const errorMsg = (await response.json()).detail;
-              toast({
-                title: "Failed to upload header logo",
-                description: `Error: ${errorMsg}`,
-                variant: "destructive",
-              });
-              formikHelpers.setSubmitting(false);
-              return;
-            }
-          }
-
-          if (selectedLogotype) {
-            values.use_custom_logotype = true;
-
-            const formData = new FormData();
-            formData.append("file", selectedLogotype);
-            setSelectedLogotype(null);
-            const response = await fetch(
-              "/api/admin/workspace/logo?is_logotype=true",
-              {
-                method: "PUT",
-                body: formData,
-              }
-            );
-            if (!response.ok) {
-              const errorMsg = (await response.json()).detail;
-              alert(`Failed to upload logo. ${errorMsg}`);
-              formikHelpers.setSubmitting(false);
-              return;
-            }
-
-            const headerLogoResponse = await fetch(
-              "/api/admin/workspace/header-logo",
-              {
-                method: "PUT",
-                body: formData,
-              }
-            );
-
-            if (!headerLogoResponse.ok) {
-              const errorMsg = (await headerLogoResponse.json()).detail;
-              toast({
-                title: "Failed to upload header logo after logotype",
-                description: `Error: ${errorMsg}`,
-                variant: "destructive",
-              });
-              formikHelpers.setSubmitting(false);
-              return;
-            }
-          }
-
-          if (
-            values.brand_color !== workspaces?.brand_color ||
-            values.secondary_color !== workspaces?.secondary_color
-          ) {
-            await updateWorkspaceTheme(
-              0,
-              values.brand_color,
-              values.secondary_color
-            );
-          }
-
-          formikHelpers.setValues(values);
-          await updateWorkspaces(values);
-          window.location.reload();
-        }}
-      >
-        {({ isSubmitting, values, setValues, setFieldValue }) => (
-          <Form>
-            <h2 className="font-bold text:lg md:text-xl">
-              General Information
-            </h2>
-
-            <div className="py-8 ">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="workspace_name"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    Workspace Name
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                    The custom name you are giving for your workspace. This will
-                    replace &#39;Arnold AI&#39; everywhere in the UI.
-                  </p>
-                </div>
-
-                <div className="md:w-[500px]">
-                  <Input
-                    name="workspace_name"
-                    value={values.workspace_name || ""}
-                    onChange={(e) =>
-                      setFieldValue("workspace_name", e.target.value)
-                    }
-                  />
-                </div>
+              <div className="md:w-[500px]">
+                <InputForm
+                  formControl={form.control}
+                  name="workspace_name"
+                  placeholder="Workspace Name"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="py-8 ">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="workspace_description"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    Description
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                    {`The custom description metadata you are giving ${
-                      values.workspace_name || "Arnold AI"
-                    } for your workspace.\
+          <div className="py-8 ">
+            <div className="flex gap-5 flex-col md:flex-row">
+              <div className="grid leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <Label
+                  htmlFor="workspace_description"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                >
+                  Description
+                </Label>
+                <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                  {`The custom description metadata you are giving ${
+                    workspaces?.workspace_name || "Arnold AI"
+                  } for your workspace.\
                   This will be seen when sharing the link or searching through the browser.`}
-                  </p>
-                </div>
+                </p>
+              </div>
 
-                <div className="md:w-[500px]">
-                  <Input
-                    name="workspace_description"
-                    placeholder="Custom description for your Workspace"
-                    value={values.workspace_description || ""}
-                    onChange={(e) =>
-                      setFieldValue("workspace_description", e.target.value)
-                    }
-                  />
-                </div>
+              <div className="md:w-[500px]">
+                <InputForm
+                  formControl={form.control}
+                  name="workspace_description"
+                  placeholder="Custom description for your Workspace"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="py-8 ">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="custom_logo"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    Logo
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                    Specify your own logo to replace the standard Arnold AI
-                    logo.
-                  </p>
-                </div>
+          <div className="py-8 ">
+            <div className="flex gap-5 flex-col md:flex-row">
+              <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <Label
+                  htmlFor="custom_logo"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                >
+                  Logo
+                </Label>
+                <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                  Specify your own logo to replace the standard Arnold AI logo.
+                </p>
+              </div>
 
-                <div className="md:w-[500px] flex flex-col gap-4">
-                  <ImageUpload
-                    selectedFile={selectedLogo}
-                    setSelectedFile={setSelectedLogo}
-                  />
-                  {!selectedLogo && (
-                    <div className="space-y-2">
-                      <SubLabel>Current Logo:</SubLabel>
-                      {workspaces?.custom_logo ? (
-                        <>
-                          <img
-                            // src={"/api/workspace/logo?workspace_id=" + 0}
-                            src={buildImgUrl(workspaces?.custom_logo)}
-                            alt="Logo"
-                            className="h-40 object-contain w-40"
-                          />
-                          <Button
-                            variant="destructive"
-                            type="button"
-                            onClick={deleteLogo}
-                          >
-                            Remove
-                          </Button>
-                        </>
-                      ) : (
-                        <Image
-                          src="/arnold_ai.png"
+              <div className="md:w-[500px] flex flex-col gap-4">
+                <ImageUpload
+                  selectedFile={selectedLogo}
+                  setSelectedFile={setSelectedLogo}
+                />
+                {!selectedLogo && (
+                  <div className="space-y-2">
+                    <SubLabel>Current Logo:</SubLabel>
+                    {workspaces?.custom_logo ? (
+                      <>
+                        <img
+                          // src={"/api/workspace/logo?workspace_id=" + 0}
+                          src={buildImgUrl(workspaces?.custom_logo)}
                           alt="Logo"
-                          width={160}
-                          height={160}
                           className="h-40 object-contain w-40"
                         />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="py-8 ">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="custom_header_logo"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    Header Logo
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                    Specify your own header logo to replace the standard Arnold
-                    AI header logo.
-                  </p>
-                </div>
-
-                <div className="md:w-[500px] flex flex-col gap-4">
-                  <ImageUpload
-                    selectedFile={selectedHeaderLogo}
-                    setSelectedFile={setSelectedHeaderLogo}
-                  />
-                  {!selectedHeaderLogo && (
-                    <div className="space-y-2">
-                      <SubLabel>Current Header Logo:</SubLabel>
-                      {workspaces?.custom_header_logo ? (
-                        <>
-                          <img
-                            src={buildImgUrl(workspaces?.custom_header_logo)}
-                            alt="Logo"
-                            className="h-40 object-contain w-40"
-                          />
-                          <Button
-                            variant="destructive"
-                            type="button"
-                            onClick={deleteHeaderLogo}
-                          >
-                            Remove
-                          </Button>
-                        </>
-                      ) : (
-                        <Image
-                          src="/arnold_ai.png"
-                          alt="Logo"
-                          width={160}
-                          height={160}
-                          className="h-40 object-contain w-40"
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="py-8">
-              <div className="flex gap-5 flex-col md:flex-row">
-                <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                  <Label
-                    htmlFor="workspace_description"
-                    className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                  >
-                    Brand Theme
-                  </Label>
-                  <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                    Select your customized brand color.
-                  </p>
-                </div>
-
-                <div className="md:w-[500px] space-y-2">
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-subtle w-32">
-                      Primary color:
-                    </span>
-                    <div className="flex gap-2">
-                      {/* <Input
-                        name="brand_color"
-                        className="w-32"
-                        value={values.brand_color || primaryColor}
-                        onChange={(e) => {
-                          setFieldValue("brand_color", e.target.value);
-                          setPrimaryColor(e.target.value);
-                        }}
-                        required
-                      /> */}
-                      <Input
-                        name="brand_color"
-                        className="w-32"
-                        value={values.brand_color}
-                        onChange={(e) => {
-                          setFieldValue("brand_color", e.target.value);
-                          setPrimaryColor(e.target.value);
-                        }}
-                        required
+                        <Button
+                          variant="destructive"
+                          type="button"
+                          onClick={deleteLogo}
+                        >
+                          Remove
+                        </Button>
+                      </>
+                    ) : (
+                      <Image
+                        src="/arnold_ai.png"
+                        alt="Logo"
+                        width={160}
+                        height={160}
+                        className="h-40 object-contain w-40"
                       />
-
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div
-                            className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
-                            style={{
-                              backgroundColor: primaryColor,
-                              outlineColor: primaryColor,
-                            }}
-                          />
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <HexColorPicker
-                            color={primaryColor}
-                            onChange={(color) => {
-                              setPrimaryColor(color);
-                              setFieldValue("brand_color", color);
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
+                    )}
                   </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-subtle w-32">
-                      Secondary color:
-                    </span>
-                    <div className="flex gap-2">
-                      {/* <Input
-                        name="secondary_color"
-                        className="w-32"
-                        value={values.secondary_color || secondaryColor}
-                        onChange={(e) => {
-                          setFieldValue("secondary_color", e.target.value);
-                          setSecondaryColor(e.target.value);
-                        }}
-                        required
-                      /> */}
-                      <Input
-                        name="secondary_color"
-                        className="w-32"
-                        value={values.secondary_color}
-                        onChange={(e) => {
-                          setFieldValue("secondary_color", e.target.value);
-                          setSecondaryColor(e.target.value);
-                        }}
-                        required
+          <div className="py-8 ">
+            <div className="flex gap-5 flex-col md:flex-row">
+              <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <Label
+                  htmlFor="custom_header_logo"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                >
+                  Header Logo
+                </Label>
+                <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                  Specify your own header logo to replace the standard Arnold AI
+                  header logo.
+                </p>
+              </div>
+
+              <div className="md:w-[500px] flex flex-col gap-4">
+                <ImageUpload
+                  selectedFile={selectedHeaderLogo}
+                  setSelectedFile={setSelectedHeaderLogo}
+                />
+                {!selectedHeaderLogo && (
+                  <div className="space-y-2">
+                    <SubLabel>Current Header Logo:</SubLabel>
+                    {workspaces?.custom_header_logo ? (
+                      <>
+                        <img
+                          src={buildImgUrl(workspaces?.custom_header_logo)}
+                          alt="Logo"
+                          className="h-40 object-contain w-40"
+                        />
+                        <Button
+                          variant="destructive"
+                          type="button"
+                          onClick={deleteHeaderLogo}
+                        >
+                          Remove
+                        </Button>
+                      </>
+                    ) : (
+                      <Image
+                        src="/arnold_ai.png"
+                        alt="Logo"
+                        width={160}
+                        height={160}
+                        className="h-40 object-contain w-40"
                       />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div
-                            className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
-                            style={{
-                              backgroundColor: secondaryColor,
-                              outlineColor: secondaryColor,
-                            }}
-                          />
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <HexColorPicker
-                            color={secondaryColor}
-                            onChange={(color) => {
-                              setSecondaryColor(color);
-                              setFieldValue("secondary_color", color);
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
+          <div className="py-8">
+            <div className="flex gap-5 flex-col md:flex-row">
+              <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <Label
+                  htmlFor="workspace_description"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                >
+                  Brand Theme
+                </Label>
+                <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                  Select your customized brand color.
+                </p>
+              </div>
+
+              <div className="md:w-[500px] space-y-2">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-subtle w-32">
+                    Primary color:
+                  </span>
+                  <div className="flex gap-2">
+                    <FormField
+                      control={form.control}
+                      name="brand_color"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              className="w-32"
+                              {...field}
+                              onChange={(e) => {
+                                form.setValue("brand_color", e.target.value);
+                                setPrimaryColor(e.target.value);
+                              }}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div
+                          className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                          style={{
+                            backgroundColor: primaryColor,
+                            outlineColor: primaryColor,
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <HexColorPicker
+                          color={primaryColor}
+                          onChange={(color) => {
+                            setPrimaryColor(color);
+                            form.setValue("brand_color", color);
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-subtle w-32">
+                    Secondary color:
+                  </span>
+                  <div className="flex gap-2">
+                    <FormField
+                      control={form.control}
+                      name="secondary_color"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              className="w-32"
+                              {...field}
+                              onChange={(e) => {
+                                form.setValue(
+                                  "secondary_color",
+                                  e.target.value
+                                );
+                                setSecondaryColor(e.target.value);
+                              }}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div
+                          className="w-10 h-10 rounded-full outline-1 outline border-white border-2 cursor-pointer shrink-0"
+                          style={{
+                            backgroundColor: secondaryColor,
+                            outlineColor: secondaryColor,
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <HexColorPicker
+                          color={secondaryColor}
+                          onChange={(color) => {
+                            setSecondaryColor(color);
+                            form.setValue("secondary_color", color);
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="mt-6 pt-6 flex justify-end border-t">
-              <Button type="submit">Update</Button>
-            </div>
+          <div className="mt-6 pt-6 flex justify-end border-t">
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              Update
+            </Button>
+          </div>
 
-            <div className="mt-20 border-t">
-              {/* <div className="py-8 ">
+          {/* <div className="py-8 ">
                 <div className="flex gap-5 flex-col md:flex-row">
                   <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
                     <Label
@@ -712,164 +667,7 @@ export default function General() {
                 </div>
               </div> */}
 
-              <div className="py-8 ">
-                <div className="flex gap-5 flex-col md:flex-row">
-                  <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-                    <Label
-                      htmlFor="workspace_description"
-                      className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-                    >
-                      SMTP
-                    </Label>
-                    <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                      Enables the exchange of emails between servers.
-                    </p>
-                  </div>
-
-                  <div className="md:w-[500px]">
-                    <div className="flex flex-col items-end">
-                      <div
-                        className={`w-full flex flex-col ${!isEditing ? "gap-4" : ""}`}
-                      >
-                        {isEditing ? (
-                          <>
-                            <TextFormField
-                              name="smtp_server"
-                              label="SMTP Server"
-                              placeholder="Enter hostname"
-                              value={formData?.smtp_server || ""}
-                              onChange={handleChange}
-                            />
-
-                            <TextFormField
-                              name="smtp_port"
-                              label="SMTP Port"
-                              placeholder="Enter port"
-                              type="text"
-                              value={formData.smtp_port?.toString() || ""}
-                              onChange={handleChange}
-                            />
-
-                            <TextFormField
-                              name="smtp_username"
-                              label="SMTP Username (email)"
-                              placeholder="Enter username"
-                              value={formData?.smtp_username || ""}
-                              onChange={handleChange}
-                            />
-
-                            <TextFormField
-                              name="smtp_password"
-                              label="SMTP Password"
-                              placeholder="Enter password"
-                              type="password"
-                              value={formData?.smtp_password || ""}
-                              onChange={handleChange}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex gap-6">
-                              <span className="whitespace-nowrap">
-                                SMTP Server:
-                              </span>
-                              <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {loading
-                                  ? "Syncing"
-                                  : settings.settings.smtp_server || "None"}
-                              </span>
-                            </div>
-
-                            <div className="flex gap-6">
-                              <span className="whitespace-nowrap">
-                                SMTP Port:
-                              </span>
-                              <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {loading
-                                  ? "Syncing"
-                                  : settings.settings.smtp_port || "None"}
-                              </span>
-                            </div>
-
-                            <div className="flex gap-6">
-                              <span className="whitespace-nowrap">
-                                SMTP Username (email):
-                              </span>
-                              <span className="font-semibold text-inverted-inverted w-full truncate">
-                                {loading
-                                  ? "Syncing"
-                                  : settings.settings.smtp_username || "None"}
-                              </span>
-                            </div>
-
-                            <div className="flex gap-6">
-                              <span className="whitespace-nowrap">
-                                SMTP Password:
-                              </span>
-                              <span className="font-semibold text-inverted-inverted truncate">
-                                {loading
-                                  ? "Syncing"
-                                  : settings.settings.smtp_password
-                                    ? "●●●●●●●●"
-                                    : "None"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        <div className="flex justify-end">
-                          {isEditing ? (
-                            <div className="flex gap-2">
-                              <Button
-                                variant="ghost"
-                                type="button"
-                                onClick={() => setIsEditing(false)}
-                                disabled={loading}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                type="button"
-                                onClick={async () => {
-                                  setIsEditing(false);
-                                  await updateSmtpSettings(0, formData);
-                                }}
-                                disabled={
-                                  loading ||
-                                  JSON.stringify(formData) ===
-                                    JSON.stringify({
-                                      smtp_server:
-                                        settings.settings.smtp_server,
-                                      smtp_port: settings.settings.smtp_port,
-                                      smtp_username:
-                                        settings.settings.smtp_username,
-                                      smtp_password:
-                                        settings.settings.smtp_password,
-                                    })
-                                }
-                              >
-                                Save
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              onClick={() => setIsEditing(true)}
-                              type="button"
-                              variant="outline"
-                              disabled={loading}
-                            >
-                              Edit
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* <div>
+          {/* <div>
               {values.use_custom_logo ? (
                 <div className="pt-3 flex flex-col items-start gap-3">
                   <div>
@@ -915,8 +713,8 @@ export default function General() {
               />
             </div> */}
 
-            {/* TODO: polish the features here*/}
-            {/* <AdvancedOptionsToggle
+          {/* TODO: polish the features here*/}
+          {/* <AdvancedOptionsToggle
                 showAdvancedOptions={showAdvancedOptions}
                 setShowAdvancedOptions={setShowAdvancedOptions}
               />
@@ -1061,9 +859,10 @@ export default function General() {
                   </div>
                 </div>
               )} */}
-          </Form>
-        )}
-      </Formik>
+        </form>
+      </Form>
+
+      <SMTP />
     </div>
   );
 }

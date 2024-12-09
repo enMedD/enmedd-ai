@@ -1,14 +1,11 @@
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
-import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { adminDeleteCredential } from "@/lib/credential";
 import { setupGoogleDriveOAuth } from "@/lib/googleDrive";
 import { GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
 import Cookies from "js-cookie";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { Form, Formik } from "formik";
+import { InputForm } from "@/components/admin/connectors/Field";
 import {
   Credential,
   GoogleDriveCredentialJson,
@@ -17,6 +14,10 @@ import {
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
 
 type GoogleDriveCredentialJsonTypes = "authorized_user" | "service_account";
 
@@ -324,6 +325,12 @@ interface DriveCredentialSectionProps {
   connectorExists: boolean;
 }
 
+const formSchema = z.object({
+  google_drive_delegated_user: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export const DriveOAuthSection = ({
   googleDrivePublicCredential,
   googleDriveServiceAccountCredential,
@@ -334,6 +341,13 @@ export const DriveOAuthSection = ({
 }: DriveCredentialSectionProps) => {
   const router = useRouter();
   const { toast } = useToast();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      google_drive_delegated_user: "",
+    },
+  });
 
   const existingCredential =
     googleDrivePublicCredential || googleDriveServiceAccountCredential;
@@ -371,6 +385,37 @@ export const DriveOAuthSection = ({
     );
   }
 
+  const onSubmit = async (values: FormValues) => {
+    const response = await fetch(
+      "/api/manage/admin/connector/google-drive/service-account-credential",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          google_drive_delegated_user: values.google_drive_delegated_user,
+        }),
+      }
+    );
+
+    if (response.ok) {
+      toast({
+        title: "Success",
+        description: "Successfully created service account credential",
+        variant: "success",
+      });
+    } else {
+      const errorMsg = await response.text();
+      toast({
+        title: "Error",
+        description: `Failed to create service account credential - ${errorMsg}`,
+        variant: "destructive",
+      });
+    }
+    refreshCredentials();
+  };
+
   if (serviceAccountKeyData?.service_account_email) {
     return (
       <div>
@@ -386,62 +431,22 @@ export const DriveOAuthSection = ({
           the documents you want to index with the service account.
         </p>
 
-        <Formik
-          initialValues={{
-            google_drive_delegated_user: "",
-          }}
-          validationSchema={Yup.object().shape({
-            google_drive_delegated_user: Yup.string().optional(),
-          })}
-          onSubmit={async (values, formikHelpers) => {
-            formikHelpers.setSubmitting(true);
-            const response = await fetch(
-              "/api/manage/admin/connector/google-drive/service-account-credential",
-              {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  google_drive_delegated_user:
-                    values.google_drive_delegated_user,
-                }),
-              }
-            );
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <InputForm
+              formControl={form.control}
+              name="google_drive_delegated_user"
+              label="[Optional] User email to impersonate:"
+              description="If left blank, Arnold AI will use the service account itself."
+            />
 
-            if (response.ok) {
-              toast({
-                title: "Success",
-                description: "Successfully created service account credential",
-                variant: "success",
-              });
-            } else {
-              const errorMsg = await response.text();
-              toast({
-                title: "Error",
-                description: `Failed to create service account credential - ${errorMsg}`,
-                variant: "destructive",
-              });
-            }
-            refreshCredentials();
-          }}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              <TextFormField
-                name="google_drive_delegated_user"
-                label="[Optional] User email to impersonate:"
-                subtext="If left blank, Arnold AI will use the service account itself."
-                optional
-              />
-              <div className="flex">
-                <Button type="submit" disabled={isSubmitting}>
-                  Create Credential
-                </Button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+            <div className="flex">
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                Create Credential
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     );
   }
