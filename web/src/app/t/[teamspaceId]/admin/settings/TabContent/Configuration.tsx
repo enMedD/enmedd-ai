@@ -93,44 +93,6 @@ function Selector({
   );
 }
 
-function IntegerInput({
-  label,
-  sublabel,
-  value,
-  onChange,
-  id,
-  placeholder = "Enter a number",
-}: {
-  label: string;
-  sublabel: string;
-  value: number | null;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  id?: string;
-  placeholder?: string;
-}) {
-  return (
-    <label className="flex flex-col mb-4 text-sm">
-      <ShadcnLabel
-        htmlFor={label}
-        className="font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-        {label}
-      </ShadcnLabel>
-      <SubLabel>{sublabel}</SubLabel>
-      <Input
-        type="number"
-        className="w-full max-w-xs"
-        value={value ?? ""}
-        onChange={onChange}
-        min="0"
-        step="1"
-        id={id}
-        placeholder={placeholder}
-      />
-    </label>
-  );
-}
-
 export function Configuration() {
   const { teamspaceId } = useParams();
   const { toast } = useToast();

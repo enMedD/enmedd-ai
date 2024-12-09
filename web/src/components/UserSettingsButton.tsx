@@ -115,14 +115,14 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
               {isLoadingUser ? (
                 <Skeleton className="h-10 w-full" />
               ) : (
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex gap-2 items-center">
-                    <FeatureFlagWrapper flag="profile_page">
+                <FeatureFlagWrapper flag="profile_page">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex gap-2 items-center">
                       <UserIcon size={16} strokeWidth={1.5} />
                       Profile Settings
-                    </FeatureFlagWrapper>
-                  </Link>
-                </DropdownMenuItem>
+                    </Link>
+                  </DropdownMenuItem>
+                </FeatureFlagWrapper>
               )}
 
               {isLoadingUser ? (
