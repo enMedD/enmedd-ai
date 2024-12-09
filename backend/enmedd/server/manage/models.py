@@ -147,3 +147,8 @@ class AllUsersResponse(BaseModel):
 
 class OTPVerificationRequest(BaseModel):
     otp_code: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str

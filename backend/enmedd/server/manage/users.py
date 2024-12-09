@@ -68,6 +68,7 @@ from enmedd.db.users import list_users
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.server.manage.models import AllUsersResponse
+from enmedd.server.manage.models import LoginRequest
 from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.manage.models import UserByEmail
 from enmedd.server.manage.models import UserInfo
@@ -88,13 +89,32 @@ USERS_PAGE_SIZE = 10
 
 @router.patch("/users/generate-otp")
 async def generate_otp(
-    current_user: User = Depends(current_user),
-    workspace_id: Optional[int] = 0,  # Temporary set to 0
+    login_request: LoginRequest,
     db: Session = Depends(get_session),
 ):
+    email = login_request.email
+    password = login_request.password
+
+    current_user = get_user_by_email(email, db)
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Invalid email"
+        )
+
+    password_helper = PasswordHelper()
+    verified, _ = password_helper.verify_and_update(
+        hashed_password=current_user.hashed_password,
+        plain_password=password,
+    )
+    if not verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid password",
+        )
+
     otp_code = "".join(random.choices(string.digits, k=6))
 
-    smtp_credentials = get_smtp_credentials(workspace_id, db)
+    smtp_credentials = get_smtp_credentials(db)
 
     subject, body = generate_2fa_email(current_user.full_name, otp_code)
     send_2fa_email(current_user.email, subject, body, smtp_credentials)
@@ -118,10 +138,11 @@ async def generate_otp(
 @router.post("/users/verify-otp")
 async def verify_otp(
     otp_code: OTPVerificationRequest,
-    current_user: User = Depends(current_user),
+    email: str,
     db: Session = Depends(get_session),
 ):
     otp_code = otp_code.otp_code
+    current_user = get_user_by_email(email, db)
 
     otp_entry = (
         db.query(TwofactorAuth)
@@ -381,7 +402,6 @@ def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_admin_user_based_on_teamspace_id),
-    workspace_id: Optional[int] = 0,  # Temporary set to 0
     db_session: Session = Depends(get_session),
 ) -> int:
     """emails are string validated. If any email fails validation, no emails are
@@ -399,7 +419,7 @@ def bulk_invite_users(
     if not normalized_emails:
         raise HTTPException(status_code=400, detail="No valid emails found")
 
-    smtp_credentials = get_smtp_credentials(workspace_id, db_session)
+    smtp_credentials = get_smtp_credentials(db_session)
 
     token = generate_invite_token(teamspace_id, normalized_emails, db_session)
 

@@ -37,6 +37,8 @@ PUBLIC_ENDPOINT_SPECS = [
     ("/auth/reset-password", {"POST"}),
     ("/auth/request-verify-token", {"POST"}),
     ("/auth/verify", {"POST"}),
+    ("/users/generate-otp", {"PATCH"}),
+    ("/users/verify-otp", {"POST"}),
     ("/users/me", {"GET"}),
     ("/users/me", {"PATCH"}),
     ("/users/{id}", {"GET"}),

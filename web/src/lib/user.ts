@@ -37,6 +37,21 @@ export const logout = async (): Promise<Response> => {
   return response;
 };
 
+export const generateOtp = async (
+  email: string,
+  password: string
+): Promise<Response> => {
+  const response = await fetch("/api/users/generate-otp", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+    credentials: "include",
+  });
+  return response;
+};
+
 export const basicLogin = async (
   email: string,
   password: string
