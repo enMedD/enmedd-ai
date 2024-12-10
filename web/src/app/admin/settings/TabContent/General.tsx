@@ -536,23 +536,14 @@ export default function General() {
                     Primary color:
                   </span>
                   <div className="flex gap-2">
-                    <FormField
-                      control={form.control}
+                    <InputForm
+                      formControl={form.control}
                       name="brand_color"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              className="w-32"
-                              {...field}
-                              onChange={(e) => {
-                                form.setValue("brand_color", e.target.value);
-                                setPrimaryColor(e.target.value);
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
+                      onChange={(e) => {
+                        form.setValue("brand_color", e.target.value);
+                        setPrimaryColor(e.target.value);
+                      }}
+                      className="w-32"
                     />
 
                     <Popover>
@@ -583,26 +574,14 @@ export default function General() {
                     Secondary color:
                   </span>
                   <div className="flex gap-2">
-                    <FormField
-                      control={form.control}
+                    <InputForm
+                      formControl={form.control}
                       name="secondary_color"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              className="w-32"
-                              {...field}
-                              onChange={(e) => {
-                                form.setValue(
-                                  "secondary_color",
-                                  e.target.value
-                                );
-                                setSecondaryColor(e.target.value);
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
+                      onChange={(e) => {
+                        form.setValue("secondary_color", e.target.value);
+                        setSecondaryColor(e.target.value);
+                      }}
+                      className="w-32"
                     />
 
                     <Popover>
