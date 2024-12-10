@@ -10,7 +10,6 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function FilterButton({
@@ -24,20 +23,7 @@ export default function FilterButton({
   setDocsFilter: (value: number | null) => void;
   setStatusFilter: (value: string | null) => void;
 }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const updateQueryParams = (key: string, value: string | number | null) => {
-    const newParams = new URLSearchParams(searchParams.toString());
-    if (value) {
-      newParams.set(key, value.toString());
-    } else {
-      newParams.delete(key);
-    }
-
-    const newUrl = `${pathname}?${newParams.toString()}`;
-    window.history.pushState({}, "", newUrl);
-
+  const updateLocalStorage = (key: string, value: string | number | null) => {
     localStorage.setItem(key, value?.toString() || "");
   };
 
@@ -69,7 +55,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setActivityFilter("Active");
-                  updateQueryParams("activity", "Active");
+                  updateLocalStorage("activity", "Active");
                 }}
               >
                 Active
@@ -77,7 +63,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setActivityFilter("Pause");
-                  updateQueryParams("activity", "Pause");
+                  updateLocalStorage("activity", "Pause");
                 }}
               >
                 Pause
@@ -85,7 +71,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setActivityFilter("Deleting");
-                  updateQueryParams("activity", "Deleting");
+                  updateLocalStorage("activity", "Deleting");
                 }}
               >
                 Deleting
@@ -93,7 +79,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setActivityFilter("not_started");
-                  updateQueryParams("activity", "not_started");
+                  updateLocalStorage("activity", "not_started");
                 }}
               >
                 Scheduled
@@ -101,7 +87,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setActivityFilter("in_progress");
-                  updateQueryParams("activity", "in_progress");
+                  updateLocalStorage("activity", "in_progress");
                 }}
               >
                 Indexing
@@ -115,7 +101,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setPermissionsFilter("Public");
-                  updateQueryParams("permissions", "Public");
+                  updateLocalStorage("permissions", "Public");
                 }}
               >
                 Public
@@ -123,7 +109,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setPermissionsFilter("Private");
-                  updateQueryParams("permissions", "Private");
+                  updateLocalStorage("permissions", "Private");
                 }}
               >
                 Private
@@ -137,7 +123,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setDocsFilter(0);
-                  updateQueryParams("docs", 0);
+                  updateLocalStorage("docs", 0);
                 }}
               >
                 0
@@ -145,7 +131,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setDocsFilter(10);
-                  updateQueryParams("docs", 10);
+                  updateLocalStorage("docs", 10);
                 }}
               >
                 10+
@@ -153,7 +139,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setDocsFilter(100);
-                  updateQueryParams("docs", 100);
+                  updateLocalStorage("docs", 100);
                 }}
               >
                 100+
@@ -161,7 +147,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setDocsFilter(1000);
-                  updateQueryParams("docs", 1000);
+                  updateLocalStorage("docs", 1000);
                 }}
               >
                 1000+
@@ -169,7 +155,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setDocsFilter(10000);
-                  updateQueryParams("docs", 10000);
+                  updateLocalStorage("docs", 10000);
                 }}
               >
                 10000+
@@ -183,7 +169,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setStatusFilter("success");
-                  updateQueryParams("status", "success");
+                  updateLocalStorage("status", "success");
                 }}
               >
                 Success
@@ -191,7 +177,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setStatusFilter("in_progress");
-                  updateQueryParams("status", "in_progress");
+                  updateLocalStorage("status", "in_progress");
                 }}
               >
                 Scheduled
@@ -199,7 +185,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setStatusFilter("not_started");
-                  updateQueryParams("status", "not_started");
+                  updateLocalStorage("status", "not_started");
                 }}
               >
                 Not Started
@@ -207,7 +193,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setStatusFilter("failed");
-                  updateQueryParams("status", "failed");
+                  updateLocalStorage("status", "failed");
                 }}
               >
                 Failed
@@ -215,7 +201,7 @@ export default function FilterButton({
               <MenubarItem
                 onClick={() => {
                   setStatusFilter("completed_with_errors");
-                  updateQueryParams("status", "completed_with_errors");
+                  updateLocalStorage("status", "completed_with_errors");
                 }}
               >
                 Completed with errors
