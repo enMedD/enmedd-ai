@@ -18,8 +18,8 @@ from fastapi import UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import models
 from fastapi_users.authentication import AuthenticationBackend
+from fastapi_users.authentication import CookieTransport
 from fastapi_users.authentication import Strategy
-from fastapi_users.manager import BaseUserManager
 from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users.password import PasswordHelper
 from fastapi_users.router.common import ErrorCode
@@ -52,8 +52,10 @@ from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
+from enmedd.auth.users import get_database_strategy
 from enmedd.auth.users import get_user_manager
 from enmedd.auth.users import optional_user
+from enmedd.auth.users import UserManager
 from enmedd.auth.utils import generate_2fa_email
 from enmedd.auth.utils import get_smtp_credentials
 from enmedd.auth.utils import send_2fa_email
@@ -90,7 +92,14 @@ from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
-backend = AuthenticationBackend()
+cookie_transport = CookieTransport(
+    cookie_max_age=SESSION_EXPIRE_TIME_SECONDS,
+    cookie_secure=WEB_DOMAIN.startswith("https"),
+)
+
+backend = AuthenticationBackend(
+    name="database", transport=cookie_transport, get_strategy=get_database_strategy
+)
 
 
 router = APIRouter()
@@ -116,7 +125,7 @@ login_responses: OpenAPIResponseType = {
                 }
             }
         },
-    }
+    },
 }
 
 
@@ -128,7 +137,7 @@ login_responses: OpenAPIResponseType = {
 async def custom_login(
     request: Request,
     credentials: OAuth2PasswordRequestForm = Depends(),
-    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+    user_manager: UserManager = Depends(get_user_manager),
     strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     requires_verification: bool = False,
 ):
@@ -194,7 +203,7 @@ async def verify_otp(
     email: str,
     backend: AuthenticationBackend,
     request: Request,
-    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+    user_manager: UserManager = Depends(get_user_manager),
     strategy: Strategy[models.UP, models.ID] = Depends(
         AuthenticationBackend.get_strategy
     ),
