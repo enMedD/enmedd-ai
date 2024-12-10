@@ -273,6 +273,11 @@ export function CCPairIndexingStatusTable({
   const [docsFilter, setDocsFilter] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
+  // Remove filter from localStorage
+  const removeFilterFromLocalStorage = (key: string) => {
+    localStorage.removeItem(key);
+  };
+
   useEffect(() => {
     if (searchInputRef.current) {
       searchInputRef.current.focus();
@@ -438,7 +443,7 @@ export function CCPairIndexingStatusTable({
             error_msg: "",
             deletion_attempt: null,
             is_deletable: true,
-            groups: [], // Add this line
+            groups: [],
           }}
           isEditable={false}
         />
@@ -476,7 +481,10 @@ export function CCPairIndexingStatusTable({
               <X
                 size={14}
                 className="cursor-pointer"
-                onClick={() => setActivityFilter(null)}
+                onClick={() => {
+                  setActivityFilter(null);
+                  removeFilterFromLocalStorage("activity");
+                }}
               />
             </Badge>
           )}
@@ -486,7 +494,10 @@ export function CCPairIndexingStatusTable({
               <X
                 size={14}
                 className="cursor-pointer"
-                onClick={() => setPermissionsFilter(null)}
+                onClick={() => {
+                  setPermissionsFilter(null);
+                  removeFilterFromLocalStorage("permissions");
+                }}
               />
             </Badge>
           )}
@@ -497,18 +508,23 @@ export function CCPairIndexingStatusTable({
               <X
                 size={14}
                 className="cursor-pointer"
-                onClick={() => setDocsFilter(null)}
+                onClick={() => {
+                  setDocsFilter(null);
+                  removeFilterFromLocalStorage("docs");
+                }}
               />
             </Badge>
           )}
-
           {statusFilter && (
             <Badge>
               {statusLabels[statusFilter] || statusFilter}
               <X
                 size={14}
                 className="cursor-pointer"
-                onClick={() => setStatusFilter(null)}
+                onClick={() => {
+                  setStatusFilter(null);
+                  removeFilterFromLocalStorage("status");
+                }}
               />
             </Badge>
           )}
