@@ -17,7 +17,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/Spinner";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
 
-const password = sessionStorage.getItem("password");
 const Page = () => {
   const { toast } = useToast();
   const [value, setValue] = useState("");
@@ -67,12 +66,6 @@ const Page = () => {
         throw new Error(errorData.detail || "Error verifying OTP");
       }
 
-      if (user_email && password) {
-        const loginResponse = await basicLogin(user_email, password);
-        if (!loginResponse.ok) {
-          throw new Error("Basic login failed");
-        }
-      }
       toast({
         title: "Authenticated Successfully",
         description: "You have been logged in and redirected to chat.",
@@ -100,7 +93,7 @@ const Page = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: user_email, password }),
+      body: JSON.stringify({ email: user_email }),
       credentials: "include",
     });
     if (!response.ok) {

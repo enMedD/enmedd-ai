@@ -61,23 +61,21 @@ export function LogInForms({}: {}) {
     setIsLoading(true);
 
     try {
-      if (isTwoFactorAuthEnabled) {
-        const otpResponse = await generateOtp(values.email, values.password);
+      const loginResponse = await basicLogin(values.email, values.password);
+      if (loginResponse.ok) {
+        if (isTwoFactorAuthEnabled) {
+          const otpResponse = await generateOtp(values.email);
 
-        if (otpResponse.ok) {
-          sessionStorage.setItem("password", values.password);
-          router.push(`/auth/2factorverification/?email=${values.email}`);
+          if (otpResponse.ok) {
+            router.push(`/auth/2factorverification/?email=${values.email}`);
+          } else {
+            handleError(otpResponse);
+          }
         } else {
-          handleError(otpResponse);
+          router.push("/");
         }
       } else {
-        const loginResponse = await basicLogin(values.email, values.password);
-
-        if (loginResponse.ok) {
-          router.push("/");
-        } else {
-          handleError(loginResponse);
-        }
+        handleError(loginResponse);
       }
     } catch (err) {
       toast({
@@ -96,10 +94,8 @@ export function LogInForms({}: {}) {
           const errorDetail = errorData.detail;
 
           let errorMsg = "Unknown error";
-          if (errorDetail === "Invalid email") {
-            errorMsg = "Invalid email address";
-          } else if (errorDetail === "Invalid password") {
-            errorMsg = "Invalid password";
+          if (errorDetail === "LOGIN_USER_NOT_VERIFIED") {
+            errorMsg = "User not yet verified";
           } else if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
             errorMsg = "Invalid email or password";
           }
