@@ -33,10 +33,12 @@ export function AssistantsTable({
   allAssistants,
   editableAssistants,
   teamspaceId,
+  refreshAllAssistants,
 }: {
   allAssistants: Assistant[];
   editableAssistants: Assistant[];
   teamspaceId?: string | string[];
+  refreshAllAssistants: () => void;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -94,6 +96,8 @@ export function AssistantsTable({
         description: `There was an issue updating the assistant order. Details: ${await response.text()}`,
         variant: "destructive",
       });
+    } else {
+      refreshAllAssistants();
       router.refresh();
     }
   };
@@ -122,6 +126,7 @@ export function AssistantsTable({
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
+              refreshAllAssistants();
               router.refresh();
             } else {
               toast({
@@ -133,12 +138,6 @@ export function AssistantsTable({
           }}
         />
       )}
-
-      <p className="pb-4 text-sm">
-        Assistants will be displayed as options on the Chat / Search interfaces
-        in the order they are displayed below. Assistants marked as hidden will
-        not be displayed.
-      </p>
 
       <Card>
         <CardContent className="p-0">
@@ -179,7 +178,10 @@ export function AssistantsTable({
                   >
                     {assistant.name}
                   </CustomTooltip>,
-                  <p key="description" className="max-w-2xl whitespace-normal">
+                  <p
+                    key="description"
+                    className="max-w-2xl whitespace-normal line-clamp"
+                  >
                     {assistant.description}
                   </p>,
                   <AssistantTypeDisplay
@@ -207,7 +209,7 @@ export function AssistantsTable({
                           description: `The visibility of "${assistant.name}" has been successfully updated.`,
                           variant: "success",
                         });
-
+                        refreshAllAssistants();
                         router.refresh();
                       } else {
                         toast({

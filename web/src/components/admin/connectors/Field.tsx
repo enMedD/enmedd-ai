@@ -297,6 +297,8 @@ export function InputForm<T extends FieldValues>({
   fullWidth,
   tooltip,
   onChange,
+  onFocus,
+  onBlur,
 }: {
   formControl: Control<T>;
   disabled?: boolean;
@@ -313,6 +315,8 @@ export function InputForm<T extends FieldValues>({
   onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+  onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 }) {
   const Component = isTextarea ? Textarea : Input;
   return (
@@ -353,6 +357,8 @@ export function InputForm<T extends FieldValues>({
                   field.onChange(value);
                 }
               }}
+              onFocus={onFocus}
+              onBlur={onBlur}
             />
           </FormControl>
           {description && isDescriptionBelow && (
