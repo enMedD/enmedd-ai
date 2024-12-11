@@ -1033,7 +1033,7 @@ export function ChatPage({
     }
 
     setAlternativeGeneratingAssistant(alternativeAssistantOverride);
-    clientScrollToBottom();
+
     let currChatSessionId: number;
     let isNewSession = chatSessionIdRef.current === null;
     const searchParamBasedChatSessionName =
@@ -1398,6 +1398,7 @@ export function ChatPage({
             ]);
           }
         }
+        clientScrollToBottom(true);
       }
     } catch (e: any) {
       const errorMsg = e.message;
