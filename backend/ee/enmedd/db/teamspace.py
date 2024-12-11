@@ -393,7 +393,7 @@ def _add_teamspace__assistant_relationships__no_commit(
     return relationships
 
 
-def _add_workspace__teamspace_relationship(
+def _add_workspace__teamspace_relationship__no_commit(
     db_session: Session, workspace_id: int, teamspace_id: int
 ) -> Workspace__Teamspace:
     relationship = Workspace__Teamspace(
@@ -404,7 +404,7 @@ def _add_workspace__teamspace_relationship(
     return relationship
 
 
-def insert_teamspace(
+def insert_teamspace__no_commit(
     db_session: Session, teamspace: TeamspaceCreate, creator_id: UUID
 ) -> Teamspace:
     db_teamspace = Teamspace(
@@ -413,7 +413,7 @@ def insert_teamspace(
     db_session.add(db_teamspace)
     db_session.flush()  # give the group an ID
 
-    _add_workspace__teamspace_relationship(
+    _add_workspace__teamspace_relationship__no_commit(
         db_session, teamspace.workspace_id, db_teamspace.id
     )
     _add_user__teamspace_relationships_with_set_role__no_commit(

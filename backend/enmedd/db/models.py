@@ -19,7 +19,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import func
 from sqlalchemy import Index
 from sqlalchemy import Integer
-from sqlalchemy import Sequence
 from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy import UniqueConstraint
@@ -459,14 +458,8 @@ class ConnectorCredentialPair(Base):
     """
 
     __tablename__ = "connector_credential_pair"
-    # NOTE: this `id` column has to use `Sequence` instead of `autoincrement=True`
-    # due to some SQLAlchemy quirks + this not being a primary key column
-    id: Mapped[int] = mapped_column(
-        Integer,
-        Sequence("connector_credential_pair_id_seq"),
-        unique=True,
-        nullable=False,
-    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[ConnectorCredentialPairStatus] = mapped_column(
         Enum(ConnectorCredentialPairStatus, native_enum=False), nullable=False

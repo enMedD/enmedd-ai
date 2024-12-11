@@ -509,14 +509,11 @@ async def current_workspace_admin_user(
     return user
 
 
-async def current_teamspace_admin_user(
+async def current_teamspace_admin_user_checking(
+    db_session: Session,
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
-    db_session: Session = Depends(get_session),
-    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User:
-    if tenant_id:
-        db_session_filter(tenant_id, db_session)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -530,7 +527,6 @@ async def current_teamspace_admin_user(
     )
 
     if user_teamspace and user_teamspace.role == UserRole.ADMIN:
-        user.role = UserRole.ADMIN
         return user
 
     teamspace = (
@@ -548,13 +544,29 @@ async def current_teamspace_admin_user(
     )
 
 
+async def current_teamspace_admin_user(
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> User:
+    if tenant_id:
+        db_session_filter(tenant_id, db_session)
+    return await current_teamspace_admin_user_checking(
+        db_session=db_session, teamspace_id=teamspace_id, user=user
+    )
+
+
 async def current_workspace_or_teamspace_admin_user(
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User:
     try:
-        return await current_teamspace_admin_user(
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
+        return await current_teamspace_admin_user_checking(
             teamspace_id=teamspace_id, user=user, db_session=db_session
         )
     except HTTPException:
@@ -565,10 +577,13 @@ async def current_admin_user_based_on_teamspace_id(
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> User:
     if teamspace_id is None:
         return await current_workspace_admin_user(user=user)
     else:
-        return await current_teamspace_admin_user(
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
+        return await current_teamspace_admin_user_checking(
             teamspace_id=teamspace_id, user=user, db_session=db_session
         )

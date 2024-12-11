@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from ee.enmedd.db.teamspace import check_assistant_document_set
 from ee.enmedd.db.teamspace import check_document_set_connector_credential_pair
 from ee.enmedd.db.teamspace import fetch_teamspace
-from ee.enmedd.db.teamspace import insert_teamspace
+from ee.enmedd.db.teamspace import insert_teamspace__no_commit
 from ee.enmedd.db.teamspace import prepare_teamspace_for_deletion
 from ee.enmedd.db.teamspace import update_teamspace
 from ee.enmedd.server.teamspace.models import Teamspace
@@ -185,7 +185,7 @@ def create_teamspace(
         )
         teamspace.cc_pair_ids = list(updated_cc_pair_ids)
 
-        db_teamspace = insert_teamspace(
+        db_teamspace = insert_teamspace__no_commit(
             db_session, teamspace, creator_id=current_user.id
         )
         default_settings = Settings()

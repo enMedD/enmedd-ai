@@ -383,7 +383,6 @@ def add_credential_to_connector(
         auto_sync_options=auto_sync_options,
     )
     db_session.add(association)
-    db_session.flush()  # make sure the association has an id
 
     if groups and access_type != AccessType.SYNC:
         _relate_groups_to_cc_pair__no_commit(

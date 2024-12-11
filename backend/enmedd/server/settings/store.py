@@ -103,6 +103,7 @@ def store_settings(
             .filter_by(workspace_id=workspace_id)
             .first()
         )
+
     if settings_record:
         settings_record.chat_page_enabled = settings.chat_page_enabled
         settings_record.search_page_enabled = settings.search_page_enabled
