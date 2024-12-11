@@ -116,9 +116,49 @@ def copy_filtered_data(db_session: Session, schema_name: str) -> None:
     db_session.execute(
         text(
             f"""
+            INSERT INTO {schema_name}.assistant__tool
+            SELECT * FROM public.assistant__tool
+            WHERE assistant_id BETWEEN -2147483648 AND 0;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
             INSERT INTO {schema_name}.tool
             SELECT * FROM public.tool
             WHERE id BETWEEN 1 AND 3;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.connector
+            SELECT * FROM public.connector
+            WHERE id = 0;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.credential
+            SELECT * FROM public.credential
+            WHERE id = 0;
+        """
+        )
+    )
+
+    db_session.execute(
+        text(
+            f"""
+            INSERT INTO {schema_name}.connector_credential_pair
+            SELECT * FROM public.connector_credential_pair
+            WHERE connector_id = 0 AND credential_id = 0;
         """
         )
     )
