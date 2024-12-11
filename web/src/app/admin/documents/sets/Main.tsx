@@ -1,24 +1,20 @@
 "use client";
 
-import { ThreeDotsLoader } from "@/components/Loading";
 import { PageSelector } from "@/components/PageSelector";
 import { InfoIcon } from "@/components/icons/icons";
 
-import { useConnectorCredentialIndexingStatus } from "@/lib/hooks";
+import {
+  useConnectorCredentialIndexingStatus,
+  useDocumentSets,
+} from "@/lib/hooks";
 import { ConnectorIndexingStatus, DocumentSet } from "@/lib/types";
 import { useState } from "react";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { DeleteButton } from "@/components/DeleteButton";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Bookmark,
-  CircleCheckBig,
-  Clock,
-  Pencil,
-  TriangleAlert,
-} from "lucide-react";
+import { CircleCheckBig, Clock, Pencil, TriangleAlert } from "lucide-react";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -32,8 +28,9 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { deleteDocumentSet } from "@/app/admin/documents/sets/lib";
-import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { DeleteModal } from "@/components/DeleteModal";
+import { ErrorCallout } from "@/components/ErrorCallout";
+import { Loading } from "@/components/Loading";
 
 const numToDisplay = 50;
 
@@ -103,7 +100,6 @@ interface DocumentFeedbackTableProps {
   documentSets: DocumentSet[];
   ccPairs: ConnectorIndexingStatus<any, any>[];
   refresh: () => void;
-  refreshEditable: () => void;
   editableDocumentSets: DocumentSet[];
   teamspaceId: string | string[] | undefined;
 }
@@ -112,7 +108,6 @@ const DocumentSetTable = ({
   documentSets,
   editableDocumentSets,
   refresh,
-  refreshEditable,
   teamspaceId,
 }: DocumentFeedbackTableProps) => {
   const { toast } = useToast();
@@ -159,6 +154,7 @@ const DocumentSetTable = ({
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
+              refresh();
             } else {
               const errorMsg = (await response.json()).detail;
               toast({
@@ -168,7 +164,6 @@ const DocumentSetTable = ({
               });
             }
             refresh();
-            refreshEditable();
           }}
         />
       )}
@@ -307,58 +302,59 @@ export const Main = ({ teamspaceId }: { teamspaceId?: string | string[] }) => {
     error: ccPairsError,
   } = useConnectorCredentialIndexingStatus(undefined, false, teamspaceId);
 
-  if (
-    isDocumentSetsLoading ||
-    isCCPairsLoading ||
-    isEditableDocumentSetsLoading
-  ) {
-    return <ThreeDotsLoader />;
-  }
+  const error = documentSetsError || editableDocumentSetsError || ccPairsError;
+  const isLoading =
+    isDocumentSetsLoading || isEditableDocumentSetsLoading || isCCPairsLoading;
 
-  if (documentSetsError || !documentSets) {
-    return <div>Error: {documentSetsError}</div>;
-  }
-
-  if (editableDocumentSetsError || !editableDocumentSets) {
-    return <div>Error: {editableDocumentSetsError}</div>;
-  }
-
-  if (ccPairsError || !ccPairs) {
-    return <div>Error: {ccPairsError}</div>;
-  }
+  const refreshAllDocumentSets = () => {
+    refreshDocumentSets();
+    refreshEditableDocumentSets();
+  };
 
   return (
     <div>
-      <p className="pb-6">
-        <b>Document Sets</b> allow you to group logically connected documents
-        into a single bundle. These can then be used as filter when performing
-        searches in the web UI to limit the amount of information the bot
-        searches over when answering in a specific channel or with a certain
-        command.
-      </p>
-
-      <div className="flex pb-6">
-        <Link
-          href={
-            teamspaceId
-              ? `/t/${teamspaceId}/admin/documents/sets/new`
-              : `/admin/documents/sets/new`
-          }
-        >
-          <Button className="my-auto">New Document Set</Button>
-        </Link>
-      </div>
-
-      {documentSets.length > 0 && (
+      {error ? (
+        <ErrorCallout
+          errorTitle="Something went wrong :("
+          errorMsg={`Failed to fetch docunent set - ${error}`}
+        />
+      ) : (
         <>
-          <DocumentSetTable
-            documentSets={documentSets}
-            editableDocumentSets={editableDocumentSets}
-            ccPairs={ccPairs}
-            refresh={refreshDocumentSets}
-            refreshEditable={refreshEditableDocumentSets}
-            teamspaceId={teamspaceId}
-          />
+          <p className="pb-6">
+            <b>Document Sets</b> allow you to group logically connected
+            documents into a single bundle. These can then be used as filter
+            when performing searches in the web UI to limit the amount of
+            information the bot searches over when answering in a specific
+            channel or with a certain command.
+          </p>
+
+          <div className="flex pb-6">
+            <Link
+              href={
+                teamspaceId
+                  ? `/t/${teamspaceId}/admin/documents/sets/new`
+                  : `/admin/documents/sets/new`
+              }
+            >
+              <Button className="my-auto">New Document Set</Button>
+            </Link>
+          </div>
+
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <>
+              {documentSets && documentSets.length > 0 && (
+                <DocumentSetTable
+                  documentSets={documentSets || []}
+                  editableDocumentSets={editableDocumentSets || []}
+                  ccPairs={ccPairs || []}
+                  refresh={refreshAllDocumentSets}
+                  teamspaceId={teamspaceId}
+                />
+              )}
+            </>
+          )}
         </>
       )}
     </div>

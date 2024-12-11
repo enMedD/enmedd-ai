@@ -178,10 +178,7 @@ export function AssistantsTable({
                   >
                     {assistant.name}
                   </CustomTooltip>,
-                  <p
-                    key="description"
-                    className="max-w-2xl whitespace-normal line-clamp"
-                  >
+                  <p key="description" className="max-w-2xl whitespace-normal">
                     {assistant.description}
                   </p>,
                   <AssistantTypeDisplay

@@ -5,7 +5,7 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 import { useState } from "react";
 import useSWR from "swr";
 import { Callout } from "@tremor/react";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { FullLLMProvider, WellKnownLLMProviderDescriptor } from "./interfaces";
 import { LLMProviderUpdateForm } from "./LLMProviderUpdateForm";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
@@ -127,7 +127,7 @@ export function LLMConfiguration() {
   );
 
   if (!llmProviderDescriptors || !existingLlmProviders) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   return (

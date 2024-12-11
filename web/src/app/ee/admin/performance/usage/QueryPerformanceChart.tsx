@@ -1,7 +1,7 @@
 "use client";
 
 import { getDatesList, useQueryAnalytics, useUserAnalytics } from "../lib";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DateRange } from "react-day-picker";
 import {
@@ -45,8 +45,10 @@ export function QueryPerformanceChart({
   let chart;
   if (isQueryAnalyticsLoading || isUserAnalyticsLoading) {
     chart = (
-      <div className="h-80 flex flex-col">
-        <ThreeDotsLoader />
+      <div className="h-[250px] flex flex-col">
+        <div className="my-auto">
+          <Loading />
+        </div>
       </div>
     );
   } else if (
@@ -56,7 +58,7 @@ export function QueryPerformanceChart({
     userAnalyticsError
   ) {
     chart = (
-      <div className="h-80 text-red-600 text-bold flex flex-col">
+      <div className="h-[250px] text-red-600 text-bold flex flex-col">
         <p className="m-auto">Failed to fetch query data...</p>
       </div>
     );

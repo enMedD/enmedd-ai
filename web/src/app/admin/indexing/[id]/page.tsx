@@ -2,9 +2,8 @@
 
 import { BackButton } from "@/components/BackButton";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ValidSources } from "@/lib/types";
 import { Title } from "@tremor/react";
 import useSWR from "swr";
 import { IndexAttemptErrorsTable } from "./IndexAttemptErrorsTable";
@@ -22,7 +21,7 @@ function Main({ id }: { id: number }) {
   );
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (error || !indexAttemptErrors) {

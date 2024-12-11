@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { LoadingAnimation } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Trash } from "lucide-react";
 import {
@@ -31,7 +31,6 @@ import { UserProfile } from "@/components/UserProfile";
 import { useUser } from "@/components/user/UserProvider";
 import { useUsers } from "@/lib/hooks";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { CustomModal } from "@/components/CustomModal";
 import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
 import { InviteUserButton } from "./InviteUserButton";
@@ -266,7 +265,7 @@ export const AllUsers = ({
     : { data: [], isLoading: false, error: null };
 
   if (isLoading || isLoadingDomains || loading) {
-    return <LoadingAnimation text="Loading" />;
+    return <Loading />;
   }
 
   if (domainsError || !validDomains) {

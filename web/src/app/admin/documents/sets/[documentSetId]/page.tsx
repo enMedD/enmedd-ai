@@ -1,14 +1,14 @@
 "use client";
 
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { refreshDocumentSets, useDocumentSets } from "../hooks";
 import {
+  refreshDocumentSets,
   useConnectorCredentialIndexingStatus,
+  useDocumentSets,
   useTeamspaces,
 } from "@/lib/hooks";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { BookmarkIcon } from "@/components/icons/icons";
 import { BackButton } from "@/components/BackButton";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import { useParams, useRouter } from "next/navigation";
@@ -35,7 +35,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
   const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
   if (isDocumentSetsLoading || isCCPairsLoading || teamspacesIsLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (documentSetsError || !documentSets) {

@@ -1,6 +1,7 @@
 import {
   ConnectorIndexingStatus,
   DocumentBoostStatus,
+  DocumentSet,
   MinimalUserwithNameSnapshot,
   Tag,
   Teamspace,
@@ -17,6 +18,7 @@ import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidE
 import { DateRange } from "react-day-picker";
 import { Credential } from "./connectors/credentials";
 import { Assistant } from "@/app/admin/assistants/interfaces";
+import { ToolSnapshot } from "@/lib/tools/interfaces";
 
 const CREDENTIAL_URL = "/api/manage/admin/credential";
 
@@ -321,41 +323,76 @@ export const useUserTeamspaces = (): {
   };
 };
 
-const ADMIN_ASSISTANT_URL = "/api/admin/assistant";
+const TOOL_URL = "/api/tool";
 
-export const useAdminAssistant = (
-  getEditable: boolean = false,
-  teamspaceId?: string | string[]
-): {
-  data: Assistant[];
-  isLoading: boolean;
-  error: string;
-  refreshAdminAssistant: () => void;
-} => {
-  let url = ADMIN_ASSISTANT_URL;
+export function refreshTools() {
+  mutate(TOOL_URL);
+}
 
-  if (getEditable) {
-    url += "?get_editable=true";
-  }
+export function useTools() {
+  const url = `${TOOL_URL}`;
 
-  if (teamspaceId) {
-    url += url.includes("?")
-      ? `&teamspace_id=${teamspaceId}`
-      : `?teamspace_id=${teamspaceId}`;
-  }
-
-  const { data, error, mutate } = useSWR<Assistant[]>(
-    url,
-    errorHandlingFetcher
-  );
+  const swrResponse = useSWR<ToolSnapshot[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
 
   return {
-    data: data || [],
-    isLoading: !data && !error,
-    error: error?.message || error || "",
-    refreshAdminAssistant: () => mutate(),
+    ...swrResponse,
+    refreshTools: refreshTools,
   };
-};
+}
+
+const ADMIN_ASSISTANT_URL = "/api/admin/assistant";
+
+export function refreshAdminAssistants() {
+  mutate(ADMIN_ASSISTANT_URL);
+}
+
+export function useAdminAssistants(
+  getEditable: boolean = false,
+  teamspaceId?: string | string[]
+) {
+  const url = `${ADMIN_ASSISTANT_URL}?${
+    getEditable ? "get_editable=true" : ""
+  }${getEditable && teamspaceId ? "&" : ""}${
+    teamspaceId ? `teamspace_id=${teamspaceId}` : ""
+  }`.replace(/&$/, "");
+
+  const swrResponse = useSWR<Assistant[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
+
+  return {
+    ...swrResponse,
+    refreshAdminAssistants: refreshAdminAssistants,
+  };
+}
+
+const DOCUMENT_SETS_URL = "/api/manage/admin/document-set";
+
+export function refreshDocumentSets() {
+  mutate(DOCUMENT_SETS_URL);
+}
+
+export function useDocumentSets(
+  getEditable: boolean = false,
+  teamspaceId?: string | string[]
+) {
+  const url = `${DOCUMENT_SETS_URL}?${
+    getEditable ? "get_editable=true" : ""
+  }${getEditable && teamspaceId ? "&" : ""}${
+    teamspaceId ? `teamspace_id=${teamspaceId}` : ""
+  }`.replace(/&$/, "");
+
+  const swrResponse = useSWR<DocumentSet[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
+
+  return {
+    ...swrResponse,
+    refreshDocumentSets: refreshDocumentSets,
+  };
+}
 
 const MODEL_DISPLAY_NAMES: { [key: string]: string } = {
   // OpenAI models

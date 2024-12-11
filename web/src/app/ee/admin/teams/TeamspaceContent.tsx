@@ -18,6 +18,8 @@ import { TeamspacesCard } from "./TeamspacesCard";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { UsersResponse } from "@/lib/users/interfaces";
 import { AdminPageTitle } from "@/components/admin/Title";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorCallout } from "@/components/ErrorCallout";
 
 export const TeamspaceContent = ({
   assistants,
@@ -27,6 +29,8 @@ export const TeamspaceContent = ({
   ccPairs,
   users,
   documentSets,
+  isLoading,
+  isError,
 }: {
   assistants: Assistant[];
   onClick: (teamspaceId: number) => void;
@@ -35,6 +39,8 @@ export const TeamspaceContent = ({
   ccPairs: ConnectorIndexingStatus<any, any>[];
   users: UsersResponse;
   documentSets: DocumentSet[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,6 +48,15 @@ export const TeamspaceContent = ({
   const filteredTeamspaces = data.filter((teamspace) =>
     teamspace.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isError) {
+    return (
+      <ErrorCallout
+        errorTitle="Something went wrong :("
+        errorMsg={`Failed to fetch teamspace - ${isError}`}
+      />
+    );
+  }
 
   return (
     <div>
@@ -100,9 +115,22 @@ export const TeamspaceContent = ({
         </div>
       </div>
 
-      {filteredTeamspaces.length > 0 ? (
+      {isLoading ? (
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))]">
-          {/* <div className="flex flex-wrap gap-8"> */}
+          {Array.from({ length: 12 }).map((_, index) => (
+            <Skeleton
+              key={index}
+              className="relative w-full max-w-[400px] h-[275px]"
+            />
+          ))}
+        </div>
+      ) : isError ? (
+        <ErrorCallout
+          errorTitle="Something went wrong :("
+          errorMsg={`Failed to fetch teamspace - ${isError}`}
+        />
+      ) : filteredTeamspaces.length > 0 ? (
+        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))]">
           {filteredTeamspaces
             .filter((teamspace) => !teamspace.is_up_for_deletion)
             .map((teamspace) => {

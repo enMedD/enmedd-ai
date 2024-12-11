@@ -6,14 +6,12 @@ import { TeamspaceSidebar } from "./TeamspaceSidebar";
 import { useState } from "react";
 import {
   useConnectorCredentialIndexingStatus,
+  useDocumentSets,
   useTeamspaces,
   useUsers,
 } from "@/lib/hooks";
-import { ThreeDotsLoader } from "@/components/Loading";
-import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
 import { useParams } from "next/navigation";
 import { useGradient } from "@/hooks/useGradient";
-
 import {
   Sidebar,
   SidebarInset,
@@ -23,6 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { UsersResponse } from "@/lib/users/interfaces";
+import { Loader2 } from "lucide-react";
 
 const Inset = ({
   open,
@@ -38,6 +37,8 @@ const Inset = ({
   setSelectedTeamspaceId,
   cancelEditName,
   cancelEditDescription,
+  isLoading,
+  isError,
 }: {
   open: boolean;
   assistants: Assistant[];
@@ -52,6 +53,8 @@ const Inset = ({
   setSelectedTeamspaceId: (teamspaceId: number) => void;
   cancelEditName: () => void;
   cancelEditDescription: () => void;
+  isLoading: boolean;
+  isError: boolean;
 }) => {
   const { toggleSidebar: toggleRightSidebar, isMobile } = useSidebar();
 
@@ -95,6 +98,8 @@ const Inset = ({
             ccPairs={ccPairs}
             users={users}
             documentSets={documentSets}
+            isLoading={isLoading}
+            isError={isError}
           />
         </div>
       </div>
@@ -111,7 +116,12 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     null
   );
 
-  const { isLoading, error, data, refreshTeamspaces } = useTeamspaces();
+  const {
+    isLoading: loading,
+    error,
+    data,
+    refreshTeamspaces,
+  } = useTeamspaces();
 
   const {
     data: ccPairs,
@@ -131,27 +141,27 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
     error: documentSetsError,
   } = useDocumentSets();
 
-  if (isLoading || isDocumentSetsLoading || userIsLoading || isCCPairsLoading) {
-    return <ThreeDotsLoader />;
+  if (userIsLoading) {
+    return (
+      <div className="flex items-center justify-center w-full">
+        <Loader2 className="animate-spin" size={24} />
+      </div>
+    );
   }
 
-  if (error || !data) {
+  if (usersError || !users) {
     return <div className="text-red-600">Error loading teams</div>;
   }
 
-  if (usersError || !users || documentSetsError) {
-    return <div className="text-red-600">Error loading teams</div>;
-  }
+  const isLoading =
+    loading || isDocumentSetsLoading || userIsLoading || isCCPairsLoading;
+  const isError = ccPairsError || usersError || documentSetsError || error;
 
-  if (ccPairsError || !ccPairs) {
-    return <div className="text-red-600">Error loading connectors</div>;
-  }
-
-  const selectedTeamspace = data.find(
+  const selectedTeamspace = data?.find(
     (teamspace) => teamspace.id === selectedTeamspaceId
   );
 
-  const teamspacesWithGradients = data.map((teamspace) => ({
+  const teamspacesWithGradients = data?.map((teamspace) => ({
     ...teamspace,
     gradient: useGradient(teamspace.name),
   }));
@@ -170,9 +180,9 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
       <Inset
         open={open}
         assistants={assistants}
-        data={teamspacesWithGradients}
+        data={teamspacesWithGradients || []}
         refreshTeamspaces={refreshTeamspaces}
-        ccPairs={ccPairs}
+        ccPairs={ccPairs || []}
         users={users}
         documentSets={documentSets}
         selectedTeamspaceId={selectedTeamspaceId}
@@ -181,6 +191,8 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
         setSelectedTeamspaceId={setSelectedTeamspaceId}
         cancelEditName={() => setIsEditingName(false)}
         cancelEditDescription={() => setIsEditingDescription(false)}
+        isLoading={isLoading}
+        isError={isError}
       />
 
       <Sidebar
@@ -190,7 +202,7 @@ export const Main = ({ assistants }: { assistants: Assistant[] }) => {
         <TeamspaceSidebar
           assistants={assistants}
           selectedTeamspace={selectedTeamspace}
-          ccPairs={ccPairs}
+          ccPairs={ccPairs || []}
           documentSets={documentSets || []}
           refreshTeamspaces={refreshTeamspaces}
           isEditingName={isEditingName}

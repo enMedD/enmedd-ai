@@ -7,7 +7,7 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { ValidSources } from "@/lib/types";
 import useSWR, { mutate } from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import CredentialSection from "@/components/credentials/CredentialSection";
 import { SourceIcon } from "@/components/SourceIcon";
 import { credentialTemplates } from "@/lib/connectors/credentials";
@@ -131,7 +131,7 @@ export function Main({
   };
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (!ccPair || (!hasLoadedOnce && error)) {
