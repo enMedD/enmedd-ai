@@ -27,6 +27,7 @@ import { TeamspaceModal } from "./TeamspaceModal";
 import { useGradient } from "@/hooks/useGradient";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "../ui/skeleton";
+import { Compass } from "lucide-react";
 
 export function GlobalSidebar({
   user,
@@ -187,6 +188,20 @@ export function GlobalSidebar({
                     teamspaceId={teamspaceId}
                   />
                 )}
+
+                <SidebarMenuItem className="flex items-center justify-center">
+                  <SidebarMenuButton
+                    tooltip={{
+                      children: "More",
+                      hidden: false,
+                    }}
+                    className="!p-0 w-11 h-11 rounded-full flex items-center justify-center hover:bg-light"
+                  >
+                    <Link href={`/discovery/teamspaces`}>
+                      <Compass size={16} />
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
