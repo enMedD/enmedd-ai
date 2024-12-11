@@ -459,7 +459,7 @@ class ConnectorCredentialPair(Base):
 
     __tablename__ = "connector_credential_pair"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[ConnectorCredentialPairStatus] = mapped_column(
         Enum(ConnectorCredentialPairStatus, native_enum=False), nullable=False

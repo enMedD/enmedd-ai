@@ -437,8 +437,6 @@ def insert_teamspace__no_commit(
         teamspace_id=db_teamspace.id,
         cc_pair_ids=teamspace.cc_pair_ids,
     )
-
-    db_session.commit()
     return db_teamspace
 
 
@@ -620,8 +618,6 @@ def _sync_relationships(
             teamspace_id=teamspace_id,
             assistant_ids=list(assistants_to_add),
         )
-
-    db_session.commit()
 
 
 def update_teamspace(
