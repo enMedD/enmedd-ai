@@ -16,6 +16,7 @@ import { UsersResponse } from "./users/interfaces";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import { DateRange } from "react-day-picker";
 import { Credential } from "./connectors/credentials";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 const CREDENTIAL_URL = "/api/manage/admin/credential";
 
@@ -317,6 +318,42 @@ export const useUserTeamspaces = (): {
     isLoading: !data && !error,
     error: error?.message || "",
     refreshUserTeamspaces: () => mutate(),
+  };
+};
+
+const ADMIN_ASSISTANT_URL = "/api/admin/assistant";
+
+export const useAdminAssistant = (
+  getEditable: boolean = false,
+  teamspaceId?: string | string[]
+): {
+  data: Assistant[];
+  isLoading: boolean;
+  error: string;
+  refreshAdminAssistant: () => void;
+} => {
+  let url = ADMIN_ASSISTANT_URL;
+
+  if (getEditable) {
+    url += "?get_editable=true";
+  }
+
+  if (teamspaceId) {
+    url += url.includes("?")
+      ? `&teamspace_id=${teamspaceId}`
+      : `?teamspace_id=${teamspaceId}`;
+  }
+
+  const { data, error, mutate } = useSWR<Assistant[]>(
+    url,
+    errorHandlingFetcher
+  );
+
+  return {
+    data: data || [],
+    isLoading: !data && !error,
+    error: error?.message || error || "",
+    refreshAdminAssistant: () => mutate(),
   };
 };
 

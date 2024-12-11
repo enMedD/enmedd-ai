@@ -2,13 +2,39 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, CircleCheck, RectangleEllipsis } from "lucide-react";
+import { ChevronLeft, RectangleEllipsis } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { PasswordRequirements } from "../signup/PasswordRequirements";
+import { InputForm } from "@/components/admin/connectors/Field";
+
+const formSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long" }),
+    confirm_password: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords must match",
+    path: ["confirm_password"],
+  });
+
+type FormValues = z.infer<typeof formSchema>;
 
 export const SetNewPasswordForms = () => {
   const { toast } = useToast();
@@ -16,10 +42,8 @@ export const SetNewPasswordForms = () => {
   const searchParams = useSearchParams();
   const resetToken = searchParams.get("token");
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
   const {
+    passwordFocused,
     passwordStrength,
     hasUppercase,
     hasNumberOrSpecialChar,
@@ -29,27 +53,28 @@ export const SetNewPasswordForms = () => {
     setPasswordFocused,
   } = usePasswordValidation();
 
-  const handleOnSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      password: "",
+      confirm_password: "",
+    },
+  });
 
-    if (!(newPassword.length >= 8 && hasUppercase && hasNumberOrSpecialChar)) {
+  useEffect(() => {
+    if (!resetToken) {
+      router.push("/");
+    }
+  }, [resetToken, router]);
+
+  const handleSubmit = async (values: FormValues) => {
+    if (!(hasUppercase && hasNumberOrSpecialChar)) {
       toast({
         title: "Password doesn't meet requirements",
         description:
           passwordWarning || "Ensure your password meets all the criteria.",
         variant: "destructive",
       });
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Please check your new and confirm password again",
-        description: `Your new password and confirm password must be the same`,
-        variant: "destructive",
-      });
-      setNewPassword("");
-      setConfirmPassword("");
       return;
     }
 
@@ -60,11 +85,12 @@ export const SetNewPasswordForms = () => {
       method: "POST",
       body: JSON.stringify({
         token: resetToken,
-        password: newPassword,
+        password: values.password,
       }),
     });
 
     if (response.status === 200) {
+      toast({ title: "Password reset successful", variant: "success" });
       router.push("/auth/reset-password/success");
     } else {
       toast({
@@ -74,16 +100,6 @@ export const SetNewPasswordForms = () => {
       });
     }
   };
-
-  useEffect(() => {
-    if (resetToken == null) {
-      router.push("/");
-    }
-  }, []);
-
-  useEffect(() => {
-    calculatePasswordStrength(newPassword); // Calculate password strength on change
-  }, [newPassword]);
 
   return (
     <div className="w-full">
@@ -97,78 +113,65 @@ export const SetNewPasswordForms = () => {
         Set new password
       </h1>
 
-      <form onSubmit={handleOnSubmit} className="w-full pt-8">
-        <div>
-          <Label
-            htmlFor="password"
-            className="text-sm font-semibold leading-none"
-          >
-            Password
-          </Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Enter your new password"
-            onChange={(e) => {
-              setNewPassword(e.target.value);
-            }}
-            onFocus={() => setPasswordFocused(true)}
-            onBlur={() => setPasswordFocused(false)}
-          />
-        </div>
-
-        <div className="pt-4">
-          <div>
-            <Label
-              htmlFor="confirm_password"
-              className="text-sm font-semibold leading-none"
-            >
-              Confirm Password
-            </Label>
-            <Input
-              id="confirm_password"
-              name="confirm_password"
-              type="password"
-              placeholder="Enter your new password"
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-              }}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-4 pt-8"
+        >
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your new password"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        calculatePasswordStrength(e.target.value);
+                      }}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="text-sm text-subtle pt-4">
-            <div className="flex items-center gap-2">
-              <CircleCheck
-                size={16}
-                color={newPassword.length >= 8 ? "#69c57d" : "gray"}
+            {passwordFocused && (
+              <PasswordRequirements
+                password={form.watch("password")}
+                hasUppercase={hasUppercase}
+                hasNumberOrSpecialChar={hasNumberOrSpecialChar}
+                passwordStrength={passwordStrength}
+                passwordFeedback={passwordFeedback}
+                passwordWarning={passwordWarning}
               />
-              <p>At least 8 characters</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <CircleCheck
-                size={16}
-                color={hasUppercase ? "#69c57d" : "gray"}
-              />
-              <p>At least 1 Capital letter</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <CircleCheck
-                size={16}
-                color={hasNumberOrSpecialChar ? "#69c57d" : "gray"}
-              />
-              <p>At least 1 number or special character</p>
-            </div>
-            {passwordWarning && (
-              <p className="text-red-500">{passwordWarning}</p>
             )}
           </div>
-        </div>
 
-        <Button type="submit" className="w-full mt-6">
-          Continue
-        </Button>
-      </form>
+          <InputForm
+            formControl={form.control}
+            name="confirm_password"
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            type="password"
+          />
+
+          <Button
+            type="submit"
+            className="w-full mt-6"
+            disabled={form.formState.isSubmitting}
+          >
+            Continue
+          </Button>
+        </form>
+      </Form>
 
       <div className="flex pt-6">
         <Link

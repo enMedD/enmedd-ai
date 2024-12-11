@@ -1,20 +1,73 @@
 "use client";
 
+import React, { useState } from "react";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Fingerprint } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import { InputForm } from "@/components/admin/connectors/Field";
+
+const formSchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email address" })
+    .min(1, {
+      message: "Email is required",
+    }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export const EnterEmail = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const handleSubmit = async (values: FormValues) => {
+    setIsLoading(true);
+    const payload = { email: values.email };
+
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 202) {
+        router.push("/auth/forgot-password/success");
+      } else {
+        toast({
+          title: "Something went wrong",
+          description: `Error: ${response.statusText}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -34,48 +87,30 @@ export const EnterEmail = () => {
         </p>
       </div>
 
-      <form
-        onSubmit={async (e) => {
-          setIsLoading(true);
-          e.preventDefault();
-          const payload = {
-            email: email,
-          };
-          const response = await fetch("/api/auth/forgot-password", {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify(payload),
-          });
-          if (response.status == 202) {
-            router.push("/auth/forgot-password/success");
-          } else {
-            toast({
-              title: "Something went wrong",
-              description: `Error: ${response.statusText}`,
-              variant: "destructive",
-            });
-          }
-          setIsLoading(false);
-        }}
-        className="w-full pt-8"
-      >
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-4 pt-8"
+        >
+          <div>
+            <InputForm
+              formControl={form.control}
+              name="email"
+              type="email"
+              label="Email"
+              placeholder="Enter your email"
+            />
+          </div>
 
-        <Button type="submit" className="w-full mt-6">
-          Continue
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full mt-6"
+            disabled={form.formState.isSubmitting}
+          >
+            Continue
+          </Button>
+        </form>
+      </Form>
 
       <div className="flex pt-6">
         <Link
