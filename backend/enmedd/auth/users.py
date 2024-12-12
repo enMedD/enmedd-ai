@@ -65,6 +65,7 @@ from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
+from enmedd.server.feature_flags.models import FeatureFlagsManager
 from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.telemetry import optional_telemetry
@@ -377,7 +378,6 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
         )
         async def login(
             request: Request,
-            F2A=True,
             credentials: OAuth2PasswordRequestForm = Depends(),
             user_manager: BaseUserManager[models.UP, models.ID] = Depends(
                 get_user_manager
@@ -396,7 +396,7 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
                 )
-            if F2A is True:
+            if FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True:
                 return Response(status_code=status.HTTP_200_OK)
             response = await backend.login(strategy, user)
             await user_manager.on_after_login(user, request, response)
