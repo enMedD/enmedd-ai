@@ -350,7 +350,7 @@ export const AllUsers = ({
                 <Table className="">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User</TableHead>
+                      <TableHead>User ({filteredUsers.length})</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
