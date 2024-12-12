@@ -75,7 +75,7 @@ export default function UserTeamspace() {
       <CustomModal
         trigger={null}
         title="Leave Team?"
-        description={`Are you sure you want to leave the team '${selectedTeamspace?.name}'? This action cannot be undone.`}
+        description={`Are you sure you want to leave the team &apos;${selectedTeamspace?.name}&apos;? This action cannot be undone.`}
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       >
@@ -191,7 +191,7 @@ export default function UserTeamspace() {
               ))}
             </div>
           ) : (
-            <p>You don't have any teamspaces yet.</p>
+            <p>You don&apos;t have any teamspaces yet.</p>
           )}
         </div>
       </div>

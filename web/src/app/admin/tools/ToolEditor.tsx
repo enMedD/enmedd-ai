@@ -2,17 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Formik,
-  Form,
-  ErrorMessage,
-  FieldArray,
-  ArrayHelpers,
-  Field,
-} from "formik";
-import * as Yup from "yup";
 import { MethodSpec, ToolSnapshot } from "@/lib/tools/interfaces";
-import { TextFormField } from "@/components/admin/connectors/Field";
+import { InputForm } from "@/components/admin/connectors/Field";
 import {
   createCustomTool,
   updateCustomTool,
@@ -32,7 +23,15 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { AdvancedOptionsToggle } from "@/components/AdvancedOptionsToggle";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+import { z } from "zod";
+import {
+  useFieldArray,
+  useForm,
+  UseFormReturn,
+  UseFormSetValue,
+} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
 import { Plus } from "lucide-react";
 
 function parseJsonWithTrailingCommas(jsonString: string) {
@@ -55,14 +54,14 @@ function ToolForm({
   existingTool,
   values,
   setFieldValue,
-  isSubmitting,
   definitionErrorState,
   methodSpecsState,
+  form,
+  teamspaceId,
 }: {
   existingTool?: ToolSnapshot;
   values: ToolFormValues;
-  setFieldValue: (field: string, value: string) => void;
-  isSubmitting: boolean;
+  setFieldValue: UseFormSetValue<FormValues>;
   definitionErrorState: [
     string | null,
     React.Dispatch<React.SetStateAction<string | null>>,
@@ -71,10 +70,13 @@ function ToolForm({
     MethodSpec[] | null,
     React.Dispatch<React.SetStateAction<MethodSpec[] | null>>,
   ];
+  form: UseFormReturn<FormValues>;
+  teamspaceId?: string | string[];
 }) {
   const [definitionError, setDefinitionError] = definitionErrorState;
   const [methodSpecs, setMethodSpecs] = methodSpecsState;
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const router = useRouter();
   const { toast } = useToast();
 
   const debouncedValidateDefinition = useCallback(
@@ -110,19 +112,60 @@ function ToolForm({
     }
   }, [values.definition, debouncedValidateDefinition]);
 
+  const onSubmit = async (values: FormValues) => {
+    let definition: any;
+    try {
+      definition = parseJsonWithTrailingCommas(values.definition);
+    } catch (error) {
+      setDefinitionError("Invalid JSON in tool definition");
+      return;
+    }
+
+    const name = definition?.info?.title;
+    const description = definition?.info?.description;
+    const toolData = {
+      name: name,
+      description: description || "",
+      definition: definition,
+      custom_headers: values.customHeaders,
+    };
+    let response;
+    if (existingTool) {
+      response = await updateCustomTool(existingTool.id, toolData);
+    } else {
+      response = await createCustomTool(toolData);
+    }
+    if (response.error) {
+      toast({
+        title: "Tool Creation Failed",
+        description: `Unable to create the tool: ${response.error}`,
+        variant: "destructive",
+      });
+      return;
+    }
+    router.push(
+      teamspaceId
+        ? `/t/${teamspaceId}/admin/tools?u=${Date.now()}`
+        : `/admin/tools?u=${Date.now()}`
+    );
+  };
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "customHeaders",
+  });
+
   return (
-    <Form className="w-full">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="relative w-full">
-        <TextFormField
+        <InputForm
+          formControl={form.control}
           name="definition"
           label="Definition"
-          subtext="Specify an OpenAPI schema that defines the APIs you want to make available as part of this tool."
+          description="Specify an OpenAPI schema that defines the APIs you want to make available as part of this tool."
           placeholder="Enter your OpenAPI schema here"
-          isTextArea={true}
-          defaultHeight="h-96"
-          fontSize="text-sm"
-          isCode
-          hideError
+          className="min-h-96 max-h-[1000px] text-sm"
+          isTextarea
         />
         <Button
           type="button"
@@ -158,11 +201,6 @@ function ToolForm({
       {definitionError && (
         <div className="text-sm text-error">{definitionError}</div>
       )}
-      <ErrorMessage
-        name="definition"
-        component="div"
-        className="text-sm text-error"
-      />
       <div className="p-4 mt-4 text-sm border border-blue-200 rounded-md bg-blue-50">
         <Link
           href="#"
@@ -222,75 +260,61 @@ function ToolForm({
       />
       {showAdvancedOptions && (
         <div className="pt-4">
-          <FieldArray
-            name="customHeaders"
-            render={(arrayHelpers: ArrayHelpers) => (
+          <div>
+            <div className="flex justify-between pb-4">
               <div>
-                <div className="flex justify-between pb-4">
-                  <div>
-                    <h3 className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1">
-                      Custom Headers
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Specify custom headers for each request to this
-                      tool&apos;s API.
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={() => arrayHelpers.push({ key: "", value: "" })}
-                    variant="outline"
-                  >
-                    <Plus size={16} /> Add New Header
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {values.customHeaders && values.customHeaders.length > 0 && (
-                    <div className="space-y-3">
-                      {values.customHeaders.map(
-                        (
-                          header: { key: string; value: string },
-                          index: number
-                        ) => (
-                          <div
-                            key={index}
-                            className="flex items-center p-3 space-x-2 rounded-lg shadow-sm bg-background-weak"
-                          >
-                            <Field name={`customHeaders.${index}.key`}>
-                              {({ field }: { field: any }) => (
-                                <Input
-                                  {...field}
-                                  placeholder="Header Key"
-                                  className="flex-1"
-                                />
-                              )}
-                            </Field>
-                            <Field name={`customHeaders.${index}.value`}>
-                              {({ field }: { field: any }) => (
-                                <Input
-                                  {...field}
-                                  placeholder="Header Value"
-                                  className="flex-1"
-                                />
-                              )}
-                            </Field>
-                            <Button
-                              type="button"
-                              onClick={() => arrayHelpers.remove(index)}
-                              variant="destructive"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
-                </div>
+                <h3 className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1">
+                  Custom Headers
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Specify custom headers for each request to this tool&apos;s
+                  API.
+                </p>
               </div>
-            )}
-          />
+
+              <Button
+                onClick={() => append({ key: "", value: "" })}
+                variant="outline"
+                type="button"
+              >
+                <Plus size={16} /> Add New Header
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {fields && fields.length > 0 && (
+                <div className="space-y-3">
+                  {fields.map((header, index) => (
+                    <div
+                      key={header.id}
+                      className="flex items-start p-3 space-x-2 rounded-lg shadow-sm bg-background-weak w-full"
+                    >
+                      <InputForm
+                        formControl={form.control}
+                        name={`customHeaders.${index}.key`}
+                        placeholder="Header Key"
+                        fullWidth
+                      />
+
+                      <InputForm
+                        formControl={form.control}
+                        name={`customHeaders.${index}.value`}
+                        placeholder="Header Value"
+                        fullWidth
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => remove(index)}
+                        variant="destructive"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -298,12 +322,12 @@ function ToolForm({
         <Button
           className="mx-auto"
           type="submit"
-          disabled={isSubmitting || !!definitionError}
+          disabled={form.formState.isSubmitting || !!definitionError}
         >
           {existingTool ? "Update Tool" : "Create Tool"}
         </Button>
       </div>
-    </Form>
+    </form>
   );
 }
 
@@ -312,17 +336,19 @@ interface ToolFormValues {
   customHeaders: { key: string; value: string }[];
 }
 
-const ToolSchema = Yup.object().shape({
-  definition: Yup.string().required("Tool definition is required"),
-  customHeaders: Yup.array()
-    .of(
-      Yup.object().shape({
-        key: Yup.string().required("Header key is required"),
-        value: Yup.string().required("Header value is required"),
+const formSchema = z.object({
+  definition: z.string().min(1, { message: "Tool definition is required" }),
+  customHeaders: z
+    .array(
+      z.object({
+        key: z.string().min(1, { message: "Header key is required" }),
+        value: z.string().min(1, { message: "Header value is required" }),
       })
     )
     .default([]),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function ToolEditor({
   tool,
@@ -331,8 +357,6 @@ export function ToolEditor({
   tool?: ToolSnapshot;
   teamspaceId?: string | string[];
 }) {
-  const router = useRouter();
-  const { toast } = useToast();
   const [definitionError, setDefinitionError] = useState<string | null>(null);
   const [methodSpecs, setMethodSpecs] = useState<MethodSpec[] | null>(null);
 
@@ -340,66 +364,30 @@ export function ToolEditor({
     ? prettifyDefinition(tool.definition)
     : "";
 
-  return (
-    <Formik
-      initialValues={{
-        definition: prettifiedDefinition,
-        customHeaders: tool?.custom_headers?.map((header) => ({
-          key: header.key,
-          value: header.value,
-        })) ?? [{ key: "test", value: "value" }],
-      }}
-      validationSchema={ToolSchema}
-      onSubmit={async (values: ToolFormValues) => {
-        let definition: any;
-        try {
-          definition = parseJsonWithTrailingCommas(values.definition);
-        } catch (error) {
-          setDefinitionError("Invalid JSON in tool definition");
-          return;
-        }
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      definition: prettifiedDefinition,
+      customHeaders: tool?.custom_headers?.map((header) => ({
+        key: header.key,
+        value: header.value,
+      })) ?? [{ key: "test", value: "value" }],
+    },
+  });
 
-        const name = definition?.info?.title;
-        const description = definition?.info?.description;
-        const toolData = {
-          name: name,
-          description: description || "",
-          definition: definition,
-          custom_headers: values.customHeaders,
-        };
-        let response;
-        if (tool) {
-          response = await updateCustomTool(tool.id, toolData);
-        } else {
-          response = await createCustomTool(toolData);
-        }
-        if (response.error) {
-          toast({
-            title: "Tool Creation Failed",
-            description: `Unable to create the tool: ${response.error}`,
-            variant: "destructive",
-          });
-          return;
-        }
-        router.push(
-          teamspaceId
-            ? `/t/${teamspaceId}/admin/tools?u=${Date.now()}`
-            : `/admin/tools?u=${Date.now()}`
-        );
-      }}
-    >
-      {({ isSubmitting, values, setFieldValue }) => {
-        return (
-          <ToolForm
-            existingTool={tool}
-            values={values}
-            setFieldValue={setFieldValue}
-            isSubmitting={isSubmitting}
-            definitionErrorState={[definitionError, setDefinitionError]}
-            methodSpecsState={[methodSpecs, setMethodSpecs]}
-          />
-        );
-      }}
-    </Formik>
+  const values = form.getValues();
+
+  return (
+    <Form {...form}>
+      <ToolForm
+        existingTool={tool}
+        values={values}
+        setFieldValue={form.setValue}
+        definitionErrorState={[definitionError, setDefinitionError]}
+        methodSpecsState={[methodSpecs, setMethodSpecs]}
+        form={form}
+        teamspaceId={teamspaceId}
+      />
+    </Form>
   );
 }
