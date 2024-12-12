@@ -311,51 +311,47 @@ export const Main = ({ teamspaceId }: { teamspaceId?: string | string[] }) => {
     refreshEditableDocumentSets();
   };
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return (
+      <ErrorCallout
+        errorTitle="Something went wrong :("
+        errorMsg={`Failed to fetch docunent set - ${error}`}
+      />
+    );
+  }
+
   return (
     <div>
-      {error ? (
-        <ErrorCallout
-          errorTitle="Something went wrong :("
-          errorMsg={`Failed to fetch docunent set - ${error}`}
+      <p className="pb-6">
+        <b>Document Sets</b> allow you to group logically connected documents
+        into a single bundle. These can then be used as filter when performing
+        searches in the web UI to limit the amount of information the bot
+        searches over when answering in a specific channel or with a certain
+        command.
+      </p>
+      <div className="flex pb-6">
+        <Link
+          href={
+            teamspaceId
+              ? `/t/${teamspaceId}/admin/documents/sets/new`
+              : `/admin/documents/sets/new`
+          }
+        >
+          <Button className="my-auto">New Document Set</Button>
+        </Link>
+      </div>
+      {documentSets && documentSets.length > 0 && (
+        <DocumentSetTable
+          documentSets={documentSets || []}
+          editableDocumentSets={editableDocumentSets || []}
+          ccPairs={ccPairs || []}
+          refresh={refreshAllDocumentSets}
+          teamspaceId={teamspaceId}
         />
-      ) : (
-        <>
-          <p className="pb-6">
-            <b>Document Sets</b> allow you to group logically connected
-            documents into a single bundle. These can then be used as filter
-            when performing searches in the web UI to limit the amount of
-            information the bot searches over when answering in a specific
-            channel or with a certain command.
-          </p>
-
-          <div className="flex pb-6">
-            <Link
-              href={
-                teamspaceId
-                  ? `/t/${teamspaceId}/admin/documents/sets/new`
-                  : `/admin/documents/sets/new`
-              }
-            >
-              <Button className="my-auto">New Document Set</Button>
-            </Link>
-          </div>
-
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <>
-              {documentSets && documentSets.length > 0 && (
-                <DocumentSetTable
-                  documentSets={documentSets || []}
-                  editableDocumentSets={editableDocumentSets || []}
-                  ccPairs={ccPairs || []}
-                  refresh={refreshAllDocumentSets}
-                  teamspaceId={teamspaceId}
-                />
-              )}
-            </>
-          )}
-        </>
       )}
     </div>
   );
