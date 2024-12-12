@@ -2,7 +2,6 @@ import random
 import re
 import string
 from datetime import datetime
-from datetime import timedelta
 from datetime import timezone
 from typing import Optional
 
@@ -11,19 +10,10 @@ from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Depends
 from fastapi import HTTPException
-from fastapi import Request
 from fastapi import Response
 from fastapi import status
 from fastapi import UploadFile
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi_users import models
-from fastapi_users.authentication import AuthenticationBackend
-from fastapi_users.authentication import CookieTransport
-from fastapi_users.authentication import Strategy
-from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users.password import PasswordHelper
-from fastapi_users.router.common import ErrorCode
-from fastapi_users.router.common import ErrorModel
 from pydantic import BaseModel
 from sqlalchemy import Column
 from sqlalchemy import delete
@@ -52,10 +42,7 @@ from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_admin_user_based_on_teamspace_id
 from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
-from enmedd.auth.users import get_database_strategy
-from enmedd.auth.users import get_user_manager
 from enmedd.auth.users import optional_user
-from enmedd.auth.users import UserManager
 from enmedd.auth.utils import generate_2fa_email
 from enmedd.auth.utils import get_smtp_credentials
 from enmedd.auth.utils import send_2fa_email
@@ -80,7 +67,6 @@ from enmedd.db.users import list_users
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.server.manage.models import AllUsersResponse
-from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.manage.models import UserByEmail
 from enmedd.server.manage.models import UserInfo
 from enmedd.server.manage.models import UserPreferences
@@ -92,73 +78,11 @@ from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
-cookie_transport = CookieTransport(
-    cookie_max_age=SESSION_EXPIRE_TIME_SECONDS,
-    cookie_secure=WEB_DOMAIN.startswith("https"),
-)
-
-backend = AuthenticationBackend(
-    name="database", transport=cookie_transport, get_strategy=get_database_strategy
-)
-
 
 router = APIRouter()
 
 
 USERS_PAGE_SIZE = 10
-
-
-login_responses: OpenAPIResponseType = {
-    status.HTTP_400_BAD_REQUEST: {
-        "model": ErrorModel,
-        "content": {
-            "application/json": {
-                "examples": {
-                    ErrorCode.LOGIN_BAD_CREDENTIALS: {
-                        "summary": "Bad credentials or the user is inactive.",
-                        "value": {"detail": ErrorCode.LOGIN_BAD_CREDENTIALS},
-                    },
-                    ErrorCode.LOGIN_USER_NOT_VERIFIED: {
-                        "summary": "The user is not verified.",
-                        "value": {"detail": ErrorCode.LOGIN_USER_NOT_VERIFIED},
-                    },
-                }
-            }
-        },
-    },
-}
-
-
-@router.post(
-    "/auth/login",
-    name=f"auth:{backend.name}.login",
-    responses=login_responses,
-)
-async def custom_login(
-    request: Request,
-    credentials: OAuth2PasswordRequestForm = Depends(),
-    user_manager: UserManager = Depends(get_user_manager),
-    strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
-    requires_verification: bool = False,
-):
-    user = await user_manager.authenticate(credentials)
-
-    if user is None or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-        )
-    if requires_verification and not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
-        )
-
-    response = await backend.login(strategy, user)
-
-    await user_manager.on_after_login(user, request, response)
-
-    return response
 
 
 @router.patch("/users/generate-otp")
@@ -195,43 +119,6 @@ async def generate_otp(
     db_session.commit()
 
     return {"message": "OTP code generated and sent!"}
-
-
-@router.post("/users/verify-otp")
-async def verify_otp(
-    otp_code: OTPVerificationRequest,
-    email: str,
-    backend: AuthenticationBackend,
-    request: Request,
-    user_manager: UserManager = Depends(get_user_manager),
-    strategy: Strategy[models.UP, models.ID] = Depends(
-        AuthenticationBackend.get_strategy
-    ),
-    db: Session = Depends(get_session),
-):
-    otp_code = otp_code.otp_code
-    current_user = get_user_by_email(email, db)
-
-    otp_entry = (
-        db.query(TwofactorAuth)
-        .filter(TwofactorAuth.user_id == current_user.id)
-        .order_by(TwofactorAuth.created_at.desc())
-        .first()
-    )
-
-    if not otp_entry:
-        raise HTTPException(status_code=400, detail="No OTP found for the user.")
-
-    if otp_entry.code != otp_code:
-        raise HTTPException(status_code=400, detail="Invalid OTP code.")
-
-    expiration_time = otp_entry.created_at + timedelta(hours=6)
-    if datetime.now(timezone.utc) > expiration_time:
-        raise HTTPException(status_code=400, detail="OTP code has expired.")
-
-    response = await backend.login(strategy, current_user)
-    await user_manager.on_after_login(current_user, request, response)
-    return response
 
 
 @router.post("/users/validate-token-invite")
