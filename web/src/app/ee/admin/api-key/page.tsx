@@ -299,7 +299,7 @@ function Main() {
                       Refresh
                     </Button>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-28">
                     <DeleteButton
                       onClick={() => {
                         setApiKeyToDelete(apiKey);

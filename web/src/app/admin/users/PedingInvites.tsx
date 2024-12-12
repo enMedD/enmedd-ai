@@ -161,7 +161,7 @@ export const PendingInvites = ({
       </CustomModal>
 
       <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
-        <div className="xl:w-2/5">
+        <div className="xl:w-1/3">
           <h2 className="text-lg md:text-2xl text-strong font-bold">
             Pending Invites
           </h2>
@@ -193,7 +193,7 @@ export const PendingInvites = ({
                               <div className="border rounded-full w-10 h-10 flex items-center justify-center">
                                 <UserIcon />
                               </div>
-                              <span className="text-sm text-subtle truncate max-w-64">
+                              <span className="text-sm text-subtle truncate">
                                 {user.email}
                               </span>
                             </div>
