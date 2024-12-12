@@ -24,6 +24,10 @@ const Page = () => {
   const searchParams = useSearchParams();
   const user_email = searchParams.get("email");
 
+  if (!user_email) {
+    router.push("/auth/login");
+  }
+
   const handleContinue = async (value: string) => {
     try {
       const response = await fetch(`/api/auth/verify-otp?email=${user_email}`, {
