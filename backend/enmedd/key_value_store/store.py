@@ -23,30 +23,38 @@ KV_REDIS_KEY_EXPIRATION = 60 * 60 * 24  # 1 Day
 
 
 class PgRedisKVStore(KeyValueStore):
+    DEFAULT_TENANT_ID = "public"  # Default schema name
+
     def __init__(self) -> None:
         self.redis_client = get_redis_client()
+
+    def _get_tenant_prefix(self) -> str:
+        tenant_id = get_tenant() or self.DEFAULT_TENANT_ID
+        return f"{REDIS_KEY_PREFIX}{tenant_id}:"
 
     @contextmanager
     def get_session(self) -> Iterator[Session]:
         factory = get_session_factory()
         db_session: Session = factory()
-        tenant_id = get_tenant()
+        tenant_id = get_tenant() or self.DEFAULT_TENANT_ID
         try:
-            if tenant_id:
-                db_session_filter(tenant_id, db_session)
+            db_session_filter(tenant_id, db_session)
             yield db_session
         finally:
             db_session.close()
 
     def store(self, key: str, val: JSON_ro, encrypt: bool = False) -> None:
-        # Not encrypted in Redis, but encrypted in Postgres
+        tenant_prefix = self._get_tenant_prefix()
+        redis_key = tenant_prefix + key
+
         try:
             self.redis_client.set(
-                REDIS_KEY_PREFIX + key, json.dumps(val), ex=KV_REDIS_KEY_EXPIRATION
+                redis_key, json.dumps(val), ex=KV_REDIS_KEY_EXPIRATION
             )
         except Exception as e:
-            # Fallback gracefully to Postgres if Redis fails
-            logger.error(f"Failed to set value in Redis for key '{key}': {str(e)}")
+            logger.error(
+                f"Failed to set value in Redis for key '{redis_key}': {str(e)}"
+            )
 
         encrypted_val = val if encrypt else None
         plain_val = val if not encrypt else None
@@ -64,13 +72,18 @@ class PgRedisKVStore(KeyValueStore):
             db_session.commit()
 
     def load(self, key: str) -> JSON_ro:
+        tenant_prefix = self._get_tenant_prefix()
+        redis_key = tenant_prefix + key
+
         try:
-            redis_value = self.redis_client.get(REDIS_KEY_PREFIX + key)
+            redis_value = self.redis_client.get(redis_key)
             if redis_value:
                 assert isinstance(redis_value, bytes)
                 return json.loads(redis_value.decode("utf-8"))
         except Exception as e:
-            logger.error(f"Failed to get value from Redis for key '{key}': {str(e)}")
+            logger.error(
+                f"Failed to get value from Redis for key '{redis_key}': {str(e)}"
+            )
 
         with self.get_session() as db_session:
             obj = db_session.query(KVStore).filter_by(key=key).first()
@@ -85,17 +98,24 @@ class PgRedisKVStore(KeyValueStore):
                 value = None
 
             try:
-                self.redis_client.set(REDIS_KEY_PREFIX + key, json.dumps(value))
+                self.redis_client.set(redis_key, json.dumps(value))
             except Exception as e:
-                logger.error(f"Failed to set value in Redis for key '{key}': {str(e)}")
+                logger.error(
+                    f"Failed to set value in Redis for key '{redis_key}': {str(e)}"
+                )
 
             return cast(JSON_ro, value)
 
     def delete(self, key: str) -> None:
+        tenant_prefix = self._get_tenant_prefix()
+        redis_key = tenant_prefix + key
+
         try:
-            self.redis_client.delete(REDIS_KEY_PREFIX + key)
+            self.redis_client.delete(redis_key)
         except Exception as e:
-            logger.error(f"Failed to delete value from Redis for key '{key}': {str(e)}")
+            logger.error(
+                f"Failed to delete value from Redis for key '{redis_key}': {str(e)}"
+            )
 
         with self.get_session() as db_session:
             result = db_session.query(KVStore).filter_by(key=key).delete()  # type: ignore
