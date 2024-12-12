@@ -620,7 +620,7 @@ export const BooleanFormField = ({
         />
 
         {!noLabel && (
-          <div className="grid leading-none gap-1">
+          <div className="grid leading-none gap-1 pt-0.5">
             <ShadcnLabel htmlFor={label} className="font-semibold">
               {label}
             </ShadcnLabel>

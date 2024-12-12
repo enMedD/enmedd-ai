@@ -828,6 +828,7 @@ export function AssistantEditor({
                         </div>
                       }
                       asChild
+                      open={currentLLMSupportsImageOutput ? false : undefined}
                     >
                       {!currentLLMSupportsImageOutput && (
                         <p>
@@ -861,6 +862,7 @@ export function AssistantEditor({
                         </div>
                       }
                       asChild
+                      open={ccPairs.length === 0 ? false : undefined}
                     >
                       {ccPairs.length === 0 && (
                         <p>
