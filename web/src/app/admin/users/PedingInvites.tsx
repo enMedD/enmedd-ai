@@ -168,7 +168,7 @@ export const PendingInvites = ({
           <p className="text-sm mt-2">Invitations awaiting a response.</p>
         </div>
 
-        {filteredUsers.length > 0 ? (
+        {finalInvited.length > 0 ? (
           <div className="flex-1 space-y-4">
             <Input
               placeholder="Search user..."
