@@ -1,3 +1,6 @@
+from functools import wraps
+
+from fastapi import HTTPException
 from pydantic import BaseModel
 
 from enmedd.key_value_store.factory import get_kv_store
@@ -53,3 +56,20 @@ class FeatureFlagsManager:
         existing_features = FeatureFlagsManager.get_all_features()
         existing_features.update({feature: value})
         FeatureFlagsManager.update_overall_feature(existing_features)
+
+
+def feature_flag(feature_name: str, default: bool = False):
+    """Decorator to check if a feature flag is enabled"""
+
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            if FeatureFlagsManager.is_feature_enabled(feature_name, default):
+                return func(*args, **kwargs)
+            raise HTTPException(
+                status_code=403, detail=f"The feature {feature_name}  is disabled"
+            )
+
+        return wrapper
+
+    return decorator
