@@ -32,19 +32,20 @@ class FeatureFlags(BaseModel):
 
 
 class FeatureFlagsManager:
-    def __reload_features() -> dict:
+    @staticmethod
+    def _reload_features() -> dict:
         return get_kv_store().load(_FEATURE_FLAG_KEY)
 
     def is_feature_enabled(feature: str, default: bool = False) -> bool:
         try:
-            features = FeatureFlagsManager.__reload_features()
+            features = FeatureFlagsManager._reload_features()
             return not not features.get(feature)
         except TypeError:
             return default
 
     def get_all_features():
         try:
-            return FeatureFlagsManager.__reload_features()
+            return FeatureFlagsManager._reload_features()
         except KvKeyNotFoundError:
             # Initialize the default feature flags. This is used when the feature flags are not set
             feature_flag = FeatureFlags()
@@ -70,7 +71,7 @@ def feature_flag(feature_name: str, default: bool = False):
             logger.info(f"Checking feature flag {feature_name}")
 
             # If the feature is not in the existing features, store it with the default value
-            existing_features = FeatureFlagsManager.__reload_features()
+            existing_features = FeatureFlagsManager.get_all_features()
             if feature_name not in existing_features:
                 FeatureFlagsManager.store_feature(feature_name, default)
 
