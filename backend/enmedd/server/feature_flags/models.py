@@ -25,6 +25,8 @@ class FeatureFlags(BaseModel):
     explore_assistants: bool = False
     two_factor_auth: bool = True
 
+    model_config = {"extra": "allow"}
+
     def check_validity(self) -> None:
         return
 
@@ -44,6 +46,7 @@ class FeatureFlagsManager:
         try:
             return FeatureFlagsManager.__reload_features()
         except KvKeyNotFoundError:
+            # Initialize the default feature flags. This is used when the feature flags are not set
             feature_flag = FeatureFlags()
             FeatureFlagsManager.update_overall_feature(feature_flag)
             return feature_flag.model_dump()
@@ -55,7 +58,7 @@ class FeatureFlagsManager:
     def store_feature(feature: str, value: bool):
         existing_features = FeatureFlagsManager.get_all_features()
         existing_features.update({feature: value})
-        FeatureFlagsManager.update_overall_feature(existing_features)
+        FeatureFlagsManager.update_overall_feature(FeatureFlags(**existing_features))
 
 
 def feature_flag(feature_name: str, default: bool = False):
@@ -64,6 +67,14 @@ def feature_flag(feature_name: str, default: bool = False):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
+            logger.info(f"Checking feature flag {feature_name}")
+
+            # If the feature is not in the existing features, store it with the default value
+            existing_features = FeatureFlagsManager.__reload_features()
+            if feature_name not in existing_features:
+                FeatureFlagsManager.store_feature(feature_name, default)
+
+            # Check if the feature is enabled
             if FeatureFlagsManager.is_feature_enabled(feature_name, default):
                 return func(*args, **kwargs)
             raise HTTPException(
