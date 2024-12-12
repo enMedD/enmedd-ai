@@ -33,7 +33,7 @@ export default function Profile({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
-          <ProfileTab user={user} combinedSettings={combinedSettings} />
+          <ProfileTab user={user} />
         </TabsContent>
         <TabsContent value="my_teamspace">
           <UserTeamspace />

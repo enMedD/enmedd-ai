@@ -121,34 +121,6 @@ export default function General() {
     },
   });
 
-  async function updateWorkspaces(newValues: Workspaces) {
-    const response = await fetch("/api/admin/workspace", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...(workspaces || {}),
-        ...newValues,
-      }),
-    });
-    if (response.ok) {
-      router.refresh();
-      toast({
-        title: "Settings updated",
-        description: "The workspace settings have been successfully updated.",
-        variant: "success",
-      });
-    } else {
-      const errorMsg = (await response.json()).detail;
-      toast({
-        title: "Failed to update settings.",
-        description: errorMsg,
-        variant: "destructive",
-      });
-    }
-  }
-
   async function updateWorkspaceTheme(
     workspaceId: number,
     brandColor: string,
@@ -260,96 +232,85 @@ export default function General() {
   }
 
   const onSubmit = async (values: FormValues) => {
-    if (selectedLogo) {
-      values.use_custom_logo = true;
+    const response = await fetch("/api/admin/workspace", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...(workspaces || {}),
+        ...values,
+      }),
+    });
+    if (response.ok) {
+      if (selectedLogo) {
+        values.use_custom_logo = true;
 
-      const formData = new FormData();
-      formData.append("file", selectedLogo);
-      setSelectedLogo(null);
-      const response = await fetch("/api/admin/workspace/logo", {
-        method: "PUT",
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorMsg = (await response.json()).detail;
-        toast({
-          title: "Failed to upload logo",
-          description: `Error: ${errorMsg}`,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
-    if (selectedHeaderLogo) {
-      const formData = new FormData();
-      formData.append("file", selectedHeaderLogo);
-      setSelectedHeaderLogo(null);
-
-      const response = await fetch("/api/admin/workspace/header-logo", {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorMsg = (await response.json()).detail;
-        toast({
-          title: "Failed to upload header logo",
-          description: `Error: ${errorMsg}`,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
-    if (selectedLogotype) {
-      values.use_custom_logotype = true;
-
-      const formData = new FormData();
-      formData.append("file", selectedLogotype);
-      setSelectedLogotype(null);
-      const response = await fetch(
-        "/api/admin/workspace/logo?is_logotype=true",
-        {
+        const formData = new FormData();
+        formData.append("file", selectedLogo);
+        setSelectedLogo(null);
+        const response = await fetch("/api/admin/workspace/logo", {
           method: "PUT",
           body: formData,
+        });
+        if (!response.ok) {
+          const errorMsg = (await response.json()).detail;
+          toast({
+            title: "Failed to upload logo",
+            description: `Error: ${errorMsg}`,
+            variant: "destructive",
+          });
+          return;
         }
-      );
-      if (!response.ok) {
-        const errorMsg = (await response.json()).detail;
-        alert(`Failed to upload logo. ${errorMsg}`);
-        return;
       }
 
-      const headerLogoResponse = await fetch(
-        "/api/admin/workspace/header-logo",
-        {
+      if (selectedHeaderLogo) {
+        const formData = new FormData();
+        formData.append("file", selectedHeaderLogo);
+        setSelectedHeaderLogo(null);
+
+        const response = await fetch("/api/admin/workspace/header-logo", {
           method: "PUT",
           body: formData,
-        }
-      );
-
-      if (!headerLogoResponse.ok) {
-        const errorMsg = (await headerLogoResponse.json()).detail;
-        toast({
-          title: "Failed to upload header logo after logotype",
-          description: `Error: ${errorMsg}`,
-          variant: "destructive",
         });
-        return;
+
+        if (!response.ok) {
+          const errorMsg = (await response.json()).detail;
+          toast({
+            title: "Failed to upload header logo",
+            description: `Error: ${errorMsg}`,
+            variant: "destructive",
+          });
+          return;
+        }
       }
-    }
 
-    if (
-      values.brand_color !== workspaces?.brand_color ||
-      values.secondary_color !== workspaces?.secondary_color
-    ) {
-      await updateWorkspaceTheme(0, values.brand_color, values.secondary_color);
-    }
+      if (
+        values.brand_color !== workspaces?.brand_color ||
+        values.secondary_color !== workspaces?.secondary_color
+      ) {
+        await updateWorkspaceTheme(
+          0,
+          values.brand_color,
+          values.secondary_color
+        );
+      }
 
-    // formikHelpers.setValues(values);
-    await updateWorkspaces(values);
-    window.location.reload();
+      window.location.reload();
+      router.refresh();
+      toast({
+        title: "Settings updated",
+        description: "The workspace settings have been successfully updated.",
+        variant: "success",
+      });
+    } else {
+      const errorMsg = (await response.json()).detail;
+      toast({
+        title: "Failed to update settings.",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
