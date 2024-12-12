@@ -67,6 +67,7 @@ from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
+from enmedd.server.feature_flags.models import feature_flag
 from enmedd.server.manage.models import AllUsersResponse
 from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.manage.models import UserByEmail
@@ -634,6 +635,7 @@ def get_current_token_creation(
 
 
 @router.put("/me/profile")
+@feature_flag("profile_page")
 def put_profile(
     file: UploadFile,
     db_session: Session = Depends(get_session),
@@ -643,6 +645,7 @@ def put_profile(
 
 
 @router.get("/me/profile")
+@feature_flag("profile_page")
 def fetch_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),
@@ -659,6 +662,7 @@ def fetch_profile(
 
 
 @router.delete("/me/profile")
+@feature_flag("profile_page")
 def remove_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),  # Get the current user
