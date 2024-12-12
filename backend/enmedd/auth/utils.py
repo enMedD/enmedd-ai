@@ -15,16 +15,12 @@ from enmedd.utils.logger import setup_logger
 logger = setup_logger()
 
 
-def get_smtp_credentials(workspace_id: int, db_session: Session):
+def get_smtp_credentials(db_session: Session):
     """Fetch SMTP credentials for a given workspace."""
-    workspace_settings = (
-        db_session.query(WorkspaceSettings)
-        .filter(WorkspaceSettings.workspace_id == workspace_id)
-        .first()
-    )
+    workspace_settings = db_session.query(WorkspaceSettings).first()
 
     if not workspace_settings:
-        raise ValueError(f"No SMTP settings found for workspace_id: {workspace_id}")
+        raise ValueError("No SMTP settings found for workspace")
 
     smtp_server = workspace_settings.smtp_server
     smtp_port = workspace_settings.smtp_port
