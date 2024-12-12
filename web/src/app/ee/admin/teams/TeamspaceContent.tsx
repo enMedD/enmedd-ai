@@ -101,7 +101,7 @@ export const TeamspaceContent = ({
       </div>
 
       {filteredTeamspaces.length > 0 ? (
-        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))]">
+        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
           {/* <div className="flex flex-wrap gap-8"> */}
           {filteredTeamspaces
             .filter((teamspace) => !teamspace.is_up_for_deletion)

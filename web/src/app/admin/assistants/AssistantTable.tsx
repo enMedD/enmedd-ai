@@ -143,7 +143,7 @@ export function AssistantsTable({
       <Card>
         <CardContent className="p-0">
           <DraggableTable
-            headers={["Name", "Description", "Type", "Is Visible", "Delete"]}
+            headers={["Name", "Description", "Type", "Is Visible", ""]}
             isAdmin={isAdmin}
             rows={finalAssistantValues.map((assistant) => {
               return {
@@ -228,7 +228,7 @@ export function AssistantsTable({
 
                     <Checkbox checked={assistant.is_visible} />
                   </Badge>,
-                  <div key="edit" className="flex">
+                  <div key="edit" className="flex w-20">
                     <div className="mx-auto my-auto">
                       {!assistant.builtin_assistant ? (
                         <CustomTooltip

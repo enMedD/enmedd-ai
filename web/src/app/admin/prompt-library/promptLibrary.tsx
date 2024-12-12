@@ -222,7 +222,7 @@ export const PromptLibraryTable = ({
                             <Badge variant="secondary">Inactive</Badge>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-28">
                           <CustomTooltip
                             trigger={
                               <Button
@@ -238,7 +238,7 @@ export const PromptLibraryTable = ({
                             Delete
                           </CustomTooltip>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-28">
                           {item.id > 0 && (
                             <CustomTooltip
                               trigger={

@@ -322,21 +322,20 @@ export const AllUsers = ({
       )}
 
       <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
-        <div className="xl:w-2/5">
+        <div className="xl:w-1/3">
           <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
           <ValidDomainsDisplay validDomains={validDomains} />
           <div className="flex gap-2">
+            <InviteUserButton
+              teamspaceId={teamspaceId}
+              refreshUsers={refreshUsers}
+            />
             {teamspaceId && (
               <AddUserButton
                 teamspaceId={teamspaceId}
                 refreshUsers={refreshUsers}
               />
             )}
-
-            <InviteUserButton
-              teamspaceId={teamspaceId}
-              refreshUsers={refreshUsers}
-            />
           </div>
         </div>
         <div className="flex-1 space-y-4">
@@ -352,6 +351,7 @@ export const AllUsers = ({
                   <TableHeader>
                     <TableRow>
                       <TableHead>User</TableHead>
+                      <TableHead>Company</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
@@ -363,23 +363,28 @@ export const AllUsers = ({
                           <div className="flex gap-4 items-center">
                             <UserProfile user={filteredUser} />
                             <div className="flex flex-col">
-                              <span className="truncate max-w-44 font-medium">
-                                {filteredUser.full_name}
-                              </span>
+                              <div className="flex gap-2 items-center">
+                                <span className="truncate max-w-44 font-medium">
+                                  {filteredUser.full_name}
+                                </span>
+                                {filteredUser?.email ===
+                                  teamspaceData?.creator?.email && (
+                                  <Badge>Creator</Badge>
+                                )}
+                                {user?.email === filteredUser.email && (
+                                  <Badge>You</Badge>
+                                )}
+                              </div>
                               <span className="text-sm text-subtle truncate max-w-44">
                                 {filteredUser.email}
                               </span>
                             </div>
-                            {filteredUser?.email ===
-                              teamspaceData?.creator?.email && (
-                              <Badge>Creator</Badge>
-                            )}
-                            {user?.email === filteredUser.email && (
-                              <Badge>You</Badge>
-                            )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="truncate max-w-48">
+                          {filteredUser?.company_name}
+                        </TableCell>
+                        <TableCell className="w-32">
                           <Select
                             onValueChange={(value) =>
                               handleRoleChange(filteredUser.email, value)
