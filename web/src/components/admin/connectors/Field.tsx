@@ -85,7 +85,9 @@ export function ToolTipDetails({
 }) {
   return (
     <div className="flex pt-[1px]">
-      <CustomTooltip trigger={<FiInfo size={12} />}>{children}</CustomTooltip>
+      <CustomTooltip trigger={<FiInfo size={12} />} asChild>
+        {children}
+      </CustomTooltip>
     </div>
   );
 }
