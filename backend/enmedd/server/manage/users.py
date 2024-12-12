@@ -140,11 +140,6 @@ async def validate_token_invite(
         invited_user for invited_user in user_emails if invited_user != email
     ]
     write_invited_users(remaining_users, teamspace_id)
-    remove_email_from_invite_tokens(
-        db_session=db_session,
-        user_email=email,
-        teamspace_id=teamspace_id,
-    )
 
     if (
         isinstance(teamspace_id, str)
