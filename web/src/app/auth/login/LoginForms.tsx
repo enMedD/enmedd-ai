@@ -1,6 +1,7 @@
 "use client";
 
 import { basicLogin } from "@/lib/user";
+import { generateOtp } from "@/lib/user";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Spinner } from "@/components/Spinner";
@@ -59,36 +60,60 @@ export function LogInForms({}: {}) {
 
     setIsLoading(true);
 
-    const loginResponse = await basicLogin(values.email, values.password);
-    if (loginResponse.ok) {
-      if (isTwoFactorAuthEnabled) {
-        router.push(`/auth/2factorverification/?email=${values.email}`);
-        await fetch("/api/users/generate-otp", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-      } else {
-        router.push("/");
-      }
-    } else {
-      setIsLoading(false);
-      const errorDetail = (await loginResponse.json()).detail;
+    try {
+      const loginResponse = await basicLogin(values.email, values.password);
+      if (loginResponse.ok) {
+        if (isTwoFactorAuthEnabled) {
+          const otpResponse = await generateOtp(values.email);
 
-      let errorMsg = "Unknown error";
-      if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
-        errorMsg = "Invalid email or password";
+          if (otpResponse.ok) {
+            router.push(`/auth/2factorverification/?email=${values.email}`);
+          } else {
+            handleError(otpResponse);
+          }
+        } else {
+          router.push("/");
+        }
+      } else {
+        handleError(loginResponse);
       }
+    } catch (err) {
       toast({
         title: "Login Failed",
-        description: `Failed to login - ${errorMsg}`,
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
 
-    setIsLoading(false);
+    function handleError(response: Response) {
+      response
+        .json()
+        .then((errorData) => {
+          const errorDetail = errorData.detail;
+
+          let errorMsg = "Unknown error";
+          if (errorDetail === "LOGIN_USER_NOT_VERIFIED") {
+            errorMsg = "User not yet verified";
+          } else if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
+            errorMsg = "Invalid email or password";
+          }
+
+          toast({
+            title: "Login Failed",
+            description: `Failed to login - ${errorMsg}`,
+            variant: "destructive",
+          });
+        })
+        .catch(() => {
+          toast({
+            title: "Login Failed",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          });
+        });
+    }
   }
   return (
     <>
