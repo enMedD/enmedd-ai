@@ -116,6 +116,7 @@ export function AssistantEditor({
   ];
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // state to persist across formik reformatting
   const [defautIconColor, _setDeafultIconColor] = useState(
@@ -360,7 +361,7 @@ export function AssistantEditor({
               return;
             }
           }
-
+          setLoading(true);
           formikHelpers.setSubmitting(true);
           let enabledTools = Object.keys(values.enabled_tools_map)
             .map((toolId) => Number(toolId))
@@ -476,6 +477,7 @@ export function AssistantEditor({
                   description: `"${assistant.name}" has been added to your list.`,
                   variant: "success",
                 });
+                setLoading(false);
 
                 router.refresh();
               } else {
@@ -489,8 +491,8 @@ export function AssistantEditor({
             const redirectUrl =
               redirectType === SuccessfulAssistantUpdateRedirectType.ADMIN
                 ? teamspaceId
-                  ? `/t/${teamspaceId}/admin/assistants?u=${Date.now()}`
-                  : `/admin/assistants?u=${Date.now()}`
+                  ? `/t/${teamspaceId}/admin/assistants`
+                  : `/admin/assistants`
                 : teamspaceId
                   ? `/t/${teamspaceId}/chat?assistantId=${assistantId}`
                   : `/chat?assistantId=${assistantId}`;
