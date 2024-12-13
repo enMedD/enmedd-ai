@@ -378,6 +378,7 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
         )
         async def login(
             request: Request,
+            new_user: bool = False,
             credentials: OAuth2PasswordRequestForm = Depends(),
             user_manager: BaseUserManager[models.UP, models.ID] = Depends(
                 get_user_manager
@@ -396,7 +397,10 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
                 )
-            if FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True:
+            if (
+                not new_user
+                and FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True
+            ):
                 return Response(status_code=status.HTTP_200_OK)
             response = await backend.login(strategy, user)
             await user_manager.on_after_login(user, request, response)

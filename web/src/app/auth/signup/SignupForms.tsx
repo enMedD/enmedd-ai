@@ -127,7 +127,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     }
 
     // logs in data after signing up
-    const loginResponse = await basicLogin(values.email, values.password);
+    const loginResponse = await basicLogin(values.email, values.password, true);
     if (loginResponse.ok) {
       if (token) {
         await validateInvite(values.email, token);

@@ -568,7 +568,10 @@ def list_all_users_basic_info(
     )
     return [
         MinimalUserwithNameSnapshot(
-            id=user.id, full_name=user.full_name, email=user.email, profile=user.profile
+            id=user.id,
+            full_name=user.full_name or "Unknown User",
+            email=user.email,
+            profile=user.profile,
         )
         for user in users
     ]
