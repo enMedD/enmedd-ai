@@ -566,6 +566,10 @@ def list_all_users_basic_info(
         teamspace_id=teamspace_id,
         include_teamspace_user=include_teamspace_user,
     )
+    filtered_users = [
+        user for user in users if not is_api_key_email_address(user.email)
+    ]
+
     return [
         MinimalUserwithNameSnapshot(
             id=user.id,
@@ -573,7 +577,7 @@ def list_all_users_basic_info(
             email=user.email,
             profile=user.profile,
         )
-        for user in users
+        for user in filtered_users
     ]
 
 
