@@ -134,6 +134,10 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     if (loginResponse.ok) {
       if (token) {
         await validateInvite(values.email, token);
+      }
+      if (shouldVerify) {
+        router.push("/auth/waiting-on-verification");
+      } else {
         if (isTwoFactorAuthEnabled) {
           const otpResponse = await generateOtp(values.email);
           if (otpResponse.ok) {
@@ -148,11 +152,6 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
         } else {
           router.push("/");
         }
-      }
-      if (shouldVerify) {
-        router.push("/auth/waiting-on-verification");
-      } else {
-        router.push("/");
       }
     }
     setIsLoading(false);
