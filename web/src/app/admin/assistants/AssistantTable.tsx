@@ -162,8 +162,8 @@ export function AssistantsTable({
                         <Link
                           href={
                             teamspaceId
-                              ? `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
-                              : `/admin/assistants/${assistant.id}?u=${Date.now()}`
+                              ? `/t/${teamspaceId}/admin/assistants/${assistant.id}`
+                              : `/admin/assistants/${assistant.id}`
                           }
                           className="flex items-center w-full gap-2 truncate"
                         >
