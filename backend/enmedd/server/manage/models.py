@@ -72,7 +72,7 @@ class UserInfo(BaseModel):
             is_verified=user.is_verified,
             profile=user.profile,
             role=user.role,
-            full_name=user.full_name or "Unknown User",
+            full_name=user.full_name,
             company_name=user.company_name,
             company_email=user.company_email,
             company_billing=user.company_billing,

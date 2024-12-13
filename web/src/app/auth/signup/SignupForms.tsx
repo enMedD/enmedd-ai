@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { basicLogin, basicSignup, validateInvite } from "@/lib/user";
+import { generateOtp } from "@/lib/user";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
+import { useFeatureFlag } from "@/components/feature_flag/FeatureFlagContext";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -32,6 +34,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const token = searchParams.get("invitetoken") || "";
+  const isTwoFactorAuthEnabled = useFeatureFlag("two_factor_auth");
 
   // Use the custom hook
   const {
@@ -127,11 +130,24 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     }
 
     // logs in data after signing up
-    const loginResponse = await basicLogin(values.email, values.password, true);
+    const loginResponse = await basicLogin(values.email, values.password);
     if (loginResponse.ok) {
       if (token) {
         await validateInvite(values.email, token);
-        router.push("/");
+        if (isTwoFactorAuthEnabled) {
+          const otpResponse = await generateOtp(values.email);
+          if (otpResponse.ok) {
+            router.push(`/auth/2factorverification/?email=${values.email}`);
+          } else {
+            toast({
+              title: "Failed to generate OTP",
+              description: "An unexpected error occurred",
+              variant: "destructive",
+            });
+          }
+        } else {
+          router.push("/");
+        }
       }
       if (shouldVerify) {
         router.push("/auth/waiting-on-verification");

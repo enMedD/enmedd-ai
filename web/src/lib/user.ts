@@ -50,15 +50,14 @@ export const generateOtp = async (email: string): Promise<Response> => {
 
 export const basicLogin = async (
   email: string,
-  password: string,
-  new_user?: boolean
+  password: string
 ): Promise<Response> => {
   const params = new URLSearchParams([
     ["username", email],
     ["password", password],
   ]);
 
-  const response = await fetch(`/api/auth/login?new_user=${new_user}`, {
+  const response = await fetch("/api/auth/login", {
     method: "POST",
     credentials: "include",
     headers: {

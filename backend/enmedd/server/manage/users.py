@@ -320,7 +320,7 @@ def list_all_users(
             email=user.email,
             role=role,
             status=UserStatus.LIVE if user.is_active else UserStatus.DEACTIVATED,
-            full_name=user.full_name or "Unknown User",
+            full_name=user.full_name,
             billing_email_address=user.billing_email_address,
             company_billing=user.company_billing,
             company_email=user.company_email,
@@ -569,7 +569,7 @@ def list_all_users_basic_info(
     return [
         MinimalUserwithNameSnapshot(
             id=user.id,
-            full_name=user.full_name or "Unknown User",
+            full_name=user.full_name,
             email=user.email,
             profile=user.profile,
         )

@@ -61,11 +61,7 @@ export function LogInForms({}: {}) {
     setIsLoading(true);
 
     try {
-      const loginResponse = await basicLogin(
-        values.email,
-        values.password,
-        false
-      );
+      const loginResponse = await basicLogin(values.email, values.password);
       if (loginResponse.ok) {
         if (isTwoFactorAuthEnabled) {
           const otpResponse = await generateOtp(values.email);
