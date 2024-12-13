@@ -24,7 +24,7 @@ USER_STORE_KEY = "INVITED_USERS"
 TEAMSPACE_INVITE_USER = "TEAMSPACE_INVITE_USER"
 
 
-def get_invited_users(teamspace_id: int = None) -> list[str]:
+def get_invited_users(teamspace_id: Optional[int] = None) -> list[str]:
     try:
         store = get_kv_store()
 
@@ -86,6 +86,8 @@ def decode_invite_token(token: str, email: str, db_session: Session):
         invite_token = db_session.query(InviteToken).filter_by(token=token).first()
 
         if invite_token and email in invite_token.emails:
+            if not teamspace_id:
+                return "Missing teamspace_id"
             return teamspace_id
 
         else:

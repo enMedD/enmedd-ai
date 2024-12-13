@@ -133,7 +133,15 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     const loginResponse = await basicLogin(values.email, values.password);
     if (loginResponse.ok) {
       if (token) {
-        await validateInvite(values.email, token);
+        const validateToken = await validateInvite(values.email, token);
+        if (!validateToken.ok) {
+          router.push("/auth/invalid-invite-token");
+          toast({
+            title: "Invalid Invite Token",
+            description: "The invite token is invalid.",
+            variant: "destructive",
+          });
+        }
       }
       if (shouldVerify) {
         router.push("/auth/waiting-on-verification");
