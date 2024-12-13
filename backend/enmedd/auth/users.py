@@ -113,7 +113,7 @@ def user_needs_to_be_verified() -> bool:
 
 
 def verify_email_is_invited(email: str) -> None:
-    whitelist = get_invited_users()
+    whitelist = get_invited_users(all=True)
     if not whitelist:
         return
 

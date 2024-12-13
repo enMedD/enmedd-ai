@@ -24,21 +24,46 @@ USER_STORE_KEY = "INVITED_USERS"
 TEAMSPACE_INVITE_USER = "TEAMSPACE_INVITE_USER"
 
 
-def get_invited_users(teamspace_id: Optional[int] = None) -> list[str]:
+def get_invited_users(
+    teamspace_id: Optional[int] = None,
+    all: bool = False,
+) -> list[str]:
     try:
         store = get_kv_store()
 
-        if teamspace_id:
-            teamspace_users = cast(dict, store.load(TEAMSPACE_INVITE_USER))
+        if all:
+            try:
+                teamspace_users = cast(dict, store.load(TEAMSPACE_INVITE_USER))
+            except KvKeyNotFoundError:
+                teamspace_users = {}
 
-            if str(teamspace_id) in teamspace_users:
-                return teamspace_users[str(teamspace_id)]
-            else:
-                return []
+            try:
+                user_store = cast(list, store.load(USER_STORE_KEY))
+            except KvKeyNotFoundError:
+                user_store = []
+
+            all_emails = set()
+            for users in teamspace_users.values():
+                all_emails.update(users)
+            all_emails.update(user_store)
+
+            return list(all_emails)
+
         else:
-            return cast(list, store.load(USER_STORE_KEY))
+            if teamspace_id:
+                try:
+                    teamspace_users = cast(dict, store.load(TEAMSPACE_INVITE_USER))
+                except KvKeyNotFoundError:
+                    return []
+
+                return teamspace_users.get(str(teamspace_id), [])
+            else:
+                try:
+                    return cast(list, store.load(USER_STORE_KEY))
+                except KvKeyNotFoundError:
+                    return []
     except KvKeyNotFoundError:
-        return list()
+        return []
 
 
 def write_invited_users(emails: list[str], teamspace_id: Optional[int] = None) -> int:
