@@ -250,7 +250,7 @@ const DocumentSetTable = ({
                           <Badge variant="secondary">Private</Badge>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="w-28">
                         {isEditable ? (
                           <DeleteButton
                             onClick={() => {

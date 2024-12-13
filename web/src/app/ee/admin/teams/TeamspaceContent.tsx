@@ -116,7 +116,7 @@ export const TeamspaceContent = ({
       </div>
 
       {isLoading ? (
-        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))]">
+        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
           {Array.from({ length: 12 }).map((_, index) => (
             <Skeleton
               key={index}

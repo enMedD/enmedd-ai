@@ -334,7 +334,7 @@ export default function General() {
                 </p>
               </div>
 
-              <div className="md:w-[500px]">
+              <div className="md:w-[600px]">
                 <InputForm
                   formControl={form.control}
                   name="workspace_name"
@@ -361,7 +361,7 @@ export default function General() {
                 </p>
               </div>
 
-              <div className="md:w-[500px]">
+              <div className="md:w-[600px]">
                 <InputForm
                   formControl={form.control}
                   name="workspace_description"
@@ -385,7 +385,7 @@ export default function General() {
                 </p>
               </div>
 
-              <div className="md:w-[500px] flex flex-col gap-4">
+              <div className="md:w-[600px] flex flex-col gap-4">
                 <ImageUpload
                   selectedFile={selectedLogo}
                   setSelectedFile={setSelectedLogo}
@@ -439,7 +439,7 @@ export default function General() {
                 </p>
               </div>
 
-              <div className="md:w-[500px] flex flex-col gap-4">
+              <div className="md:w-[600px] flex flex-col gap-4">
                 <ImageUpload
                   selectedFile={selectedHeaderLogo}
                   setSelectedFile={setSelectedHeaderLogo}
@@ -491,7 +491,7 @@ export default function General() {
                 </p>
               </div>
 
-              <div className="md:w-[500px] space-y-2">
+              <div className="md:w-[600px] space-y-2">
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-subtle w-32">
                     Primary color:
@@ -591,7 +591,7 @@ export default function General() {
                     </p>
                   </div>
 
-                  <div className="flex md:w-[500px]">
+                  <div className="flex md:w-[600px]">
                     <TextFormField
                       name="custom_domain"
                       placeholder="Enter custom domain"
