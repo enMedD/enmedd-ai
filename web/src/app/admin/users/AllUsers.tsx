@@ -289,7 +289,7 @@ export const AllUsers = ({
             )}
           </div>
         </div>
-        <div className="flex-1 space-y-4 overflow-x-auto">
+        <div className="flex-1 space-y-4 overflow-x-auto p-1">
           <Input
             placeholder="Search user..."
             value={searchQuery}
