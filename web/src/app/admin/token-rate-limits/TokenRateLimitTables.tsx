@@ -2,7 +2,7 @@
 
 import { DeleteButton } from "@/components/DeleteButton";
 import { deleteTokenRateLimit, updateTokenRateLimit } from "./lib";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { TokenRateLimitDisplay } from "./types";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR, { mutate } from "swr";
@@ -211,7 +211,7 @@ export const GenericTokenRateLimitTable = ({
   const { data, isLoading, error } = useSWR(fetchUrl, errorHandlingFetcher);
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (!isLoading && error) {

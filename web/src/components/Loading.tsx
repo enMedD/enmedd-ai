@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./loading.css";
 import { ThreeDots } from "react-loader-spinner";
+import { Loader2 } from "lucide-react";
 
 interface LoadingAnimationProps {
   text?: string;
@@ -42,21 +43,10 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
   );
 };
 
-export const ThreeDotsLoader = () => {
+export const Loading = () => {
   return (
-    <div className="flex my-auto w-full">
-      <div className="mx-auto">
-        <ThreeDots
-          height="30"
-          width="50"
-          color="#3b82f6"
-          ariaLabel="grid-loading"
-          radius="12.5"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-      </div>
+    <div className="flex items-center justify-center py-10">
+      <Loader2 className="animate-spin" size={24} />
     </div>
   );
 };

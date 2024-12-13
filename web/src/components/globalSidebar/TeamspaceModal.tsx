@@ -44,7 +44,7 @@ export const TeamspaceModal = ({
       open={isModalVisible}
       title="Your Teamspace"
     >
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 p-10 pt-0">
         {teamspace.map((team) => (
           <Link
             key={team.id}

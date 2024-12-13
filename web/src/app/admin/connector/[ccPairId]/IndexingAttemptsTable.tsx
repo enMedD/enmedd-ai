@@ -5,7 +5,7 @@ import { Text, Callout } from "@tremor/react";
 import { CCPairFullInfo, PaginatedIndexAttempts } from "./types";
 import { IndexAttemptStatus } from "@/components/Status";
 import { PageSelector } from "@/components/PageSelector";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { buildCCPairInfoUrl } from "./lib";
 import { localizeAndPrettify } from "@/lib/time";
 import { getDocsProcessedPerMinute } from "@/lib/indexAttempt";
@@ -184,7 +184,7 @@ export function IndexingAttemptsTable({
   };
 
   if (isCurrentPageLoading || !currentPageData) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (currentPageError) {

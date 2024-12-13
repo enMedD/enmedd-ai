@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import useSWR from "swr";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Lock } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ function Main() {
   };
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
   return (
     <div className="container p-4 mx-auto">

@@ -1,6 +1,7 @@
 import {
   ConnectorIndexingStatus,
   DocumentBoostStatus,
+  DocumentSet,
   MinimalUserwithNameSnapshot,
   Tag,
   Teamspace,
@@ -16,6 +17,8 @@ import { UsersResponse } from "./users/interfaces";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import { DateRange } from "react-day-picker";
 import { Credential } from "./connectors/credentials";
+import { Assistant } from "@/app/admin/assistants/interfaces";
+import { ToolSnapshot } from "@/lib/tools/interfaces";
 
 const CREDENTIAL_URL = "/api/manage/admin/credential";
 
@@ -319,6 +322,77 @@ export const useUserTeamspaces = (): {
     refreshUserTeamspaces: () => mutate(),
   };
 };
+
+const TOOL_URL = "/api/tool";
+
+export function refreshTools() {
+  mutate(TOOL_URL);
+}
+
+export function useTools() {
+  const url = `${TOOL_URL}`;
+
+  const swrResponse = useSWR<ToolSnapshot[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
+
+  return {
+    ...swrResponse,
+    refreshTools: refreshTools,
+  };
+}
+
+const ADMIN_ASSISTANT_URL = "/api/admin/assistant";
+
+export function refreshAdminAssistants() {
+  mutate(ADMIN_ASSISTANT_URL);
+}
+
+export function useAdminAssistants(
+  getEditable: boolean = false,
+  teamspaceId?: string | string[]
+) {
+  const url = `${ADMIN_ASSISTANT_URL}?${
+    getEditable ? "get_editable=true" : ""
+  }${getEditable && teamspaceId ? "&" : ""}${
+    teamspaceId ? `teamspace_id=${teamspaceId}` : ""
+  }`.replace(/&$/, "");
+
+  const swrResponse = useSWR<Assistant[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
+
+  return {
+    ...swrResponse,
+    refreshAdminAssistants: refreshAdminAssistants,
+  };
+}
+
+const DOCUMENT_SETS_URL = "/api/manage/admin/document-set";
+
+export function refreshDocumentSets() {
+  mutate(DOCUMENT_SETS_URL);
+}
+
+export function useDocumentSets(
+  getEditable: boolean = false,
+  teamspaceId?: string | string[]
+) {
+  const url = `${DOCUMENT_SETS_URL}?${
+    getEditable ? "get_editable=true" : ""
+  }${getEditable && teamspaceId ? "&" : ""}${
+    teamspaceId ? `teamspace_id=${teamspaceId}` : ""
+  }`.replace(/&$/, "");
+
+  const swrResponse = useSWR<DocumentSet[]>(url, errorHandlingFetcher, {
+    refreshInterval: 5000, // 5 seconds
+  });
+
+  return {
+    ...swrResponse,
+    refreshDocumentSets: refreshDocumentSets,
+  };
+}
 
 const MODEL_DISPLAY_NAMES: { [key: string]: string } = {
   // OpenAI models
