@@ -25,16 +25,16 @@ import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
 import useSWRMutation from "swr/mutation";
 import { useToast } from "@/hooks/use-toast";
 import { AddUserButton } from "./AddUserButton";
-import { User, UserStatus } from "@/lib/types";
+import { Teamspace, UserStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/UserProfile";
 import { useUser } from "@/components/user/UserProvider";
 import { useUsers } from "@/lib/hooks";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { CustomModal } from "@/components/CustomModal";
 import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
 import { InviteUserButton } from "./InviteUserButton";
+import { DeactivaterButton } from "@/components/DeactivaterButton";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -71,71 +71,22 @@ const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   );
 };
 
-export const DeactivaterButton = ({
-  user,
-  deactivate,
-  mutate,
-  role,
-}: {
-  user: User;
-  deactivate: boolean;
-  mutate: () => void;
-  role: string;
-}) => {
-  const { toast } = useToast();
-  const { trigger, isMutating } = useSWRMutation(
-    deactivate
-      ? "/api/manage/admin/deactivate-user"
-      : "/api/manage/admin/activate-user",
-    userMutationFetcher,
-    {
-      onSuccess: () => {
-        mutate();
-        toast({
-          title: "User Status Updated",
-          description: `User has been successfully ${deactivate ? "deactivated" : "activated"}.`,
-          variant: "success",
-        });
-      },
-      onError: (errorMsg) =>
-        toast({
-          title: "Operation Failed",
-          description: `Unable to ${deactivate ? "deactivate" : "activate"} user: ${errorMsg}`,
-          variant: "destructive",
-        }),
-    }
-  );
-  return (
-    <Button
-      onClick={() => trigger({ user_email: user.email })}
-      disabled={isMutating}
-      variant={deactivate ? "destructive" : "default"}
-    >
-      {deactivate ? "Deactivate" : "Activate"}
-    </Button>
-  );
-};
-
 export const AllUsers = ({
-  q,
   teamspaceId,
 }: {
-  q: string;
   teamspaceId?: string | string[];
 }) => {
   const { toast } = useToast();
-  const [invitedPage, setInvitedPage] = useState(1);
-  const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
-  const [teamspaceData, setTeamspaceData] = useState<any | null>(null);
+  const [teamspaceData, setTeamspaceData] = useState<Teamspace | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { data, isLoading, error, refreshUsers } = useUsers(
-    q,
-    acceptedPage,
-    invitedPage,
+    "",
+    1,
+    1,
     teamspaceId
   );
 
@@ -289,14 +240,6 @@ export const AllUsers = ({
 
   const { accepted } = data;
 
-  const handleRoleChange = async (userEmail: string, newRole: string) => {
-    if (newRole === "admin") {
-      await promoteTrigger({ user_email: userEmail, new_role: "admin" });
-    } else {
-      await demoteTrigger({ user_email: userEmail, new_role: "basic" });
-    }
-  };
-
   const filteredUsers = accepted
     .filter(
       (user) =>
@@ -308,6 +251,14 @@ export const AllUsers = ({
       if (b.email === teamspaceData?.creator?.email) return 1;
       return a.id === user?.id ? -1 : 1;
     });
+
+  const handleRoleChange = async (userEmail: string, newRole: string) => {
+    if (newRole === "admin") {
+      await promoteTrigger({ user_email: userEmail, new_role: "admin" });
+    } else {
+      await demoteTrigger({ user_email: userEmail, new_role: "basic" });
+    }
+  };
 
   return (
     <>
@@ -338,7 +289,7 @@ export const AllUsers = ({
             )}
           </div>
         </div>
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-4 overflow-x-auto">
           <Input
             placeholder="Search user..."
             value={searchQuery}
@@ -367,8 +318,8 @@ export const AllUsers = ({
                                 <span className="truncate max-w-44 font-medium">
                                   {filteredUser.full_name}
                                 </span>
-                                {filteredUser?.email ===
-                                  teamspaceData?.creator?.email && (
+                                {filteredUser?.id ===
+                                  teamspaceData?.creator.id && (
                                   <Badge>Creator</Badge>
                                 )}
                                 {user?.email === filteredUser.email && (
@@ -434,7 +385,6 @@ export const AllUsers = ({
                                       filteredUser.status === UserStatus.live
                                     }
                                     mutate={refreshUsers}
-                                    role={filteredUser.role}
                                   />
                                 </div>
                               )}
