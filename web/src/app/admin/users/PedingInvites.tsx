@@ -69,7 +69,7 @@ export const PendingInvites = ({
   );
 
   if (isLoading) {
-    return <LoadingAnimation text="Loading" />;
+    return <Loading />;
   }
 
   if (error || !data) {
