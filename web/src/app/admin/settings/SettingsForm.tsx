@@ -1,10 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Cog, User } from "lucide-react";
-import General from "./TabContent/General";
-import { Configuration } from "./TabContent/Configuration";
 import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
+const General = dynamic(() => import("./TabContent/General"));
+const Configuration = dynamic(() => import("./TabContent/Configuration"));
 
 export function SettingsForm() {
   return (

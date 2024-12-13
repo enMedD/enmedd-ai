@@ -93,7 +93,7 @@ function Selector({
   );
 }
 
-export function Configuration() {
+export default function Configuration() {
   const { teamspaceId } = useParams();
   const { toast } = useToast();
   const [chatPageEnabled, setChatPageEnabled] = useState<boolean>(true);

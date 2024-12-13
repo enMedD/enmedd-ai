@@ -1,6 +1,6 @@
 "use client";
 
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { KeyIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
@@ -90,7 +90,7 @@ function Main() {
   const isUpdate = selectedApiKey !== undefined;
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (!apiKeys || error) {

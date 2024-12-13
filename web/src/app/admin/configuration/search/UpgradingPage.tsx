@@ -1,4 +1,4 @@
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import {
   ConnectorIndexingStatus,
@@ -137,7 +137,7 @@ export default function UpgradingPage({
                 </Text>
 
                 {isLoadingOngoingReIndexingStatus ? (
-                  <ThreeDotsLoader />
+                  <Loading />
                 ) : sortedReindexingProgress ? (
                   <ReindexingProgressTable
                     reindexingProgress={sortedReindexingProgress}

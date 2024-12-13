@@ -161,7 +161,7 @@ export function ShareChatSessionModal({
             </p>
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4">
             <Button variant="ghost" onClick={() => setIsShareModalOpen(false)}>
               Cancel
             </Button>

@@ -1,7 +1,6 @@
 "use client";
 
-import { LoadingAnimation } from "@/components/Loading";
-import { NotebookIcon } from "@/components/icons/icons";
+import { Loading } from "@/components/Loading";
 import { CCPairIndexingStatusTable } from "./CCPairIndexingStatusTable";
 import { AdminPageTitle } from "@/components/admin/Title";
 import Link from "next/link";
@@ -22,7 +21,7 @@ function Main() {
   } = useConnectorCredentialIndexingStatus(undefined, true);
 
   if (indexAttemptIsLoading || editableIndexAttemptIsLoading) {
-    return <LoadingAnimation text="" />;
+    return <Loading />;
   }
 
   if (

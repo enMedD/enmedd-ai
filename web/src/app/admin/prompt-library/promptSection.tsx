@@ -1,6 +1,6 @@
 "use client";
 
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Divider, Text } from "@tremor/react";
 import { useState } from "react";
@@ -92,7 +92,7 @@ export const PromptSection = ({
   };
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (error || !promptLibrary) {

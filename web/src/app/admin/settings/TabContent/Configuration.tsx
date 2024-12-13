@@ -95,7 +95,7 @@ function Selector({
   );
 }
 
-export function Configuration() {
+export default function Configuration() {
   const router = useRouter();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [chatRetention, setChatRetention] = useState("");
