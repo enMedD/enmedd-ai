@@ -378,7 +378,7 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
         )
         async def login(
             request: Request,
-            new_user: bool = False,
+            new_user: bool = True,
             credentials: OAuth2PasswordRequestForm = Depends(),
             user_manager: BaseUserManager[models.UP, models.ID] = Depends(
                 get_user_manager

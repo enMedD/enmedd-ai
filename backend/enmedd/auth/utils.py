@@ -1,6 +1,7 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -62,7 +63,7 @@ def generate_password_reset_email(email: str, reset_url: str):
     return subject, body
 
 
-def generate_user_verification_email(full_name: str, verify_url: str):
+def generate_user_verification_email(full_name: Optional[str], verify_url: str):
     subject = "Almost There! Confirm Your Email to Activate Your Account"
 
     body = f"""
@@ -82,7 +83,7 @@ def generate_user_verification_email(full_name: str, verify_url: str):
     return subject, body
 
 
-def generate_2fa_email(full_name: str, code: str):
+def generate_2fa_email(full_name: Optional[str], code: str):
     subject = "Arnold AI Two-Factor Authentication (2FA) Code"
 
     body = f"""

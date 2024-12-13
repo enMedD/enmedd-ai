@@ -46,7 +46,7 @@ class Teamspace(BaseModel):
             creator=MinimalUserwithNameSnapshot(
                 id=teamspace_model.creator.id,
                 email=teamspace_model.creator.email,
-                full_name=teamspace_model.creator.full_name,
+                full_name=teamspace_model.creator.full_name or "Unknown User",
                 profile=teamspace_model.creator.profile,
             ),
             users=[
@@ -61,7 +61,7 @@ class Teamspace(BaseModel):
                     preferences=UserPreferences(
                         chosen_assistants=user.chosen_assistants
                     ),
-                    full_name=user.full_name,
+                    full_name=user.full_name or "Unknown User",
                     company_name=user.company_name,
                     company_email=user.company_email,
                     company_billing=user.company_billing,

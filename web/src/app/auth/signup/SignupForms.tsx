@@ -131,6 +131,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     if (loginResponse.ok) {
       if (token) {
         await validateInvite(values.email, token);
+        router.push("/");
       }
       if (shouldVerify) {
         router.push("/auth/waiting-on-verification");
