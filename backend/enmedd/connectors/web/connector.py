@@ -1,5 +1,6 @@
 import io
 import ipaddress
+import random
 import socket
 from datetime import datetime
 from datetime import timezone
@@ -10,7 +11,6 @@ from typing import Tuple
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 
-import random
 import requests
 from bs4 import BeautifulSoup
 from oauthlib.oauth2 import BackendApplicationClient
@@ -21,11 +21,11 @@ from requests_oauthlib import OAuth2Session  # type:ignore
 from urllib3.exceptions import MaxRetryError
 
 from enmedd.configs.app_configs import INDEX_BATCH_SIZE
+from enmedd.configs.app_configs import URL_USERAGENT
 from enmedd.configs.app_configs import WEB_CONNECTOR_OAUTH_CLIENT_ID
 from enmedd.configs.app_configs import WEB_CONNECTOR_OAUTH_CLIENT_SECRET
 from enmedd.configs.app_configs import WEB_CONNECTOR_OAUTH_TOKEN_URL
 from enmedd.configs.app_configs import WEB_CONNECTOR_VALIDATE_URLS
-from enmedd.configs.app_configs import URL_USERAGENT
 from enmedd.configs.constants import DocumentSource
 from enmedd.connectors.interfaces import GenerateDocumentsOutput
 from enmedd.connectors.interfaces import LoadConnector
@@ -86,9 +86,9 @@ def protected_url_check(url: str) -> None:
 
 def check_internet_connection(url: str) -> None:
     try:
-        response = requests.get(url, headers={
-            "User-Agent": random.choice(URL_USERAGENT)
-        }, timeout=10)
+        response = requests.get(
+            url, headers={"User-Agent": random.choice(URL_USERAGENT)}, timeout=10
+        )
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         # Extract status code from the response, defaulting to -1 if response is None
@@ -144,6 +144,15 @@ def get_internal_links(
 
         if urlparse(href).netloc == urlparse(url).netloc and base_url in href:
             internal_links.add(href)
+
+    # ensure that the url will return a valid content (filter the unsuccessful transactions)
+    valid_urls = set()
+    for u in internal_links:
+        try:
+            check_internet_connection(u)
+            valid_urls.add(u)
+        except Exception:
+            continue
     return internal_links
 
 
@@ -191,7 +200,15 @@ def extract_urls_from_sitemap(sitemap_url: str) -> list[str]:
             f"No URLs found in sitemap {sitemap_url}. Try using the 'single' or 'recursive' scraping options instead."
         )
 
-    return urls
+    # ensure that the url will return a valid content (filter the unsuccessful transactions)
+    valid_urls = set()
+    for u in urls:
+        try:
+            check_internet_connection(u)
+            valid_urls.add(u)
+        except Exception:
+            continue
+    return valid_urls
 
 
 def _ensure_absolute_url(source_url: str, maybe_relative_url: str) -> str:
