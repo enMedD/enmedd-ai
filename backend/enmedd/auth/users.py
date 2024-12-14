@@ -113,7 +113,7 @@ def user_needs_to_be_verified() -> bool:
 
 
 def verify_email_is_invited(email: str) -> None:
-    whitelist = get_invited_users()
+    whitelist = get_invited_users(all=True)
     if not whitelist:
         return
 
@@ -396,7 +396,9 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
                 )
+            # This is to bypass the login page without immedietely logging in the user
             if FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True:
+                # redirect to the OTP verification page
                 return Response(status_code=status.HTTP_200_OK)
             response = await backend.login(strategy, user)
             await user_manager.on_after_login(user, request, response)
