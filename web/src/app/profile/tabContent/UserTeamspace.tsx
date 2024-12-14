@@ -1,34 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useGradient } from "@/hooks/useGradient";
-import { Teamspace } from "@/lib/types";
 import { Users } from "lucide-react";
 import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ThreeDotsLoader } from "@/components/Loading";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { useUserTeamspaces } from "@/lib/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UserTeamspace() {
   const router = useRouter();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTeamspace, setSelectedTeamspace] = useState<any>(null);
 
   const { data: teamspaces, isLoading } = useUserTeamspaces();
-
-  if (isLoading) {
-    return <ThreeDotsLoader />;
-  }
 
   const filteredTeamspaces = teamspaces?.filter((teamspace) =>
     teamspace.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -109,7 +102,16 @@ export default function UserTeamspace() {
             />
           </div>
 
-          {filteredTeamspaces && filteredTeamspaces?.length > 0 ? (
+          {isLoading ? (
+            <div className="flex flex-wrap gap-6">
+              {Array.from({ length: 12 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  className="w-full h-[280px] sm:w-[calc(50%_-_14px)] xl:w-[calc(33%_-_12.5px)]"
+                />
+              ))}
+            </div>
+          ) : filteredTeamspaces && filteredTeamspaces?.length > 0 ? (
             <div className="flex flex-wrap gap-6">
               {filteredTeamspaces?.map((teamspace) => (
                 <Card

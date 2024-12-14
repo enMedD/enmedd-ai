@@ -7,7 +7,7 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { ValidSources } from "@/lib/types";
 import useSWR, { mutate } from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import CredentialSection from "@/components/credentials/CredentialSection";
 import { SourceIcon } from "@/components/SourceIcon";
 import { credentialTemplates } from "@/lib/connectors/credentials";
@@ -131,7 +131,7 @@ export function Main({
   };
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (!ccPair || (!hasLoadedOnce && error)) {
@@ -166,15 +166,6 @@ export function Main({
   } = ccPair.connector;
   return (
     <>
-      <BackButton
-        behaviorOverride={() =>
-          router.push(
-            teamspaceId
-              ? `/t/${teamspaceId}/admin/indexing/status`
-              : "/admin/indexing/status"
-          )
-        }
-      />
       <div className="flex flex-col sm:flex-row items-start w-full gap-2 pb-5 lg:items-center">
         <div className="flex sm:contents items-center justify-between gap-2 max-w-full">
           <SourceIcon iconSize={24} sourceType={ccPair.connector.source} />

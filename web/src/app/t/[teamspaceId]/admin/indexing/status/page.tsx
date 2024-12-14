@@ -2,10 +2,8 @@
 
 import useSWR from "swr";
 
-import { LoadingAnimation, ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { NotebookIcon } from "@/components/icons/icons";
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import { ConnectorIndexingStatus } from "@/lib/types";
 import { AdminPageTitle } from "@/components/admin/Title";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -27,7 +25,7 @@ function Main() {
   } = useConnectorCredentialIndexingStatus(undefined, true, teamspaceId);
 
   if (indexAttemptIsLoading || editableIndexAttemptIsLoading) {
-    return <LoadingAnimation text="" />;
+    return <Loading />;
   }
 
   if (

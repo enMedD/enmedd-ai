@@ -4,15 +4,15 @@ import { AdminPageTitle } from "@/components/admin/Title";
 import { BookmarkIcon } from "@/components/icons/icons";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import {
+  refreshDocumentSets,
   useConnectorCredentialIndexingStatus,
   useTeamspaces,
 } from "@/lib/hooks";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { BackButton } from "@/components/BackButton";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { useParams, useRouter } from "next/navigation";
 import { Teamspace } from "@/lib/types";
-import { refreshDocumentSets } from "../hooks";
 import { Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -30,7 +30,7 @@ function Main() {
   const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
   if (isCCPairsLoading || teamspacesIsLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (ccPairsError || !ccPairs) {

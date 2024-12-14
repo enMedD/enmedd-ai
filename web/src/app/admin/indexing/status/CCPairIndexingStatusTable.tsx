@@ -69,7 +69,7 @@ function SummaryRow({
         <CustomTooltip
           trigger={
             <div className="flex items-center mt-1">
-              <div className="w-full h-2 mr-2 bg-gray-200 rounded-full shrink-0">
+              <div className="w-full max-w-[70px] h-2 mr-2 bg-gray-200 rounded-full shrink-0">
                 <Progress value={activePercentage} />
               </div>
               <span className="whitespace-nowrap">

@@ -273,9 +273,9 @@ export function HorizontalFilters({
           }}
         >
           <SelectTrigger className="w-full lg:w-64">
-            <div className="flex items-center gap-3">
-              <Map size={16} />
-              <SelectValue placeholder="All Sources" />
+            <div className="flex items-center gap-3 w-full truncate group [&>span]:max-w-4/5 [&>span]:truncate">
+              <Map size={16} className="shrink-0" />
+              <SelectValue placeholder="All Sources" className="" />
             </div>
           </SelectTrigger>
           <SelectContent>
@@ -295,8 +295,8 @@ export function HorizontalFilters({
           defaultValue=""
         >
           <SelectTrigger className="w-full lg:w-64">
-            <div className="flex items-center gap-3">
-              <Book size={16} />
+            <div className="flex items-center gap-3 w-full truncate group [&>span]:max-w-4/5 [&>span]:truncate">
+              <Book size={16} className="shrink-0" />
               <SelectValue placeholder="All Document Sets" />
             </div>
           </SelectTrigger>
