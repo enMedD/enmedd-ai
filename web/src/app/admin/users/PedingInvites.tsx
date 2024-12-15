@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 import { UsersResponse } from "@/lib/users/interfaces";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { LoadingAnimation } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { UserIcon } from "lucide-react";
 import { User } from "@/lib/types";

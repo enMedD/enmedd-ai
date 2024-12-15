@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { LoadingAnimation } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ConnectorIndexingStatus } from "@/lib/types";
 import {
   Credential,
@@ -69,7 +69,7 @@ export const GmailMain = () => {
   ) {
     return (
       <div className="mx-auto">
-        <LoadingAnimation text="" />
+        <Loading />
       </div>
     );
   }

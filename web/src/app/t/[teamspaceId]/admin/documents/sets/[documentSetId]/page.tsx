@@ -2,20 +2,18 @@
 
 import { ErrorCallout } from "@/components/ErrorCallout";
 import {
+  refreshDocumentSets,
   useConnectorCredentialIndexingStatus,
+  useDocumentSets,
   useTeamspaces,
 } from "@/lib/hooks";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { BackButton } from "@/components/BackButton";
 import { useParams, useRouter } from "next/navigation";
 import { Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DocumentSetCreationForm } from "@/app/admin/documents/sets/DocumentSetCreationForm";
-import {
-  refreshDocumentSets,
-  useDocumentSets,
-} from "@/app/admin/documents/sets/hooks";
 
 function Main({ documentSetId }: { documentSetId: number }) {
   const router = useRouter();
@@ -37,7 +35,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
   const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
   if (isDocumentSetsLoading || isCCPairsLoading || teamspacesIsLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (documentSetsError || !documentSets) {

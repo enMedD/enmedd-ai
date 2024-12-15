@@ -297,6 +297,10 @@ export function InputForm<T extends FieldValues>({
   className,
   type = "text",
   fullWidth,
+  tooltip,
+  onChange,
+  onFocus,
+  onBlur,
 }: {
   formControl: Control<T>;
   disabled?: boolean;
@@ -309,6 +313,12 @@ export function InputForm<T extends FieldValues>({
   className?: string;
   type?: string;
   fullWidth?: boolean;
+  tooltip?: string;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 }) {
   const Component = isTextarea ? Textarea : Input;
   return (
@@ -317,7 +327,16 @@ export function InputForm<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem className={fullWidth ? "w-full" : ""}>
-          {label && <FormLabel>{label}</FormLabel>}
+          {label && (
+            <FormLabel className="flex items-center gap-2">
+              {label}{" "}
+              {tooltip && (
+                <CustomTooltip trigger={<FiInfo size={12} />}>
+                  {tooltip}
+                </CustomTooltip>
+              )}
+            </FormLabel>
+          )}
           {description && !isDescriptionBelow && (
             <FormDescription>{description}</FormDescription>
           )}
@@ -333,8 +352,15 @@ export function InputForm<T extends FieldValues>({
                   type === "number"
                     ? Number(e.target.value) || ""
                     : e.target.value;
-                field.onChange(value);
+
+                if (onChange) {
+                  onChange(e);
+                } else {
+                  field.onChange(value);
+                }
               }}
+              onFocus={onFocus}
+              onBlur={onBlur}
             />
           </FormControl>
           {description && isDescriptionBelow && (
