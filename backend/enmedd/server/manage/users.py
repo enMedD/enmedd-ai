@@ -126,7 +126,6 @@ async def generate_otp(
 async def validate_token_invite(
     email: str,
     token: str,
-    _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
 ):
     user = get_user_by_email(email=email, db_session=db_session)
@@ -135,32 +134,39 @@ async def validate_token_invite(
 
     teamspace_id = decode_invite_token(token, email, db_session)
 
+    if teamspace_id == "Invalid token":
+        raise HTTPException(status_code=400, detail="Invalid token")
+    elif teamspace_id == "Token has expired":
+        raise HTTPException(status_code=400, detail="Token has expired")
+
+    if teamspace_id == "Missing teamspace_id":
+        user_emails = get_invited_users()
+        remaining_users = [
+            invited_user for invited_user in user_emails if invited_user != email
+        ]
+        write_invited_users(remaining_users)
+        return HTTPException(status_code=200, detail="Token is valid")
+
     user_emails = get_invited_users(teamspace_id)
     remaining_users = [
         invited_user for invited_user in user_emails if invited_user != email
     ]
     write_invited_users(remaining_users, teamspace_id)
 
-    if (
-        isinstance(teamspace_id, str)
-        and teamspace_id != "Invalid token"
-        and teamspace_id != "Token has expired"
-    ):
-        teamspace = (
-            db_session.query(User__Teamspace)
-            .filter_by(teamspace_id=teamspace_id, user_id=user.id)
-            .first()
-        )
-        if not teamspace:
-            db_session.add(
-                User__Teamspace(
-                    teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
-                )
+    teamspace = (
+        db_session.query(User__Teamspace)
+        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+        .first()
+    )
+    if not teamspace:
+        db_session.add(
+            User__Teamspace(
+                teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
             )
-            db_session.commit()
-        return {"message": "User successfully added to teamspace"}
+        )
+        db_session.commit()
 
-    return {"message": teamspace_id}
+    return HTTPException(status_code=200, detail="Token is valid from teamspace")
 
 
 @router.post("/users/change-password", tags=["users"])
@@ -566,11 +572,18 @@ def list_all_users_basic_info(
         teamspace_id=teamspace_id,
         include_teamspace_user=include_teamspace_user,
     )
+    filtered_users = [
+        user for user in users if not is_api_key_email_address(user.email)
+    ]
+
     return [
         MinimalUserwithNameSnapshot(
-            id=user.id, full_name=user.full_name, email=user.email, profile=user.profile
+            id=user.id,
+            full_name=user.full_name,
+            email=user.email,
+            profile=user.profile,
         )
-        for user in users
+        for user in filtered_users
     ]
 
 
