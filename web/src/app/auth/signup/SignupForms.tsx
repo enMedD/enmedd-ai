@@ -143,23 +143,20 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
           });
         }
       }
-      if (shouldVerify) {
-        router.push("/auth/waiting-on-verification");
-      } else {
-        if (isTwoFactorAuthEnabled) {
-          const otpResponse = await generateOtp(values.email);
-          if (otpResponse.ok) {
-            router.push(`/auth/2factorverification/?email=${values.email}`);
-          } else {
-            toast({
-              title: "Failed to generate OTP",
-              description: "An unexpected error occurred",
-              variant: "destructive",
-            });
-          }
+      // TODO: the shouldVerify is not returning the correct value
+      if (isTwoFactorAuthEnabled && !shouldVerify) {
+        const otpResponse = await generateOtp(values.email);
+        if (otpResponse.ok) {
+          router.push(`/auth/2factorverification/?email=${values.email}`);
         } else {
-          router.push("/");
+          toast({
+            title: "Failed to generate OTP",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          });
         }
+      } else {
+        router.push("/");
       }
     }
     setIsLoading(false);
