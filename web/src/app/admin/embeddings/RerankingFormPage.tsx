@@ -171,8 +171,8 @@ const RerankingDetailsForm = forwardRef<
                         key={`${card.rerank_provider_type}-${card.modelName}`}
                         className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
                           isSelected
-                            ? "border-blue-500 bg-blue-50 shadow-md"
-                            : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+                            ? "border-brand-500 bg-brand-50 shadow-md"
+                            : "border-gray-200 hover:border-brand-300 hover:shadow-sm"
                         }`}
                         onClick={() => {
                           if (
@@ -228,7 +228,7 @@ const RerankingDetailsForm = forwardRef<
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="text-blue-500 transition-colors duration-200 hover:text-blue-700"
+                              className="text-brand-500 transition-colors duration-200 hover:text-brand-700"
                             >
                               <FiExternalLink size={18} />
                             </a>

@@ -876,14 +876,14 @@ export function ChatPage({
         // Wait for the state update and re-render before scrolling
         setTimeout(() => {
           endDivRef.current?.scrollIntoView({
-            behavior: fast ? "instant" : "smooth",
+            behavior: (fast ? "instant" : "smooth") as any,
           });
           setHasPerformedInitialScroll(true);
         }, 0);
       } else {
         // If all messages are already rendered, scroll immediately
         endDivRef.current.scrollIntoView({
-          behavior: fast ? "instant" : "smooth",
+          behavior: (fast ? "instant" : "smooth") as any,
         });
         setHasPerformedInitialScroll(true);
       }

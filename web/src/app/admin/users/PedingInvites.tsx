@@ -53,35 +53,22 @@ const RemoveUserButton = ({
 };
 
 export const PendingInvites = ({
-  q,
   teamspaceId,
 }: {
-  q: string;
   teamspaceId?: string | string[];
 }) => {
   const { toast } = useToast();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [invitedPage, setInvitedPage] = useState(1);
-  const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
     teamspaceId
-      ? `/api/manage/users?q=${encodeURI(q)}&accepted_page=${
-          acceptedPage - 1
-        }&invited_page=${invitedPage - 1}&teamspace_id=${teamspaceId}`
-      : `/api/manage/users?q=${encodeURI(q)}&accepted_page=${
-          acceptedPage - 1
-        }&invited_page=${invitedPage - 1}`,
+      ? `/api/manage/users?q=${encodeURI("")}&accepted_page=0&invited_page=0&teamspace_id=${teamspaceId}`
+      : `/api/manage/users?q=${encodeURI("")}&accepted_page=0&invited_page=0`,
     errorHandlingFetcher
   );
-  const {
-    data: validDomains,
-    isLoading: isLoadingDomains,
-    error: domainsError,
-  } = useSWR<string[]>("/api/manage/admin/valid-domains", errorHandlingFetcher);
 
-  if (isLoading || isLoadingDomains) {
+  if (isLoading) {
     return <Loading />;
   }
 
@@ -94,16 +81,7 @@ export const PendingInvites = ({
     );
   }
 
-  if (domainsError || !validDomains) {
-    return (
-      <ErrorCallout
-        errorTitle="Error loading valid domains"
-        errorMsg={domainsError?.info?.detail}
-      />
-    );
-  }
-
-  const { accepted, invited, accepted_pages, invited_pages } = data;
+  const { accepted, invited } = data;
 
   const finalInvited = invited.filter(
     (user) => !accepted.map((u) => u.email).includes(user.email)
@@ -135,30 +113,32 @@ export const PendingInvites = ({
 
   return (
     <>
-      <CustomModal
-        trigger={null}
-        title="Revoke Invite"
-        description="Revoking an invite will no longer allow this person to become a member of your space. You can always invite them again if you change your mind."
-        onClose={() => {
-          setIsCancelModalVisible(false);
-          setSelectedUser(null);
-        }}
-        open={isCancelModalVisible}
-      >
-        <div className="flex gap-2 justify-end">
-          <Button onClick={() => setIsCancelModalVisible(false)}>
-            Keep Invite
-          </Button>
-          {selectedUser && (
-            <RemoveUserButton
-              user={selectedUser}
-              onSuccess={onRemovalSuccess}
-              onError={onRemovalError}
-              teamspaceId={teamspaceId}
-            />
-          )}
-        </div>
-      </CustomModal>
+      {isCancelModalVisible && (
+        <CustomModal
+          trigger={null}
+          title="Revoke Invite"
+          description="Revoking an invite will no longer allow this person to become a member of your space. You can always invite them again if you change your mind."
+          onClose={() => {
+            setIsCancelModalVisible(false);
+            setSelectedUser(null);
+          }}
+          open={isCancelModalVisible}
+        >
+          <div className="flex gap-2 justify-end">
+            <Button onClick={() => setIsCancelModalVisible(false)}>
+              Keep Invite
+            </Button>
+            {selectedUser && (
+              <RemoveUserButton
+                user={selectedUser}
+                onSuccess={onRemovalSuccess}
+                onError={onRemovalError}
+                teamspaceId={teamspaceId}
+              />
+            )}
+          </div>
+        </CustomModal>
+      )}
 
       <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
         <div className="xl:w-1/3">
@@ -168,8 +148,8 @@ export const PendingInvites = ({
           <p className="text-sm mt-2">Invitations awaiting a response.</p>
         </div>
 
-        {filteredUsers.length > 0 ? (
-          <div className="flex-1 space-y-4">
+        {finalInvited.length > 0 ? (
+          <div className="flex-1 space-y-4 overflow-x-auto p-1">
             <Input
               placeholder="Search user..."
               value={searchQuery}
