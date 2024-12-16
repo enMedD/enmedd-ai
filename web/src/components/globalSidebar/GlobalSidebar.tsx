@@ -196,8 +196,9 @@ export function GlobalSidebar({
                       hidden: false,
                     }}
                     className="!p-0 w-11 h-11 rounded-full flex items-center justify-center hover:bg-light"
+                    asChild
                   >
-                    <Link href={`/discovery/teamspaces`}>
+                    <Link href={`/discovery/workspaces`}>
                       <Compass size={16} />
                     </Link>
                   </SidebarMenuButton>
