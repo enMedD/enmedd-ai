@@ -1,6 +1,3 @@
-from typing import Optional
-
-from fastapi import Depends
 from sqlalchemy import and_
 from sqlalchemy import delete
 from sqlalchemy import select
@@ -29,7 +26,7 @@ from enmedd.server.manage.embedding.models import (
     CloudEmbeddingProvider as ServerCloudEmbeddingProvider,
 )
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.logger import setup_logger
 from shared_configs.configs import PRESERVED_SEARCH_FIELDS
 from shared_configs.enums import EmbeddingProvider
@@ -155,15 +152,11 @@ def get_all_search_settings(db_session: Session) -> list[SearchSettings]:
     return list(all_settings)
 
 
-def get_multilingual_expansion(
-    db_session: Session | None = None, tenant_id: Optional[str] = Depends(get_tenant_id)
-) -> list[str]:
-    if db_session is None:
-        with Session(get_sqlalchemy_engine()) as db_session:
-            if tenant_id:
-                db_session_filter(tenant_id, db_session)
-            search_settings = get_current_search_settings(db_session)
-    else:
+def get_multilingual_expansion() -> list[str]:
+    with Session(get_sqlalchemy_engine()) as db_session:
+        tenant_id = get_tenant()
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         search_settings = get_current_search_settings(db_session)
     if not search_settings:
         return []

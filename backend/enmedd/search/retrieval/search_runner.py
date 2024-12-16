@@ -225,7 +225,7 @@ def retrieve_chunks(
 ) -> list[InferenceChunk]:
     """Returns a list of the best chunks from an initial keyword/semantic/ hybrid search."""
 
-    multilingual_expansion = get_multilingual_expansion(db_session)
+    multilingual_expansion = get_multilingual_expansion()
     # Don't do query expansion on complex queries, rephrasings likely would not work well
     if not multilingual_expansion or "\n" in query.query or "\r" in query.query:
         top_chunks = doc_index_retrieval(
