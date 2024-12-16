@@ -17,7 +17,6 @@ from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.access.access import get_access_for_document
@@ -154,11 +153,7 @@ def document_by_cc_pair_cleanup_task(
     try:
         with Session(get_sqlalchemy_engine()) as db_session:
             if tenant_id:
-                db_session.execute(
-                    text("SET search_path TO :schema_name").params(
-                        schema_name=tenant_id
-                    )
-                )
+                db_session_filter(tenant_id, db_session)
             curr_ind_name, sec_ind_name = get_both_index_names(db_session)
             document_index = get_default_document_index(
                 primary_index_name=curr_ind_name, secondary_index_name=sec_ind_name

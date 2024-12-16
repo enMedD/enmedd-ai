@@ -49,7 +49,6 @@ def get_tenant_id(request: Request) -> Optional[str]:
 
 
 def db_session_filter(tenant_id: str, db_session: Session) -> None:
-    if tenant_id:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=tenant_id)
-        )
+    db_session.execute(
+        text("SET search_path TO :schema_name").params(schema_name=tenant_id)
+    )

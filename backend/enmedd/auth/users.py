@@ -28,7 +28,6 @@ from fastapi_users.authentication.strategy.db import AccessTokenDatabase
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
 from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.auth.invited_users import get_invited_users
@@ -264,11 +263,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             return
         with Session(get_sqlalchemy_engine()) as db_session:
             if tenant_id:
-                db_session.execute(
-                    text("SET search_path TO :schema_name").params(
-                        schema_name=tenant_id
-                    )
-                )
+                db_session_filter(tenant_id, db_session)
 
             logger.notice(
                 f"User {user.id} has forgot their password. Reset token: {token}"
@@ -292,11 +287,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         with Session(get_sqlalchemy_engine()) as db_session:
             verify_email_domain(user.email)
             if tenant_id:
-                db_session.execute(
-                    text("SET search_path TO :schema_name").params(
-                        schema_name=tenant_id
-                    )
-                )
+                db_session_filter(tenant_id, db_session)
 
             logger.notice(
                 f"Verification requested for user {user.id}. Verification token: {token}"

@@ -6,6 +6,8 @@ from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from enmedd.db.enums import ConnectorCredentialPairStatus
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 # Modify sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -214,4 +216,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     with get_session_context_manager() as db_session:
+        tenant_id = get_tenant_id()
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         _delete_connector(args.connector_id, db_session)

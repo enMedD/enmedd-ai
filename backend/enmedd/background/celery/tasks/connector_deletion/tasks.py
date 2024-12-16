@@ -6,7 +6,6 @@ from celery.exceptions import SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
 from fastapi import Depends
 from redis import Redis
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import ObjectDeletedError
 
@@ -23,6 +22,7 @@ from enmedd.db.index_attempt import get_last_attempt
 from enmedd.db.models import ConnectorCredentialPair
 from enmedd.db.search_settings import get_current_search_settings
 from enmedd.redis.redis_pool import get_redis_client
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 
@@ -52,11 +52,7 @@ def check_for_connector_deletion_task(
 
         with Session(get_sqlalchemy_engine()) as db_session:
             if tenant_id:
-                db_session.execute(
-                    text("SET search_path TO :schema_name").params(
-                        schema_name=tenant_id
-                    )
-                )
+                db_session_filter(tenant_id, db_session)
             cc_pairs = get_connector_credential_pairs(db_session)
             for cc_pair in cc_pairs:
                 try_generate_document_cc_pair_cleanup_tasks(

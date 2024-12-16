@@ -5,7 +5,6 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Response
 from fastapi import UploadFile
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ee.enmedd.db.teamspace import check_assistant_document_set
@@ -268,12 +267,10 @@ def update_teamspace_name_and_description(
     teamspace_update: TeamspaceUpdateName,
     _: User = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
-    schema_name: Optional[str] = Depends(get_tenant_id),
+    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Teamspace:
-    if schema_name:
-        db_session.execute(
-            text("SET search_path TO :schema_name").params(schema_name=schema_name)
-        )
+    if tenant_id:
+        db_session_filter(tenant_id, db_session)
     db_teamspace = fetch_teamspace(db_session, teamspace_id)
 
     if db_teamspace is None:

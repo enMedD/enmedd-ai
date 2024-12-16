@@ -8,7 +8,6 @@ from dask.distributed import Client
 from dask.distributed import Future
 from distributed import LocalCluster
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.background.indexing.dask_utils import ResourceLogger
@@ -350,11 +349,7 @@ def kickoff_indexing_jobs(
             )
             with Session(engine) as db_session:
                 if tenant_id:
-                    db_session.execute(
-                        text("SET search_path TO :schema_name").params(
-                            schema_name=tenant_id
-                        )
-                    )
+                    db_session_filter(tenant_id, db_session)
                 mark_attempt_failed(
                     attempt, db_session, failure_reason="Connector is null"
                 )
@@ -365,11 +360,7 @@ def kickoff_indexing_jobs(
             )
             with Session(engine) as db_session:
                 if tenant_id:
-                    db_session.execute(
-                        text("SET search_path TO :schema_name").params(
-                            schema_name=tenant_id
-                        )
-                    )
+                    db_session_filter(tenant_id, db_session)
                 mark_attempt_failed(
                     attempt, db_session, failure_reason="Credential is null"
                 )
@@ -503,11 +494,7 @@ def update_loop(
         try:
             with Session(get_sqlalchemy_engine()) as db_session:
                 if tenant_id:
-                    db_session.execute(
-                        text("SET search_path TO :schema_name").params(
-                            schema_name=tenant_id
-                        )
-                    )
+                    db_session_filter(tenant_id, db_session)
                 check_index_swap(db_session)
             existing_jobs = cleanup_indexing_jobs(existing_jobs=existing_jobs)
             create_indexing_jobs(existing_jobs=existing_jobs)

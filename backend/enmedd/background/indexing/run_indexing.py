@@ -6,7 +6,6 @@ from datetime import timezone
 from typing import Optional
 
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.background.indexing.checkpointing import get_time_windows_for_index_attempt
@@ -35,6 +34,7 @@ from enmedd.document_index.factory import get_default_document_index
 from enmedd.indexing.embedder import DefaultIndexingEmbedder
 from enmedd.indexing.indexing_heartbeat import IndexingHeartbeat
 from enmedd.indexing.indexing_pipeline import build_indexing_pipeline
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import IndexAttemptSingleton
 from enmedd.utils.logger import setup_logger
@@ -425,11 +425,7 @@ def run_indexing_entrypoint(
 
         with Session(get_sqlalchemy_engine()) as db_session:
             if tenant_id:
-                db_session.execute(
-                    text("SET search_path TO :schema_name").params(
-                        schema_name=tenant_id
-                    )
-                )
+                db_session_filter(tenant_id, db_session)
             # make sure that it is valid to run this indexing attempt + mark it
             # as in progress
             attempt = _prepare_index_attempt(db_session, index_attempt_id)

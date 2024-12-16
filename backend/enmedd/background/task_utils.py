@@ -8,13 +8,13 @@ from typing import TypeVar
 from celery import Task
 from celery.result import AsyncResult
 from fastapi import Depends
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from enmedd.db.engine import get_sqlalchemy_engine
 from enmedd.db.tasks import mark_task_finished
 from enmedd.db.tasks import mark_task_start
 from enmedd.db.tasks import register_task
+from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 
 
@@ -44,11 +44,7 @@ def build_run_wrapper(
             task_name = build_name_fn(*args, **kwargs)
             with Session(engine) as db_session:
                 if tenant_id:
-                    db_session.execute(
-                        text("SET search_path TO :schema_name").params(
-                            schema_name=tenant_id
-                        )
-                    )
+                    db_session_filter(tenant_id, db_session)
                 # mark the task as started
                 mark_task_start(task_name=task_name, db_session=db_session)
 
@@ -61,11 +57,7 @@ def build_run_wrapper(
 
             with Session(engine) as db_session:
                 if tenant_id:
-                    db_session.execute(
-                        text("SET search_path TO :schema_name").params(
-                            schema_name=tenant_id
-                        )
-                    )
+                    db_session_filter(tenant_id, db_session)
                 mark_task_finished(
                     task_name=task_name,
                     db_session=db_session,
@@ -106,11 +98,7 @@ def build_apply_async_wrapper(
             task_name = build_name_fn(*args_for_build_name, **kwargs_for_build_name)
             with Session(get_sqlalchemy_engine()) as db_session:
                 if tenant_id:
-                    db_session.execute(
-                        text("SET search_path TO :schema_name").params(
-                            schema_name=tenant_id
-                        )
-                    )
+                    db_session_filter(tenant_id, db_session)
                 # register_task must come before fn = apply_async or else the task
                 # might run mark_task_start (and crash) before the task row exists
                 db_task = register_task(task_name, db_session)
