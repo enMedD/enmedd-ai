@@ -3,9 +3,7 @@ from collections.abc import Callable
 from collections.abc import Iterator
 from functools import partial
 from typing import cast
-from typing import Optional
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from enmedd.chat.chat_utils import create_chat_chain
@@ -72,7 +70,7 @@ from enmedd.search.utils import dedupe_documents
 from enmedd.search.utils import drop_llm_indices
 from enmedd.search.utils import relevant_sections_to_indices
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.server.query_and_chat.models import ChatMessageDetail
 from enmedd.server.query_and_chat.models import CreateChatMessageRequest
 from enmedd.server.utils import get_json_line
@@ -843,9 +841,9 @@ def stream_chat_message(
     use_existing_user_message: bool = False,
     litellm_additional_headers: dict[str, str] | None = None,
     is_connected: Callable[[], bool] | None = None,
-    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Iterator[str]:
     with get_session_context_manager() as db_session:
+        tenant_id = get_tenant()
         if tenant_id:
             db_session_filter(tenant_id, db_session)
         objects = stream_chat_message_objects(

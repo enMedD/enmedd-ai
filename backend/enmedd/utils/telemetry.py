@@ -2,10 +2,8 @@ import threading
 import uuid
 from enum import Enum
 from typing import cast
-from typing import Optional
 
 import requests
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from enmedd.configs.app_configs import DISABLE_TELEMETRY
@@ -17,7 +15,7 @@ from enmedd.db.models import User
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import KvKeyNotFoundError
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 
 _DANSWER_TELEMETRY_ENDPOINT = "https://telemetry.danswer.ai/anonymous_telemetry"
 _CACHED_UUID: str | None = None
@@ -49,9 +47,7 @@ def get_or_generate_uuid() -> str:
     return _CACHED_UUID
 
 
-def _get_or_generate_instance_domain(
-    tenant_id: Optional[str] = Depends(get_tenant_id),
-) -> str | None:
+def _get_or_generate_instance_domain() -> str | None:
     global _CACHED_INSTANCE_DOMAIN
 
     if _CACHED_INSTANCE_DOMAIN is not None:
@@ -63,6 +59,7 @@ def _get_or_generate_instance_domain(
         _CACHED_INSTANCE_DOMAIN = cast(str, kv_store.load(KV_INSTANCE_DOMAIN_KEY))
     except KvKeyNotFoundError:
         with Session(get_sqlalchemy_engine()) as db_session:
+            tenant_id = get_tenant()
             if tenant_id:
                 db_session_filter(tenant_id, db_session)
             first_user = db_session.query(User).first()

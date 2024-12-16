@@ -3,9 +3,6 @@ RUN THIS AFTER SEED_DUMMY_DOCS.PY
 """
 import random
 import time
-from typing import Optional
-
-from fastapi import Depends
 
 from enmedd.configs.constants import DocumentSource
 from enmedd.configs.model_configs import DOC_EMBEDDING_DIM
@@ -14,7 +11,7 @@ from enmedd.db.search_settings import get_current_search_settings
 from enmedd.document_index.vespa.index import VespaIndex
 from enmedd.search.models import IndexFilters
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from scripts.query_time_check.seed_dummy_docs import TOTAL_ACL_ENTRIES_PER_CATEGORY
 from scripts.query_time_check.seed_dummy_docs import TOTAL_DOC_SETS
 from shared_configs.model_server_models import Embedding
@@ -62,10 +59,9 @@ def _random_filters() -> IndexFilters:
     )
 
 
-def test_hybrid_retrieval_times(
-    number_of_queries: int, tenant_id: Optional[str] = Depends(get_tenant_id)
-) -> None:
+def test_hybrid_retrieval_times(number_of_queries: int) -> None:
     with get_session_context_manager() as db_session:
+        tenant_id = get_tenant()
         if tenant_id:
             db_session_filter(tenant_id, db_session)
         search_settings = get_current_search_settings(db_session)

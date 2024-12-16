@@ -2,12 +2,10 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any
 from typing import cast
-from typing import Optional
 from typing import TypeVar
 
 from celery import Task
 from celery.result import AsyncResult
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from enmedd.db.engine import get_sqlalchemy_engine
@@ -15,7 +13,7 @@ from enmedd.db.tasks import mark_task_finished
 from enmedd.db.tasks import mark_task_start
 from enmedd.db.tasks import register_task
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 
 
 def name_cc_prune_task(
@@ -30,9 +28,7 @@ def name_cc_prune_task(
 T = TypeVar("T", bound=Callable)
 
 
-def build_run_wrapper(
-    build_name_fn: Callable[..., str], tenant_id: Optional[str] = Depends(get_tenant_id)
-) -> Callable[[T], T]:
+def build_run_wrapper(build_name_fn: Callable[..., str]) -> Callable[[T], T]:
     """Utility meant to wrap the celery task `run` function in order to
     automatically update our custom `task_queue_jobs` table appropriately"""
 
@@ -43,6 +39,7 @@ def build_run_wrapper(
 
             task_name = build_name_fn(*args, **kwargs)
             with Session(engine) as db_session:
+                tenant_id = get_tenant()
                 if tenant_id:
                     db_session_filter(tenant_id, db_session)
                 # mark the task as started
@@ -56,6 +53,7 @@ def build_run_wrapper(
                 exception = e
 
             with Session(engine) as db_session:
+                tenant_id = get_tenant()
                 if tenant_id:
                     db_session_filter(tenant_id, db_session)
                 mark_task_finished(
@@ -78,9 +76,7 @@ def build_run_wrapper(
 AA = TypeVar("AA", bound=Callable[..., AsyncResult])
 
 
-def build_apply_async_wrapper(
-    build_name_fn: Callable[..., str], tenant_id: Optional[str] = Depends(get_tenant_id)
-) -> Callable[[AA], AA]:
+def build_apply_async_wrapper(build_name_fn: Callable[..., str]) -> Callable[[AA], AA]:
     """Utility meant to wrap celery `apply_async` function in order to automatically
     update create an entry in our `task_queue_jobs` table"""
 
@@ -97,6 +93,7 @@ def build_apply_async_wrapper(
             kwargs_for_build_name = kwargs or {}
             task_name = build_name_fn(*args_for_build_name, **kwargs_for_build_name)
             with Session(get_sqlalchemy_engine()) as db_session:
+                tenant_id = get_tenant()
                 if tenant_id:
                     db_session_filter(tenant_id, db_session)
                 # register_task must come before fn = apply_async or else the task

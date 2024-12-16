@@ -1,9 +1,7 @@
 from collections.abc import Callable
 from collections.abc import Iterator
 from typing import cast
-from typing import Optional
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.query_and_chat.utils import create_temporary_assistant
@@ -53,7 +51,7 @@ from enmedd.search.utils import dedupe_documents
 from enmedd.secondary_llm_flows.answer_validation import get_answer_validity
 from enmedd.secondary_llm_flows.query_expansion import thread_based_query_rephrase
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.server.query_and_chat.models import ChatMessageDetail
 from enmedd.server.utils import get_json_line
 from enmedd.tools.force import ForceUseTool
@@ -336,9 +334,9 @@ def stream_search_answer(
     max_document_tokens: int | None,
     max_history_tokens: int | None,
     teamspace_id: int | None = None,
-    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> Iterator[str]:
     with get_session_context_manager() as db_session:
+        tenant_id = get_tenant()
         if tenant_id:
             db_session_filter(tenant_id, db_session)
         objects = stream_answer_objects(

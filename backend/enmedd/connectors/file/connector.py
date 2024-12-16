@@ -5,9 +5,7 @@ from datetime import timezone
 from pathlib import Path
 from typing import Any
 from typing import IO
-from typing import Optional
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from enmedd.configs.app_configs import INDEX_BATCH_SIZE
@@ -29,7 +27,7 @@ from enmedd.file_processing.extract_file_text import read_pdf_file
 from enmedd.file_processing.extract_file_text import read_text_file
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -174,11 +172,10 @@ class LocalFileConnector(LoadConnector):
         self.pdf_pass = credentials.get("pdf_password")
         return None
 
-    def load_from_state(
-        self, tenant_id: Optional[str] = Depends(get_tenant_id)
-    ) -> GenerateDocumentsOutput:
+    def load_from_state(self) -> GenerateDocumentsOutput:
         documents: list[Document] = []
         with Session(get_sqlalchemy_engine()) as db_session:
+            tenant_id = get_tenant()
             if tenant_id:
                 db_session_filter(tenant_id, db_session)
             for file_path in self.file_locations:

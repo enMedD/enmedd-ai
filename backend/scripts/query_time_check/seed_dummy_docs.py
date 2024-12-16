@@ -10,9 +10,6 @@ Then run test_query_times.py to test query times.
 """
 import random
 from datetime import datetime
-from typing import Optional
-
-from fastapi import Depends
 
 from enmedd.access.models import DocumentAccess
 from enmedd.configs.constants import DocumentSource
@@ -24,7 +21,7 @@ from enmedd.indexing.models import ChunkEmbedding
 from enmedd.indexing.models import DocMetadataAwareIndexChunk
 from enmedd.indexing.models import IndexChunk
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.timing import log_function_time
 from shared_configs.model_server_models import Embedding
 
@@ -123,9 +120,9 @@ def seed_dummy_docs(
     num_docs: int = 1000,
     chunks_per_doc: int = 5,
     batch_size: int = 100,
-    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     with get_session_context_manager() as db_session:
+        tenant_id = get_tenant()
         if tenant_id:
             db_session_filter(tenant_id, db_session)
         search_settings = get_current_search_settings(db_session)

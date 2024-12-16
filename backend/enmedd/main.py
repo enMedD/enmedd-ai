@@ -112,6 +112,8 @@ from enmedd.server.middleware.latency_logging import add_latency_logging_middlew
 from enmedd.server.middleware.tenant_identification import (
     add_tenant_identification_middleware,
 )
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.server.query_and_chat.chat_backend import router as chat_router
 from enmedd.server.query_and_chat.query_backend import (
     admin_router as admin_query_router,
@@ -394,6 +396,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     get_or_generate_uuid()
 
     with Session(engine) as db_session:
+        tenant_id = get_tenant()
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         check_index_swap(db_session=db_session)
         search_settings = get_current_search_settings(db_session)
         secondary_search_settings = get_secondary_search_settings(db_session)

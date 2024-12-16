@@ -10,13 +10,10 @@ are multiple connector / credential pairs that have indexed it
 connector / credential pair from the access list
 (6) delete all relevant entries from postgres
 """
-from typing import Optional
-
 from celery import shared_task
 from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from enmedd.access.access import get_access_for_document
@@ -39,7 +36,7 @@ from enmedd.document_index.interfaces import UpdateRequest
 from enmedd.document_index.interfaces import VespaDocumentFields
 from enmedd.server.documents.models import ConnectorCredentialPairIdentifier
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -55,13 +52,13 @@ def delete_connector_credential_pair_batch(
     connector_id: int,
     credential_id: int,
     document_index: DocumentIndex,
-    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> None:
     """
     Removes a batch of documents ids from a cc-pair. If no other cc-pair uses a document anymore
     it gets permanently deleted.
     """
     with Session(get_sqlalchemy_engine()) as db_session:
+        tenant_id = get_tenant()
         if tenant_id:
             db_session_filter(tenant_id, db_session)
         # acquire lock for all documents in this batch so that indexing can't
@@ -146,12 +143,12 @@ def document_by_cc_pair_cleanup_task(
     document_id: str,
     connector_id: int,
     credential_id: int,
-    tenant_id: Optional[str] = Depends(get_tenant_id),
 ) -> bool:
     task_logger.info(f"document_id={document_id}")
 
     try:
         with Session(get_sqlalchemy_engine()) as db_session:
+            tenant_id = get_tenant()
             if tenant_id:
                 db_session_filter(tenant_id, db_session)
             curr_ind_name, sec_ind_name = get_both_index_names(db_session)

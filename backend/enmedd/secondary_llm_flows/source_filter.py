@@ -17,6 +17,8 @@ from enmedd.prompts.constants import SOURCES_KEY
 from enmedd.prompts.filter_extration import FILE_SOURCE_WARNING
 from enmedd.prompts.filter_extration import SOURCE_FILTER_PROMPT
 from enmedd.prompts.filter_extration import WEB_SOURCE_WARNING
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.text_processing import extract_embedded_json
 
@@ -190,6 +192,9 @@ if __name__ == "__main__":
 
     # Just for testing purposes
     with Session(get_sqlalchemy_engine()) as db_session:
+        tenant_id = get_tenant()
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         while True:
             user_input = input("Query to Extract Sources: ")
             sources = extract_source_filter(

@@ -1,10 +1,8 @@
 from collections.abc import Sequence
 from datetime import datetime
 from functools import lru_cache
-from typing import Optional
 from uuid import UUID
 
-from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy import delete
 from sqlalchemy import exists
@@ -36,7 +34,7 @@ from enmedd.search.enums import RecencyBiasSetting
 from enmedd.server.features.assistant.models import AssistantSnapshot
 from enmedd.server.features.assistant.models import CreateAssistantRequest
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
 
@@ -689,14 +687,13 @@ def get_default_prompt(db_session: Session) -> Prompt:
 
 
 @lru_cache()
-def get_default_prompt__read_only(
-    tenant_id: Optional[str] = Depends(get_tenant_id),
-) -> Prompt:
+def get_default_prompt__read_only() -> Prompt:
     """Due to the way lru_cache / SQLAlchemy works, this can cause issues
     when trying to attach the returned `Prompt` object to a `Assistant`. If you are
     doing anything other than reading, you should use the `get_default_prompt`
     method instead."""
     with Session(get_sqlalchemy_engine()) as db_session:
+        tenant_id = get_tenant()
         if tenant_id:
             db_session_filter(tenant_id, db_session)
         return _get_default_prompt(db_session)

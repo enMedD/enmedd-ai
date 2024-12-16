@@ -1,10 +1,7 @@
-from typing import Optional
-
 import redis
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
-from fastapi import Depends
 from redis import Redis
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import ObjectDeletedError
@@ -23,7 +20,7 @@ from enmedd.db.models import ConnectorCredentialPair
 from enmedd.db.search_settings import get_current_search_settings
 from enmedd.redis.redis_pool import get_redis_client
 from enmedd.server.middleware.tenant_identification import db_session_filter
-from enmedd.server.middleware.tenant_identification import get_tenant_id
+from enmedd.server.middleware.tenant_identification import get_tenant
 
 
 # use this within celery tasks to get celery task specific logging
@@ -35,9 +32,7 @@ task_logger = get_task_logger(__name__)
     soft_time_limit=JOB_TIMEOUT,
     trail=False,
 )
-def check_for_connector_deletion_task(
-    tenant_id: Optional[str] = Depends(get_tenant_id),
-) -> None:
+def check_for_connector_deletion_task() -> None:
     r = get_redis_client()
 
     lock_beat = r.lock(
@@ -51,6 +46,7 @@ def check_for_connector_deletion_task(
             return
 
         with Session(get_sqlalchemy_engine()) as db_session:
+            tenant_id = get_tenant()
             if tenant_id:
                 db_session_filter(tenant_id, db_session)
             cc_pairs = get_connector_credential_pairs(db_session)
