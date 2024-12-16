@@ -18,7 +18,7 @@ export const SearchTypeSelector: React.FC<Props> = ({
         className={
           defaultStyle +
           (selectedSearchType === SearchType.SEMANTIC
-            ? "bg-blue-500"
+            ? "bg-brand-500"
             : "bg-gray-800 hover:bg-gray-600")
         }
         onClick={() => setSelectedSearchType(SearchType.SEMANTIC)}
@@ -31,7 +31,7 @@ export const SearchTypeSelector: React.FC<Props> = ({
           defaultStyle +
           "ml-2 " +
           (selectedSearchType === SearchType.KEYWORD
-            ? "bg-blue-500"
+            ? "bg-brand-500"
             : "bg-gray-800 hover:bg-gray-600")
         }
         onClick={() => setSelectedSearchType(SearchType.KEYWORD)}

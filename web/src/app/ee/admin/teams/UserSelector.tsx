@@ -9,7 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/lib/types";
-import { X } from "lucide-react";
+import { User as UserIcon, X } from "lucide-react";
+import { useUser } from "@/components/user/UserProvider";
 
 interface UserEditorProps {
   selectedUserIds: string[];
@@ -26,6 +27,7 @@ export const UserSelector = ({
   onAddUser,
   onRemoveUser,
 }: UserEditorProps) => {
+  const { user: currentUser } = useUser();
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<string | null>("basic");
 
@@ -61,7 +63,14 @@ export const UserSelector = ({
           <SelectContent>
             {availableUsers.map((user) => (
               <SelectItem key={user.value} value={user.value}>
-                {user.label}
+                <div className="flex items-center gap-2">
+                  {user.label}{" "}
+                  {currentUser?.id === user.value && (
+                    <Badge className="group-hover:bg-background group-hover:text-brand-500">
+                      You
+                    </Badge>
+                  )}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -99,9 +108,15 @@ export const UserSelector = ({
               <Badge
                 key={userId}
                 className="flex items-center gap-1.5 justify-between"
+                variant="outline"
               >
                 <div className="flex items-center gap-2 overflow-hidden">
-                  <span className="truncate inline-block">{user?.email}</span>{" "}
+                  <span className="truncate flex items-center gap-1">
+                    {currentUser?.id === userId && (
+                      <Badge className="shrink-0">You</Badge>
+                    )}{" "}
+                    <span className="inline-block truncate">{user?.email}</span>
+                  </span>{" "}
                   <span>
                     (
                     {userRole
