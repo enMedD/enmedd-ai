@@ -1,5 +1,7 @@
 from datetime import timedelta
+from typing import Optional
 
+from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from ee.enmedd.background.celery_utils import should_perform_chat_ttl_check
@@ -29,6 +31,8 @@ from enmedd.background.task_utils import build_celery_task_wrapper
 from enmedd.configs.app_configs import JOB_TIMEOUT
 from enmedd.db.chat import delete_chat_sessions_older_than
 from enmedd.db.engine import get_sqlalchemy_engine
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.server.settings.store import load_settings
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
@@ -41,15 +45,23 @@ global_version.set_ee()
 
 @build_celery_task_wrapper(name_sync_external_doc_permissions_task)
 @celery_app.task(soft_time_limit=JOB_TIMEOUT)
-def sync_external_doc_permissions_task(cc_pair_id: int) -> None:
+def sync_external_doc_permissions_task(
+    cc_pair_id: int, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         run_external_doc_permission_sync(db_session=db_session, cc_pair_id=cc_pair_id)
 
 
 @build_celery_task_wrapper(name_sync_external_teamspace_permissions_task)
 @celery_app.task(soft_time_limit=JOB_TIMEOUT)
-def sync_external_teamspace_permissions_task(cc_pair_id: int) -> None:
+def sync_external_teamspace_permissions_task(
+    cc_pair_id: int, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         run_external_teamspace_permission_sync(
             db_session=db_session, cc_pair_id=cc_pair_id
         )
@@ -57,8 +69,12 @@ def sync_external_teamspace_permissions_task(cc_pair_id: int) -> None:
 
 @build_celery_task_wrapper(name_chat_ttl_task)
 @celery_app.task(soft_time_limit=JOB_TIMEOUT)
-def perform_ttl_management_task(retention_limit_days: int) -> None:
+def perform_ttl_management_task(
+    retention_limit_days: int, tenant_id: Optional[str] = Depends(get_tenant_id)
+) -> None:
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         delete_chat_sessions_older_than(retention_limit_days, db_session)
 
 
@@ -69,9 +85,13 @@ def perform_ttl_management_task(retention_limit_days: int) -> None:
     name="check_sync_external_doc_permissions_task",
     soft_time_limit=JOB_TIMEOUT,
 )
-def check_sync_external_doc_permissions_task() -> None:
+def check_sync_external_doc_permissions_task(
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """Runs periodically to sync external permissions"""
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         cc_pairs = get_all_auto_sync_cc_pairs(db_session)
         for cc_pair in cc_pairs:
             if should_perform_external_doc_permissions_check(
@@ -86,9 +106,13 @@ def check_sync_external_doc_permissions_task() -> None:
     name="check_sync_external_teamspace_permissions_task",
     soft_time_limit=JOB_TIMEOUT,
 )
-def check_sync_external_teamspace_permissions_task() -> None:
+def check_sync_external_teamspace_permissions_task(
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """Runs periodically to sync external group permissions"""
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         cc_pairs = get_all_auto_sync_cc_pairs(db_session)
         for cc_pair in cc_pairs:
             if should_perform_external_teamspace_permissions_check(
@@ -103,10 +127,14 @@ def check_sync_external_teamspace_permissions_task() -> None:
     name="check_ttl_management_task",
     soft_time_limit=JOB_TIMEOUT,
 )
-def check_ttl_management_task() -> None:
+def check_ttl_management_task(
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """Runs periodically to check if any ttl tasks should be run and adds them
     to the queue"""
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         settings = load_settings(db_session, workspace_id=0)  # temporary set to 0
         retention_limit_days = settings.maximum_chat_retention_days
         if should_perform_chat_ttl_check(retention_limit_days, db_session):
@@ -119,9 +147,13 @@ def check_ttl_management_task() -> None:
     name="autogenerate_usage_report_task",
     soft_time_limit=JOB_TIMEOUT,
 )
-def autogenerate_usage_report_task() -> None:
+def autogenerate_usage_report_task(
+    tenant_id: Optional[str] = Depends(get_tenant_id),
+) -> None:
     """This generates usage report under the /admin/generate-usage/report endpoint"""
     with Session(get_sqlalchemy_engine()) as db_session:
+        if tenant_id:
+            db_session_filter(tenant_id, db_session)
         create_new_usage_report(
             db_session=db_session,
             user_id=None,
