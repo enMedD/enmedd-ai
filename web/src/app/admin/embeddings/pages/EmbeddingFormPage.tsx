@@ -13,7 +13,7 @@ import {
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import useSWR, { mutate } from "swr";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import AdvancedEmbeddingFormPage from "./AdvancedEmbeddingFormPage";
 import {
   AdvancedSearchConfiguration,
@@ -160,7 +160,7 @@ export default function EmbeddingForm() {
     }
   }, [currentEmbeddingModel]);
   if (!selectedProvider) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
   if (currentEmbeddingModelError || !currentEmbeddingModel) {
     return <ErrorCallout errorTitle="Failed to fetch embedding model status" />;

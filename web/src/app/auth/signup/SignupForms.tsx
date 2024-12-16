@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { basicLogin, basicSignup, validateInvite } from "@/lib/user";
+import { generateOtp } from "@/lib/user";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
+import { useFeatureFlag } from "@/components/feature_flag/FeatureFlagContext";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -22,6 +24,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
+import { InputForm } from "@/components/admin/connectors/Field";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -31,6 +34,7 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const token = searchParams.get("invitetoken") || "";
+  const isTwoFactorAuthEnabled = useFeatureFlag("two_factor_auth");
 
   // Use the custom hook
   const {
@@ -129,12 +133,33 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     const loginResponse = await basicLogin(values.email, values.password);
     if (loginResponse.ok) {
       if (token) {
-        await validateInvite(values.email, token);
+        const validateToken = await validateInvite(values.email, token);
+        if (!validateToken.ok) {
+          router.push("/auth/invalid-invite-token");
+          toast({
+            title: "Invalid Invite Token",
+            description: "The invite token is invalid.",
+            variant: "destructive",
+          });
+        }
       }
       if (shouldVerify) {
         router.push("/auth/waiting-on-verification");
       } else {
-        router.push("/");
+        if (isTwoFactorAuthEnabled) {
+          const otpResponse = await generateOtp(values.email);
+          if (otpResponse.ok) {
+            router.push(`/auth/2factorverification/?email=${values.email}`);
+          } else {
+            toast({
+              title: "Failed to generate OTP",
+              description: "An unexpected error occurred",
+              variant: "destructive",
+            });
+          }
+        } else {
+          router.push("/");
+        }
       }
     }
     setIsLoading(false);
@@ -146,51 +171,27 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Full Name Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your full name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Full Name"
+            placeholder="Enter your full name"
           />
+
           {/* Company Name Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="company_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your company name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Company Name"
+            placeholder="Enter your company name"
           />
 
           {/* Email Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={email !== ""}
-                    placeholder="Enter your email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email"
+            placeholder="Enter your email"
           />
 
           {/* Password Field */}
@@ -232,22 +233,12 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
           </div>
 
           {/* Confirm Password Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="confirm_password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Confirm your password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            type="password"
           />
 
           {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
@@ -259,7 +250,11 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
           )}
 
           <div className="flex pt-6">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Sign Up
             </Button>
           </div>

@@ -159,7 +159,7 @@ export default function CloudEmbeddingPage({
             href="https://docs.litellm.ai/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
+            className="text-brand-500 hover:underline"
           >
             Learn more about LiteLLM
           </a>
@@ -211,8 +211,11 @@ export default function CloudEmbeddingPage({
                     URL&quot; button above to set up your LiteLLM configuration.
                   </Text>
                   <div className="flex items-center">
-                    <FiInfo className="text-blue-500 mr-2 shrink-0" size={18} />
-                    <Text className="text-sm text-blue-500">
+                    <FiInfo
+                      className="text-brand-500 mr-2 shrink-0"
+                      size={18}
+                    />
+                    <Text className="text-sm text-brand-500">
                       Once configured, you&apos;ll be able to add and manage
                       your LiteLLM models here.
                     </Text>
@@ -246,7 +249,7 @@ export default function CloudEmbeddingPage({
                 <Card
                   className={`mt-2 w-full max-w-4xl ${
                     currentModel.provider_type === EmbeddingProvider.LITELLM
-                      ? "border-2 border-blue-500"
+                      ? "border-2 border-brand-500"
                       : ""
                   }`}
                 >
@@ -362,7 +365,7 @@ export default function CloudEmbeddingPage({
               <Card
                 className={`mt-2 w-full max-w-4xl ${
                   currentModel.provider_type === EmbeddingProvider.AZURE
-                    ? "border-2 border-blue-500"
+                    ? "border-2 border-brand-500"
                     : ""
                 }`}
               >
@@ -446,8 +449,8 @@ export function CloudModelCard({
     <div
       className={`p-4 md:w-96 border rounded-lg transition-all duration-200 flex flex-col justify-between ${
         enabled
-          ? "border-blue-500 bg-blue-50 shadow-md"
-          : "border-gray-300 hover:border-blue-300 hover:shadow-sm"
+          ? "border-brand-500 bg-brand-50 shadow-md"
+          : "border-gray-300 hover:border-brand-300 hover:shadow-sm"
       } ${!provider.configured && "opacity-80 hover:opacity-100"}`}
     >
       <div>
@@ -483,7 +486,7 @@ export function CloudModelCard({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+              className="text-brand-500 hover:text-brand-700 transition-colors duration-200"
             >
               <FiExternalLink size={18} />
             </a>

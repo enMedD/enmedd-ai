@@ -1,12 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Cog, ChartNoAxesColumnIncreasing, User } from "lucide-react";
-import General from "./TabContent/General";
+import { Cog, User } from "lucide-react";
 import Usage from "./TabContent/Usage";
-import { Configuration } from "./TabContent/Configuration";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+const General = dynamic(() => import("./TabContent/General"));
+const Configuration = dynamic(() => import("./TabContent/Configuration"));
 
 export function SettingsForm() {
   const { teamspaceId } = useParams();
@@ -29,10 +30,6 @@ export function SettingsForm() {
           >
             <Cog size={16} /> Configuration
           </TabsTrigger>
-          {/* <TabsTrigger value="usage" className="flex items-center gap-2">
-            <ChartNoAxesColumnIncreasing size={16} className="rotate-90" />{" "}
-            Usage
-          </TabsTrigger> */}
         </TabsList>
         <TabsContent value="general" className="w-full">
           <General

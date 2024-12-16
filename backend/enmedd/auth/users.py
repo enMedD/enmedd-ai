@@ -2,6 +2,7 @@ import json
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime
+from datetime import timedelta
 from datetime import timezone
 from typing import Optional
 from typing import Tuple
@@ -27,6 +28,8 @@ from fastapi_users.authentication import Strategy
 from fastapi_users.authentication.strategy.db import AccessTokenDatabase
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
 from fastapi_users.openapi import OpenAPIResponseType
+from fastapi_users.router.common import ErrorCode
+from fastapi_users.router.common import ErrorModel
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.orm import Session
 
@@ -58,9 +61,12 @@ from enmedd.db.engine import get_session
 from enmedd.db.engine import get_sqlalchemy_engine
 from enmedd.db.models import AccessToken
 from enmedd.db.models import Teamspace
+from enmedd.db.models import TwofactorAuth
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 from enmedd.db.users import get_user_by_email
+from enmedd.server.feature_flags.models import FeatureFlagsManager
+from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
@@ -109,7 +115,7 @@ def user_needs_to_be_verified() -> bool:
 
 
 def verify_email_is_invited(email: str) -> None:
-    whitelist = get_invited_users()
+    whitelist = get_invited_users(all=True)
     if not whitelist:
         return
 
@@ -270,7 +276,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )
 
             smtp_credentials = get_smtp_credentials(
-                workspace_id=0, db_session=db_session
+                db_session=db_session
             )  # Temporary workspace_id
 
             reset_url = f"{WEB_DOMAIN}/auth/reset-password?token={token}"
@@ -294,7 +300,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )
 
             smtp_credentials = get_smtp_credentials(
-                workspace_id=0, db_session=db_session
+                db_session=db_session
             )  # Temporary workspace_id
 
             link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
@@ -350,17 +356,72 @@ auth_backend = AuthenticationBackend(
 )
 
 
-class FastAPIUserWithLogoutRouter(FastAPIUsers[models.UP, models.ID]):
-    def get_logout_router(
+class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
+    def get_auth_router(
         self,
         backend: AuthenticationBackend,
         requires_verification: bool = REQUIRE_EMAIL_VERIFICATION,
     ) -> APIRouter:
+        router = APIRouter()
+
+        login_responses: OpenAPIResponseType = {
+            status.HTTP_400_BAD_REQUEST: {
+                "model": ErrorModel,
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            ErrorCode.LOGIN_BAD_CREDENTIALS: {
+                                "summary": "Bad credentials or the user is inactive.",
+                                "value": {"detail": ErrorCode.LOGIN_BAD_CREDENTIALS},
+                            },
+                            ErrorCode.LOGIN_USER_NOT_VERIFIED: {
+                                "summary": "The user is not verified.",
+                                "value": {"detail": ErrorCode.LOGIN_USER_NOT_VERIFIED},
+                            },
+                        }
+                    }
+                },
+            },
+            **backend.transport.get_openapi_login_responses_success(),
+        }
+
+        @router.post(
+            "/login",
+            name=f"auth:{backend.name}.login",
+            responses=login_responses,
+        )
+        async def login(
+            request: Request,
+            credentials: OAuth2PasswordRequestForm = Depends(),
+            user_manager: BaseUserManager[models.UP, models.ID] = Depends(
+                get_user_manager
+            ),
+            strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+        ):
+            user = await user_manager.authenticate(credentials)
+
+            if user is None or not user.is_active:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+                )
+            if requires_verification and not user.is_verified:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
+                )
+            # This is to bypass the login page without immedietely logging in the user
+            if FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True:
+                # redirect to the OTP verification page
+                return Response(status_code=status.HTTP_200_OK)
+            response = await backend.login(strategy, user)
+            await user_manager.on_after_login(user, request, response)
+            return response
+
         """
         Provide a router for logout only for OAuth/OIDC Flows.
         This way the login router does not need to be included
         """
-        router = APIRouter()
         get_current_user_token = self.authenticator.current_user_token(
             active=True, verified=requires_verification
         )
@@ -383,10 +444,69 @@ class FastAPIUserWithLogoutRouter(FastAPIUsers[models.UP, models.ID]):
             user, token = user_token
             return await backend.logout(strategy, user, token)
 
+        otp_verification_responses: OpenAPIResponseType = {
+            status.HTTP_400_BAD_REQUEST: {
+                "model": ErrorModel,
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            ErrorCode.VERIFY_USER_BAD_TOKEN: {
+                                "summary": "OTP verification failed.",
+                                "value": {"detail": ErrorCode.VERIFY_USER_BAD_TOKEN},
+                            },
+                        }
+                    }
+                },
+            },
+            **backend.transport.get_openapi_login_responses_success(),
+        }
+
+        @router.post(
+            "/verify-otp",
+            name=f"auth:{backend.name}.verify-otp",
+            responses=otp_verification_responses,
+        )
+        async def verify_otp(
+            request: Request,
+            otp_code: OTPVerificationRequest,
+            email: str,
+            user_manager: BaseUserManager[models.UP, models.ID] = Depends(
+                get_user_manager
+            ),
+            strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+            db_session: Session = Depends(get_session),
+        ):
+            otp_code = otp_code.otp_code
+            current_user = get_user_by_email(email, db_session)
+            user = await user_manager.get(current_user.id)
+            otp_entry = (
+                db_session.query(TwofactorAuth)
+                .filter(TwofactorAuth.user_id == current_user.id)
+                .order_by(TwofactorAuth.created_at.desc())
+                .first()
+            )
+
+            if not otp_entry:
+                raise HTTPException(
+                    status_code=400, detail="No OTP found for the user."
+                )
+
+            if otp_entry.code != otp_code:
+                raise HTTPException(status_code=400, detail="Invalid OTP code.")
+
+            expiration_time = otp_entry.created_at + timedelta(hours=6)
+            if datetime.now(timezone.utc) > expiration_time:
+                raise HTTPException(status_code=400, detail="OTP code has expired.")
+
+            response = await backend.login(strategy, user)
+            await user_manager.on_after_login(user, request, response)
+
+            return response
+
         return router
 
 
-fastapi_users = FastAPIUserWithLogoutRouter[User, uuid.UUID](
+fastapi_users = FastAPIUserWithAuthRouter[User, uuid.UUID](
     get_user_manager, [auth_backend]
 )
 

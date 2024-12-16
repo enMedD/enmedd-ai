@@ -1,6 +1,6 @@
 "use client";
 
-import { LoadingAnimation } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ThumbsUpIcon } from "@/components/icons/icons";
 import { useMostReactedToDocuments } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
@@ -31,7 +31,7 @@ const Main = () => {
   };
 
   if (isMostLikedDocumentsLoading || isMostLikedDocumentLoading) {
-    return <LoadingAnimation text="Loading" />;
+    return <Loading />;
   }
 
   if (

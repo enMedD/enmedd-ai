@@ -37,13 +37,13 @@ class MinimalUserSnapshot(BaseModel):
 class MinimalUserwithNameSnapshot(BaseModel):
     id: UUID
     email: str
-    full_name: str
+    full_name: Optional[str]
     profile: Optional[str]
 
 
 class FullUserSnapshot(BaseModel):
     id: UUID
-    full_name: str
+    full_name: Optional[str]
     company_name: Optional[str]
     company_email: Optional[EmailStr]
     company_billing: Optional[str]

@@ -23,6 +23,7 @@ from enmedd.indexing.indexing_pipeline import build_indexing_pipeline
 from enmedd.server.enmedd_api.models import DocMinimalInfo
 from enmedd.server.enmedd_api.models import IngestionDocument
 from enmedd.server.enmedd_api.models import IngestionResult
+from enmedd.server.feature_flags.models import feature_flag
 from enmedd.server.middleware.tenant_identification import db_session_filter
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
@@ -54,6 +55,7 @@ def get_docs_by_connector_credential_pair(
 
 
 @router.get("/ingestion")
+@feature_flag("ingestion_api", default=True)
 def get_ingestion_docs(
     _: User | None = Depends(api_key_dep),
     db_session: Session = Depends(get_session),
@@ -73,6 +75,7 @@ def get_ingestion_docs(
 
 
 @router.post("/ingestion")
+@feature_flag("ingestion_api", default=True)
 def upsert_ingestion_doc(
     doc_info: IngestionDocument,
     _: User | None = Depends(api_key_dep),
