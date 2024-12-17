@@ -144,7 +144,15 @@ export default function General({
     fileInput.accept = "image/*";
     fileInput.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) setSelectedFile(file);
+      if (file && file.type.startsWith("image/")) {
+        setSelectedFile(file);
+      } else {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload a valid image file.",
+          status: "error",
+        });
+      }
     };
     fileInput.click();
   };
@@ -248,7 +256,7 @@ export default function General({
               >
                 {selectedFile ? (
                   <img
-                    src={URL.createObjectURL(selectedFile)}
+                    src={selectedFile ? URL.createObjectURL(selectedFile) : ""}
                     alt="selected_teamspace_logo"
                     className="w-full h-full object-cover object-center"
                   />
