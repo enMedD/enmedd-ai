@@ -5,7 +5,7 @@ import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 import { useState } from "react";
 import { UsageReport } from "./types";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import Link from "next/link";
 import { humanReadableFormat, humanReadableFormatWithTime } from "@/lib/time";
 import { ErrorCallout } from "@/components/ErrorCallout";
@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/table";
 import { CustomDatePicker } from "@/components/CustomDatePicker";
 import { DateRange } from "react-day-picker";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { CustomTooltip } from "@/components/CustomTooltip";
 
 const predefinedRanges = [
@@ -169,9 +169,7 @@ function UsageReportsTable({
     <div>
       <h3 className="pt-8 pb-4">Previous Reports</h3>
       {usageReportsIsLoading ? (
-        <div className="flex justify-center w-full">
-          <ThreeDotsLoader />
-        </div>
+        <Loading />
       ) : usageReportsError ? (
         <ErrorCallout
           errorTitle="Something went wrong."
@@ -253,6 +251,17 @@ export default function UsageReports({
     errorHandlingFetcher
   );
 
+  if (usageReportsError) {
+    return (
+      <ErrorCallout
+        errorTitle={`Failed to fetch usage report}`}
+        errorMsg={
+          usageReportsError?.info?.detail || usageReportsError.toString()
+        }
+      />
+    );
+  }
+
   const paginatedReports = usageReportsMetadata
     ? usageReportsMetadata
         .slice(0)
@@ -268,9 +277,11 @@ export default function UsageReports({
     <div className="space-y-12">
       <div>
         <GenerateReportInput />
-        <div className="p-0">
+        {usageReportsIsLoading ? (
+          <Loading />
+        ) : (
           <UsageReportsTable teamspaceId={teamspaceId} />
-        </div>
+        )}
       </div>
 
       <div className="flex">

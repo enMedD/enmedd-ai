@@ -6,7 +6,7 @@ import { BackButton } from "@/components/BackButton";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Book } from "lucide-react";
@@ -79,7 +79,7 @@ export default function QueryPage({ params }: { params: { id: string } }) {
   );
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (!chatSessionSnapshot || error) {

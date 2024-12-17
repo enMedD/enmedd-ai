@@ -23,10 +23,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { createTeamspace } from "./lib";
-import { Combobox } from "@/components/Combobox";
-import { Textarea } from "@/components/ui/textarea";
+import { ComboboxForm, InputForm } from "@/components/admin/connectors/Field";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -210,43 +208,28 @@ export const TeamspaceCreationForm = ({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
           <p className="w-1/2 font-semibold whitespace-nowrap">Name*</p>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Input
-                    placeholder="Teamspace name"
-                    disabled={isUpdate}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="w-full">
+            <InputForm
+              formControl={form.control}
+              name="name"
+              placeholder="Teamspace name"
+              disabled={isUpdate}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
           <p className="w-1/2 font-semibold whitespace-nowrap">Description*</p>
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Textarea
-                    placeholder="Teamspace description"
-                    disabled={isUpdate}
-                    className="min-h-20 max-h-40"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="w-full">
+            <InputForm
+              formControl={form.control}
+              name="description"
+              placeholder="Teamspace description"
+              disabled={isUpdate}
+              isTextarea
+              className="min-h-20 max-h-40"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col justify-between gap-2 lg:flex-row pb-6">
@@ -293,105 +276,65 @@ export const TeamspaceCreationForm = ({
           <p className="w-1/2 font-semibold whitespace-nowrap">
             Select assistants*
           </p>
-          <FormField
-            control={form.control}
-            name="assistant_ids"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Combobox
-                    items={assistants
-                      .filter((assistant) => assistant.is_public)
-                      .map((assistant) => ({
-                        value: assistant.id.toString(),
-                        label: assistant.name,
-                      }))}
-                    onSelect={(selectedValues) => {
-                      const selectedIds = selectedValues.map((value) =>
-                        parseInt(value, 10)
-                      );
-                      field.onChange(selectedIds);
-                    }}
-                    placeholder="Select assistants"
-                    label="Select assistants"
-                    selected={(field.value ?? []).map((id) => id.toString())}
-                    isOnModal
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="w-full">
+            <ComboboxForm
+              formControl={form.control}
+              name="assistant_ids"
+              comboboxLabel="Select assistants"
+              placeholder="Select assistants"
+              items={assistants
+                .filter((assistant) => assistant.is_public)
+                .map((assistant) => ({
+                  value: assistant.id.toString(),
+                  label: assistant.name,
+                }))}
+              isOnModal
+            />
+          </div>
         </div>
 
         <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
           <p className="w-1/2 font-semibold whitespace-nowrap">
             Select document sets
           </p>
-          <FormField
-            control={form.control}
-            name="document_set_ids"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Combobox
-                    items={documentSets
-                      ?.filter((docSet) => docSet.is_public)
-                      .map((docSet) => ({
-                        value: docSet.id.toString(),
-                        label: docSet.name,
-                      }))}
-                    onSelect={(selectedValues) => {
-                      const selectedIds = selectedValues.map((value) =>
-                        parseInt(value, 10)
-                      );
-                      field.onChange(selectedIds);
-                    }}
-                    placeholder="Select document set"
-                    label="Select document set"
-                    selected={(field.value ?? []).map((id) => id.toString())}
-                    isOnModal
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="w-full">
+            <ComboboxForm
+              formControl={form.control}
+              name="document_set_ids"
+              comboboxLabel="Select document set"
+              placeholder="Select document set"
+              items={
+                documentSets
+                  ?.filter((docSet) => docSet.is_public)
+                  .map((docSet) => ({
+                    value: docSet.id.toString(),
+                    label: docSet.name,
+                  })) || []
+              }
+              isOnModal
+            />
+          </div>
         </div>
 
         <div className="flex flex-col justify-between gap-2 pb-4 lg:flex-row">
           <p className="w-1/2 font-semibold whitespace-nowrap">
             Select data source
           </p>
-          <FormField
-            control={form.control}
-            name="cc_pair_ids"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Combobox
-                    items={ccPairs
-                      ?.filter((ccPair) => ccPair.access_type === "public")
-                      .map((ccPair) => ({
-                        value: ccPair.cc_pair_id.toString(),
-                        label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
-                      }))}
-                    onSelect={(selectedValues) => {
-                      const selectedIds = selectedValues.map((value) =>
-                        parseInt(value, 10)
-                      );
-                      field.onChange(selectedIds);
-                    }}
-                    placeholder="Select data source"
-                    label="Select data source"
-                    selected={(field.value ?? []).map((id) => id.toString())}
-                    isOnModal
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="w-full">
+            <ComboboxForm
+              formControl={form.control}
+              name="cc_pair_ids"
+              comboboxLabel="Select data source"
+              placeholder="Select data source"
+              items={ccPairs
+                ?.filter((ccPair) => ccPair.access_type === "public")
+                .map((ccPair) => ({
+                  value: ccPair.cc_pair_id.toString(),
+                  label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
+                }))}
+              isOnModal
+            />
+          </div>
         </div>
 
         {/*  */}

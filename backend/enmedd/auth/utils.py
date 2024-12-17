@@ -1,6 +1,7 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -15,16 +16,12 @@ from enmedd.utils.logger import setup_logger
 logger = setup_logger()
 
 
-def get_smtp_credentials(workspace_id: int, db_session: Session):
+def get_smtp_credentials(db_session: Session):
     """Fetch SMTP credentials for a given workspace."""
-    workspace_settings = (
-        db_session.query(WorkspaceSettings)
-        .filter(WorkspaceSettings.workspace_id == workspace_id)
-        .first()
-    )
+    workspace_settings = db_session.query(WorkspaceSettings).first()
 
     if not workspace_settings:
-        raise ValueError(f"No SMTP settings found for workspace_id: {workspace_id}")
+        raise ValueError("No SMTP settings found for workspace")
 
     smtp_server = workspace_settings.smtp_server
     smtp_port = workspace_settings.smtp_port
@@ -66,7 +63,7 @@ def generate_password_reset_email(email: str, reset_url: str):
     return subject, body
 
 
-def generate_user_verification_email(full_name: str, verify_url: str):
+def generate_user_verification_email(full_name: Optional[str], verify_url: str):
     subject = "Almost There! Confirm Your Email to Activate Your Account"
 
     body = f"""
@@ -86,7 +83,7 @@ def generate_user_verification_email(full_name: str, verify_url: str):
     return subject, body
 
 
-def generate_2fa_email(full_name: str, code: str):
+def generate_2fa_email(full_name: Optional[str], code: str):
     subject = "Arnold AI Two-Factor Authentication (2FA) Code"
 
     body = f"""

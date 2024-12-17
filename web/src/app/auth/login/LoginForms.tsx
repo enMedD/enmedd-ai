@@ -1,6 +1,7 @@
 "use client";
 
 import { basicLogin } from "@/lib/user";
+import { generateOtp } from "@/lib/user";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Spinner } from "@/components/Spinner";
@@ -14,18 +15,11 @@ import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
 import { NEXT_PUBLIC_CAPTCHA_SITE_KEY } from "@/lib/constants";
 import { useFeatureFlag } from "@/components/feature_flag/FeatureFlagContext";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
+import { InputForm } from "@/components/admin/connectors/Field";
 
 export function LogInForms({}: {}) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -66,36 +60,60 @@ export function LogInForms({}: {}) {
 
     setIsLoading(true);
 
-    const loginResponse = await basicLogin(values.email, values.password);
-    if (loginResponse.ok) {
-      if (isTwoFactorAuthEnabled) {
-        router.push(`/auth/2factorverification/?email=${values.email}`);
-        await fetch("/api/users/generate-otp", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-      } else {
-        router.push("/");
-      }
-    } else {
-      setIsLoading(false);
-      const errorDetail = (await loginResponse.json()).detail;
+    try {
+      const loginResponse = await basicLogin(values.email, values.password);
+      if (loginResponse.ok) {
+        if (isTwoFactorAuthEnabled) {
+          const otpResponse = await generateOtp(values.email);
 
-      let errorMsg = "Unknown error";
-      if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
-        errorMsg = "Invalid email or password";
+          if (otpResponse.ok) {
+            router.push(`/auth/2factorverification/?email=${values.email}`);
+          } else {
+            handleError(otpResponse);
+          }
+        } else {
+          router.push("/");
+        }
+      } else {
+        handleError(loginResponse);
       }
+    } catch (err) {
       toast({
         title: "Login Failed",
-        description: `Failed to login - ${errorMsg}`,
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
 
-    setIsLoading(false);
+    function handleError(response: Response) {
+      response
+        .json()
+        .then((errorData) => {
+          const errorDetail = errorData.detail;
+
+          let errorMsg = "Unknown error";
+          if (errorDetail === "LOGIN_USER_NOT_VERIFIED") {
+            errorMsg = "User not yet verified";
+          } else if (errorDetail === "LOGIN_BAD_CREDENTIALS") {
+            errorMsg = "Invalid email or password";
+          }
+
+          toast({
+            title: "Login Failed",
+            description: `Failed to login - ${errorMsg}`,
+            variant: "destructive",
+          });
+        })
+        .catch(() => {
+          toast({
+            title: "Login Failed",
+            description: "An unexpected error occurred",
+            variant: "destructive",
+          });
+        });
+    }
   }
   return (
     <>
@@ -103,64 +121,45 @@ export function LogInForms({}: {}) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Email Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email"
+            placeholder="Enter your email"
           />
 
           {/* Password Field */}
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Password"
+            placeholder="Enter your password"
+            type="password"
           />
 
-          {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
-              className="pb-4"
-            />
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {/* <Checkbox id="remember" />
-                <Label className="p-0" htmlFor="remember">
-                  Remember me
-                </Label> */}
-            </div>
+          <div className="flex justify-between w-full flex-row-reverse items-start">
             <Link
               href="/auth/forgot-password"
               className="text-sm font-medium text-link hover:underline"
             >
               Forgot password?
             </Link>
+
+            {NEXT_PUBLIC_CAPTCHA_SITE_KEY && (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={NEXT_PUBLIC_CAPTCHA_SITE_KEY}
+                className="pb-4"
+              />
+            )}
           </div>
 
           <div className="flex pt-6">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Sign In
             </Button>
           </div>

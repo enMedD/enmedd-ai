@@ -106,10 +106,7 @@ export function Combobox({
             <ChevronsUpDown className="w-4 h-4 ml-2 opacity-50 shrink-0" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent
-          className="min-w-[300px] sm:min-w-[495px] md:min-w-[550px] lg:min-w-[495px] xl:min-w-[625px]"
-          align="start"
-        >
+        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height]">
           <Command>
             <CommandInput
               placeholder={`Search ${placeholder.toLowerCase()}...`}

@@ -44,7 +44,7 @@ export const TeamspaceModal = ({
       open={isModalVisible}
       title="Your Teamspace"
     >
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 p-10 pt-0">
         {teamspace.map((team) => (
           <Link
             key={team.id}
@@ -52,11 +52,11 @@ export const TeamspaceModal = ({
             href={`/t/${team.id}/${defaultPage}`}
           >
             {team.logo ? (
-              <div className="rounded-full w-11 h-11 bg-background overflow-hidden">
+              <div className="rounded-full w-11 h-11 bg-background overflow-hidden shrink-0">
                 <img
                   src={buildImgUrl(team.logo)}
                   alt="Teamspace Logo"
-                  className="object-cover shrink-0 w-full h-full"
+                  className="object-cover w-full h-full"
                   width={48}
                   height={48}
                 />

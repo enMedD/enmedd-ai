@@ -1,20 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AddPromptModalProps } from "../interfaces";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { InputForm } from "@/components/admin/connectors/Field";
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -29,13 +21,26 @@ type FormValues = z.infer<typeof formSchema>;
 
 const AddPromptModal = ({ onClose, onSubmit }: AddPromptModalProps) => {
   const { toast } = useToast();
+
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("promptFormData") || "{}"
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      content: "",
+      title: cachedFormData.title || "",
+      content: cachedFormData.content || "",
     },
   });
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("promptFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleSubmit = async (values: FormValues) => {
     try {
@@ -49,6 +54,9 @@ const AddPromptModal = ({ onClose, onSubmit }: AddPromptModalProps) => {
         description: "Prompt created successfully!",
         variant: "success",
       });
+
+      onClose();
+      localStorage.removeItem("promptFormData");
     } catch (error) {
       toast({
         title: "Prompt Creation Failed",
@@ -56,42 +64,25 @@ const AddPromptModal = ({ onClose, onSubmit }: AddPromptModalProps) => {
         variant: "destructive",
       });
     }
-    onClose();
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="title"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="title">Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Title"
+          placeholder="Enter a title"
         />
 
-        <FormField
-          control={form.control}
+        <InputForm
+          formControl={form.control}
           name="content"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel htmlFor="content">Content</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter a content (e.g. 'help me rewrite the following politely and concisely for professional communication')"
-                  className="min-h-40 max-h-96"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Content"
+          placeholder="Enter a content (e.g. 'help me rewrite the following politely and concisely for professional communication')"
+          className="min-h-40 max-h-96"
+          isTextarea
         />
 
         <div className="w-full pt-4 flex justify-end gap-2">
