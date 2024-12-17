@@ -29,7 +29,7 @@ export function TopBar({
   );
 }
 
-export function WelcomeTopBar({ goToLogin }: { goToLogin?: boolean }) {
+export function WelcomeTopBar() {
   return (
     <div className="w-full py-6 bg-background">
       <Logo className="w-28 xl:w-32 ml-6 xl:ml-10" />

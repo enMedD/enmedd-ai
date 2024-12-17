@@ -153,16 +153,18 @@ async def validate_token_invite(
     ]
     write_invited_users(remaining_users, teamspace_id)
 
-    user_emails = get_invited_users(teamspace_id)
-    remaining_users = [
-        invited_user for invited_user in user_emails if invited_user != email
-    ]
-    write_invited_users(remaining_users, teamspace_id)
-    remove_email_from_invite_tokens(
-        db_session=db_session,
-        user_email=email,
-        teamspace_id=teamspace_id,
+    teamspace = (
+        db_session.query(User__Teamspace)
+        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+        .first()
     )
+    if not teamspace:
+        db_session.add(
+            User__Teamspace(
+                teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
+            )
+        )
+        db_session.commit()
 
     return HTTPException(status_code=200, detail="Token is valid from teamspace")
 

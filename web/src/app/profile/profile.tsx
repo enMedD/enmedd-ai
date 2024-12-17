@@ -38,9 +38,6 @@ export default function Profile({
         <TabsContent value="my_teamspace">
           <UserTeamspace />
         </TabsContent>
-        <TabsContent value="my_teamspace">
-          <UserTeamspace />
-        </TabsContent>
         <TabsContent value="security">
           <SecurityTab />
         </TabsContent>
