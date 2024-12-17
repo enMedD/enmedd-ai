@@ -5,6 +5,7 @@ import zipfile
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Optional
 
 from fastapi_users_db_sqlalchemy import UUID_ID
 from sqlalchemy.orm import Session
@@ -111,7 +112,7 @@ def create_new_usage_report(
     db_session: Session,
     user_id: UUID_ID | None,  # None = auto-generated
     period: tuple[datetime, datetime] | None,
-    teamspace_id: int | None = None,
+    teamspace_id: Optional[int] = None,
 ) -> UsageReportMetadata:
     report_id = str(uuid.uuid4())
     file_store = get_default_file_store(db_session)
@@ -154,8 +155,10 @@ def create_new_usage_report(
     new_report = write_usage_report(db_session, report_name, user_id, period)
 
     # If teamspace_id is provided, save the relationship
-    if teamspace_id is not None:
+    if teamspace_id:
         link_report_to_teamspace(db_session, new_report.id, teamspace_id)
+
+    db_session.commit()
 
     return UsageReportMetadata(
         report_name=new_report.report_name,

@@ -112,7 +112,7 @@ def write_usage_report(
         period_to=period[1] if period else None,
     )
     db_session.add(new_report)
-    db_session.commit()
+    db_session.flush()
     return new_report
 
 
@@ -122,4 +122,3 @@ def link_report_to_teamspace(db_session: Session, report_id: int, teamspace_id: 
         teamspace_id=teamspace_id,
     )
     db_session.add(new_link)
-    db_session.commit()

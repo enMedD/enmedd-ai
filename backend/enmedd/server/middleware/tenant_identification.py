@@ -23,7 +23,7 @@ def set_tenant(tenant_id: str) -> None:
 
 def get_tenant() -> Optional[str]:
     """Fetches the tenant_id from the context."""
-    return tenant_id_context.get() or "new_workspace"
+    return tenant_id_context.get()
 
 
 def add_tenant_identification_middleware(
@@ -45,7 +45,7 @@ def get_tenant_id(request: Request) -> Optional[str]:
     tenant_id = request.headers.get("X-Tenant-ID")
     if tenant_id:
         return tenant_id.lower().replace("-", "_")
-    return "new_workspace"
+    return None
 
 
 def db_session_filter(tenant_id: str, db_session: Session) -> None:

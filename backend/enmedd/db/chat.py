@@ -224,6 +224,15 @@ def delete_messages_and_files_from_chat_session(
     delete_orphaned_search_docs(db_session)
 
 
+def _add_chat_session_teamspace_relationship__no_commit(
+    chat_session_id: int, teamspace_id: int, db_session: Session
+) -> None:
+    chat_session_teamspace_relationship = ChatSession__Teamspace(
+        chat_session_id=chat_session_id, teamspace_id=teamspace_id
+    )
+    db_session.add(chat_session_teamspace_relationship)
+
+
 def create_chat_session(
     db_session: Session,
     description: str,
@@ -244,14 +253,16 @@ def create_chat_session(
     )
 
     db_session.add(chat_session)
-    db_session.commit()
+    db_session.flush()
 
     if teamspace_id:
-        chat_session_teamspace_relationship = ChatSession__Teamspace(
-            chat_session_id=chat_session.id, teamspace_id=teamspace_id
+        _add_chat_session_teamspace_relationship__no_commit(
+            chat_session_id=chat_session.id,
+            teamspace_id=teamspace_id,
+            db_session=db_session,
         )
-        db_session.add(chat_session_teamspace_relationship)
-        db_session.commit()
+
+    db_session.commit()
 
     return chat_session
 

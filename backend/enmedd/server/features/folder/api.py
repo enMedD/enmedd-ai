@@ -119,7 +119,8 @@ def create_folder_endpoint(
             chat_folder_id=chat_folder, teamspace_id=teamspace_id
         )
         db_session.add(chat_folder_teamspace_relationship)
-        db_session.commit()
+
+    db_session.commit()
 
     return chat_folder
 

@@ -83,7 +83,7 @@ def create_folder(
         name=folder_name,
     )
     db_session.add(new_folder)
-    db_session.commit()
+    db_session.flush()
 
     return new_folder.id
 
