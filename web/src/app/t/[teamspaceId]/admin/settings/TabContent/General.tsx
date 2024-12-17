@@ -150,7 +150,7 @@ export default function General({
         toast({
           title: "Invalid file type",
           description: "Please upload a valid image file.",
-          status: "error",
+          variant: "destructive",
         });
       }
     };
