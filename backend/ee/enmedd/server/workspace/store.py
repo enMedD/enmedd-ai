@@ -132,6 +132,8 @@ def upload_logo(
 
     file_name = f"{workspace_id}{_LOGOTYPE_FILENAME if is_logotype else _LOGO_FILENAME}"
 
+    workspace.custom_logo = file_name
+
     file_store = get_default_file_store(db_session)
     file_store.save_file(
         file_name=file_name,
@@ -141,8 +143,6 @@ def upload_logo(
         file_type=file_type,
     )
 
-    workspace.custom_logo = file_name
-    db_session.merge(workspace)
     db_session.commit()
 
     return True
@@ -201,6 +201,8 @@ def upload_header_logo(
 
     file_name = f"{workspace_id}{_HEADERLOGO_FILENAME}"
 
+    workspace.custom_header_logo = file_name
+
     file_store = get_default_file_store(db_session)
     file_store.save_file(
         file_name=file_name,
@@ -210,8 +212,6 @@ def upload_header_logo(
         file_type=file_type,
     )
 
-    workspace.custom_header_logo = file_name
-    db_session.merge(workspace)
     db_session.commit()
 
     return True
@@ -262,6 +262,8 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
 
     file_name = f"{user.id}{_PROFILE_FILENAME}"
 
+    user.profile = file_name
+
     file_store = get_default_file_store(db_session)
     file_store.save_file(
         file_name=file_name,
@@ -270,8 +272,6 @@ def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> b
         file_origin=FileOrigin.OTHER,
         file_type=file_type,
     )
-    user.profile = file_name
-    db_session.merge(user)
     db_session.commit()
 
     return True
@@ -330,6 +330,8 @@ def upload_teamspace_logo(
 
     file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
 
+    teamspace.logo = file_name
+
     file_store = get_default_file_store(db_session)
     file_store.save_file(
         file_name=file_name,
@@ -339,8 +341,6 @@ def upload_teamspace_logo(
         file_type=file_type,
     )
 
-    teamspace.logo = file_name
-    db_session.merge(teamspace)
     db_session.commit()
 
     return True

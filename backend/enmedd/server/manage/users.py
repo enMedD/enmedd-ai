@@ -703,14 +703,14 @@ def remove_profile(
     if tenant_id:
         db_session_filter(tenant_id, db_session)
     try:
+        current_user.profile = None
+
         file_name = f"{current_user.id}{_PROFILE_FILENAME}"
 
         file_store = get_default_file_store(db_session)
 
         file_store.delete_file(file_name)
 
-        current_user.profile = None
-        db_session.merge(current_user)
         db_session.commit()
 
         return {"detail": "Profile picture removed successfully."}

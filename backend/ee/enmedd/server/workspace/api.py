@@ -317,13 +317,14 @@ def remove_logo(
         if not workspace:
             raise HTTPException(status_code=404, detail="Workspace not found.")
 
+        workspace.custom_logo = None
+        workspace.use_custom_logo = False
+
         file_path = f"{workspace_id}{_LOGO_FILENAME}"
 
         file_store = get_default_file_store(db_session)
         file_store.delete_file(file_path)
 
-        workspace.custom_logo = None
-        workspace.use_custom_logo = False
         db_session.commit()
 
         return {"detail": "Workspace logo removed successfully."}
@@ -350,12 +351,13 @@ def remove_header_logo(
         if not workspace:
             raise HTTPException(status_code=404, detail="Workspace not found.")
 
+        workspace.custom_header_logo = None
+
         file_path = f"{workspace_id}{_HEADERLOGO_FILENAME}"
 
         file_store = get_default_file_store(db_session)
         file_store.delete_file(file_path)
 
-        workspace.custom_header_logo = None
         db_session.commit()
 
         return {"detail": "Workspace header logo removed successfully."}

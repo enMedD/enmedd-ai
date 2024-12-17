@@ -535,17 +535,17 @@ def remove_teamspace_logo(
     if tenant_id:
         db_session_filter(tenant_id, db_session)
     try:
-        file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
-
-        file_store = get_default_file_store(db_session)
-        file_store.delete_file(file_name)
-
         teamspace = db_session.query(TeamspaceModel).filter_by(id=teamspace_id).first()
         if not teamspace:
             raise HTTPException(status_code=404, detail="Teamspace not found")
 
         teamspace.logo = None
-        db_session.merge(teamspace)
+
+        file_name = f"{teamspace_id}{_TEAMSPACELOGO_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+        file_store.delete_file(file_name)
+
         db_session.commit()
 
         return {"detail": "Teamspace logo removed successfully."}

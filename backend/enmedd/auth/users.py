@@ -68,6 +68,7 @@ from enmedd.db.users import get_user_by_email
 from enmedd.server.feature_flags.models import FeatureFlagsManager
 from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant
 from enmedd.server.middleware.tenant_identification import get_tenant_id
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.telemetry import optional_telemetry
@@ -476,6 +477,9 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
             strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
             db_session: Session = Depends(get_session),
         ):
+            tenant_id = get_tenant()
+            if tenant_id:
+                db_session_filter(tenant_id, db_session)
             otp_code = otp_code.otp_code
             current_user = get_user_by_email(email, db_session)
             user = await user_manager.get(current_user.id)
