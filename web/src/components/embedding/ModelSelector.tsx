@@ -47,8 +47,8 @@ export function ModelOption({
     <div
       className={`p-4 md:w-96 border rounded-lg transition-all duration-200 flex flex-col justify-between ${
         selected
-          ? "border-blue-500 bg-blue-50 shadow-md"
-          : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+          ? "border-brand-500 bg-brand-50 shadow-md"
+          : "border-gray-200 hover:border-brand-300 hover:shadow-sm"
       }`}
     >
       <div>
@@ -61,18 +61,18 @@ export function ModelOption({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-blue-500 transition-colors duration-200 hover:text-blue-700"
+              className="text-brand-500 transition-colors duration-200 hover:text-brand-700 text-inverted"
             >
               <FiExternalLink size={18} />
             </a>
           )}
         </div>
-        <p className="mb-2 text-sm text-left text-gray-600 k">
+        <p className="mb-2 text-sm text-left ">
           {model.description ||
             currentModelCopy?.description ||
             "Custom model—no description is available."}
         </p>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs ">
           {model.isDefault ? "Default" : "Self-hosted"}
         </div>
       </div>

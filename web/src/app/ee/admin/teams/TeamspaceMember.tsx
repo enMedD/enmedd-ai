@@ -387,16 +387,29 @@ export const TeamspaceMember = ({
   refreshTeamspaces,
 }: TeamspaceMemberProps) => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermAvailableUser, setSearchTermAvailableUser] = useState("");
+  const [searchTermCurrentUser, setSearchTermCurrentUse] = useState("");
   const { user } = useUser();
   const { data: users, refreshTeamspaceUsers } = useTeamspaceUsers(
     teamspace.id.toString()
   );
 
-  const filteredUsers = teamspace.users.filter(
+  const filteredCurrentUsers = teamspace.users.filter(
     (user) =>
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email?.toLowerCase().includes(searchTermCurrentUser.toLowerCase()) ||
+      user.full_name
+        ?.toLowerCase()
+        .includes(searchTermCurrentUser.toLowerCase())
+  );
+
+  const filteredAvaillableUsers = users?.filter(
+    (user) =>
+      user.email
+        ?.toLowerCase()
+        .includes(searchTermAvailableUser.toLowerCase()) ||
+      user.full_name
+        ?.toLowerCase()
+        .includes(searchTermAvailableUser.toLowerCase())
   );
 
   const usersToDisplay = [
@@ -470,9 +483,9 @@ export const TeamspaceMember = ({
           <MemberContent
             teamspace={teamspace}
             refreshTeamspaces={refreshTeamspaces}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filteredUsers={filteredUsers}
+            searchTerm={searchTermCurrentUser}
+            setSearchTerm={setSearchTermCurrentUse}
+            filteredUsers={filteredCurrentUsers}
             refreshTeamspaceUsers={refreshTeamspaceUsers}
           />
 
@@ -480,9 +493,9 @@ export const TeamspaceMember = ({
             isGlobal
             teamspace={teamspace}
             refreshTeamspaces={refreshTeamspaces}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filteredUsers={users}
+            searchTerm={searchTermAvailableUser}
+            setSearchTerm={setSearchTermAvailableUser}
+            filteredUsers={filteredAvaillableUsers}
             refreshTeamspaceUsers={refreshTeamspaceUsers}
           />
         </div>

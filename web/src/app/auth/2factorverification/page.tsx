@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/input-otp";
 import { ShieldEllipsis } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/Spinner";
@@ -24,31 +24,13 @@ const Page = () => {
   const searchParams = useSearchParams();
   const user_email = searchParams.get("email");
 
-  const handleBackButton = async () => {
-    const response = await fetch("/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
+  if (!user_email) {
     router.push("/auth/login");
-    return response;
-  };
-
-  useEffect(() => {
-    const handleUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      handleBackButton();
-    };
-
-    window.addEventListener("beforeunload", handleUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleUnload);
-    };
-  }, []);
+  }
 
   const handleContinue = async (value: string) => {
     try {
-      const response = await fetch("/api/users/verify-otp", {
+      const response = await fetch(`/api/auth/verify-otp?email=${user_email}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,12 +39,14 @@ const Page = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Error verifying OTP");
+        throw new Error("Error verifying OTP");
       }
 
-      const data = await response.json();
-      console.log(data.message);
+      toast({
+        title: "Authenticated Successfully",
+        description: "You have been logged in and redirected to chat.",
+        variant: "success",
+      });
 
       router.push("/chat");
     } catch (error) {
@@ -77,13 +61,16 @@ const Page = () => {
 
   const handleResendOTP = async () => {
     setIsLoading(true);
-    const response = await fetch("/api/users/generate-otp", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `/api/users/generate-otp?email=${user_email}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
     if (!response.ok) {
       toast({
         title: "Failed to Resend OTP Code",
@@ -111,7 +98,7 @@ const Page = () => {
     <main className="h-full">
       {isLoading && <Spinner />}
       <HealthCheckBanner />
-      <WelcomeTopBar goToLogin />
+      <WelcomeTopBar />
 
       <div className="w-full h-full mx-auto flex flex-col justify-between overflow-y-auto">
         <div className="w-full xl:w-1/2 h-full flex items-center justify-center mx-auto px-6 lg:px-14 3xl:px-0">

@@ -1,6 +1,6 @@
 "use client";
 
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR from "swr";
@@ -60,7 +60,7 @@ function Main() {
     isLoadingFutureModel ||
     isLoadingSearchSettings
   ) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (

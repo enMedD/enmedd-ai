@@ -1,12 +1,11 @@
 import { useQueryHistory } from "../lib";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ChatSessionMinimal } from "../usage/types";
 import { timestampToReadableDate } from "@/lib/dateUtils";
 import { useState } from "react";
 import { Feedback } from "@/lib/types";
 import { DateRangeSelector } from "../DateRangeSelector";
 import { PageSelector } from "@/components/PageSelector";
-import Link from "next/link";
 import { FeedbackBadge } from "./FeedbackBadge";
 import { DownloadAsCSV } from "./DownloadAsCSV";
 import {
@@ -185,7 +184,7 @@ export function QueryHistoryTable({ teamspaceId }: { teamspaceId?: string }) {
         </div>
       ) : (
         <div className="h-80 flex flex-col">
-          <ThreeDotsLoader />
+          <Loading />
         </div>
       )}
     </>

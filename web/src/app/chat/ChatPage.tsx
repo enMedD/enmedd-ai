@@ -139,7 +139,7 @@ const Inset = ({
     <SidebarInset className="w-full overflow-hidden">
       <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 right-0">
         {open && (
-          <SidebarTrigger className="-ml-1" onClick={() => openFalse()} />
+          <SidebarTrigger className="-mr-1" onClick={() => openFalse()} />
         )}
       </header>
       {children(handleSidbarToggle)}
@@ -448,7 +448,18 @@ export function ChatPage({
         } else if (isChatSessionSwitch) {
           clientScrollToBottom(true);
         }
+      } else if (chatSession.messages.length <= 10) {
+        setIsFetchingChatMessages(false);
+        setTimeout(() => {
+          clientScrollToBottom();
+        }, 500);
+      } else if (chatSession.messages.length > 10) {
+        setIsFetchingChatMessages(false);
+        setTimeout(() => {
+          clientScrollToBottom(true);
+        }, 500);
       }
+
       setIsFetchingChatMessages(false);
 
       // if this is a seeded chat, then kick off the AI message generation
@@ -865,14 +876,14 @@ export function ChatPage({
         // Wait for the state update and re-render before scrolling
         setTimeout(() => {
           endDivRef.current?.scrollIntoView({
-            behavior: fast ? "auto" : "smooth",
+            behavior: (fast ? "instant" : "smooth") as any,
           });
           setHasPerformedInitialScroll(true);
         }, 0);
       } else {
         // If all messages are already rendered, scroll immediately
         endDivRef.current.scrollIntoView({
-          behavior: fast ? "auto" : "smooth",
+          behavior: (fast ? "instant" : "smooth") as any,
         });
         setHasPerformedInitialScroll(true);
       }
@@ -1022,7 +1033,7 @@ export function ChatPage({
     }
 
     setAlternativeGeneratingAssistant(alternativeAssistantOverride);
-    clientScrollToBottom();
+
     let currChatSessionId: number;
     let isNewSession = chatSessionIdRef.current === null;
     const searchParamBasedChatSessionName =
@@ -1387,6 +1398,7 @@ export function ChatPage({
             ]);
           }
         }
+        clientScrollToBottom(true);
       }
     } catch (e: any) {
       const errorMsg = e.message;

@@ -30,8 +30,8 @@ export function HelperFab() {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         >
-          <div className="grid grid-cols-2 gap-y-6 gap-x-20 pb-4">
-            <div className="flex justify-between items-center">
+          <div className="grid grid-cols-2 gap-y-6 gap-x-20 pb-4 md:px-10">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Open chat page</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -42,7 +42,7 @@ export function HelperFab() {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Open search page</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -53,7 +53,7 @@ export function HelperFab() {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Open admin panel</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -65,7 +65,7 @@ export function HelperFab() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Open profile page</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -77,7 +77,7 @@ export function HelperFab() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Start new chat</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -88,7 +88,7 @@ export function HelperFab() {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Create new folder</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -99,7 +99,7 @@ export function HelperFab() {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Toggle the sidebar</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">
@@ -111,7 +111,7 @@ export function HelperFab() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between flex-col md:flex-row gap-2 items-center">
               <span>Toggle retrieve sources</span>
               <div className="flex items-center gap-2">
                 <span className="border border-input w-10 h-10 p-5 flex items-center justify-center rounded-sm">

@@ -24,9 +24,11 @@ import { DeleteModal } from "@/components/DeleteModal";
 export function ToolsTable({
   tools,
   teamspaceId,
+  refreshTools,
 }: {
   tools: ToolSnapshot[];
-  teamspaceId?: string | string;
+  teamspaceId?: string | string[];
+  refreshTools: () => void;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -53,6 +55,7 @@ export function ToolsTable({
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
+              refreshTools();
               router.refresh();
             } else {
               toast({

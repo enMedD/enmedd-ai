@@ -33,10 +33,12 @@ export function AssistantsTable({
   allAssistants,
   editableAssistants,
   teamspaceId,
+  refreshAllAssistants,
 }: {
   allAssistants: Assistant[];
   editableAssistants: Assistant[];
   teamspaceId?: string | string[];
+  refreshAllAssistants: () => void;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -94,6 +96,8 @@ export function AssistantsTable({
         description: `There was an issue updating the assistant order. Details: ${await response.text()}`,
         variant: "destructive",
       });
+    } else {
+      refreshAllAssistants();
       router.refresh();
     }
   };
@@ -122,6 +126,7 @@ export function AssistantsTable({
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
+              refreshAllAssistants();
               router.refresh();
             } else {
               toast({
@@ -134,16 +139,10 @@ export function AssistantsTable({
         />
       )}
 
-      <p className="pb-4 text-sm">
-        Assistants will be displayed as options on the Chat / Search interfaces
-        in the order they are displayed below. Assistants marked as hidden will
-        not be displayed.
-      </p>
-
       <Card>
         <CardContent className="p-0">
           <DraggableTable
-            headers={["Name", "Description", "Type", "Is Visible", "Delete"]}
+            headers={["Name", "Description", "Type", "Is Visible", ""]}
             isAdmin={isAdmin}
             rows={finalAssistantValues.map((assistant) => {
               return {
@@ -162,8 +161,8 @@ export function AssistantsTable({
                         <Link
                           href={
                             teamspaceId
-                              ? `/t/${teamspaceId}/admin/assistants/${assistant.id}?u=${Date.now()}`
-                              : `/admin/assistants/${assistant.id}?u=${Date.now()}`
+                              ? `/t/${teamspaceId}/admin/assistants/${assistant.id}`
+                              : `/admin/assistants/${assistant.id}`
                           }
                           className="flex items-center w-full gap-2 truncate"
                         >
@@ -207,7 +206,7 @@ export function AssistantsTable({
                           description: `The visibility of "${assistant.name}" has been successfully updated.`,
                           variant: "success",
                         });
-
+                        refreshAllAssistants();
                         router.refresh();
                       } else {
                         toast({
@@ -228,7 +227,7 @@ export function AssistantsTable({
 
                     <Checkbox checked={assistant.is_visible} />
                   </Badge>,
-                  <div key="edit" className="flex">
+                  <div key="edit" className="flex w-20">
                     <div className="mx-auto my-auto">
                       {!assistant.builtin_assistant ? (
                         <CustomTooltip
