@@ -5,6 +5,7 @@ import {
   ConnectorSummary,
   GroupedConnectorSummaries,
   ValidSources,
+  ValidStatuses,
 } from "@/lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { SourceIcon } from "@/components/SourceIcon";
@@ -37,6 +38,13 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import FilterButton from "./FilterButton";
+import { GroupButton } from "./GroupButton";
+import { SortButton } from "./SortButton";
+
+interface Status {
+  cc_pair_status: string;
+  last_status?: ValidStatuses | null;
+}
 
 function SummaryRow({
   source,
@@ -208,9 +216,6 @@ function ConnectorRow({
           {ccPairsIndexingStatus.name}
         </CustomTooltip>
       </TableCell>
-      {/* <TableCell>
-        {timeAgo(ccPairsIndexingStatus?.last_success) || "-"}
-      </TableCell> */}
       <TableCell>{getActivityBadge()}</TableCell>
       {isPaidEnterpriseFeaturesEnabled && (
         <TableCell>
@@ -272,6 +277,21 @@ export function CCPairIndexingStatusTable({
   );
   const [docsFilter, setDocsFilter] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [groupOrder, setGroupOrder] = useState<"asc" | "desc">("asc");
+
+  const [selectedSort, setSelectedSort] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const handleApplySort = (sort: string, order: "asc" | "desc") => {
+    setSelectedSort(sort);
+    setSortOrder(order);
+  };
+
+  const handleApplyGroup = (sort: string, order: "asc" | "desc") => {
+    setSelectedGroup(sort);
+    setGroupOrder(order);
+  };
 
   // Remove filter from localStorage
   const removeFilterFromLocalStorage = (key: string) => {
@@ -393,10 +413,52 @@ export function CCPairIndexingStatusTable({
 
   const statusLabels: { [key: string]: string } = {
     success: "Success",
-    in_progress: "Scheduled",
-    not_started: "Not Started",
+    in_progress: "In Progress",
+    not_started: "Scheduled",
     failed: "Failed",
     completed_with_errors: "Completed with errors",
+  };
+
+  const getBadgeVariant = (statusGroup: string, selectedGroup: string) => {
+    switch (selectedGroup) {
+      case "Activity":
+        switch (statusGroup) {
+          case "not_started":
+            return "scheduled";
+          case "in_progress":
+            return "inProgress";
+          case "Active":
+            return "active";
+          case "paused":
+            return "paused";
+          case "deleting":
+            return "deleting";
+          default:
+            return "default";
+        }
+
+      case "Permission":
+        return "secondary";
+
+      case "Last Status":
+        switch (statusGroup) {
+          case "success":
+            return "success";
+          case "failed":
+            return "failed";
+          case "completed_with_errors":
+            return "completedWithErrors";
+          case "in_progress":
+            return "inProgress";
+          case "not_started":
+            return "scheduled";
+          default:
+            return "default";
+        }
+
+      default:
+        return "default";
+    }
   };
 
   return (
@@ -456,13 +518,26 @@ export function CCPairIndexingStatusTable({
                 placeholder="Search data sources..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="sm:min-w-80"
               />
-              <FilterButton
-                setActivityFilter={setActivityFilter}
-                setPermissionsFilter={setPermissionsFilter}
-                setDocsFilter={setDocsFilter}
-                setStatusFilter={setStatusFilter}
-              />
+              <div className="flex gap-2">
+                <FilterButton
+                  setActivityFilter={setActivityFilter}
+                  setPermissionsFilter={setPermissionsFilter}
+                  setDocsFilter={setDocsFilter}
+                  setStatusFilter={setStatusFilter}
+                />
+                <SortButton
+                  currentSort={selectedSort}
+                  currentOrder={sortOrder}
+                  onApplySort={handleApplySort}
+                />
+                <GroupButton
+                  currentGroup={selectedGroup}
+                  currentOrder={groupOrder}
+                  onApplyGroup={handleApplyGroup}
+                />
+              </div>
             </div>
             <Button
               onClick={() => toggleSources()}
@@ -475,6 +550,30 @@ export function CCPairIndexingStatusTable({
         </div>
 
         <div className="flex flex-wrap gap-2 pt-2">
+          {selectedGroup && (
+            <Badge>
+              Group: {selectedGroup}
+              <X
+                size={14}
+                className="cursor-pointer"
+                onClick={() => {
+                  setSelectedGroup(null);
+                }}
+              />
+            </Badge>
+          )}
+          {selectedSort && (
+            <Badge>
+              Sort: {selectedSort}
+              <X
+                size={14}
+                className="cursor-pointer"
+                onClick={() => {
+                  setSelectedSort(null);
+                }}
+              />
+            </Badge>
+          )}
           {activityFilter && (
             <Badge>
               {activityLabels[activityFilter] || activityFilter}
@@ -539,9 +638,6 @@ export function CCPairIndexingStatusTable({
                 <TableHead className="!w-[200px] xl:!w-[350px] flex items-center">
                   Name
                 </TableHead>
-                {/* <TableHead>
-                  Last Indexed
-                </TableHead> */}
                 <TableHead>Activity</TableHead>
                 {isPaidEnterpriseFeaturesEnabled && (
                   <TableHead>Permissions</TableHead>
@@ -631,10 +727,129 @@ export function CCPairIndexingStatusTable({
                       );
                     }
                   );
-                  if (sourceMatches || matchingConnectors.length > 0) {
+
+                  const statusOrder: { [key: string]: number } = {
+                    success: 1,
+                    in_progress: 2,
+                    not_started: 3,
+                    completed_with_errors: 4,
+                    failed: 5,
+                  };
+
+                  const sortBySelectedSort = matchingConnectors.sort((a, b) => {
+                    let comparisonResult = 0;
+
+                    if (selectedSort === "Activity") {
+                      const getActivityLabel = (status: Status): string => {
+                        const statusToMatch =
+                          status.cc_pair_status.toLowerCase();
+                        if (statusToMatch === "active") {
+                          const lastStatusToMatch = status.last_status
+                            ? status.last_status.toLowerCase()
+                            : "";
+                          switch (lastStatusToMatch) {
+                            case "in_progress":
+                              return "in_progress";
+                            case "not_started":
+                              return "not_started";
+                            default:
+                              return "active";
+                          }
+                        }
+                        return statusToMatch;
+                      };
+
+                      const labelA = getActivityLabel(a);
+                      const labelB = getActivityLabel(b);
+
+                      if (labelA < labelB) comparisonResult = -1;
+                      if (labelA > labelB) comparisonResult = 1;
+                    }
+
+                    if (selectedSort === "Permission") {
+                      const accessA = a.access_type.toLowerCase();
+                      const accessB = b.access_type.toLowerCase();
+
+                      if (accessA < accessB) comparisonResult = -1;
+                      if (accessA > accessB) comparisonResult = 1;
+                    }
+
+                    if (selectedSort === "Last Status") {
+                      const statusA = a.last_status
+                        ? a.last_status.toLowerCase()
+                        : "";
+                      const statusB = b.last_status
+                        ? b.last_status.toLowerCase()
+                        : "";
+
+                      const orderA = statusOrder[statusA] || 0;
+                      const orderB = statusOrder[statusB] || 0;
+
+                      if (orderA < orderB) comparisonResult = -1;
+                      if (orderA > orderB) comparisonResult = 1;
+                    }
+
+                    if (selectedSort === "Total Docs") {
+                      const totalDocsA = Number(a.docs_indexed);
+                      const totalDocsB = Number(b.docs_indexed);
+
+                      if (totalDocsA < totalDocsB) comparisonResult = -1;
+                      if (totalDocsA > totalDocsB) comparisonResult = 1;
+                    }
+
+                    return comparisonResult * (sortOrder === "asc" ? 1 : -1);
+                  });
+
+                  if (sourceMatches || sortBySelectedSort.length > 0) {
+                    const groupedByStatus = sortBySelectedSort.reduce(
+                      (acc, connector) => {
+                        let groupKey: string;
+
+                        switch (selectedGroup) {
+                          case "Activity":
+                            const statusToMatch =
+                              connector.cc_pair_status.toLowerCase();
+                            if (statusToMatch === "active") {
+                              const lastStatusToMatch = connector.last_status
+                                ? connector.last_status.toLowerCase()
+                                : "";
+                              groupKey =
+                                lastStatusToMatch === "in_progress"
+                                  ? "in_progress"
+                                  : lastStatusToMatch === "not_started"
+                                    ? "not_started"
+                                    : "Active";
+                            } else {
+                              groupKey = statusToMatch;
+                            }
+                            break;
+
+                          case "Last Status":
+                            groupKey = connector.last_status || "unknown";
+                            break;
+
+                          case "Permission":
+                            groupKey =
+                              connector.access_type?.toLowerCase() === "private"
+                                ? "Private"
+                                : "Public";
+                            break;
+
+                          default:
+                            groupKey = connector.cc_pair_status || "unknown";
+                            break;
+                        }
+
+                        if (!acc[groupKey]) acc[groupKey] = [];
+                        acc[groupKey].push(connector);
+                        return acc;
+                      },
+                      {} as Record<string, ConnectorIndexingStatus<any, any>[]>
+                    );
+
                     return (
                       <React.Fragment key={ind}>
-                        {matchingConnectors.length > 0 && (
+                        {sortBySelectedSort.length > 0 && (
                           <SummaryRow
                             source={source}
                             summary={groupSummaries[source]}
@@ -643,21 +858,101 @@ export function CCPairIndexingStatusTable({
                           />
                         )}
 
-                        {connectorsToggled[source] && (
-                          <>
-                            {matchingConnectors.map((ccPairsIndexingStatus) => (
-                              <ConnectorRow
-                                key={ccPairsIndexingStatus.cc_pair_id}
-                                ccPairsIndexingStatus={ccPairsIndexingStatus}
-                                isEditable={editableCcPairsIndexingStatuses.some(
-                                  (e) =>
-                                    e.cc_pair_id ===
-                                    ccPairsIndexingStatus.cc_pair_id
+                        {connectorsToggled[source] &&
+                          Object.entries(groupedByStatus).map(
+                            ([statusGroup, connectors]) => (
+                              <React.Fragment key={statusGroup}>
+                                {selectedGroup && (
+                                  <TableRow>
+                                    <TableCell
+                                      colSpan={
+                                        isPaidEnterpriseFeaturesEnabled ? 6 : 5
+                                      }
+                                      className="bg-background-weak font-semibold"
+                                    >
+                                      <Badge
+                                        variant={getBadgeVariant(
+                                          statusGroup,
+                                          selectedGroup
+                                        )}
+                                      >
+                                        {selectedGroup === "Activity"
+                                          ? activityLabels[statusGroup] ||
+                                            (statusGroup === "paused"
+                                              ? "Paused"
+                                              : statusGroup)
+                                          : selectedGroup === "Last Status"
+                                            ? statusLabels[statusGroup] ||
+                                              statusGroup
+                                            : selectedGroup === "Permission"
+                                              ? statusGroup === "Private"
+                                                ? "Private"
+                                                : "Public"
+                                              : statusGroup}
+                                      </Badge>
+                                    </TableCell>
+                                  </TableRow>
                                 )}
-                              />
-                            ))}
-                          </>
-                        )}
+
+                                {selectedGroup
+                                  ? connectors
+                                      .sort((a, b) => {
+                                        const compareValues = (
+                                          valueA: string | null | number,
+                                          valueB: string | null | number
+                                        ) => {
+                                          const isDescending =
+                                            groupOrder === "desc";
+
+                                          const valA = valueA ?? "";
+                                          const valB = valueB ?? "";
+
+                                          if (isDescending) {
+                                            return valA > valB
+                                              ? -1
+                                              : valA < valB
+                                                ? 1
+                                                : 0;
+                                          } else {
+                                            return valA < valB
+                                              ? -1
+                                              : valA > valB
+                                                ? 1
+                                                : 0;
+                                          }
+                                        };
+
+                                        return compareValues(a.name, b.name);
+                                      })
+                                      .map((ccPairsIndexingStatus) => (
+                                        <ConnectorRow
+                                          key={ccPairsIndexingStatus.cc_pair_id}
+                                          ccPairsIndexingStatus={
+                                            ccPairsIndexingStatus
+                                          }
+                                          isEditable={editableCcPairsIndexingStatuses.some(
+                                            (e) =>
+                                              e.cc_pair_id ===
+                                              ccPairsIndexingStatus.cc_pair_id
+                                          )}
+                                        />
+                                      ))
+                                  : connectors.map((ccPairsIndexingStatus) => (
+                                      <ConnectorRow
+                                        key={ccPairsIndexingStatus.cc_pair_id}
+                                        ccPairsIndexingStatus={
+                                          ccPairsIndexingStatus
+                                        }
+                                        isEditable={editableCcPairsIndexingStatuses.some(
+                                          (e) =>
+                                            e.cc_pair_id ===
+                                            ccPairsIndexingStatus.cc_pair_id
+                                        )}
+                                      />
+                                    ))}
+                              </React.Fragment>
+                            )
+                          )}
                       </React.Fragment>
                     );
                   }

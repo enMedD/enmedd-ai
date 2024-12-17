@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
+import { ChevronDown, Filter } from "lucide-react";
 import {
   Menubar,
   MenubarContent,
@@ -44,7 +44,7 @@ export default function FilterButton({
     <Menubar>
       <MenubarMenu>
         <MenubarTrigger>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" className="border-input">
             <Filter size={16} className="shrink-0" />
           </Button>
         </MenubarTrigger>
