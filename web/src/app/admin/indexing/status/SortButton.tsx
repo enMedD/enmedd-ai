@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -33,8 +33,21 @@ export const SortButton: React.FC<SortButtonProps> = ({
   const [localOrder, setLocalOrder] = useState<"asc" | "desc">(currentOrder);
 
   const handleApply = () => {
-    if (localSort) onApplySort(localSort, localOrder);
+    if (localSort) {
+      localStorage.setItem("sortFilter", localSort);
+      localStorage.setItem("sortOrder", localOrder);
+      onApplySort(localSort, localOrder);
+    }
   };
+
+  useEffect(() => {
+    const savedSort = localStorage.getItem("sortFilter");
+    const savedOrder = localStorage.getItem("sortOrder");
+
+    if (savedSort && (savedOrder === "asc" || savedOrder === "desc")) {
+      onApplySort(savedSort, savedOrder);
+    }
+  }, [onApplySort]);
 
   return (
     <Popover>

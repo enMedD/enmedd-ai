@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronDown, ListFilter } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,8 +33,21 @@ export const GroupButton: React.FC<GroupButtonProps> = ({
   const [localOrder, setLocalOrder] = useState<"asc" | "desc">(currentOrder);
 
   const handleApply = () => {
-    if (localGroup) onApplyGroup(localGroup, localOrder);
+    if (localGroup) {
+      localStorage.setItem("groupFilter", localGroup);
+      localStorage.setItem("groupOrder", localOrder);
+      onApplyGroup(localGroup, localOrder);
+    }
   };
+
+  useEffect(() => {
+    const savedGroup = localStorage.getItem("groupFilter");
+    const savedOrder = localStorage.getItem("groupOrder");
+
+    if (savedGroup && (savedOrder === "asc" || savedOrder === "desc")) {
+      onApplyGroup(savedGroup, savedOrder);
+    }
+  }, [onApplyGroup]);
 
   return (
     <Popover>

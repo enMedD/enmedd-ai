@@ -558,6 +558,7 @@ export function CCPairIndexingStatusTable({
                 className="cursor-pointer"
                 onClick={() => {
                   setSelectedGroup(null);
+                  removeFilterFromLocalStorage("groupFilter");
                 }}
               />
             </Badge>
@@ -570,6 +571,7 @@ export function CCPairIndexingStatusTable({
                 className="cursor-pointer"
                 onClick={() => {
                   setSelectedSort(null);
+                  removeFilterFromLocalStorage("sortFilter");
                 }}
               />
             </Badge>
