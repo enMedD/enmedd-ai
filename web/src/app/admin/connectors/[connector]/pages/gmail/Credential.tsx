@@ -1,14 +1,11 @@
-import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
-import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { adminDeleteCredential } from "@/lib/credential";
 import { setupGmailOAuth } from "@/lib/gmail";
 import { GMAIL_AUTH_IS_ADMIN_COOKIE_NAME } from "@/lib/constants";
 import Cookies from "js-cookie";
-import { TextFormField } from "@/components/admin/connectors/Field";
-import { Form, Formik } from "formik";
+import { InputForm, TextFormField } from "@/components/admin/connectors/Field";
 import { Card } from "@tremor/react";
 import {
   Credential,
@@ -18,6 +15,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
 
 type GmailCredentialJsonTypes = "authorized_user" | "service_account";
 
@@ -314,6 +315,12 @@ interface DriveCredentialSectionProps {
   connectorExists: boolean;
 }
 
+const formSchema = z.object({
+  gmail_delegated_user: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export const GmailOAuthSection = ({
   gmailPublicCredential,
   gmailServiceAccountCredential,
@@ -324,6 +331,13 @@ export const GmailOAuthSection = ({
 }: DriveCredentialSectionProps) => {
   const router = useRouter();
   const { toast } = useToast();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      gmail_delegated_user: "",
+    },
+  });
 
   const existingCredential =
     gmailPublicCredential || gmailServiceAccountCredential;
@@ -361,6 +375,38 @@ export const GmailOAuthSection = ({
     );
   }
 
+  const onSubmit = async (values: FormValues) => {
+    const response = await fetch(
+      "/api/manage/admin/connector/gmail/service-account-credential",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gmail_delegated_user: values.gmail_delegated_user,
+        }),
+      }
+    );
+
+    if (response.ok) {
+      toast({
+        title: "Success",
+        description: "Successfully created service account credential",
+        variant: "success",
+      });
+    } else {
+      const errorMsg = await response.text();
+      toast({
+        title: "Error",
+        description: `Failed to create service account credential - ${errorMsg}`,
+        variant: "destructive",
+      });
+    }
+
+    refreshCredentials();
+  };
+
   if (serviceAccountKeyData?.service_account_email) {
     return (
       <div>
@@ -377,73 +423,25 @@ export const GmailOAuthSection = ({
         </p>
 
         <Card>
-          <Formik
-            initialValues={{
-              gmail_delegated_user: "",
-            }}
-            validationSchema={Yup.object().shape({
-              gmail_delegated_user: Yup.string().optional(),
-            })}
-            onSubmit={async (values, formikHelpers) => {
-              formikHelpers.setSubmitting(true);
-
-              const response = await fetch(
-                "/api/manage/admin/connector/gmail/service-account-credential",
-                {
-                  method: "PUT",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    gmail_delegated_user: values.gmail_delegated_user,
-                  }),
-                }
-              );
-
-              if (response.ok) {
-                toast({
-                  title: "Success",
-                  description:
-                    "Successfully created service account credential",
-                  variant: "success",
-                });
-              } else {
-                const errorMsg = await response.text();
-                toast({
-                  title: "Error",
-                  description: `Failed to create service account credential - ${errorMsg}`,
-                  variant: "destructive",
-                });
-              }
-
-              refreshCredentials();
-            }}
-          >
-            {({ isSubmitting }) => (
-              <Form>
-                <TextFormField
-                  name="gmail_delegated_user"
-                  label="[Optional] User email to impersonate:"
-                  subtext="If left blank, Vanguard AI will use the service account itself."
-                  optional
-                />
-                <div className="flex">
-                  <Button
-                    variant="success"
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={
-                      "bg-slate-500 hover:bg-slate-700 text-white " +
-                      "font-bold py-2 px-4 rounded focus:outline-none " +
-                      "focus:shadow-outline w-full max-w-sm mx-auto"
-                    }
-                  >
-                    Submit
-                  </Button>
-                </div>
-              </Form>
-            )}
-          </Formik>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <InputForm
+                formControl={form.control}
+                name="gmail_delegated_user"
+                label="[Optional] User email to impersonate:"
+                description="If left blank, Vanguard AI will use the service account itself."
+              />
+              <div className="flex">
+                <Button
+                  variant="success"
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                >
+                  Submit
+                </Button>
+              </div>
+            </form>
+          </Form>
         </Card>
       </div>
     );

@@ -2,22 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { User as UserTypes } from "@/lib/types";
-import { Upload, User } from "lucide-react";
 import { UserProfile } from "@/components/UserProfile";
-import { CombinedSettings } from "@/app/admin/settings/interfaces";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-export default function ProfileTab({
-  user,
-  combinedSettings,
-}: {
-  user: UserTypes | null;
-  combinedSettings: CombinedSettings | null;
-}) {
+export default function ProfileTab({ user }: { user: UserTypes | null }) {
   const { toast } = useToast();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
@@ -206,7 +197,7 @@ export default function ProfileTab({
                 onChange={(e) => setFullName(e.target.value)}
               />
             ) : (
-              <span className="font-semibold text-inverted-inverted w-full truncate">
+              <span className="text-inverted-inverted w-full truncate">
                 {fullName || "Unknown User"}
               </span>
             )}
@@ -228,7 +219,7 @@ export default function ProfileTab({
                 onChange={(e) => setCompanyName(e.target.value)}
               />
             ) : (
-              <span className="font-semibold text-inverted-inverted w-full truncate">
+              <span className="text-inverted-inverted w-full truncate">
                 {companyName || "No Company"}
               </span>
             )}
@@ -249,7 +240,7 @@ export default function ProfileTab({
                 onChange={(e) => setEmail(e.target.value)}
               />
             ) : (
-              <span className="font-semibold text-inverted-inverted w-full truncate">
+              <span className="text-inverted-inverted w-full truncate">
                 {email || "anonymous@gmail.com"}
               </span>
             )}

@@ -8,7 +8,7 @@ import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { useSearchContext } from "@/context/SearchContext";
 import { ChatSession } from "../chat/interfaces";
 import { Logo } from "@/components/Logo";
-import VanguardAi from "../../../public/logo.png";
+import VanguardAi from "../../../public/arnold_ai.png";
 import {
   Sidebar,
   SidebarContent,

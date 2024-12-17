@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { LoadingAnimation } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Trash } from "lucide-react";
 import {
@@ -25,16 +25,16 @@ import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
 import useSWRMutation from "swr/mutation";
 import { useToast } from "@/hooks/use-toast";
 import { AddUserButton } from "./AddUserButton";
-import { User, UserStatus } from "@/lib/types";
+import { Teamspace, UserStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { UserProfile } from "@/components/UserProfile";
 import { useUser } from "@/components/user/UserProvider";
 import { useUsers } from "@/lib/hooks";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { CustomModal } from "@/components/CustomModal";
 import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
 import { InviteUserButton } from "./InviteUserButton";
+import { DeactivaterButton } from "@/components/DeactivaterButton";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -71,71 +71,22 @@ const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   );
 };
 
-export const DeactivaterButton = ({
-  user,
-  deactivate,
-  mutate,
-  role,
-}: {
-  user: User;
-  deactivate: boolean;
-  mutate: () => void;
-  role: string;
-}) => {
-  const { toast } = useToast();
-  const { trigger, isMutating } = useSWRMutation(
-    deactivate
-      ? "/api/manage/admin/deactivate-user"
-      : "/api/manage/admin/activate-user",
-    userMutationFetcher,
-    {
-      onSuccess: () => {
-        mutate();
-        toast({
-          title: "User Status Updated",
-          description: `User has been successfully ${deactivate ? "deactivated" : "activated"}.`,
-          variant: "success",
-        });
-      },
-      onError: (errorMsg) =>
-        toast({
-          title: "Operation Failed",
-          description: `Unable to ${deactivate ? "deactivate" : "activate"} user: ${errorMsg}`,
-          variant: "destructive",
-        }),
-    }
-  );
-  return (
-    <Button
-      onClick={() => trigger({ user_email: user.email })}
-      disabled={isMutating}
-      variant={deactivate ? "destructive" : "default"}
-    >
-      {deactivate ? "Deactivate" : "Activate"}
-    </Button>
-  );
-};
-
 export const AllUsers = ({
-  q,
   teamspaceId,
 }: {
-  q: string;
   teamspaceId?: string | string[];
 }) => {
   const { toast } = useToast();
-  const [invitedPage, setInvitedPage] = useState(1);
-  const [acceptedPage, setAcceptedPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
-  const [teamspaceData, setTeamspaceData] = useState<any | null>(null);
+  const [teamspaceData, setTeamspaceData] = useState<Teamspace | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { data, isLoading, error, refreshUsers } = useUsers(
-    q,
-    acceptedPage,
-    invitedPage,
+    "",
+    1,
+    1,
     teamspaceId
   );
 
@@ -266,7 +217,7 @@ export const AllUsers = ({
     : { data: [], isLoading: false, error: null };
 
   if (isLoading || isLoadingDomains || loading) {
-    return <LoadingAnimation text="Loading" />;
+    return <Loading />;
   }
 
   if (domainsError || !validDomains) {
@@ -289,14 +240,6 @@ export const AllUsers = ({
 
   const { accepted } = data;
 
-  const handleRoleChange = async (userEmail: string, newRole: string) => {
-    if (newRole === "admin") {
-      await promoteTrigger({ user_email: userEmail, new_role: "admin" });
-    } else {
-      await demoteTrigger({ user_email: userEmail, new_role: "basic" });
-    }
-  };
-
   const filteredUsers = accepted
     .filter(
       (user) =>
@@ -308,6 +251,14 @@ export const AllUsers = ({
       if (b.email === teamspaceData?.creator?.email) return 1;
       return a.id === user?.id ? -1 : 1;
     });
+
+  const handleRoleChange = async (userEmail: string, newRole: string) => {
+    if (newRole === "admin") {
+      await promoteTrigger({ user_email: userEmail, new_role: "admin" });
+    } else {
+      await demoteTrigger({ user_email: userEmail, new_role: "basic" });
+    }
+  };
 
   return (
     <>
@@ -322,24 +273,23 @@ export const AllUsers = ({
       )}
 
       <div className="flex gap-10 w-full flex-col xl:gap-20 xl:flex-row">
-        <div className="xl:w-2/5">
+        <div className="xl:w-1/3">
           <h2 className="text-lg md:text-2xl text-strong font-bold">Users</h2>
           <ValidDomainsDisplay validDomains={validDomains} />
           <div className="flex gap-2">
+            <InviteUserButton
+              teamspaceId={teamspaceId}
+              refreshUsers={refreshUsers}
+            />
             {teamspaceId && (
               <AddUserButton
                 teamspaceId={teamspaceId}
                 refreshUsers={refreshUsers}
               />
             )}
-
-            <InviteUserButton
-              teamspaceId={teamspaceId}
-              refreshUsers={refreshUsers}
-            />
           </div>
         </div>
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-4 overflow-x-auto p-1">
           <Input
             placeholder="Search user..."
             value={searchQuery}
@@ -351,7 +301,8 @@ export const AllUsers = ({
                 <Table className="">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User</TableHead>
+                      <TableHead>User ({filteredUsers.length})</TableHead>
+                      <TableHead>Company</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
@@ -363,23 +314,28 @@ export const AllUsers = ({
                           <div className="flex gap-4 items-center">
                             <UserProfile user={filteredUser} />
                             <div className="flex flex-col">
-                              <span className="truncate max-w-44 font-medium">
-                                {filteredUser.full_name}
-                              </span>
+                              <div className="flex gap-2 items-center">
+                                <span className="truncate max-w-44 font-medium">
+                                  {filteredUser.full_name}
+                                </span>
+                                {filteredUser?.id ===
+                                  teamspaceData?.creator.id && (
+                                  <Badge>Creator</Badge>
+                                )}
+                                {user?.email === filteredUser.email && (
+                                  <Badge>You</Badge>
+                                )}
+                              </div>
                               <span className="text-sm text-subtle truncate max-w-44">
                                 {filteredUser.email}
                               </span>
                             </div>
-                            {filteredUser?.email ===
-                              teamspaceData?.creator?.email && (
-                              <Badge>Creator</Badge>
-                            )}
-                            {user?.email === filteredUser.email && (
-                              <Badge>You</Badge>
-                            )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="truncate max-w-48">
+                          {filteredUser?.company_name}
+                        </TableCell>
+                        <TableCell className="w-32">
                           <Select
                             onValueChange={(value) =>
                               handleRoleChange(filteredUser.email, value)
@@ -429,7 +385,6 @@ export const AllUsers = ({
                                       filteredUser.status === UserStatus.live
                                     }
                                     mutate={refreshUsers}
-                                    role={filteredUser.role}
                                   />
                                 </div>
                               )}

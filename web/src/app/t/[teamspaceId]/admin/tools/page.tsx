@@ -1,11 +1,9 @@
 import { ToolSnapshot } from "@/lib/tools/interfaces";
-import Link from "next/link";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Button } from "@/components/ui/button";
-import { SquarePlus, Wrench } from "lucide-react";
-import { ToolsTable } from "@/app/admin/tools/ToolsTable";
+import { Wrench } from "lucide-react";
+import { Main } from "@/app/admin/tools/Main";
 
 export default async function Page({
   params,
@@ -33,22 +31,7 @@ export default async function Page({
           title="Tools"
         />
 
-        <p>Tools allow assistants to retrieve information or take actions.</p>
-
-        <div className="pt-10">
-          <h3 className="pb-2">Create a Tool</h3>
-          <Link href={`/t/${params.teamspaceId}/admin/tools/new`}>
-            <Button>
-              <SquarePlus size={14} />
-              New Tool
-            </Button>
-          </Link>
-        </div>
-
-        <div className="pt-10">
-          <h3 className="pb-4">Existing Tools</h3>
-          <ToolsTable tools={tools} teamspaceId={params.teamspaceId} />
-        </div>
+        <Main teamspaceId={params.teamspaceId} />
       </div>
     </div>
   );

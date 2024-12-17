@@ -1,10 +1,11 @@
+import dynamic from "next/dynamic";
 import { User as UserTypes } from "@/lib/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileTab from "./tabContent/ProfileTab";
-import SecurityTab from "./tabContent/SecurityTab";
-import { CreditCard, Link2, Lock, User, UserRoundPen } from "lucide-react";
+import { Lock, User, UserRoundPen } from "lucide-react";
 import { CombinedSettings } from "../admin/settings/interfaces";
-import UserTeamspace from "./tabContent/UserTeamspace";
+const UserTeamspace = dynamic(() => import("./tabContent/UserTeamspace"));
+const SecurityTab = dynamic(() => import("./tabContent/SecurityTab"));
 
 export default function Profile({
   user,
@@ -32,7 +33,10 @@ export default function Profile({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
-          <ProfileTab user={user} combinedSettings={combinedSettings} />
+          <ProfileTab user={user} />
+        </TabsContent>
+        <TabsContent value="my_teamspace">
+          <UserTeamspace />
         </TabsContent>
         <TabsContent value="my_teamspace">
           <UserTeamspace />

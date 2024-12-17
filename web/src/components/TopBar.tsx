@@ -32,9 +32,7 @@ export function TopBar({
 export function WelcomeTopBar({ goToLogin }: { goToLogin?: boolean }) {
   return (
     <div className="w-full py-6 bg-background">
-      <Link href={goToLogin ? "/auth/login" : "/"}>
-        <Logo className="w-28 xl:w-32 ml-6 xl:ml-10" />
-      </Link>
+      <Logo className="w-28 xl:w-32 ml-6 xl:ml-10" />
     </div>
   );
 }

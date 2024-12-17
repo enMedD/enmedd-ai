@@ -3,6 +3,7 @@
 import { BulkAddTeamspace } from "@/components/admin/users/BulkAddTeamspace";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
+import { UserPlus } from "lucide-react";
 import { useState } from "react";
 
 export const AddUserButton = ({
@@ -19,7 +20,12 @@ export const AddUserButton = ({
       title="Bulk Add Users"
       onClose={() => setIsModalOpen(false)}
       open={isModalOpen}
-      trigger={<Button onClick={() => setIsModalOpen(true)}>Add People</Button>}
+      trigger={
+        <Button onClick={() => setIsModalOpen(true)} variant="outline">
+          <UserPlus size={16} />
+          Add People
+        </Button>
+      }
     >
       <BulkAddTeamspace
         teamspaceId={teamspaceId}

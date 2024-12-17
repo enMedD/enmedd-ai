@@ -2,7 +2,6 @@ import random
 import re
 import string
 from datetime import datetime
-from datetime import timedelta
 from datetime import timezone
 from typing import Optional
 
@@ -67,8 +66,8 @@ from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
+from enmedd.server.feature_flags.models import feature_flag
 from enmedd.server.manage.models import AllUsersResponse
-from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.server.manage.models import UserByEmail
 from enmedd.server.manage.models import UserInfo
 from enmedd.server.manage.models import UserPreferences
@@ -80,6 +79,7 @@ from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
 
+
 router = APIRouter()
 
 
@@ -88,19 +88,26 @@ USERS_PAGE_SIZE = 10
 
 @router.patch("/users/generate-otp")
 async def generate_otp(
-    current_user: User = Depends(current_user),
-    workspace_id: Optional[int] = 0,  # Temporary set to 0
-    db: Session = Depends(get_session),
+    email: str,
+    db_session: Session = Depends(get_session),
 ):
+    current_user = get_user_by_email(email, db_session)
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Invalid email"
+        )
+
     otp_code = "".join(random.choices(string.digits, k=6))
 
-    smtp_credentials = get_smtp_credentials(workspace_id, db)
+    smtp_credentials = get_smtp_credentials(db_session)
 
     subject, body = generate_2fa_email(current_user.full_name, otp_code)
     send_2fa_email(current_user.email, subject, body, smtp_credentials)
 
     existing_otp = (
-        db.query(TwofactorAuth).filter(TwofactorAuth.user_id == current_user.id).first()
+        db_session.query(TwofactorAuth)
+        .filter(TwofactorAuth.user_id == current_user.id)
+        .first()
     )
 
     if existing_otp:
@@ -108,46 +115,17 @@ async def generate_otp(
         existing_otp.created_at = datetime.now(timezone.utc)
     else:
         new_otp = TwofactorAuth(user_id=current_user.id, code=otp_code)
-        db.add(new_otp)
+        db_session.add(new_otp)
 
-    db.commit()
+    db_session.commit()
 
     return {"message": "OTP code generated and sent!"}
-
-
-@router.post("/users/verify-otp")
-async def verify_otp(
-    otp_code: OTPVerificationRequest,
-    current_user: User = Depends(current_user),
-    db: Session = Depends(get_session),
-):
-    otp_code = otp_code.otp_code
-
-    otp_entry = (
-        db.query(TwofactorAuth)
-        .filter(TwofactorAuth.user_id == current_user.id)
-        .order_by(TwofactorAuth.created_at.desc())
-        .first()
-    )
-
-    if not otp_entry:
-        raise HTTPException(status_code=400, detail="No OTP found for the user.")
-
-    if otp_entry.code != otp_code:
-        raise HTTPException(status_code=400, detail="Invalid OTP code.")
-
-    expiration_time = otp_entry.created_at + timedelta(hours=6)
-    if datetime.now(timezone.utc) > expiration_time:
-        raise HTTPException(status_code=400, detail="OTP code has expired.")
-
-    return {"message": "OTP verified successfully!"}
 
 
 @router.post("/users/validate-token-invite")
 async def validate_token_invite(
     email: str,
     token: str,
-    _: User = Depends(current_user),
     db_session: Session = Depends(get_session),
 ):
     user = get_user_by_email(email=email, db_session=db_session)
@@ -155,6 +133,25 @@ async def validate_token_invite(
         raise HTTPException(status_code=404, detail="User not found")
 
     teamspace_id = decode_invite_token(token, email, db_session)
+
+    if teamspace_id == "Invalid token":
+        raise HTTPException(status_code=400, detail="Invalid token")
+    elif teamspace_id == "Token has expired":
+        raise HTTPException(status_code=400, detail="Token has expired")
+
+    if teamspace_id == "Missing teamspace_id":
+        user_emails = get_invited_users()
+        remaining_users = [
+            invited_user for invited_user in user_emails if invited_user != email
+        ]
+        write_invited_users(remaining_users)
+        return HTTPException(status_code=200, detail="Token is valid")
+
+    user_emails = get_invited_users(teamspace_id)
+    remaining_users = [
+        invited_user for invited_user in user_emails if invited_user != email
+    ]
+    write_invited_users(remaining_users, teamspace_id)
 
     user_emails = get_invited_users(teamspace_id)
     remaining_users = [
@@ -167,26 +164,7 @@ async def validate_token_invite(
         teamspace_id=teamspace_id,
     )
 
-    if (
-        isinstance(teamspace_id, str)
-        and teamspace_id != "Invalid token"
-        and teamspace_id != "Token has expired"
-    ):
-        teamspace = (
-            db_session.query(User__Teamspace)
-            .filter_by(teamspace_id=teamspace_id, user_id=user.id)
-            .first()
-        )
-        if not teamspace:
-            db_session.add(
-                User__Teamspace(
-                    teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
-                )
-            )
-            db_session.commit()
-        return {"message": "User successfully added to teamspace"}
-
-    return {"message": teamspace_id}
+    return HTTPException(status_code=200, detail="Token is valid from teamspace")
 
 
 @router.post("/users/change-password", tags=["users"])
@@ -358,6 +336,9 @@ def list_all_users(
         if not is_api_key_email_address(user.email)
     ]
 
+    # Sort accepted users by company_name, then by full_name
+    accepted_users.sort(key=lambda x: (x.company_name.lower(), x.full_name.lower()))
+
     invited_emails = get_invited_users(teamspace_id=teamspace_id)
     accepted_emails = {user.email for user, _ in users_with_roles}
 
@@ -381,7 +362,6 @@ def bulk_invite_users(
     emails: list[str] = Body(..., embed=True),
     teamspace_id: Optional[int] = None,
     user: User | None = Depends(current_admin_user_based_on_teamspace_id),
-    workspace_id: Optional[int] = 0,  # Temporary set to 0
     db_session: Session = Depends(get_session),
 ) -> int:
     """emails are string validated. If any email fails validation, no emails are
@@ -399,7 +379,7 @@ def bulk_invite_users(
     if not normalized_emails:
         raise HTTPException(status_code=400, detail="No valid emails found")
 
-    smtp_credentials = get_smtp_credentials(workspace_id, db_session)
+    smtp_credentials = get_smtp_credentials(db_session)
 
     token = generate_invite_token(teamspace_id, normalized_emails, db_session)
 
@@ -593,11 +573,18 @@ def list_all_users_basic_info(
         teamspace_id=teamspace_id,
         include_teamspace_user=include_teamspace_user,
     )
+    filtered_users = [
+        user for user in users if not is_api_key_email_address(user.email)
+    ]
+
     return [
         MinimalUserwithNameSnapshot(
-            id=user.id, full_name=user.full_name, email=user.email, profile=user.profile
+            id=user.id,
+            full_name=user.full_name,
+            email=user.email,
+            profile=user.profile,
         )
-        for user in users
+        for user in filtered_users
     ]
 
 
@@ -634,6 +621,7 @@ def get_current_token_creation(
 
 
 @router.put("/me/profile")
+@feature_flag("profile_page")
 def put_profile(
     file: UploadFile,
     db_session: Session = Depends(get_session),
@@ -643,6 +631,7 @@ def put_profile(
 
 
 @router.get("/me/profile")
+@feature_flag("profile_page")
 def fetch_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),
@@ -659,6 +648,7 @@ def fetch_profile(
 
 
 @router.delete("/me/profile")
+@feature_flag("profile_page")
 def remove_profile(
     db_session: Session = Depends(get_session),
     current_user: User = Depends(current_user),  # Get the current user

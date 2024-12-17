@@ -17,7 +17,7 @@ import { CodeBlock } from "@/app/chat/message/CodeBlock";
 import { Book } from "lucide-react";
 import { FeedbackBadge } from "../FeedbackBadge";
 import { Text } from "@tremor/react";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -155,7 +155,7 @@ export default function QueryPage({ params }: { params: { id: string } }) {
   );
 
   if (isLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (!chatSessionSnapshot || error) {

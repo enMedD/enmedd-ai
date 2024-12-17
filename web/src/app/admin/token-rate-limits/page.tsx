@@ -99,6 +99,7 @@ function Main() {
           variant: "success",
         });
         updateTable(target_scope);
+        localStorage.removeItem("tokenRateFormData");
       })
       .catch((error) => {
         toast({
@@ -142,7 +143,10 @@ function Main() {
             Create a Token Rate Limit
           </Button>
         }
-        onClose={() => setModalIsOpen(false)}
+        onClose={() => {
+          setModalIsOpen(false);
+          localStorage.removeItem("tokenRateFormData");
+        }}
         open={modalIsOpen}
         title="Create a Token Rate Limit"
       >
@@ -153,7 +157,10 @@ function Main() {
           forSpecificScope={
             isPaidEnterpriseFeaturesEnabled ? undefined : Scope.GLOBAL
           }
-          onClose={() => setModalIsOpen(false)}
+          onClose={() => {
+            setModalIsOpen(false);
+            localStorage.removeItem("tokenRateFormData");
+          }}
         />
       </CustomModal>
 

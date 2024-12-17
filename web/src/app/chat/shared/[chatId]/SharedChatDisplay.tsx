@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/Divider";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 
 function BackToEnmeddButton() {
   const router = useRouter();
@@ -106,9 +106,7 @@ export function SharedChatDisplay({
             })}
           </div>
         ) : (
-          <div className="pt-10">
-            <ThreeDotsLoader />
-          </div>
+          <Loading />
         )}
       </div>
 

@@ -57,11 +57,8 @@ export const InviteUserButton = ({
       onClose={() => setIsModalOpen(false)}
       open={isModalOpen}
       trigger={
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          variant={teamspaceId ? "outline" : "default"}
-        >
-          {isTeamspaceModal && <Plus size={16} />}
+        <Button onClick={() => setIsModalOpen(true)}>
+          <Plus size={16} />
           Invite Users
         </Button>
       }

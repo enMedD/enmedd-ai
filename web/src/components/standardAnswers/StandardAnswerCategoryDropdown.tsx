@@ -4,7 +4,7 @@ import { Label } from "../admin/connectors/Field";
 import MultiSelectDropdown from "../MultiSelectDropdown";
 import { StandardAnswerCategory } from "@/lib/types";
 import { ErrorCallout } from "../ErrorCallout";
-import { LoadingAnimation } from "../Loading";
+import { Loading } from "../Loading";
 import { Divider } from "@tremor/react";
 
 interface StandardAnswerCategoryDropdownFieldProps {
@@ -30,7 +30,7 @@ export const StandardAnswerCategoryDropdownField: FC<
   }
 
   if (standardAnswerCategoryResponse.categories == null) {
-    return <LoadingAnimation />;
+    return <Loading />;
   }
 
   return (

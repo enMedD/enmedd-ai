@@ -601,7 +601,7 @@ def get_application() -> FastAPI:
         # Need basic auth router for `logout` endpoint
         include_router_with_global_prefix_prepended(
             application,
-            fastapi_users.get_logout_router(auth_backend),
+            fastapi_users.get_auth_router(auth_backend),
             prefix="/auth",
             tags=["auth"],
         )

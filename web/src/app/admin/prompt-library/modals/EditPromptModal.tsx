@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { CheckboxForm, InputForm } from "@/components/admin/connectors/Field";
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
@@ -92,52 +93,26 @@ const EditPromptModal = ({
     return (
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="prompt"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel htmlFor="prompt">Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Title" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Title"
+            placeholder="Enter a title"
           />
 
-          <FormField
-            control={form.control}
+          <InputForm
+            formControl={form.control}
             name="content"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel htmlFor="content">Content</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter prompt content"
-                    {...field}
-                    className="min-h-40 max-h-96"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Content"
+            placeholder="Enter a content (e.g. 'help me rewrite the following politely and concisely for professional communication')"
+            className="min-h-40 max-h-96"
+            isTextarea
           />
 
-          <FormField
-            control={form.control}
+          <CheckboxForm
+            formControl={form.control}
             name="active"
-            render={({ field }) => (
-              <FormItem className="flex gap-2 items-center">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={(checked) => field.onChange(checked)}
-                  />
-                </FormControl>
-                <FormLabel className="!mt-0">Active prompt</FormLabel>
-              </FormItem>
-            )}
+            label="Active prompt"
           />
 
           <div className="mt-6 flex gap-2 justify-end">

@@ -2,17 +2,17 @@
 
 import { AdminPageTitle } from "@/components/admin/Title";
 import {
+  refreshDocumentSets,
   useConnectorCredentialIndexingStatus,
   useTeamspaces,
 } from "@/lib/hooks";
-import { ThreeDotsLoader } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { BackButton } from "@/components/BackButton";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { useParams, useRouter } from "next/navigation";
 import { Bookmark } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DocumentSetCreationForm } from "@/app/admin/documents/sets/DocumentSetCreationForm";
-import { refreshDocumentSets } from "@/app/admin/documents/sets/hooks";
 
 function Main() {
   const { teamspaceId } = useParams();
@@ -28,7 +28,7 @@ function Main() {
   const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
 
   if (isCCPairsLoading || teamspacesIsLoading) {
-    return <ThreeDotsLoader />;
+    return <Loading />;
   }
 
   if (ccPairsError || !ccPairs) {

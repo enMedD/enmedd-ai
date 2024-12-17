@@ -116,6 +116,7 @@ export function AssistantEditor({
   ];
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // state to persist across formik reformatting
   const [defautIconColor, _setDeafultIconColor] = useState(
@@ -360,7 +361,7 @@ export function AssistantEditor({
               return;
             }
           }
-
+          setLoading(true);
           formikHelpers.setSubmitting(true);
           let enabledTools = Object.keys(values.enabled_tools_map)
             .map((toolId) => Number(toolId))
@@ -476,6 +477,7 @@ export function AssistantEditor({
                   description: `"${assistant.name}" has been added to your list.`,
                   variant: "success",
                 });
+                setLoading(false);
 
                 router.refresh();
               } else {
@@ -489,8 +491,8 @@ export function AssistantEditor({
             const redirectUrl =
               redirectType === SuccessfulAssistantUpdateRedirectType.ADMIN
                 ? teamspaceId
-                  ? `/t/${teamspaceId}/admin/assistants?u=${Date.now()}`
-                  : `/admin/assistants?u=${Date.now()}`
+                  ? `/t/${teamspaceId}/admin/assistants`
+                  : `/admin/assistants`
                 : teamspaceId
                   ? `/t/${teamspaceId}/chat?assistantId=${assistantId}`
                   : `/chat?assistantId=${assistantId}`;
@@ -537,7 +539,7 @@ export function AssistantEditor({
                   onOpenChange={setIsIconDropdownOpen}
                   content={
                     <div
-                      className="flex p-1 border border-2 border-dashed rounded-full cursor-pointer border-border"
+                      className="flex p-1 border-2 border-dashed rounded-full cursor-pointer border-border"
                       style={{
                         borderStyle: "dashed",
                         borderWidth: "1.5px",
@@ -828,6 +830,7 @@ export function AssistantEditor({
                         </div>
                       }
                       asChild
+                      open={currentLLMSupportsImageOutput ? false : undefined}
                     >
                       {!currentLLMSupportsImageOutput && (
                         <p>
@@ -861,6 +864,7 @@ export function AssistantEditor({
                         </div>
                       }
                       asChild
+                      open={ccPairs.length === 0 ? undefined : false}
                     >
                       {ccPairs.length === 0 && (
                         <p>
@@ -965,6 +969,7 @@ export function AssistantEditor({
                                     label="Number of Context Documents"
                                     tooltip="How many of the top matching document sections to feed the LLM for context when generating a response"
                                     placeholder="Defaults to 10"
+                                    value={values.num_chunks || 10}
                                     onChange={(e) => {
                                       const value = e.target.value;
                                       if (
@@ -974,6 +979,7 @@ export function AssistantEditor({
                                         setFieldValue("num_chunks", value);
                                       }
                                     }}
+                                    optional
                                   />
 
                                   <TextFormField

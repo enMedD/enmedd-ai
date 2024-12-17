@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { FetchError, errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
-import { LoadingAnimation } from "@/components/Loading";
+import { Loading } from "@/components/Loading";
 import { ConnectorIndexingStatus } from "@/lib/types";
 import { usePublicCredentials } from "@/lib/hooks";
 import { Title } from "@tremor/react";
@@ -73,7 +73,7 @@ const GDriveMain = ({}: {}) => {
   ) {
     return (
       <div className="mx-auto">
-        <LoadingAnimation text="" />
+        <Loading />
       </div>
     );
   }

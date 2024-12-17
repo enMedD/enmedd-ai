@@ -32,10 +32,6 @@ export function NoValidAssistantModal({
           <Button>Go back to Workspace</Button>
         </Link>
 
-        <Link href={`/t/${teamspaceId}/search`} passHref>
-          <Button>Go to Search</Button>
-        </Link>
-
         {isTeamspaceAdmin && (
           <Link
             href={
@@ -48,6 +44,10 @@ export function NoValidAssistantModal({
             <Button>Go to Teamspace Admin Panel</Button>
           </Link>
         )}
+
+        <Link href={`/t/${teamspaceId}/search`} passHref>
+          <Button>Go to Search</Button>
+        </Link>
       </div>
     </CustomModal>
   );
