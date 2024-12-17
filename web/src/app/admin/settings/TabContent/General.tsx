@@ -330,7 +330,7 @@ export default function General() {
                 </Label>
                 <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                   The custom name you are giving for your workspace. This will
-                  replace &#39;Arnold AI&#39; everywhere in the UI.
+                  replace &#39;Vanguard AI&#39; everywhere in the UI.
                 </p>
               </div>
 
@@ -355,7 +355,7 @@ export default function General() {
                 </Label>
                 <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
                   {`The custom description metadata you are giving ${
-                    workspaces?.workspace_name || "Arnold AI"
+                    workspaces?.workspace_name || "Vanguard AI"
                   } for your workspace.\
                   This will be seen when sharing the link or searching through the browser.`}
                 </p>
@@ -381,7 +381,8 @@ export default function General() {
                   Logo
                 </Label>
                 <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                  Specify your own logo to replace the standard Arnold AI logo.
+                  Specify your own logo to replace the standard Vanguard AI
+                  logo.
                 </p>
               </div>
 
@@ -411,7 +412,7 @@ export default function General() {
                       </>
                     ) : (
                       <Image
-                        src="/arnold_ai.png"
+                        src="/logo.png"
                         alt="Logo"
                         width={160}
                         height={160}
@@ -434,8 +435,8 @@ export default function General() {
                   Header Logo
                 </Label>
                 <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                  Specify your own header logo to replace the standard Arnold AI
-                  header logo.
+                  Specify your own header logo to replace the standard Vanguard
+                  AI header logo.
                 </p>
               </div>
 
@@ -464,7 +465,7 @@ export default function General() {
                       </>
                     ) : (
                       <Image
-                        src="/arnold_ai.png"
+                        src="/logo.png"
                         alt="Logo"
                         width={160}
                         height={160}
@@ -643,7 +644,7 @@ export default function General() {
                 </div>
               ) : (
                 <p className="pb-3 text-sm text-subtle">
-                  Specify your own logo to replace the standard Arnold AI logo.
+                  Specify your own logo to replace the standard Vanguard AI logo.
                 </p>
               )}
 
@@ -698,7 +699,7 @@ export default function General() {
                     subtext={
                       values.enable_consent_screen
                         ? `The title for the consent screen that will be displayed for each user on their initial visit to the application. If left blank, title will default to "Terms of Use".`
-                        : `The title for the popup that will be displayed for each user on their initial visit to the application. If left blank AND Custom Popup Content is specified, will use "Welcome to ${values.workspace_name || "Arnold AI"}!".`
+                        : `The title for the popup that will be displayed for each user on their initial visit to the application. If left blank AND Custom Popup Content is specified, will use "Welcome to ${values.workspace_name || "Vanguard AI"}!".`
                     }
                     placeholder={
                       values.enable_consent_screen

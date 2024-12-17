@@ -119,7 +119,7 @@ export const ChatSidebar = ({
             className="h-11 object-contain w-full"
           />
         ) : (
-          <Image src={VanguardAi} alt="arnoldai-logo" height={44} />
+          <Image src={VanguardAi} alt="vanguardai-logo" height={44} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>

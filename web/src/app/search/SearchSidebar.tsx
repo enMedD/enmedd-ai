@@ -8,7 +8,7 @@ import { SettingsContext } from "@/components/settings/SettingsProvider";
 import { useSearchContext } from "@/context/SearchContext";
 import { ChatSession } from "../chat/interfaces";
 import { Logo } from "@/components/Logo";
-import VanguardAi from "../../../public/arnold_ai.png";
+import VanguardAi from "../../../public/logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -56,7 +56,7 @@ export const SearchSidebar = ({
             className="h-11 object-contain w-full"
           />
         ) : (
-          <Image src={VanguardAi} alt="arnoldai-logo" height={44} />
+          <Image src={VanguardAi} alt="vanguardai-logo" height={44} />
         )}
         <Separator className="mt-[9px]" />
       </SidebarHeader>
