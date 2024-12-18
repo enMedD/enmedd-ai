@@ -204,8 +204,6 @@ def create_deletion_attempt_for_connector_id(
         status=ConnectorCredentialPairStatus.DELETING,
     )
 
-    db_session.commit()
-
     # run the beat task to pick up this deletion from the db immediately
     celery_app.send_task(
         "check_for_connector_deletion_task",
@@ -217,3 +215,5 @@ def create_deletion_attempt_for_connector_id(
         file_store = get_default_file_store(db_session)
         for file_name in connector.connector_specific_config.get("file_locations", []):
             file_store.delete_file(file_name)
+
+    db_session.commit()

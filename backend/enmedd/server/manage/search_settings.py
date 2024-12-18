@@ -122,6 +122,8 @@ def set_new_search_settings(
         for cc_pair in get_connector_credential_pairs(db_session):
             resync_cc_pair(cc_pair, db_session=db_session)
 
+    db_session.commit()
+
     return IdReturn(id=new_search_settings.id)
 
 
@@ -145,6 +147,8 @@ def cancel_new_embedding(
             new_status=IndexModelStatus.PAST,
             db_session=db_session,
         )
+
+    db_session.commit()
 
 
 @router.delete("/delete-search-settings")

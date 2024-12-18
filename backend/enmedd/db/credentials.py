@@ -220,8 +220,6 @@ def create_credential(
         teamspace_ids=credential_data.groups,
     )
 
-    db_session.commit()
-
     return credential
 
 

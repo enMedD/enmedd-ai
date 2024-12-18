@@ -58,7 +58,7 @@ def create_search_settings(
     )
 
     db_session.add(embedding_model)
-    db_session.commit()
+    db_session.flush()
 
     return embedding_model
 
@@ -217,7 +217,7 @@ def update_search_settings_status(
     search_settings: SearchSettings, new_status: IndexModelStatus, db_session: Session
 ) -> None:
     search_settings.status = new_status
-    db_session.commit()
+    db_session.add(search_settings)
 
 
 def user_has_overridden_embedding_model() -> bool:

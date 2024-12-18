@@ -413,8 +413,6 @@ def expire_index_attempts(
     )
     db_session.execute(update_query)
 
-    db_session.commit()
-
 
 def cancel_indexing_attempts_for_ccpair(
     cc_pair_id: int,
@@ -435,8 +433,6 @@ def cancel_indexing_attempts_for_ccpair(
 
     db_session.execute(stmt)
 
-    db_session.commit()
-
 
 def cancel_indexing_attempts_past_model(
     db_session: Session,
@@ -454,8 +450,6 @@ def cancel_indexing_attempts_past_model(
         )
         .values(status=IndexingStatus.FAILED)
     )
-
-    db_session.commit()
 
 
 def count_unique_cc_pairs_with_successful_index_attempts(

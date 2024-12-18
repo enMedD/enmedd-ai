@@ -95,7 +95,7 @@ def create_connector(
         prune_freq=connector_data.prune_freq,
     )
     db_session.add(connector)
-    db_session.commit()
+    db_session.flush()
 
     return ObjectCreationIdResponse(id=connector.id)
 

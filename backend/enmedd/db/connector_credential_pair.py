@@ -226,7 +226,7 @@ def _update_connector_credential_pair(
         cc_pair.total_docs_indexed += net_docs
     if status is not None:
         cc_pair.status = status
-    db_session.commit()
+    db_session.add(cc_pair)
 
 
 def update_connector_credential_pair_from_id(
@@ -495,4 +495,4 @@ def resync_cc_pair(
         last_success.time_started if last_success else None
     )
 
-    db_session.commit()
+    db_session.add(cc_pair)

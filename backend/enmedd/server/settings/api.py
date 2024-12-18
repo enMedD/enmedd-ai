@@ -173,7 +173,6 @@ def get_user_notifications(
                 db_session=db_session,
             )
             db_session.flush()
-            db_session.commit()
             return [Notification.from_model(notif)]
 
         if len(reindex_notifs) > 1:

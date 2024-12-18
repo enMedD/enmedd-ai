@@ -20,7 +20,6 @@ def create_notification(
         first_shown=func.now(),
     )
     db_session.add(notification)
-    db_session.commit()
     return notification
 
 
@@ -73,4 +72,4 @@ def update_notification_last_shown(
     notification: Notification, db_session: Session
 ) -> None:
     notification.last_shown = func.now()
-    db_session.commit()
+    db_session.add(notification)
