@@ -58,7 +58,7 @@ const Page = async () => {
         </div>
 
         <div className="w-full md:w-[500px]  flex gap-2 px-6 md:px-0 py-10">
-          <Progress value={0} />
+          <Progress value={100} />
           <Progress value={100} />
         </div>
       </div>
