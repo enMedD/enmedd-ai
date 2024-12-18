@@ -33,7 +33,11 @@ const predefinedRanges = [
   { value: "lastYear", label: "Last Year" },
 ];
 
-function GenerateReportInput() {
+function GenerateReportInput({
+  teamspaceId,
+}: {
+  teamspaceId?: string | string[];
+}) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,17 +62,22 @@ function GenerateReportInput() {
         period_to = dateRange.to.toISOString();
       }
 
-      const res = await fetch("/api/admin/generate-usage-report", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          period_from: period_from,
-          period_to: period_to,
-        }),
-      });
+      const res = await fetch(
+        teamspaceId
+          ? `/api/admin/generate-usage-report?teamspace_id=${teamspaceId}`
+          : "/api/admin/generate-usage-report",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            period_from: period_from,
+            period_to: period_to,
+          }),
+        }
+      );
 
       if (!res.ok) {
         throw Error(`Received an error: ${res.statusText}`);
@@ -276,7 +285,7 @@ export default function UsageReports({
   return (
     <div className="space-y-12">
       <div>
-        <GenerateReportInput />
+        <GenerateReportInput teamspaceId={teamspaceId} />
         {usageReportsIsLoading ? (
           <Loading />
         ) : (
