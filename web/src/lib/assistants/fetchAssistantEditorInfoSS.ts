@@ -28,7 +28,11 @@ export async function fetchAssistantEditorInfoSS(
 > {
   const tasks = [
     fetchSS("/manage/indexing-status"),
-    fetchSS("/manage/document-set"),
+    fetchSS(
+      teamspaceId
+        ? `/manage/document-set?teamspace_id=${teamspaceId}`
+        : "/manage/document-set"
+    ),
     fetchSS("/llm/provider"),
     fetchToolsSS(),
   ];
