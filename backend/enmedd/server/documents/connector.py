@@ -669,7 +669,12 @@ def create_connector_from_model(
         db_session_filter(tenant_id, db_session)
     try:
         _validate_connector_allowed(connector_data.source)
-        return create_connector(connector_data=connector_data, db_session=db_session)
+
+        connector = create_connector(
+            connector_data=connector_data, db_session=db_session
+        )
+        db_session.commit()
+        return connector
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

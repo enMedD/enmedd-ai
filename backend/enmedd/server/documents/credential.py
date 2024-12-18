@@ -159,6 +159,7 @@ def create_credential_from_model(
         )
 
     credential = create_credential(credential_info, user, db_session)
+    db_session.commit()
     return ObjectCreationIdResponse(
         id=credential.id,
         credential=CredentialSnapshot.from_credential_db_model(credential),
