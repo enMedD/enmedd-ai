@@ -56,8 +56,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { format, startOfDay } from "date-fns";
 
 export function SectionHeader({
   children,
@@ -87,12 +87,14 @@ export function Label({
 
 export function ToolTipDetails({
   children,
+  asChild = true,
 }: {
   children: string | JSX.Element;
+  asChild?: boolean;
 }) {
   return (
     <div className="flex pt-[1px]">
-      <CustomTooltip trigger={<FiInfo size={12} />} asChild>
+      <CustomTooltip trigger={<FiInfo size={12} />} asChild={asChild}>
         {children}
       </CustomTooltip>
     </div>
@@ -224,7 +226,7 @@ export function TextFormField({
     >
       {(label || subtext) && (
         <div className="grid leading-none">
-          <div className="flex items-start gap-2 pb-1.5">
+          <div className="flex items-start gap-1.5 pb-1.5">
             {label && (
               <ShadcnLabel
                 htmlFor={label}
@@ -233,7 +235,9 @@ export function TextFormField({
                 {label}
               </ShadcnLabel>
             )}
-            {tooltip && <ToolTipDetails>{tooltip}</ToolTipDetails>}
+            {tooltip && (
+              <ToolTipDetails asChild={false}>{tooltip}</ToolTipDetails>
+            )}
           </div>
           {subtext && (
             <p className="text-sm text-muted-foreground pb-1.5">{subtext}</p>
