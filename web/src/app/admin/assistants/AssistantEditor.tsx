@@ -1338,10 +1338,10 @@ const formSchema = z.object({
   description: z
     .string()
     .min(1, { message: "Must provide a description for the Assistant" }),
-  system_prompt: z.string().optional(),
-  task_prompt: z.string().optional(),
+  system_prompt: z.string().default(""),
+  task_prompt: z.string().default(""),
   is_public: z.boolean(),
-  document_set_ids: z.array(z.number()).optional(),
+  document_set_ids: z.array(z.number()).default([]),
   num_chunks: z.number().nullable(),
   include_citations: z.boolean(),
   llm_relevance_filter: z.boolean(),
@@ -1361,11 +1361,13 @@ const formSchema = z.object({
           .min(1, { message: "Each starter message must have a message" }),
       })
     )
-    .optional(),
+    .nullable() // Allow starter_messages to be null
+    .default(null),
+  enabled_tools_map: z.record(z.boolean()),
   search_start_date: z.string().nullable(),
-  icon_color: z.string().optional(),
-  icon_shape: z.number().optional(),
-  uploaded_image: z.any().nullable(),
+  icon_color: z.string().nullable().default(null),
+  icon_shape: z.number().nullable().default(null),
+  uploaded_image: z.instanceof(File).nullable().default(null),
   groups: z.array(z.number()).default([]),
 });
 
@@ -1557,7 +1559,7 @@ export function AssistantEditor({
           description: message.description ?? "", // Provide a default value if null
           message: message.message ?? "",
         })) ?? [],
-      // enabled_tools_map: enabledToolsMap,
+      enabled_tools_map: enabledToolsMap,
       icon_color: existingAssistant?.icon_color ?? defautIconColor,
       icon_shape: existingAssistant?.icon_shape ?? defaultIconShape,
       uploaded_image: null,
@@ -1795,9 +1797,13 @@ export function AssistantEditor({
                 >
                   {form.getValues("uploaded_image") ? (
                     <img
-                      src={URL.createObjectURL(
-                        form.getValues("uploaded_image")
-                      )}
+                      src={
+                        form.getValues("uploaded_image") instanceof File
+                          ? URL.createObjectURL(
+                              form.getValues("uploaded_image") as File
+                            )
+                          : ""
+                      }
                       alt="Uploaded assistant icon"
                       className="object-cover w-12 h-12 rounded-full"
                     />
@@ -1811,10 +1817,10 @@ export function AssistantEditor({
                   ) : (
                     createSVG(
                       {
-                        encodedGrid: form.getValues("icon_shape"),
+                        encodedGrid: form.getValues("icon_shape") ?? 0,
                         filledSquares: 0,
                       },
-                      form.getValues("icon_color"),
+                      form.getValues("icon_color") ?? undefined,
                       undefined,
                       true
                     )
@@ -1998,7 +2004,7 @@ export function AssistantEditor({
                       name="llm_model_version_override"
                       options={
                         modelOptionsByProvider.get(
-                          form.getValues("llm_model_provider_override")
+                          form.getValues("llm_model_provider_override") || ""
                         ) || []
                       }
                       maxHeight="max-h-72"
@@ -2017,7 +2023,9 @@ export function AssistantEditor({
                       : null
                   }
                   llmProviders={llmProviders}
-                  currentLlm={form.getValues("llm_model_version_override")}
+                  currentLlm={
+                    form.getValues("llm_model_version_override") || ""
+                  }
                   onSelect={(value: string | null) => {
                     if (value !== null) {
                       const { modelName, provider, name } =
@@ -2216,7 +2224,10 @@ export function AssistantEditor({
                                 subtext="Documents prior to this date will not be referenced by the search tool"
                                 optional
                                 label="Search Start Date"
-                                value={form.getValues("search_start_date")}
+                                value={
+                                  form.getValues("search_start_date") ??
+                                  undefined
+                                }
                                 name="search_start_date"
                               />
 
