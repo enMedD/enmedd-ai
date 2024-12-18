@@ -91,16 +91,7 @@ export function GlobalSidebar({
                         href={`/${defaultPage}`}
                         className="flex items-center justify-center"
                       >
-                        {workspaces?.use_custom_logo ? (
-                          <Logo width={44} height={44} />
-                        ) : (
-                          <Image
-                            src={ArnoldAi}
-                            alt="Arnold AI Logo"
-                            width={44}
-                            height={44}
-                          />
-                        )}
+                        <Logo width={44} height={44} />
                       </Link>
                     }
                     side="right"
