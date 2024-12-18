@@ -1079,161 +1079,161 @@
 //                         Starter Messages (Optional)
 //                       </div>
 //                     </div>
-//                     <FieldArray
-//                       name="starter_messages"
-//                       render={(
-//                         arrayHelpers: ArrayHelpers<StarterMessage[]>
-//                       ) => (
-//                         <div>
-//                           {values.starter_messages &&
-//                             values.starter_messages.length > 0 &&
-//                             values.starter_messages.map(
-//                               (
-//                                 starterMessage: StarterMessage,
-//                                 index: number
-//                               ) => {
-//                                 return (
-//                                   <div
-//                                     key={index}
-//                                     className={index === 0 ? "mt-2" : "mt-6"}
-//                                   >
-//                                     <div className="flex">
-//                                       <Card className="mr-4">
-//                                         <CardContent>
-//                                           <div>
-//                                             <Label small>Name</Label>
-//                                             <SubLabel>
-//                                               Shows up as the &quot;title&quot;
-//                                               for this Starter Message. For
-//                                               example, &quot;Write an
-//                                               email&quot;.
-//                                             </SubLabel>
-//                                             <Input
-//                                               name={`starter_messages[${index}].name`}
-//                                               autoComplete="off"
-//                                               value={
-//                                                 values.starter_messages[index]
-//                                                   .name
-//                                               }
-//                                               onChange={(e) =>
-//                                                 setFieldValue(
-//                                                   `starter_messages[${index}].name`,
-//                                                   e.target.value
-//                                                 )
-//                                               }
-//                                             />
-//                                             <ErrorMessage
-//                                               name={`starter_messages[${index}].name`}
-//                                               component="div"
-//                                               className="mt-1 text-sm text-error"
-//                                             />
-//                                           </div>
+// <FieldArray
+//   name="starter_messages"
+//   render={(
+//     arrayHelpers: ArrayHelpers<StarterMessage[]>
+//   ) => (
+//     <div>
+//       {values.starter_messages &&
+//         values.starter_messages.length > 0 &&
+//         values.starter_messages.map(
+//           (
+//             starterMessage: StarterMessage,
+//             index: number
+//           ) => {
+//             return (
+//               <div
+//                 key={index}
+//                 className={index === 0 ? "mt-2" : "mt-6"}
+//               >
+//                 <div className="flex">
+//                   <Card className="mr-4">
+//                     <CardContent>
+//                       <div>
+//                         <Label small>Name</Label>
+//                         <SubLabel>
+//                           Shows up as the &quot;title&quot;
+//                           for this Starter Message. For
+//                           example, &quot;Write an
+//                           email&quot;.
+//                         </SubLabel>
+//                         <Input
+//                           name={`starter_messages[${index}].name`}
+//                           autoComplete="off"
+//                           value={
+//                             values.starter_messages[index]
+//                               .name
+//                           }
+//                           onChange={(e) =>
+//                             setFieldValue(
+//                               `starter_messages[${index}].name`,
+//                               e.target.value
+//                             )
+//                           }
+//                         />
+//                         <ErrorMessage
+//                           name={`starter_messages[${index}].name`}
+//                           component="div"
+//                           className="mt-1 text-sm text-error"
+//                         />
+//                       </div>
 
-//                                           <div className="mt-3">
-//                                             <Label small>Description</Label>
-//                                             <SubLabel>
-//                                               A description which tells the user
-//                                               what they might want to use this
-//                                               Starter Message for. For example
-//                                               &quot;to a client about a new
-//                                               feature&quot;
-//                                             </SubLabel>
-//                                             <Input
-//                                               name={`starter_messages.${index}.description`}
-//                                               autoComplete="off"
-//                                               value={
-//                                                 values.starter_messages[index]
-//                                                   .description
-//                                               }
-//                                               onChange={(e) =>
-//                                                 setFieldValue(
-//                                                   `starter_messages[${index}].description`,
-//                                                   e.target.value
-//                                                 )
-//                                               }
-//                                             />
-//                                             <ErrorMessage
-//                                               name={`starter_messages[${index}].description`}
-//                                               component="div"
-//                                               className="mt-1 text-sm text-error"
-//                                             />
-//                                           </div>
+//                       <div className="mt-3">
+//                         <Label small>Description</Label>
+//                         <SubLabel>
+//                           A description which tells the user
+//                           what they might want to use this
+//                           Starter Message for. For example
+//                           &quot;to a client about a new
+//                           feature&quot;
+//                         </SubLabel>
+//                         <Input
+//                           name={`starter_messages.${index}.description`}
+//                           autoComplete="off"
+//                           value={
+//                             values.starter_messages[index]
+//                               .description
+//                           }
+//                           onChange={(e) =>
+//                             setFieldValue(
+//                               `starter_messages[${index}].description`,
+//                               e.target.value
+//                             )
+//                           }
+//                         />
+//                         <ErrorMessage
+//                           name={`starter_messages[${index}].description`}
+//                           component="div"
+//                           className="mt-1 text-sm text-error"
+//                         />
+//                       </div>
 
-//                                           <div className="mt-3">
-//                                             <Label small>Message</Label>
-//                                             <SubLabel>
-//                                               The actual message to be sent as
-//                                               the initial user message if a user
-//                                               selects this starter prompt. For
-//                                               example, &quot;Write me an email
-//                                               to a client about a new billing
-//                                               feature we just released.&quot;
-//                                             </SubLabel>
-//                                             <Textarea
-//                                               name={`starter_messages[${index}].message`}
-//                                               autoComplete="off"
-//                                               className="min-h-40"
-//                                               value={
-//                                                 values.starter_messages[index]
-//                                                   .message
-//                                               }
-//                                               onChange={(e) =>
-//                                                 setFieldValue(
-//                                                   `starter_messages[${index}].message`,
-//                                                   e.target.value
-//                                                 )
-//                                               }
-//                                             />
-//                                             <ErrorMessage
-//                                               name={`starter_messages[${index}].message`}
-//                                               component="div"
-//                                               className="mt-1 text-sm text-error"
-//                                             />
-//                                           </div>
-//                                         </CardContent>
-//                                       </Card>
-//                                       <div className="my-auto">
-//                                         <CustomTooltip
-//                                           trigger={
-//                                             <Button
-//                                               variant="ghost"
-//                                               size="icon"
-//                                               type="button"
-//                                             >
-//                                               <FiX
-//                                                 onClick={() =>
-//                                                   arrayHelpers.remove(index)
-//                                                 }
-//                                               />
-//                                             </Button>
-//                                           }
-//                                           variant="destructive"
-//                                         >
-//                                           Remove
-//                                         </CustomTooltip>
-//                                       </div>
-//                                     </div>
-//                                   </div>
-//                                 );
-//                               }
-//                             )}
+//                       <div className="mt-3">
+//                         <Label small>Message</Label>
+//                         <SubLabel>
+//                           The actual message to be sent as
+//                           the initial user message if a user
+//                           selects this starter prompt. For
+//                           example, &quot;Write me an email
+//                           to a client about a new billing
+//                           feature we just released.&quot;
+//                         </SubLabel>
+//                         <Textarea
+//                           name={`starter_messages[${index}].message`}
+//                           autoComplete="off"
+//                           className="min-h-40"
+//                           value={
+//                             values.starter_messages[index]
+//                               .message
+//                           }
+//                           onChange={(e) =>
+//                             setFieldValue(
+//                               `starter_messages[${index}].message`,
+//                               e.target.value
+//                             )
+//                           }
+//                         />
+//                         <ErrorMessage
+//                           name={`starter_messages[${index}].message`}
+//                           component="div"
+//                           className="mt-1 text-sm text-error"
+//                         />
+//                       </div>
+//                     </CardContent>
+//                   </Card>
+//                   <div className="my-auto">
+//                     <CustomTooltip
+//                       trigger={
+//                         <Button
+//                           variant="ghost"
+//                           size="icon"
+//                           type="button"
+//                         >
+//                           <FiX
+//                             onClick={() =>
+//                               arrayHelpers.remove(index)
+//                             }
+//                           />
+//                         </Button>
+//                       }
+//                       variant="destructive"
+//                     >
+//                       Remove
+//                     </CustomTooltip>
+//                   </div>
+//                 </div>
+//               </div>
+//             );
+//           }
+//         )}
 
-//                           <Button
-//                             onClick={() => {
-//                               arrayHelpers.push({
-//                                 name: "",
-//                                 description: "",
-//                                 message: "",
-//                               });
-//                             }}
-//                             className="mt-3"
-//                             type="button"
-//                           >
-//                             <Plus size={16} /> Add New
-//                           </Button>
-//                         </div>
-//                       )}
-//                     />
+//       <Button
+//         onClick={() => {
+//           arrayHelpers.push({
+//             name: "",
+//             description: "",
+//             message: "",
+//           });
+//         }}
+//         className="mt-3"
+//         type="button"
+//       >
+//         <Plus size={16} /> Add New
+//       </Button>
+//     </div>
+//   )}
+// />
 //                   </div>
 
 //                   {!teamspaceId && (
@@ -1275,20 +1275,12 @@ import { generateRandomIconShape, createSVG } from "@/lib/assistantIconUtils";
 import { CCPairBasicInfo, DocumentSet, User } from "@/lib/types";
 import { Divider } from "@tremor/react";
 import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
-import {
-  ArrayHelpers,
-  ErrorMessage,
-  Field,
-  FieldArray,
-  Formik,
-  FormikProps,
-} from "formik";
 
 import {
-  BooleanFormField,
+  CheckboxForm,
+  InputForm,
   Label,
-  SelectorFormField,
-  TextFormField,
+  SelectForm,
 } from "@/components/admin/connectors/Field";
 import { getDisplayNameForModel } from "@/lib/hooks";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
@@ -1331,7 +1323,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Must provide a name for the Assistant" }),
@@ -1353,16 +1352,16 @@ const formSchema = z.object({
         name: z
           .string()
           .min(1, { message: "Each starter message must have a name" }),
-        description: z.string().min(1, {
-          message: "Each starter message must have a description",
-        }),
+        description: z
+          .string()
+          .min(1, { message: "Each starter message must have a description" }),
         message: z
           .string()
           .min(1, { message: "Each starter message must have a message" }),
       })
     )
-    .nullable() // Allow starter_messages to be null
-    .default(null),
+    .nullable()
+    .default([]),
   enabled_tools_map: z.record(z.boolean()),
   search_start_date: z.string().nullable(),
   icon_color: z.string().nullable().default(null),
@@ -1924,25 +1923,27 @@ export function AssistantEditor({
             </CustomTooltip>
           </div>
 
-          <TextFormField
+          <InputForm
+            formControl={form.control}
             name="name"
             tooltip="Used to identify the Assistant in the UI."
             label="Name"
             placeholder="e.g. 'Email Assistant'"
           />
 
-          <TextFormField
+          <InputForm
+            formControl={form.control}
             tooltip="Used for identifying assistants and their use cases."
             name="description"
             label="Description"
             placeholder="e.g. 'Use this Assistant to help draft professional emails'"
           />
 
-          <TextFormField
+          <InputForm
+            formControl={form.control}
             tooltip="Gives your assistant a prime directive"
             name="system_prompt"
             label="Instructions"
-            isTextArea={true}
             placeholder="e.g. 'You are a professional email writing assistant that always uses a polite enthusiastic tone, emphasizes action items, and leaves blanks for the human to fill in when you have unknowns'"
             onChange={(e) => {
               form.setValue("system_prompt", e.target.value);
@@ -1952,9 +1953,8 @@ export function AssistantEditor({
                 searchToolEnabled()
               );
             }}
-            defaultHeight="h-40"
-            maxHeight={150}
-            error={finalPromptError}
+            className="min-h-40 max-h-80"
+            isTextarea
           />
 
           <div>
@@ -1976,7 +1976,18 @@ export function AssistantEditor({
             </p>
             {admin ? (
               <div className="flex mb-2 items-starts">
-                <div className="w-96">
+                <SelectForm
+                  formControl={form.control}
+                  name="llm_model_provider_override"
+                  label="Target Scope"
+                  placeholder="Select Scope"
+                  options={llmProviders.map((llmProvider) => ({
+                    label: llmProvider.name,
+                    value: llmProvider.name,
+                  }))}
+                />
+
+                {/* <div className="w-96">
                   <SelectorFormField
                     defaultValue={`User default`}
                     name="llm_model_provider_override"
@@ -2010,11 +2021,11 @@ export function AssistantEditor({
                       maxHeight="max-h-72"
                     />
                   </div>
-                )}
+                )} */}
               </div>
             ) : (
               <div className="max-w-sm">
-                <LlmList
+                {/* <LlmList
                   scrollable
                   userDefault={
                     user?.preferences?.default_model!
@@ -2037,7 +2048,7 @@ export function AssistantEditor({
                       form.setValue("llm_model_provider_override", null);
                     }
                   }}
-                />
+                /> */}
               </div>
             )}
           </div>
@@ -2064,13 +2075,26 @@ export function AssistantEditor({
                           : ""
                       }`}
                     >
-                      <BooleanFormField
+                      <FormField
+                        control={form.control}
                         name={`enabled_tools_map.${imageGenerationTool.id}`}
-                        label="Image Generation Tool"
-                        onChange={() => {
-                          toggleToolInValues(imageGenerationTool.id);
-                        }}
-                        disabled={!currentLLMSupportsImageOutput}
+                        render={({ field }) => (
+                          <FormItem className="flex gap-2">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={(checked) => {
+                                  toggleToolInValues(imageGenerationTool.id);
+                                  field.onChange(checked);
+                                }}
+                                disabled={!currentLLMSupportsImageOutput}
+                              />
+                            </FormControl>
+                            <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                              <span>Image Generation Tool</span>
+                            </FormLabel>
+                          </FormItem>
+                        )}
                       />
                     </div>
                   }
@@ -2095,14 +2119,27 @@ export function AssistantEditor({
                           : ""
                       }`}
                     >
-                      <BooleanFormField
+                      <FormField
+                        control={form.control}
                         name={`enabled_tools_map.${searchTool.id}`}
-                        label="Search Tool"
-                        onChange={() => {
-                          form.setValue("num_chunks", null);
-                          toggleToolInValues(searchTool.id);
-                        }}
-                        disabled={ccPairs.length === 0}
+                        render={({ field }) => (
+                          <FormItem className="flex gap-2">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={(checked) => {
+                                  toggleToolInValues(searchTool.id);
+                                  form.setValue("num_chunks", null);
+                                  field.onChange(checked);
+                                }}
+                                disabled={ccPairs.length === 0}
+                              />
+                            </FormControl>
+                            <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                              <span>Search Tool</span>
+                            </FormLabel>
+                          </FormItem>
+                        )}
                       />
                     </div>
                   }
@@ -2152,7 +2189,7 @@ export function AssistantEditor({
                               </SubLabel>
                             </div>
 
-                            {documentSets.filter(
+                            {/* {documentSets.filter(
                               (documentSet) => documentSet.is_public
                             ).length > 0 ? (
                               <FieldArray
@@ -2202,10 +2239,11 @@ export function AssistantEditor({
                                   </>
                                 )}
                               </i>
-                            )}
+                            )} */}
 
                             <div className="flex flex-col mt-4 gap-y-4">
-                              <TextFormField
+                              <InputForm
+                                formControl={form.control}
                                 name="num_chunks"
                                 label="Number of Context Documents"
                                 tooltip="How many of the top matching document sections to feed the LLM for context when generating a response"
@@ -2218,7 +2256,7 @@ export function AssistantEditor({
                                 }}
                               />
 
-                              <TextFormField
+                              {/* <TextFormField
                                 width="max-w-xl"
                                 type="date"
                                 subtext="Documents prior to this date will not be referenced by the search tool"
@@ -2229,26 +2267,23 @@ export function AssistantEditor({
                                   undefined
                                 }
                                 name="search_start_date"
-                              />
+                              /> */}
 
-                              <BooleanFormField
-                                alignTop
+                              <CheckboxForm
+                                formControl={form.control}
                                 name="llm_relevance_filter"
                                 label="Apply LLM Relevance Filter"
-                                subtext={
-                                  "If enabled, the LLM will filter out chunks that are not relevant to the user query."
-                                }
+                                description="If enabled, the LLM will filter out chunks that are not relevant to the user query."
                               />
 
-                              <BooleanFormField
-                                alignTop
+                              <CheckboxForm
+                                formControl={form.control}
                                 name="include_citations"
                                 label="Include Citations"
-                                subtext={`
-                                      If set, the response will include bracket citations ([1], [2], etc.)
+                                description="If set, the response will include bracket citations ([1], [2], etc.)
                                       for each document used by the LLM to help inform the response. This is
                                       the same technique used by the default Assistants. In general, we recommend
-                                      to leave this enabled in order to increase trust in the LLM answer.`}
+                                      to leave this enabled in order to increase trust in the LLM answer."
                               />
                             </div>
                           </>
@@ -2260,27 +2295,54 @@ export function AssistantEditor({
               )}
 
               {internetSearchTool && (
-                <BooleanFormField
+                <FormField
+                  control={form.control}
                   name={`enabled_tools_map.${internetSearchTool.id}`}
-                  label={internetSearchTool.display_name}
-                  onChange={() => {
-                    toggleToolInValues(internetSearchTool.id);
-                  }}
+                  render={({ field }) => (
+                    <FormItem className="flex gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            toggleToolInValues(internetSearchTool.id);
+                            field.onChange(checked);
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                        <span>{internetSearchTool.display_name}</span>
+                      </FormLabel>
+                    </FormItem>
+                  )}
                 />
               )}
 
               {customTools.length > 0 && (
                 <>
                   {customTools.map((tool) => (
-                    <BooleanFormField
-                      alignTop={tool.description != null}
+                    <FormField
+                      control={form.control}
                       key={tool.id}
                       name={`enabled_tools_map.${tool.id}`}
-                      label={tool.name}
-                      subtext={tool.description}
-                      onChange={() => {
-                        toggleToolInValues(tool.id);
-                      }}
+                      render={({ field }) => (
+                        <FormItem className="flex gap-2">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                toggleToolInValues(tool.id);
+                                field.onChange(checked);
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
+                            <span>{tool.name}</span>
+                            <p className="text-sm text-muted-foreground font-normal">
+                              {tool.description}
+                            </p>
+                          </FormLabel>
+                        </FormItem>
+                      )}
                     />
                   ))}
                 </>
@@ -2297,10 +2359,10 @@ export function AssistantEditor({
             <>
               {llmProviders.length > 0 && (
                 <>
-                  <TextFormField
+                  <InputForm
+                    formControl={form.control}
                     name="task_prompt"
                     label="Reminders (Optional)"
-                    isTextArea={true}
                     placeholder="e.g. 'Remember to reference all of the points mentioned in my message to you and focus on identifying action items that can move things forward'"
                     onChange={(e) => {
                       form.setValue("task_prompt", e.target.value);
@@ -2310,15 +2372,14 @@ export function AssistantEditor({
                         searchToolEnabled()
                       );
                     }}
-                    defaultHeight="h-40"
-                    explanationText="Learn about prompting in our docs!"
-                    optional
-                    maxHeight={150}
+                    description="Learn about prompting in our docs!"
+                    className="min-h-40 max-h-80"
+                    isTextarea
                   />
                 </>
               )}
 
-              <div className="flex flex-col mb-6">
+              {/* <div className="flex flex-col mb-6">
                 <div className="flex items-center gap-x-2">
                   <div className="block text-base font-medium">
                     Starter Messages (Optional)
@@ -2328,139 +2389,136 @@ export function AssistantEditor({
                   name="starter_messages"
                   render={(arrayHelpers: ArrayHelpers<StarterMessage[]>) => (
                     <div>
-                      {form.getValues("starter_messages") &&
-                        form.getValues("starter_messages").length > 0 &&
-                        form
-                          .getValues("starter_messages")
-                          .map(
-                            (starterMessage: StarterMessage, index: number) => {
-                              return (
-                                <div
-                                  key={index}
-                                  className={index === 0 ? "mt-2" : "mt-6"}
-                                >
-                                  <div className="flex">
-                                    <Card className="mr-4">
-                                      <CardContent>
-                                        <div>
-                                          <Label small>Name</Label>
-                                          <SubLabel>
-                                            Shows up as the &quot;title&quot;
-                                            for this Starter Message. For
-                                            example, &quot;Write an email&quot;.
-                                          </SubLabel>
-                                          <Input
-                                            name={`starter_messages[${index}].name`}
-                                            autoComplete="off"
-                                            value={
-                                              form.getValues(
-                                                "starter_messages"
-                                              )[index].name
-                                            }
-                                            onChange={(e) =>
-                                              form.setValue(
-                                                `starter_messages[${index}].name`,
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                          <ErrorMessage
-                                            name={`starter_messages[${index}].name`}
-                                            component="div"
-                                            className="mt-1 text-sm text-error"
-                                          />
-                                        </div>
+                      {values.starter_messages &&
+                        values.starter_messages.length > 0 &&
+                        values.starter_messages.map(
+                          (starterMessage: StarterMessage, index: number) => {
+                            return (
+                              <div
+                                key={index}
+                                className={index === 0 ? "mt-2" : "mt-6"}
+                              >
+                                <div className="flex">
+                                  <Card className="mr-4">
+                                    <CardContent>
+                                      <div>
+                                        <Label small>Name</Label>
+                                        <SubLabel>
+                                          Shows up as the &quot;title&quot; for
+                                          this Starter Message. For example,
+                                          &quot;Write an email&quot;.
+                                        </SubLabel>
+                                        <Input
+                                          name={`starter_messages[${index}].name`}
+                                          autoComplete="off"
+                                          value={
+                                            values.starter_messages[index].name
+                                          }
+                                          onChange={(e) =>
+                                            setFieldValue(
+                                              `starter_messages[${index}].name`,
+                                              e.target.value
+                                            )
 
-                                        <div className="mt-3">
-                                          <Label small>Description</Label>
-                                          <SubLabel>
-                                            A description which tells the user
-                                            what they might want to use this
-                                            Starter Message for. For example
-                                            &quot;to a client about a new
-                                            feature&quot;
-                                          </SubLabel>
-                                          <Input
-                                            name={`starter_messages.${index}.description`}
-                                            autoComplete="off"
-                                            value={
-                                              form.getValues(
-                                                "starter_messages"
-                                              )[index].description
-                                            }
-                                            onChange={(e) =>
-                                              form.setValue(
-                                                `starter_messages[${index}].description`,
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                          <ErrorMessage
-                                            name={`starter_messages[${index}].description`}
-                                            component="div"
-                                            className="mt-1 text-sm text-error"
-                                          />
-                                        </div>
 
-                                        <div className="mt-3">
-                                          <Label small>Message</Label>
-                                          <SubLabel>
-                                            The actual message to be sent as the
-                                            initial user message if a user
-                                            selects this starter prompt. For
-                                            example, &quot;Write me an email to
-                                            a client about a new billing feature
-                                            we just released.&quot;
-                                          </SubLabel>
-                                          <Textarea
-                                            name={`starter_messages[${index}].message`}
-                                            autoComplete="off"
-                                            className="min-h-40"
-                                            value={
-                                              form.getValues(
-                                                "starter_messages"
-                                              )[index].message
-                                            }
-                                            onChange={(e) =>
-                                              form.setValue(
-                                                `starter_messages[${index}].message`,
-                                                e.target.value
-                                              )
+                                            
+                                          }
+                                        />
+                                        <ErrorMessage
+                                          name={`starter_messages[${index}].name`}
+                                          component="div"
+                                          className="mt-1 text-sm text-error"
+                                        />
+                                      </div>
+
+                                      <div className="mt-3">
+                                        <Label small>Description</Label>
+                                        <SubLabel>
+                                          A description which tells the user
+                                          what they might want to use this
+                                          Starter Message for. For example
+                                          &quot;to a client about a new
+                                          feature&quot;
+                                        </SubLabel>
+                                        <Input
+                                          name={`starter_messages.${index}.description`}
+                                          autoComplete="off"
+                                          value={
+                                            values.starter_messages[index]
+                                              .description
+                                          }
+                                          onChange={(e) =>
+                                            setFieldValue(
+                                              `starter_messages[${index}].description`,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        <ErrorMessage
+                                          name={`starter_messages[${index}].description`}
+                                          component="div"
+                                          className="mt-1 text-sm text-error"
+                                        />
+                                      </div>
+
+                                      <div className="mt-3">
+                                        <Label small>Message</Label>
+                                        <SubLabel>
+                                          The actual message to be sent as the
+                                          initial user message if a user selects
+                                          this starter prompt. For example,
+                                          &quot;Write me an email to a client
+                                          about a new billing feature we just
+                                          released.&quot;
+                                        </SubLabel>
+                                        <Textarea
+                                          name={`starter_messages[${index}].message`}
+                                          autoComplete="off"
+                                          className="min-h-40"
+                                          value={
+                                            values.starter_messages[index]
+                                              .message
+                                          }
+                                          onChange={(e) =>
+                                            setFieldValue(
+                                              `starter_messages[${index}].message`,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        <ErrorMessage
+                                          name={`starter_messages[${index}].message`}
+                                          component="div"
+                                          className="mt-1 text-sm text-error"
+                                        />
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                  <div className="my-auto">
+                                    <CustomTooltip
+                                      trigger={
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          type="button"
+                                        >
+                                          <FiX
+                                            onClick={() =>
+                                              arrayHelpers.remove(index)
                                             }
                                           />
-                                          <ErrorMessage
-                                            name={`starter_messages[${index}].message`}
-                                            component="div"
-                                            className="mt-1 text-sm text-error"
-                                          />
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                    <div className="my-auto">
-                                      <CustomTooltip
-                                        trigger={
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            type="button"
-                                          >
-                                            <FiX
-                                              onClick={() =>
-                                                arrayHelpers.remove(index)
-                                              }
-                                            />
-                                          </Button>
-                                        }
-                                        variant="destructive"
-                                      >
-                                        Remove
-                                      </CustomTooltip>
-                                    </div>
+                                        </Button>
+                                      }
+                                      variant="destructive"
+                                    >
+                                      Remove
+                                    </CustomTooltip>
                                   </div>
                                 </div>
-                              );
-                            }
-                          )}
+                              </div>
+                            );
+                          }
+                        )}
 
                       <Button
                         onClick={() => {
@@ -2478,7 +2536,7 @@ export function AssistantEditor({
                     </div>
                   )}
                 />
-              </div>
+              </div> */}
 
               {/* {!teamspaceId && (
                 <IsPublicGroupSelector

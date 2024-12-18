@@ -326,7 +326,7 @@ export function InputForm<T extends FieldValues>({
       render={({ field }) => (
         <FormItem className={fullWidth ? "w-full" : ""}>
           {label && (
-            <FormLabel className="flex items-center gap-2">
+            <FormLabel className="flex items-center gap-1.5">
               {label}{" "}
               {tooltip && (
                 <CustomTooltip trigger={<FiInfo size={12} />}>
