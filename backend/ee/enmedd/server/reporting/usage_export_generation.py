@@ -21,6 +21,8 @@ from enmedd.db.users import list_users
 from enmedd.file_store.constants import MAX_IN_MEMORY_SIZE
 from enmedd.file_store.file_store import FileStore
 from enmedd.file_store.file_store import get_default_file_store
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant
 
 
 def generate_chat_messages_report(
@@ -120,7 +122,12 @@ def create_new_usage_report(
     messages_filename = generate_chat_messages_report(
         db_session, file_store, report_id, period
     )
+    tenant_id = get_tenant()
+    if tenant_id:
+        db_session_filter(tenant_id, db_session)
     users_filename = generate_user_report(db_session, file_store, report_id)
+    if tenant_id:
+        db_session_filter(tenant_id, db_session)
 
     with tempfile.SpooledTemporaryFile(max_size=MAX_IN_MEMORY_SIZE) as zip_buffer:
         with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED) as zip_file:
@@ -151,6 +158,8 @@ def create_new_usage_report(
             file_type="application/zip",
         )
 
+    if tenant_id:
+        db_session_filter(tenant_id, db_session)
     # add report after zip file is written
     new_report = write_usage_report(db_session, report_name, user_id, period)
 

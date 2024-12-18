@@ -34,24 +34,56 @@ def fetch_all_schemas(db_session: Session):
 
 
 def migrate_public_schema_to_new_schema(db_session: Session, schema_name: str) -> None:
-    """Migrate the table structures from the public schema to a new schema."""
+    """Migrate the table structures and constraints from the public schema to a new schema."""
 
     db_session.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name};"))
 
-    inspector = inspect(db_session.bind)
-    public_tables = inspector.get_table_names(schema="public")
+    try:
+        inspector = inspect(db_session.bind)
+        public_tables = inspector.get_table_names(schema="public")
 
-    for table_name in public_tables:
-        db_session.execute(
-            text(
-                f"""
-            CREATE TABLE IF NOT EXISTS {schema_name}.{table_name}
-            (LIKE public.{table_name} INCLUDING ALL);
-        """
+        for table_name in public_tables:
+            db_session.execute(
+                text(
+                    f"""
+                    CREATE TABLE IF NOT EXISTS {schema_name}.{table_name}
+                    (LIKE public.{table_name} INCLUDING ALL);
+                """
+                )
             )
-        )
 
-    db_session.commit()
+        for table_name in public_tables:
+            foreign_keys = inspector.get_foreign_keys(table_name, schema="public")
+            for fk in foreign_keys:
+                fk_columns = ", ".join(fk["constrained_columns"])
+                ref_table = fk["referred_table"]
+                ref_columns = ", ".join(fk["referred_columns"])
+                on_delete = fk["options"].get("ondelete", "NO ACTION")
+                on_update = fk["options"].get("onupdate", "NO ACTION")
+
+                ref_table_new_schema = f"{schema_name}.{ref_table}"
+
+                db_session.execute(
+                    text(
+                        f"""
+                        ALTER TABLE {schema_name}.{table_name}
+                        ADD CONSTRAINT {fk['name']}
+                        FOREIGN KEY ({fk_columns})
+                        REFERENCES {ref_table_new_schema}({ref_columns})
+                        ON DELETE {on_delete}
+                        ON UPDATE {on_update};
+                    """
+                    )
+                )
+
+        db_session.commit()
+
+    except Exception as e:
+        db_session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to migrate public schema to new schema: {str(e)}",
+        )
 
 
 def delete_schema(db_session: Session, schema_name: str) -> None:
@@ -63,126 +95,134 @@ def delete_schema(db_session: Session, schema_name: str) -> None:
 def copy_filtered_data(db_session: Session, schema_name: str) -> None:
     """Copy filtered data based on specified rules from public to new schema."""
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.prompt
-            SELECT * FROM public.prompt
-            WHERE default_prompt = true;
-        """
+    try:
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.prompt
+                SELECT * FROM public.prompt
+                WHERE user_id = null;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.llm_provider
-            SELECT * FROM public.llm_provider
-            WHERE is_default_provider = true;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.llm_provider
+                SELECT * FROM public.llm_provider
+                WHERE is_default_provider = true;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.key_value_store
-            SELECT * FROM public.key_value_store
-            WHERE key = 'enmedd_feature_flag';
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.key_value_store
+                SELECT * FROM public.key_value_store
+                WHERE key = 'enmedd_feature_flag';
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.inputprompt
-            SELECT * FROM public.inputprompt
-            WHERE id < 0;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.inputprompt
+                SELECT * FROM public.inputprompt
+                WHERE id < 0;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.assistant
-            SELECT * FROM public.assistant
-            WHERE id BETWEEN -2147483648 AND 0;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.assistant
+                SELECT * FROM public.assistant
+                WHERE id BETWEEN -2147483648 AND 0;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.assistant__tool
-            SELECT * FROM public.assistant__tool
-            WHERE assistant_id BETWEEN -2147483648 AND 0;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.tool
+                SELECT * FROM public.tool
+                WHERE id BETWEEN 1 AND 3;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.tool
-            SELECT * FROM public.tool
-            WHERE id BETWEEN 1 AND 3;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.assistant__tool
+                SELECT * FROM public.assistant__tool
+                WHERE assistant_id BETWEEN -2147483648 AND 0;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.connector
-            SELECT * FROM public.connector
-            WHERE id = 0;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.connector
+                SELECT * FROM public.connector
+                WHERE id = 0;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.credential
-            SELECT * FROM public.credential
-            WHERE id = 0;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.credential
+                SELECT * FROM public.credential
+                WHERE id = 0;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.connector_credential_pair
-            SELECT * FROM public.connector_credential_pair
-            WHERE connector_id = 0 AND credential_id = 0;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.connector_credential_pair
+                SELECT * FROM public.connector_credential_pair
+                WHERE connector_id = 0 AND credential_id = 0;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.search_settings
-            SELECT * FROM public.search_settings
-            WHERE id BETWEEN 1 AND 2;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.search_settings
+                SELECT * FROM public.search_settings
+                WHERE id BETWEEN 1 AND 2;
+            """
+            )
         )
-    )
 
-    db_session.execute(
-        text(
-            f"""
-            INSERT INTO {schema_name}.instance
-            SELECT * FROM public.instance;
-        """
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.instance
+                SELECT * FROM public.instance;
+            """
+            )
         )
-    )
 
-    db_session.commit()
+        db_session.commit()
+
+    except Exception as e:
+        db_session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to copy filtered data: {str(e)}",
+        )
 
 
 def insert_workspace_data(
