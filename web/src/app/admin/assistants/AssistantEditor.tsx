@@ -84,8 +84,8 @@ const formSchema = z.object({
     .date()
     .nullable()
     .transform((val) => (val instanceof Date ? val : null)),
-  icon_color: z.string(),
-  icon_shape: z.number(),
+  icon_color: z.string().nullable(),
+  icon_shape: z.number().nullable(),
   uploaded_image: z.instanceof(File).nullable().default(null),
   enabled_tools_map: z.record(z.boolean()),
   // EE Only
@@ -544,7 +544,7 @@ export function AssistantEditor({
                           : defaultIconShape,
                         filledSquares: 0,
                       },
-                      values.icon_color,
+                      values.icon_color ? values.icon_color : defautIconColor,
                       undefined,
                       true
                     )
