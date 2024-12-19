@@ -81,13 +81,16 @@ const MemberContent = ({
   };
 
   useEffect(() => {
-    // Check if all users are selected
-    const allSelected = isGlobal
-      ? (filteredUsers?.every((user) => selectedUsers.includes(user.email)) ??
-        false)
-      : (filteredUsers
-          ?.filter((user) => user.id !== teamspace.creator.id)
-          .every((user) => selectedUsers.includes(user.email)) ?? false);
+    // Check if all applicable users are selected
+    const applicableUsers = isGlobal
+      ? filteredUsers
+      : filteredUsers?.filter((user) => user.id !== teamspace.creator.id);
+
+    const allSelected =
+      (applicableUsers &&
+        applicableUsers?.length > 0 &&
+        applicableUsers.every((user) => selectedUsers.includes(user.email))) ??
+      false;
 
     setIsAllSelected(allSelected);
   }, [selectedUsers, filteredUsers, isGlobal, teamspace.creator.id]);
