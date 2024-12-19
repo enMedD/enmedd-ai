@@ -1,5 +1,3 @@
-import subprocess
-from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter
@@ -13,12 +11,8 @@ from sqlalchemy.orm import Session
 from ee.enmedd.server.instance.models import RenameSchemaRequest
 from ee.enmedd.server.workspace.models import WorkspaceCreate
 from enmedd.auth.users import current_admin_user
-from enmedd.configs.app_configs import POSTGRES_DB
-from enmedd.configs.app_configs import POSTGRES_HOST
-from enmedd.configs.app_configs import POSTGRES_PASSWORD
-from enmedd.configs.app_configs import POSTGRES_PORT
-from enmedd.configs.app_configs import POSTGRES_USER
 from enmedd.db.engine import get_session
+from enmedd.db.instance import backup_schema
 from enmedd.db.instance import copy_filtered_data
 from enmedd.db.instance import copy_users_to_new_schema
 from enmedd.db.instance import create_new_schema
@@ -26,6 +20,7 @@ from enmedd.db.instance import delete_schema
 from enmedd.db.instance import fetch_all_schemas
 from enmedd.db.instance import insert_workspace_data
 from enmedd.db.instance import migrate_public_schema_to_new_schema
+from enmedd.db.instance import rename_schema
 from enmedd.db.models import User
 from enmedd.server.models import MinimalWorkspaceInfo
 from enmedd.server.settings.models import Settings
@@ -155,69 +150,93 @@ def fetch_workspaces(
 
 
 @admin_router.post("/backup-and-rename-workspace")
-async def backup_and_rename_schema(
+async def backup_and_rename_schema_action(
+    request: RenameSchemaRequest,
+    _: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+    # db_session: AsyncSession = Depends(get_session),
+):
+    backup_directory = "/home/andreyaa/Documents"
+
+    try:
+        # Back up the schema
+        backup_file = backup_schema(
+            schema_name=request.schema_name,
+            backup_directory=backup_directory,
+            db_session=db_session,
+        )
+
+        # Rename the schema
+        rename_schema(
+            schema_name=request.schema_name,
+            renamed_schema=request.renamed_schema,
+            db_session=db_session,
+        )
+        return {
+            "message": f"Schema '{request.schema_name}' renamed to '{request.renamed_schema}' successfully.",
+            "backup_file": backup_file,
+        }
+
+        # return FileResponse(
+        #     path=backup_file,
+        #     media_type="application/octet-stream",
+        #     filename=f"{request.schema_name}_backup.dump"
+        # )
+
+    except SQLAlchemyError as e:
+        db_session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
+@admin_router.post("/rename-workspace")
+async def rename_schema_action(
     request: RenameSchemaRequest,
     _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ):
-    backup_file = f"/home/andreyaa/Documents/{request.schema_name}_backup_{datetime.now().strftime('%Y%m%d%H%M%S')}.dump"
-
     try:
-        schema_exists_query = text(
-            "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schema_name"
+        rename_schema(
+            schema_name=request.schema_name,
+            renamed_schema=request.renamed_schema,
+            db_session=db_session,
         )
-        result = db_session.execute(
-            schema_exists_query, {"schema_name": request.schema_name}
-        )
-        schema_exists = result.scalar()
-
-        if not schema_exists:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Schema '{request.schema_name}' does not exist.",
-            )
-
-        # Run pg_dump
-        pg_dump_command = [
-            "pg_dump",
-            "-U",
-            POSTGRES_USER,
-            "-h",
-            POSTGRES_HOST,
-            "-p",
-            POSTGRES_PORT,
-            "-F",
-            "c",
-            "-d",
-            POSTGRES_DB,
-            "-n",
-            request.schema_name,
-            "-f",
-            backup_file,
-        ]
-
-        process = subprocess.run(
-            pg_dump_command,
-            text=True,
-            capture_output=True,
-            env={"PGPASSWORD": POSTGRES_PASSWORD},
-        )
-
-        if process.returncode != 0:
-            raise HTTPException(
-                status_code=500, detail=f"Backup failed: {process.stderr.strip()}"
-            )
-
-        # Rename the schema
-        rename_schema_query = text(
-            f"ALTER SCHEMA {request.schema_name} RENAME TO {request.renamed_schema}"
-        )
-        db_session.execute(rename_schema_query)
-        db_session.commit()
-
         return {
             "message": f"Schema '{request.schema_name}' renamed to '{request.renamed_schema}' successfully."
         }
+    except SQLAlchemyError as e:
+        db_session.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
+@admin_router.post("/backup-workspace")
+async def backup_schema_action(
+    schema_name: str,
+    _: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+):
+    backup_directory = "/home/andreyaa/Documents"
+
+    try:
+        backup_file = backup_schema(
+            schema_name=schema_name,
+            backup_directory=backup_directory,
+            db_session=db_session,
+        )
+
+        return {
+            "message": f"Schema '{schema_name}' backed up successfully.",
+            "backup_file": backup_file,
+        }
+
+        # return FileResponse(
+        #     path=backup_file,
+        #     media_type="application/octet-stream",
+        #     filename=f"{schema_name}_backup.dump"
+        # )
 
     except SQLAlchemyError as e:
         db_session.rollback()

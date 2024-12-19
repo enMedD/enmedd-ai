@@ -169,6 +169,7 @@ class FileOrigin(str, Enum):
     CHAT_IMAGE_GEN = "chat_image_gen"
     CONNECTOR = "connector"
     GENERATED_REPORT = "generated_report"
+    # SCHEMA_BACKUP = "schema_backup"
     OTHER = "other"
 
 

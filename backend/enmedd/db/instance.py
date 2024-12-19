@@ -1,3 +1,6 @@
+import os
+import subprocess
+from datetime import datetime
 from typing import List
 from uuid import UUID
 
@@ -11,6 +14,11 @@ from sqlalchemy.orm import Session
 from ee.enmedd.server.workspace.models import UserRole
 from ee.enmedd.server.workspace.models import UserWithRole
 from ee.enmedd.server.workspace.models import WorkspaceCreate
+from enmedd.configs.app_configs import POSTGRES_DB
+from enmedd.configs.app_configs import POSTGRES_HOST
+from enmedd.configs.app_configs import POSTGRES_PASSWORD
+from enmedd.configs.app_configs import POSTGRES_PORT
+from enmedd.configs.app_configs import POSTGRES_USER
 from enmedd.db.enums import InstanceSubscriptionPlan
 from enmedd.db.models import Instance
 
@@ -351,3 +359,81 @@ def upsert_instance(
         # Roll back the changes in case of an error
         db_session.rollback()
         raise Exception(f"Error upserting instance: {str(e)}") from e
+
+
+def backup_schema(
+    schema_name: str,
+    backup_directory: str,
+    db_session: Session,
+) -> str:
+    backup_file = os.path.join(
+        backup_directory,
+        f"{schema_name}_backup_{datetime.now().strftime('%Y%m%d%H%M%S')}.dump",
+    )
+    # backup_file = f"/tmp/{request.schema_name}_backup_{datetime.now().strftime('%Y%m%d%H%M%S')}.dump"
+
+    schema_exists_query = text(
+        "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schema_name"
+    )
+    result = db_session.execute(schema_exists_query, {"schema_name": schema_name})
+    schema_exists = result.scalar()
+
+    if not schema_exists:
+        raise HTTPException(
+            status_code=404, detail=f"Schema '{schema_name}' does not exist."
+        )
+
+    pg_dump_command = [
+        "pg_dump",
+        "-U",
+        POSTGRES_USER,
+        "-h",
+        POSTGRES_HOST,
+        "-p",
+        POSTGRES_PORT,
+        "-F",
+        "c",
+        "-d",
+        POSTGRES_DB,
+        "-n",
+        schema_name,
+        "-f",
+        backup_file,
+    ]
+
+    process = subprocess.run(
+        pg_dump_command,
+        text=True,
+        capture_output=True,
+        env={"PGPASSWORD": POSTGRES_PASSWORD},
+    )
+
+    if process.returncode != 0:
+        raise HTTPException(
+            status_code=500, detail=f"Backup failed: {process.stderr.strip()}"
+        )
+
+    # Store the backup in the PGFileStore
+    # file_store = get_default_file_store(db_session)
+
+    # with open(backup_file, "rb") as content:
+    #     file_store.save_file(
+    #         file_name=f"{request.schema_name}_backup",
+    #         content=content,
+    #         display_name=f"Backup for schema {request.schema_name}",
+    #         file_origin=FileOrigin.SCHEMA_BACKUP,
+    #         file_type="application/octet-stream",
+    #         file_metadata={"schema_name": request.schema_name}
+    #     )
+
+    return backup_file
+
+
+def rename_schema(
+    schema_name: str,
+    renamed_schema: str,
+    db_session: Session,
+) -> None:
+    rename_schema_query = text(f"ALTER SCHEMA {schema_name} RENAME TO {renamed_schema}")
+    db_session.execute(rename_schema_query)
+    db_session.commit()
