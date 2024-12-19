@@ -108,6 +108,7 @@ from enmedd.server.manage.llm.api import basic_router as llm_router
 from enmedd.server.manage.llm.models import LLMProviderUpsertRequest
 from enmedd.server.manage.search_settings import router as search_settings_router
 from enmedd.server.manage.users import router as user_router
+from enmedd.server.manage.email_templates import router as email_templates_router
 from enmedd.server.middleware.latency_logging import add_latency_logging_middleware
 from enmedd.server.middleware.tenant_identification import (
     add_tenant_identification_middleware,
@@ -515,6 +516,7 @@ def get_application() -> FastAPI:
     include_router_with_global_prefix_prepended(application, document_router)
     include_router_with_global_prefix_prepended(application, admin_query_router)
     include_router_with_global_prefix_prepended(application, admin_router)
+    include_router_with_global_prefix_prepended(application, email_templates_router)
     include_router_with_global_prefix_prepended(application, user_router)
     include_router_with_global_prefix_prepended(application, connector_router)
     include_router_with_global_prefix_prepended(application, credential_router)
