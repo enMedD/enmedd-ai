@@ -15,10 +15,15 @@ from enmedd.configs.app_configs import SMTP_PORT
 from enmedd.configs.app_configs import SMTP_SERVER
 from enmedd.configs.app_configs import SMTP_USER
 from enmedd.db.models import InviteToken
+from enmedd.db.email_template import get_active_email_template
+from enmedd.utils.smtp import send_mail
 from enmedd.db.users import delete_user_by_email
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import JSON_ro
 from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.utils.logger import setup_logger
+
+logger = setup_logger()
 
 USER_STORE_KEY = "INVITED_USERS"
 TEAMSPACE_INVITE_USER = "TEAMSPACE_INVITE_USER"
@@ -127,26 +132,13 @@ def decode_invite_token(token: str, email: str, db_session: Session):
         return "Invalid token"
 
 
-def generate_invite_email(signup_link: str):
-    subject = "You're Invite to Join The AI Platform - Activate Your Account Now!"
+def generate_invite_email(signup_link: str, db_session: Session):
+    active_email_template = get_active_email_template(db_session)
+    subject = active_email_template.subject
 
-    body = f"""
-    Hi,
-
-    We're excited to invite you to join The AI Platform!
-
-    To get started, simply click the link below to activate your account
-    {signup_link}
-
-    If you didn't request this invitation or believe this email was sent by mistake, please disregard it.
-
-    If you have any questions or need assistance, feel free to reach out to our support team at tech@arnoldai.io.
-
-    We look forward to having you with us!
-
-    Best regards,
-    The AI Platform Team
-    """
+    # load the subject with the actual value
+    body = active_email_template.body
+    body = body.replace("{{signup_link}}", signup_link)
 
     return subject, body
 
@@ -157,25 +149,4 @@ def send_invite_user_email(
     body: str,
     smtp_credentials: dict,
 ) -> None:
-    sender_email = smtp_credentials["smtp_user"] or SMTP_USER
-    sender_password = smtp_credentials["smtp_password"] or SMTP_PASS
-    smtp_server = smtp_credentials["smtp_server"] or SMTP_SERVER
-    smtp_port = smtp_credentials["smtp_port"] or SMTP_PORT
-
-    # Create MIME message
-    message = MIMEMultipart()
-    message["To"] = to_email
-    message["Subject"] = subject
-    if sender_email:
-        message["From"] = sender_email
-    message.attach(MIMEText(body, "plain"))
-
-    # Send email
-    try:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(message)
-        print(f"Invite email has been send to {to_email}")
-    except Exception as e:
-        print(f"Failed to send email invitation to {to_email}: {str(e)}")
+    send_mail(to_email, subject, body, smtp_credentials, True)
