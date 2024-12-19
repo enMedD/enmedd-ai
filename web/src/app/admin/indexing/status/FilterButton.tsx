@@ -176,19 +176,19 @@ export default function FilterButton({
               </MenubarItem>
               <MenubarItem
                 onClick={() => {
-                  setStatusFilter("in_progress");
-                  updateLocalStorage("status", "in_progress");
+                  setStatusFilter("not_started");
+                  updateLocalStorage("status", "not_starter");
                 }}
               >
                 Scheduled
               </MenubarItem>
               <MenubarItem
                 onClick={() => {
-                  setStatusFilter("not_started");
-                  updateLocalStorage("status", "not_started");
+                  setStatusFilter("in_progress");
+                  updateLocalStorage("status", "in_progress");
                 }}
               >
-                Not Started
+                In Progress
               </MenubarItem>
               <MenubarItem
                 onClick={() => {
