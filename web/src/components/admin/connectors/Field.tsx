@@ -28,7 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
-import { Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, X } from "lucide-react";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { FiInfo } from "react-icons/fi";
 import { useState } from "react";
@@ -51,6 +51,13 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { Combobox } from "@/components/Combobox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 
 export function SectionHeader({
   children,
@@ -444,11 +451,15 @@ export function CheckboxForm<T extends FieldValues>({
   name,
   label,
   description,
+  onChange,
+  disabled,
 }: {
   formControl: Control<T>;
   name: Path<T>;
   label?: string;
   description?: string | React.ReactNode;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }) {
   return (
     <FormField
@@ -457,11 +468,27 @@ export function CheckboxForm<T extends FieldValues>({
       render={({ field }) => (
         <FormItem className="flex gap-2">
           <FormControl>
-            <Checkbox
+            {/* <Checkbox
               checked={field.value}
               onCheckedChange={(checked) => {
                 field.onChange(checked);
               }}
+            /> */}
+            <Checkbox
+              checked={field.value}
+              onCheckedChange={(checked: boolean) => {
+                const event = {
+                  target: {
+                    value: checked,
+                  },
+                } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+                if (onChange) {
+                  onChange(event);
+                }
+                field.onChange(checked);
+              }}
+              disabled={disabled}
             />
           </FormControl>
           <FormLabel className="!mt-0 !mb-3 !space-y-1.5">
@@ -934,5 +961,55 @@ export function SelectorFormField({
         className="mt-1 text-sm text-red-500"
       />
     </div>
+  );
+}
+
+export function DatePicker<T extends FieldValues>({
+  formControl,
+  name,
+}: {
+  formControl: Control<T>;
+  name: Path<T>;
+}) {
+  return (
+    <FormField
+      control={formControl}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Search Start Date</FormLabel>
+          <FormControl>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className="w-[276px] justify-start gap-3 border-border"
+                >
+                  <CalendarIcon size={16} />
+                  {field.value ? (
+                    // Ensure field.value is formatted as a string
+                    format(new Date(field.value), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  initialFocus
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => field.onChange(date)} // Ensure the date is passed correctly
+                />
+              </PopoverContent>
+            </Popover>
+          </FormControl>
+          <FormDescription>
+            Select the date for when the event will take place
+          </FormDescription>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }

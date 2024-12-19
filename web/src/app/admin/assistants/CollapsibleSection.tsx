@@ -29,7 +29,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 
   return (
     <div
-      className={`relative ${isCollapsed ? "h-6" : ""} ${className}`}
+      className={`relative pl-[7px] ${isCollapsed ? "h-6" : ""} ${className}`}
       style={{ transition: "height 0.3s ease-out" }}
     >
       <div
