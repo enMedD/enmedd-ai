@@ -406,13 +406,14 @@ class FastAPIUserWithAuthRouter(FastAPIUsers[models.UP, models.ID]):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
                 )
-            if requires_verification and not user.is_verified:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
-                )
+            # if requires_verification and not user.is_verified:
+            #     # This is to proceed with verification
+            #     return Response(status_code=status.HTTP_200_OK)
             # This is to bypass the login page without immedietely logging in the user
-            if FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True:
+            if (
+                FeatureFlagsManager.is_feature_enabled("two_factor_auth") is True
+                and not requires_verification
+            ):
                 # redirect to the OTP verification page
                 return Response(status_code=status.HTTP_200_OK)
             response = await backend.login(strategy, user)

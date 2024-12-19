@@ -364,6 +364,9 @@ def list_all_users(
         if not is_api_key_email_address(user.email)
     ]
 
+    # Sort accepted users by company_name, then by full_name
+    accepted_users.sort(key=lambda x: (x.company_name.lower(), x.full_name.lower()))
+
     invited_emails = get_invited_users(teamspace_id=teamspace_id)
     accepted_emails = {user.email for user, _ in users_with_roles}
 
