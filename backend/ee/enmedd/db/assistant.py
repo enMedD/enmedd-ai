@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from enmedd.db.models import Assistant__Teamspace
 from enmedd.db.models import Assistant__User
+from enmedd.server.middleware.tenant_identification import db_session_filter
+from enmedd.server.middleware.tenant_identification import get_tenant
 
 
 def make_assistant_private(
@@ -12,6 +14,9 @@ def make_assistant_private(
     team_ids: list[int] | None,
     db_session: Session,
 ) -> None:
+    tenant_id = get_tenant()
+    if tenant_id:
+        db_session_filter(tenant_id, db_session)
     db_session.query(Assistant__User).filter(
         Assistant__User.assistant_id == assistant_id
     ).delete(synchronize_session="fetch")

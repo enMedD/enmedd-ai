@@ -131,7 +131,7 @@ def copy_filtered_data(db_session: Session, schema_name: str) -> None:
                 f"""
                 INSERT INTO {schema_name}.inputprompt
                 SELECT * FROM public.inputprompt
-                WHERE id < 0;
+                WHERE user_id = null;
             """
             )
         )
@@ -141,7 +141,17 @@ def copy_filtered_data(db_session: Session, schema_name: str) -> None:
                 f"""
                 INSERT INTO {schema_name}.assistant
                 SELECT * FROM public.assistant
-                WHERE id BETWEEN -2147483648 AND 0;
+                WHERE user_id = null;
+            """
+            )
+        )
+
+        db_session.execute(
+            text(
+                f"""
+                INSERT INTO {schema_name}.assistant__prompt
+                SELECT * FROM public.assistant__prompt
+                WHERE assistant_id BETWEEN -2147483648 AND 0;
             """
             )
         )
