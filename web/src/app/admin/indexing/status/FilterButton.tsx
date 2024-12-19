@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
+import { ChevronDown, Filter } from "lucide-react";
 import {
   Menubar,
   MenubarContent,
@@ -44,7 +44,7 @@ export default function FilterButton({
     <Menubar>
       <MenubarMenu>
         <MenubarTrigger>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" className="border-input">
             <Filter size={16} className="shrink-0" />
           </Button>
         </MenubarTrigger>
@@ -176,19 +176,19 @@ export default function FilterButton({
               </MenubarItem>
               <MenubarItem
                 onClick={() => {
-                  setStatusFilter("in_progress");
-                  updateLocalStorage("status", "in_progress");
+                  setStatusFilter("not_started");
+                  updateLocalStorage("status", "not_starter");
                 }}
               >
                 Scheduled
               </MenubarItem>
               <MenubarItem
                 onClick={() => {
-                  setStatusFilter("not_started");
-                  updateLocalStorage("status", "not_started");
+                  setStatusFilter("in_progress");
+                  updateLocalStorage("status", "in_progress");
                 }}
               >
-                Not Started
+                In Progress
               </MenubarItem>
               <MenubarItem
                 onClick={() => {
