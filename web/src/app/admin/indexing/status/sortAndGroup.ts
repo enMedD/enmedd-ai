@@ -27,12 +27,12 @@ export const compareValues = (
 };
 
 export const getActivityLabel = (status: Status): string => {
-  const statusToMatch = status.cc_pair_status.toLowerCase();
-  if (statusToMatch === "active") {
-    const lastStatusToMatch = status.last_status
+  const ccPairStatus = status.cc_pair_status.toLowerCase();
+  if (ccPairStatus === "active") {
+    const ccPairLastStatus = status.last_status
       ? status.last_status.toLowerCase()
       : "";
-    switch (lastStatusToMatch) {
+    switch (ccPairLastStatus) {
       case "in_progress":
         return "in_progress";
       case "not_started":
@@ -41,7 +41,7 @@ export const getActivityLabel = (status: Status): string => {
         return "Active";
     }
   }
-  return statusToMatch;
+  return ccPairStatus;
 };
 
 export const sortConnectors = (
@@ -129,19 +129,19 @@ export const groupConnectorsByStatus = (
 
       switch (selectedGroup) {
         case "Activity":
-          const statusToMatch = connector.cc_pair_status.toLowerCase();
-          if (statusToMatch === "active") {
-            const lastStatusToMatch = connector.last_status
+          const ccPairStatus = connector.cc_pair_status.toLowerCase();
+          if (ccPairStatus === "active") {
+            const ccPairLastStatus = connector.last_status
               ? connector.last_status.toLowerCase()
               : "";
             groupKey =
-              lastStatusToMatch === "in_progress"
+              ccPairLastStatus === "in_progress"
                 ? "in_progress"
-                : lastStatusToMatch === "not_started"
+                : ccPairLastStatus === "not_started"
                   ? "not_started"
                   : "Active";
           } else {
-            groupKey = statusToMatch;
+            groupKey = ccPairStatus;
           }
           break;
 
@@ -169,16 +169,6 @@ export const groupConnectorsByStatus = (
   );
 };
 
-interface FilterConnectorsParams {
-  source: string;
-  searchTerm: string;
-  activityFilter: string | null;
-  permissionsFilter: string | null;
-  docsFilter: number | null;
-  statusFilter: string | null;
-  groupedStatuses: Record<string, ConnectorIndexingStatus<any, any>[]>;
-}
-
 export const filterConnectors = ({
   source,
   searchTerm,
@@ -187,7 +177,15 @@ export const filterConnectors = ({
   docsFilter,
   statusFilter,
   groupedStatuses,
-}: FilterConnectorsParams) => {
+}: {
+  source: string;
+  searchTerm: string;
+  activityFilter: string | null;
+  permissionsFilter: string | null;
+  docsFilter: number | null;
+  statusFilter: string | null;
+  groupedStatuses: Record<string, ConnectorIndexingStatus<any, any>[]>;
+}) => {
   return groupedStatuses[source].filter((status) => {
     const nameMatches = (status.name || "")
       .toLowerCase()
@@ -199,14 +197,14 @@ export const filterConnectors = ({
     let matchesStatus = true;
 
     if (activityFilter) {
-      const statusToMatch = status.cc_pair_status.toLowerCase();
+      const ccPairStatus = status.cc_pair_status.toLowerCase();
 
-      if (statusToMatch === "active") {
-        const lastStatusToMatch = status.last_status
+      if (ccPairStatus === "active") {
+        const ccPairLastStatus = status.last_status
           ? status.last_status.toLowerCase()
           : "";
 
-        switch (lastStatusToMatch) {
+        switch (ccPairLastStatus) {
           case "in_progress":
             matchesActivity = activityFilter.toLowerCase() === "in_progress";
             break;
@@ -218,7 +216,7 @@ export const filterConnectors = ({
             break;
         }
       } else {
-        matchesActivity = statusToMatch.includes(activityFilter.toLowerCase());
+        matchesActivity = ccPairStatus.includes(activityFilter.toLowerCase());
       }
     }
 
