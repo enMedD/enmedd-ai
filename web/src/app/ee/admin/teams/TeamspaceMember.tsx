@@ -30,56 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { InviteUserButton } from "@/app/admin/users/InviteUserButton";
-
-const InviteModal = () => {
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-
-  return (
-    <div className="flex justify-end">
-      <CustomModal
-        trigger={
-          <Button onClick={() => setIsInviteModalOpen(true)}>
-            <Plus size={16} />
-            Invite
-          </Button>
-        }
-        open={isInviteModalOpen}
-        title="Invite to Your Teamspace"
-        description="Your invite link has been created. Share this link to join your workspace."
-        onClose={() => setIsInviteModalOpen(false)}
-        className="!max-w-[700px]"
-      >
-        <div className="pb-8">
-          <div className="space-y-2 w-full">
-            <div className="flex flex-col sm:flex-row gap-2 w-full">
-              <div className="flex gap-2 w-full">
-                <Input placeholder="Email" />
-                <Select value="basic">
-                  <SelectTrigger className="w-56">
-                    <SelectValue placeholder="Role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="basic">User</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button>Send Invite</Button>
-            </div>
-            <p className="text-xs text-subtle">
-              We&apos;ll send them instructions and a magic link to join the
-              teamspace via email.
-            </p>
-          </div>
-
-          <div></div>
-        </div>
-      </CustomModal>
-    </div>
-  );
-};
 
 interface MemberContentProps {
   isGlobal?: boolean;
@@ -89,6 +40,8 @@ interface MemberContentProps {
   setSearchTerm: Dispatch<SetStateAction<string>>;
   filteredUsers: User[] | undefined;
   refreshTeamspaceUsers: () => void;
+  setSelectedUsers: Dispatch<SetStateAction<string[]>>;
+  selectedUsers: string[];
 }
 
 const MemberContent = ({
@@ -99,13 +52,11 @@ const MemberContent = ({
   setSearchTerm,
   filteredUsers,
   refreshTeamspaceUsers,
+  setSelectedUsers,
+  selectedUsers,
 }: MemberContentProps) => {
-  const router = useRouter();
   const { toast } = useToast();
-  const [isRemoveUserModalOpen, setIsRemoveUserModalOpen] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
-  const { refreshUsers } = useUsers();
 
   const handleCheckboxChange = (userEmail: string) => {
     setSelectedUsers((prev) =>
@@ -115,26 +66,230 @@ const MemberContent = ({
     );
   };
 
-  useEffect(() => {
-    // Check if all users are selected
-    const allSelected =
-      filteredUsers?.every((user) => selectedUsers.includes(user.email)) ??
-      false;
-    setIsAllSelected(allSelected);
-  }, [selectedUsers, filteredUsers]);
-
   const handleHeaderCheckboxChange = () => {
     if (isAllSelected) {
       setSelectedUsers([]);
     } else {
-      const nonCreatorUsers = filteredUsers!.filter(
-        (user) => user.id !== teamspace.creator.id
-      );
-      setSelectedUsers(nonCreatorUsers.map((user) => user.email));
+      const usersToSelect = isGlobal
+        ? filteredUsers!.map((user) => user.email)
+        : filteredUsers!
+            .filter((user) => user.id !== teamspace.creator.id)
+            .map((user) => user.email);
+
+      setSelectedUsers(usersToSelect);
     }
   };
 
+  useEffect(() => {
+    // Check if all users are selected
+    const allSelected = isGlobal
+      ? (filteredUsers?.every((user) => selectedUsers.includes(user.email)) ??
+        false)
+      : (filteredUsers
+          ?.filter((user) => user.id !== teamspace.creator.id)
+          .every((user) => selectedUsers.includes(user.email)) ?? false);
+
+    setIsAllSelected(allSelected);
+  }, [selectedUsers, filteredUsers, isGlobal, teamspace.creator.id]);
+
+  const handleRoleChange = async (userEmail: string, newRole: string) => {
+    try {
+      await fetch(`/api/manage/admin/teamspace/user-role/${teamspace.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_email: userEmail,
+          new_role: newRole,
+        }),
+      });
+      toast({
+        title: "Success",
+        description: `Role updated to ${newRole}`,
+        variant: "success",
+      });
+      refreshTeamspaceUsers();
+      refreshTeamspaces();
+    } catch (error) {
+      console.error("Failed to update role", error);
+      toast({
+        title: "Error",
+        description: "Failed to update user role",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className={`space-y-4 ${isGlobal ? "cursor-pointer" : ""}`}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg leading-none tracking-tight lg:text-xl font-semibold">
+          {isGlobal ? "Available" : "Current"} User
+        </h2>
+        <div className="w-1/2">
+          <SearchInput
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+        </div>
+      </div>
+      <div className="pb-6">
+        {filteredUsers && filteredUsers?.length > 0 ? (
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={isAllSelected}
+                        onCheckedChange={handleHeaderCheckboxChange}
+                      />
+                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email Address</TableHead>
+                    {!isGlobal && <TableHead>Role</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers?.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        {(isGlobal || teamspace.creator.id !== user.id) && (
+                          <Checkbox
+                            checked={selectedUsers.includes(user.email)}
+                            onCheckedChange={() =>
+                              handleCheckboxChange(user.email)
+                            }
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell className="flex items-center gap-2">
+                        <UserProfile user={user} size={40} />
+                        <div className="grid">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold whitespace-nowrap">
+                              {user.full_name}
+                            </span>
+                            {user.id !== teamspace.creator.id && !isGlobal && (
+                              <Badge
+                                variant={
+                                  user.role === "admin"
+                                    ? "success"
+                                    : "secondary"
+                                }
+                              >
+                                {user.role === "admin" ? "Admin" : "User"}
+                              </Badge>
+                            )}
+
+                            {user.id === teamspace.creator.id && (
+                              <Badge>Creator</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        {!isGlobal ? (
+                          <Select
+                            value={user.role || "basic"}
+                            onValueChange={(newRole) =>
+                              handleRoleChange(user.email, newRole)
+                            }
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="Role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="basic">User</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          ""
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ) : (
+          <p className="flex items-center justify-center py-4">
+            No users found.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface TeamspaceMemberProps {
+  teamspace: Teamspace & { gradient: string };
+  refreshTeamspaces: () => void;
+}
+
+export const TeamspaceMember = ({
+  teamspace,
+  refreshTeamspaces,
+}: TeamspaceMemberProps) => {
+  const router = useRouter();
+  const { toast } = useToast();
+  const { refreshUsers } = useUsers();
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [searchTermAvailableUser, setSearchTermAvailableUser] = useState("");
+  const [searchTermCurrentUser, setSearchTermCurrentUse] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const { user } = useUser();
+  const { data: users, refreshTeamspaceUsers } = useTeamspaceUsers(
+    teamspace.id.toString()
+  );
+
+  const filteredCurrentUsers = teamspace.users.filter(
+    (user) =>
+      user.email?.toLowerCase().includes(searchTermCurrentUser.toLowerCase()) ||
+      user.full_name
+        ?.toLowerCase()
+        .includes(searchTermCurrentUser.toLowerCase())
+  );
+
+  const filteredAvaillableUsers =
+    users?.filter(
+      (user) =>
+        user.email
+          ?.toLowerCase()
+          .includes(searchTermAvailableUser.toLowerCase()) ||
+        user.full_name
+          ?.toLowerCase()
+          .includes(searchTermAvailableUser.toLowerCase())
+    ) ?? [];
+
+  const usersToDisplay = [
+    ...teamspace.users.sort((a, b) =>
+      a.id === user?.id ? -1 : b.id === user?.id ? 1 : 0
+    ),
+  ].slice(0, 8);
+
   const handleRemoveUser = async () => {
+    const remainingAdmins = filteredCurrentUsers?.filter(
+      (user) => user.role === "admin"
+    );
+
+    if (
+      remainingAdmins?.length === 1 &&
+      selectedUsers.includes(remainingAdmins[0].email)
+    ) {
+      toast({
+        title: "Action Forbidden",
+        description:
+          "At least one admin must remain in the teamspace. You cannot remove the last admin.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const response = await fetch(
         `/api/manage/admin/teamspace/user-remove/${teamspace.id}`,
@@ -152,16 +307,17 @@ const MemberContent = ({
         throw new Error(errorData.detail || "Failed to delete user");
       }
 
-      refreshUsers();
-      refreshTeamspaces();
-      refreshTeamspaceUsers();
-      setSelectedUsers([]);
       toast({
         title: "User Removed",
         description:
           "The user has been successfully removed from the teamspace.",
         variant: "success",
       });
+      refreshUsers();
+      refreshTeamspaces();
+      refreshTeamspaceUsers();
+      setSelectedUsers([]);
+      router.refresh();
     } catch (error) {
       if (error instanceof Error) {
         toast({
@@ -197,10 +353,11 @@ const MemberContent = ({
         description: "Users added successfully",
         variant: "success",
       });
-
+      refreshUsers();
       refreshTeamspaceUsers();
       refreshTeamspaces();
       setSelectedUsers([]);
+      router.refresh();
     } catch (error) {
       console.error(error);
       toast({
@@ -211,268 +368,64 @@ const MemberContent = ({
     }
   };
 
-  const handleRoleChange = async (userEmail: string, newRole: string) => {
-    try {
-      await fetch(`/api/manage/admin/teamspace/user-role/${teamspace.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_email: userEmail,
-          new_role: newRole,
-        }),
-      });
-      toast({
-        title: "Success",
-        description: `Role updated to ${newRole}`,
-        variant: "success",
-      });
-      refreshTeamspaceUsers();
-      refreshTeamspaces();
-    } catch (error) {
-      console.error("Failed to update role", error);
-      toast({
-        title: "Error",
-        description: "Failed to update user role",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <>
-      <div className={`space-y-4 ${isGlobal ? "cursor-pointer" : ""}`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg leading-none tracking-tight lg:text-xl font-semibold">
-            {isGlobal ? "Available" : "Current"} User
-          </h2>
-          <div className="w-1/2">
-            <SearchInput
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={setSearchTerm}
-            />
-          </div>
-        </div>
-        {filteredUsers && filteredUsers?.length > 0 ? (
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">
-                      <Checkbox
-                        checked={isAllSelected}
-                        onCheckedChange={handleHeaderCheckboxChange}
-                      />
-                    </TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email Address</TableHead>
-                    {!isGlobal && <TableHead>Role</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers?.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        {teamspace.creator.id !== user.id && (
-                          <Checkbox
-                            checked={selectedUsers.includes(user.email)}
-                            onCheckedChange={() =>
-                              handleCheckboxChange(user.email)
-                            }
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell className="flex items-center gap-2">
-                        <UserProfile user={user} size={40} />
-                        <div className="grid">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold whitespace-nowrap">
-                              {user.full_name}
-                            </span>
-                            {!isGlobal && (
-                              <Badge
-                                variant={
-                                  user.role === "admin"
-                                    ? "success"
-                                    : "secondary"
-                                }
-                              >
-                                {user.role === "admin" ? "Admin" : "User"}
-                                {/* {user.role.charAt(0).toUpperCase() +
-                                  user.role.slice(1)} */}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        {!isGlobal && teamspace.creator.id !== user.id ? (
-                          <Select
-                            value={user.role || "basic"}
-                            onValueChange={(newRole) =>
-                              handleRoleChange(user.email, newRole)
-                            }
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue placeholder="Role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="basic">User</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        ) : user.id === teamspace.creator.id ? (
-                          <Badge>Creator</Badge>
-                        ) : (
-                          ""
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        ) : (
-          <p className="flex items-center justify-center py-4">
-            No users found.
-          </p>
-        )}
-
-        {!isGlobal && selectedUsers.length > 0 && (
-          <div className="flex justify-end">
-            <Button onClick={handleRemoveUser} variant="destructive">
-              <Minus size={16} /> Remove Selected Users
-            </Button>
-          </div>
-        )}
-
-        {isGlobal && selectedUsers.length > 0 && (
-          <div className="flex justify-end">
-            <Button onClick={handleAddUsers}>
-              <Plus size={16} /> Add Selected Users
-            </Button>
-          </div>
-        )}
-      </div>
-      {isRemoveUserModalOpen && (
-        <CustomModal
-          trigger={null}
-          title="Remove Member"
-          open={isRemoveUserModalOpen}
-          onClose={() => setIsRemoveUserModalOpen(false)}
-          description="You are about to remove this member."
+    <CustomModal
+      className="pb-0"
+      trigger={
+        <div
+          className={`rounded-md bg-background-subtle w-full p-4 min-h-36 flex flex-col justify-between ${teamspace.is_up_to_date && !teamspace.is_up_for_deletion && "cursor-pointer"}`}
+          onClick={() =>
+            setIsMemberModalOpen(
+              teamspace.is_up_to_date && !teamspace.is_up_for_deletion
+                ? true
+                : false
+            )
+          }
         >
-          <div className="pt-6 flex gap-4 justify-center">
-            <Button onClick={() => setIsRemoveUserModalOpen(false)}>No</Button>
-            <Button variant="destructive" onClick={handleRemoveUser}>
-              Yes
-            </Button>
-          </div>
-        </CustomModal>
-      )}
-    </>
-  );
-};
-
-interface TeamspaceMemberProps {
-  teamspace: Teamspace & { gradient: string };
-  refreshTeamspaces: () => void;
-}
-
-export const TeamspaceMember = ({
-  teamspace,
-  refreshTeamspaces,
-}: TeamspaceMemberProps) => {
-  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const [searchTermAvailableUser, setSearchTermAvailableUser] = useState("");
-  const [searchTermCurrentUser, setSearchTermCurrentUse] = useState("");
-  const { user } = useUser();
-  const { data: users, refreshTeamspaceUsers } = useTeamspaceUsers(
-    teamspace.id.toString()
-  );
-
-  const filteredCurrentUsers = teamspace.users.filter(
-    (user) =>
-      user.email?.toLowerCase().includes(searchTermCurrentUser.toLowerCase()) ||
-      user.full_name
-        ?.toLowerCase()
-        .includes(searchTermCurrentUser.toLowerCase())
-  );
-
-  const filteredAvaillableUsers = users?.filter(
-    (user) =>
-      user.email
-        ?.toLowerCase()
-        .includes(searchTermAvailableUser.toLowerCase()) ||
-      user.full_name
-        ?.toLowerCase()
-        .includes(searchTermAvailableUser.toLowerCase())
-  );
-
-  const usersToDisplay = [
-    ...teamspace.users.sort((a, b) =>
-      a.id === user?.id ? -1 : b.id === user?.id ? 1 : 0
-    ),
-  ].slice(0, 8);
-
-  return (
-    <>
-      <CustomModal
-        trigger={
-          <div
-            className={`rounded-md bg-background-subtle w-full p-4 min-h-36 flex flex-col justify-between ${teamspace.is_up_to_date && !teamspace.is_up_for_deletion && "cursor-pointer"}`}
-            onClick={() =>
-              setIsMemberModalOpen(
-                teamspace.is_up_to_date && !teamspace.is_up_for_deletion
-                  ? true
-                  : false
-              )
-            }
-          >
-            <div className="flex items-center justify-between">
-              <h3>
-                Members <span className="px-2 font-normal">|</span>{" "}
-                {teamspace.users.length}
-              </h3>
-              {teamspace.is_up_to_date && !teamspace.is_up_for_deletion && (
-                <Pencil size={16} />
-              )}
-            </div>
-
-            {teamspace.users.length > 0 ? (
-              <div className="pt-8 flex flex-wrap -space-x-3">
-                {usersToDisplay.map((user) => (
-                  <CustomTooltip
-                    variant="white"
-                    key={user.id}
-                    trigger={<UserProfile user={user} />}
-                  >
-                    {user.email == teamspace.creator.email && (
-                      <Crown size={16} className="me-2" />
-                    )}
-                    {user.full_name}
-                  </CustomTooltip>
-                ))}
-                {teamspace.users.length > 8 && (
-                  <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
-                    +{teamspace.users.length - 8}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p>There are no member.</p>
+          <div className="flex items-center justify-between">
+            <h3>
+              Members <span className="px-2 font-normal">|</span>{" "}
+              {teamspace.users.length}
+            </h3>
+            {teamspace.is_up_to_date && !teamspace.is_up_for_deletion && (
+              <Pencil size={16} />
             )}
           </div>
-        }
-        title="Members"
-        open={isMemberModalOpen}
-        onClose={() => setIsMemberModalOpen(false)}
-      >
-        <div className="space-y-12 pb-12">
-          {/* <InviteModal /> */}
+
+          {teamspace.users.length > 0 ? (
+            <div className="pt-8 flex flex-wrap -space-x-3">
+              {usersToDisplay.map((user) => (
+                <CustomTooltip
+                  variant="white"
+                  key={user.id}
+                  trigger={<UserProfile user={user} />}
+                >
+                  {user.email == teamspace.creator.email && (
+                    <Crown size={16} className="me-2" />
+                  )}
+                  {user.full_name}
+                </CustomTooltip>
+              ))}
+              {teamspace.users.length > 8 && (
+                <div className="bg-background w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold">
+                  +{teamspace.users.length - 8}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>There are no member.</p>
+          )}
+        </div>
+      }
+      title="Members"
+      open={isMemberModalOpen}
+      onClose={() => {
+        setSelectedUsers([]);
+        setIsMemberModalOpen(false);
+      }}
+    >
+      <div className="flex flex-col h-full">
+        <div className="flex-grow space-y-12">
           <div className="flex justify-end">
             <InviteUserButton
               teamspaceId={teamspace.id.toString()}
@@ -487,6 +440,8 @@ export const TeamspaceMember = ({
             setSearchTerm={setSearchTermCurrentUse}
             filteredUsers={filteredCurrentUsers}
             refreshTeamspaceUsers={refreshTeamspaceUsers}
+            setSelectedUsers={setSelectedUsers}
+            selectedUsers={selectedUsers}
           />
 
           <MemberContent
@@ -497,9 +452,35 @@ export const TeamspaceMember = ({
             setSearchTerm={setSearchTermAvailableUser}
             filteredUsers={filteredAvaillableUsers}
             refreshTeamspaceUsers={refreshTeamspaceUsers}
+            setSelectedUsers={setSelectedUsers}
+            selectedUsers={selectedUsers}
           />
         </div>
-      </CustomModal>
-    </>
+
+        <div
+          className={`sticky bottom-0 left-0 right-0 py-6 bg-white border-gray-200 z-10 flex justify-end gap-2 ${
+            selectedUsers.length > 0 ? "border-t" : ""
+          }`}
+        >
+          {filteredCurrentUsers.length > 0 &&
+            selectedUsers.some((userEmail) =>
+              filteredCurrentUsers.some((user) => user.email === userEmail)
+            ) && (
+              <Button onClick={handleRemoveUser} variant="destructive">
+                <Minus size={16} /> Remove Selected Users
+              </Button>
+            )}
+
+          {filteredAvaillableUsers.length > 0 &&
+            selectedUsers.some((userEmail) =>
+              filteredAvaillableUsers.some((user) => user.email === userEmail)
+            ) && (
+              <Button onClick={handleAddUsers}>
+                <Plus size={16} /> Add Selected Users
+              </Button>
+            )}
+        </div>
+      </div>
+    </CustomModal>
   );
 };
