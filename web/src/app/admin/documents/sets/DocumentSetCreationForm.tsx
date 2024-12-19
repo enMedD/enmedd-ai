@@ -77,7 +77,7 @@ export const DocumentSetCreationForm = ({
   });
 
   const connectorItems = ccPairs
-    .filter((ccPair) => ccPair.access_type !== "private")
+    .filter((ccPair) => teamspaceId || ccPair.access_type !== "private")
     .map((ccPair) => ({
       value: ccPair.cc_pair_id.toString(),
       label: ccPair.name || `Connector ${ccPair.cc_pair_id}`,
