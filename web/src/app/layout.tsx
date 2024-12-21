@@ -2,25 +2,17 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { fetchSettingsSS } from "@/components/settings/lib";
 import { CUSTOM_ANALYTICS_ENABLED } from "@/lib/constants";
-import { SettingsProvider } from "@/components/settings/SettingsProvider";
 import { Metadata } from "next";
 import { buildClientUrl } from "@/lib/utilsSS";
-import { Toaster } from "@/components/ui/toaster";
-import PageSwitcher from "@/components/PageSwitcher";
-import { UserProvider } from "@/components/user/UserProvider";
 import Head from "next/head";
 import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { HeaderTitle } from "@/components/header/HeaderTitle";
-import { ProviderContextProvider } from "@/components/chat_search/ProviderContext";
-import ThemeProvider from "@/components/ThemeProvider";
 import { fetchFeatureFlagSS } from "@/components/feature_flag/lib";
-import { FeatureFlagProvider } from "@/components/feature_flag/FeatureFlagContext";
+import { fetchAssistantData } from "@/lib/chat/fetchAssistantdata";
+import { getCurrentUserSS } from "@/lib/userSS";
+import { AppProvider } from "@/context/AppProvider";
 
-// const inter = Inter({
-//   subsets: ["latin"],
-//   variable: "--font-sans",
-// });
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -51,8 +43,16 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const combinedSettings = await fetchSettingsSS();
-  const featureFlags = await fetchFeatureFlagSS();
+  const [combinedSettings, assistantsData, user, featureFlags] =
+    await Promise.all([
+      fetchSettingsSS(),
+      fetchAssistantData(),
+      getCurrentUserSS(),
+      fetchFeatureFlagSS(),
+    ]);
+
+  const { assistants, hasAnyConnectors, hasImageCompatibleModel } =
+    assistantsData;
 
   if (!combinedSettings) {
     // Just display a simple full page error if fetching fails.
@@ -108,18 +108,16 @@ export default async function RootLayout({
           process.env.THEME_IS_DARK?.toLowerCase() === "true" ? "dark" : ""
         }`}
       >
-        <FeatureFlagProvider flags={featureFlags}>
-          <UserProvider>
-            <ProviderContextProvider>
-              <SettingsProvider settings={combinedSettings}>
-                <ThemeProvider />
-                {children}
-                <Toaster />
-                <PageSwitcher />
-              </SettingsProvider>
-            </ProviderContextProvider>
-          </UserProvider>
-        </FeatureFlagProvider>
+        <AppProvider
+          user={user}
+          settings={combinedSettings}
+          assistants={assistants}
+          hasAnyConnectors={hasAnyConnectors}
+          hasImageCompatibleModel={hasImageCompatibleModel}
+          featureFlags={featureFlags}
+        >
+          {children}
+        </AppProvider>
       </body>
     </html>
   );

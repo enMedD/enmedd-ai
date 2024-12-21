@@ -23,6 +23,7 @@ export default async function Page() {
             {...values}
             defaultPublic={true}
             redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
+            shouldAddAssistantToUserPreferences={true}
           />
         </CardContent>
       </Card>

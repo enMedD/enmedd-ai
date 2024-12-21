@@ -5,7 +5,7 @@ import {
   getProviderIcon,
   LLMProviderDescriptor,
 } from "@/app/admin/configuration/llm/interfaces";
-import { Checkbox } from "@/components/ui/checkbox"; // Update the path as needed
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface LlmListProps {
   llmProviders: LLMProviderDescriptor[];
@@ -83,7 +83,6 @@ export const LlmList: React.FC<LlmListProps> = ({
           return (
             <div key={index} className="flex items-center gap-2">
               <Checkbox
-                key={index}
                 checked={currentLlm == name}
                 onCheckedChange={(checked) => onSelect(checked ? value : null)}
               />

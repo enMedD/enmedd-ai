@@ -6,7 +6,6 @@ import { ChatPage } from "@/app/chat/ChatPage";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { fetchChatData } from "@/lib/chat/fetchChatData";
 import { ChatProvider } from "@/context/ChatContext";
-import { AssistantsProvider } from "@/context/AssistantsContext";
 
 export default async function Page({
   params,
@@ -29,7 +28,6 @@ export default async function Page({
     ccPairs,
     availableSources,
     documentSets,
-    assistants,
     tags,
     llmProviders,
     folders,
@@ -39,8 +37,6 @@ export default async function Page({
     shouldShowWelcomeModal,
     userInputPrompts,
     shouldDisplaySourcesIncompleteModal,
-    hasAnyConnectors,
-    hasImageCompatibleModel,
   } = data;
 
   return (
@@ -52,33 +48,27 @@ export default async function Page({
         <NoCompleteSourcesModal ccPairs={ccPairs} userRole={user?.role} />
       )}
 
-      <AssistantsProvider
-        initialAssistants={assistants}
-        hasAnyConnectors={hasAnyConnectors}
-        hasImageCompatibleModel={hasImageCompatibleModel}
+      <ChatProvider
+        value={{
+          chatSessions,
+          availableSources,
+          availableDocumentSets: documentSets,
+          availableTags: tags,
+          llmProviders,
+          folders,
+          openedFolders,
+          userInputPrompts,
+          shouldShowWelcomeModal,
+          defaultAssistantId,
+        }}
       >
-        <ChatProvider
-          value={{
-            chatSessions,
-            availableSources,
-            availableDocumentSets: documentSets,
-            availableTags: tags,
-            llmProviders,
-            folders,
-            openedFolders,
-            userInputPrompts,
-            shouldShowWelcomeModal,
-            defaultAssistantId,
-          }}
-        >
-          <div className="h-full overflow-hidden">
-            <ChatPage
-              documentSidebarInitialWidth={finalDocumentSidebarInitialWidth}
-              teamspaceId={params.teamspaceId}
-            />
-          </div>
-        </ChatProvider>
-      </AssistantsProvider>
+        <div className="h-full overflow-hidden">
+          <ChatPage
+            documentSidebarInitialWidth={finalDocumentSidebarInitialWidth}
+            teamspaceId={params.teamspaceId}
+          />
+        </div>
+      </ChatProvider>
     </>
   );
 }

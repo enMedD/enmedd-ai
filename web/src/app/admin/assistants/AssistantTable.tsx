@@ -2,7 +2,7 @@
 
 import { Assistant } from "./interfaces";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { DraggableTable } from "@/components/table/DraggableTable";
 import { deleteAssistant, assistantComparator } from "./lib";
@@ -42,7 +42,7 @@ export function AssistantsTable({
 }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { isLoadingUser, isAdmin } = useUser();
+  const { isLoadingUser, isAdmin, refreshUser } = useUser();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [assistantToDelete, setAssistantToDelete] = useState<Assistant | null>(
     null
@@ -52,29 +52,24 @@ export function AssistantsTable({
     return new Set(editableAssistants.map((p) => p.id.toString()));
   }, [editableAssistants]);
 
-  const sortedAssistants = useMemo(() => {
+  const [finalAssistants, setFinalAssistants] = useState<Assistant[]>([]);
+
+  useEffect(() => {
     const editable = editableAssistants.sort(assistantComparator);
     const nonEditable = allAssistants
       .filter((p) => !editableAssistantIds.has(p.id.toString()))
       .sort(assistantComparator);
-    return [...editable, ...nonEditable];
-  }, [allAssistants, editableAssistantIds, editableAssistants]);
-
-  const [finalAssistants, setFinalAssistants] = useState<string[]>(
-    sortedAssistants.map((assistant) => assistant.id.toString())
-  );
-  const finalAssistantValues = finalAssistants
-    .filter((id) => new Set(allAssistants.map((p) => p.id.toString())).has(id))
-    .map((id) => {
-      return sortedAssistants.find(
-        (assistant) => assistant.id.toString() === id
-      ) as Assistant;
-    });
+    setFinalAssistants([...editable, ...nonEditable]);
+  }, [editableAssistants, allAssistants, editableAssistantIds]);
 
   const updateAssistantOrder = async (
     orderedAssistantIds: UniqueIdentifier[]
   ) => {
-    setFinalAssistants(orderedAssistantIds.map((id) => id.toString()));
+    const reorderedAssistants = orderedAssistantIds.map(
+      (id) => allAssistants.find((assistant) => assistant.id.toString() === id)!
+    );
+
+    setFinalAssistants(reorderedAssistants);
 
     const displayPriorityMap = new Map<UniqueIdentifier, number>();
     orderedAssistantIds.forEach((assistantId, ind) => {
@@ -90,16 +85,20 @@ export function AssistantsTable({
         display_priority_map: Object.fromEntries(displayPriorityMap),
       }),
     });
+
     if (!response.ok) {
       toast({
         title: "Failed to Update Assistant Order",
         description: `There was an issue updating the assistant order. Details: ${await response.text()}`,
         variant: "destructive",
       });
-    } else {
-      refreshAllAssistants();
-      router.refresh();
+      setFinalAssistants(allAssistants);
+      await refreshAllAssistants();
+      return;
     }
+
+    await refreshAllAssistants();
+    await refreshUser();
   };
 
   if (isLoadingUser) {
@@ -144,7 +143,7 @@ export function AssistantsTable({
           <DraggableTable
             headers={["Name", "Description", "Type", "Is Visible", ""]}
             isAdmin={isAdmin}
-            rows={finalAssistantValues.map((assistant) => {
+            rows={finalAssistants.map((assistant) => {
               return {
                 id: assistant.id.toString(),
                 cells: [
