@@ -52,6 +52,7 @@ import { Form } from "@/components/ui/form";
 import { FullLLMProvider } from "../configuration/llm/interfaces";
 import { IsPublicGroupSelector2 } from "@/components/IsPublicGroupSelector";
 import { LlmList } from "@/components/llm/LLMList";
+import { useAssistants } from "@/context/AssistantsContext";
 
 const formSchema = z.object({
   name: z.string().min(1, "Must provide a name for the Assistant"),
@@ -135,6 +136,7 @@ export function AssistantEditor({
   admin?: boolean;
   teamspaceId?: string | string[];
 }) {
+  const { refreshAssistants } = useAssistants();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -439,6 +441,7 @@ export function AssistantEditor({
     } else {
       const assistant = await assistantResponse.json();
       const assistantId = assistant.id;
+      console.log(shouldAddAssistantToUserPreferences);
       if (
         shouldAddAssistantToUserPreferences &&
         user?.preferences?.chosen_assistants
@@ -450,6 +453,7 @@ export function AssistantEditor({
             description: `"${assistant.name}" has been added to your list.`,
             variant: "success",
           });
+          await refreshAssistants();
           setLoading(false);
 
           router.refresh();
@@ -461,6 +465,8 @@ export function AssistantEditor({
           });
         }
       }
+
+      await refreshAssistants();
       const redirectUrl =
         redirectType === SuccessfulAssistantUpdateRedirectType.ADMIN
           ? teamspaceId
@@ -1206,7 +1212,7 @@ export function AssistantEditor({
             <Button
               className="mx-auto"
               type="submit"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || loading}
             >
               {isUpdate ? "Update" : "Create"}
             </Button>
