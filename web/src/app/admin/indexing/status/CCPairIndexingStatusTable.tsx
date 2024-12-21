@@ -41,7 +41,7 @@ import { GroupButton } from "./GroupButton";
 import { SortButton } from "./SortButton";
 import {
   filterConnectors,
-  groupConnectorsByStatus,
+  sortAndGroupConnectors,
   sortConnectors,
 } from "./sortAndGroup";
 
@@ -668,9 +668,12 @@ export function CCPairIndexingStatusTable({
                     groupOrder
                   );
 
-                  const groupedConnectors = groupConnectorsByStatus(
+                  const groupedConnectors = sortAndGroupConnectors(
                     sortedConnectors,
-                    selectedGroup
+                    selectedSort,
+                    sortOrder,
+                    selectedGroup,
+                    groupOrder
                   );
 
                   if (sourceMatches || sortedConnectors.length > 0) {
