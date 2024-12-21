@@ -1381,7 +1381,6 @@ export function AssistantEditor({
   admin?: boolean;
   teamspaceId?: string | string[];
 }) {
-  console.log(documentSets);
   const router = useRouter();
   const { toast } = useToast();
 
