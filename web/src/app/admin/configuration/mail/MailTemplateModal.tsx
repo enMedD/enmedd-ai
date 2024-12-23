@@ -15,21 +15,42 @@ import { EmailTemplates } from "@/lib/types";
 import ModToolbarPlaceholder from "./ToolbarPlaceholder";
 import { updateEmailTemplate } from "@/lib/email_templates";
 import { toast } from "@/hooks/use-toast";
-import { Loading } from "@/components/Loading";
+import { DeleteModal } from "@/components/DeleteModal";
 
 interface MailTemplateModalProps {
-  open?: boolean;
-  templateData?: EmailTemplates;
+  open: boolean;
   setOpen?: (state: boolean) => void;
   onUpdate?: () => void;
   onClose?: () => void;
 }
+interface Props extends MailTemplateModalProps {
+  templateData?: EmailTemplates;
+}
 
-export default function MailTemplateModal(props: MailTemplateModalProps) {
+function MailConfirmModal(props: MailTemplateModalProps) {
+  const { open, onClose, onUpdate, setOpen } = props;
+
+  const closeCallback = () => {
+    onClose && onClose();
+    setOpen && setOpen(false);
+  };
+
+  return (
+    <DeleteModal
+      open={open}
+      onSuccess={() => onUpdate && onUpdate()}
+      onClose={closeCallback}
+      description="Are you sure you want to overwrite the current email template?"
+      title="Update Confirmation"
+    />
+  );
+}
+
+export default function MailTemplateModal(props: Props) {
   const { open, templateData, onClose, onUpdate, setOpen } = props;
 
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [isLoading, setIsLoading] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const [openDemo, setOpenDemo] = useState(false);
   const [subject, setSubject] = useState("");
   const [htmlData, setHtmlData] = useState("<p></p>");
@@ -62,12 +83,22 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
   };
 
   // updates the selected mail template
-  const updateMailFormat = async () => {
-    setIsLoading(true);
+  const updateMailCallback = async () => {
     if (templateData) {
+      if (subject === "" || htmlData === "") {
+        toast({
+          title: "Email Template Value Error",
+          description: "Email subject and body must contain any value",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const response = await updateEmailTemplate(templateData.id, {
         subject,
         body: htmlData,
+
+        // soon to be editted
         description: templateData.description,
         title: templateData.title,
         workspace_id: templateData.workspace_id,
@@ -88,7 +119,6 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
         });
       }
     }
-    setIsLoading(false);
   };
 
   return (
@@ -98,6 +128,11 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
         setOpen={setOpenDemo}
         body={htmlData}
         subject={subject}
+      />
+      <MailConfirmModal
+        open={openConfirm}
+        setOpen={setOpenConfirm}
+        onUpdate={updateMailCallback}
       />
       <CustomModal
         title="Update Mail Template"
@@ -131,7 +166,10 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
             setHtmlData(parsedData);
           }}
           toolbarCustomButtons={[
-            <ModToolbarPlaceholder dropdownType={templateData?.type} editorState={editorState} />,
+            <ModToolbarPlaceholder
+              dropdownType={templateData?.type}
+              editorState={editorState}
+            />,
           ]}
         />
         <div className="pt-3 px-2 text-right">
@@ -144,11 +182,10 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
           </Button>
           <Button
             variant="default"
-            disabled={isLoading}
             className="py-2 px-4"
-            onClick={updateMailFormat}
+            onClick={() => setOpenConfirm(true)}
           >
-            {isLoading ? <Loading /> : "Update"}
+            Update
           </Button>
         </div>
       </CustomModal>
