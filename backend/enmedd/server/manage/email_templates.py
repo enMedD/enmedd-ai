@@ -67,7 +67,7 @@ async def update_email_template_route(
         subject=updated_email_template.subject,
         title=updated_email_template.title,
         workspace_id=updated_email_template.workspace_id,
-        type=active.type,
+        type=updated_email_template.type,
     )
 
 

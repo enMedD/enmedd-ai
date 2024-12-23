@@ -156,9 +156,9 @@ class LoginRequest(BaseModel):
 
 class EmailTemplates(BaseModel):
     id: int | None = None
+    type: str | None = None
     subject: str
     body: str
-    type: str
     title: str
     description: str
     workspace_id: int
