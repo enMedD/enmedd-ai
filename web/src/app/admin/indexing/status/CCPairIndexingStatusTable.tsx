@@ -196,7 +196,7 @@ function ConnectorRow({
         );
       }}
     >
-      <TableCell className="!w-[200px] xl:!w-[350px] !max-w-[480px] flex truncate">
+      <TableCell className="!w-[200px] xl:!w-[350px] !max-w-[400px] truncate">
         <CustomTooltip
           trigger={
             <p className=" truncate ellipsis w-auto">
@@ -208,20 +208,20 @@ function ConnectorRow({
           {ccPairsIndexingStatus.name}
         </CustomTooltip>
       </TableCell>
-      {/* <TableCell>
-        {timeAgo(ccPairsIndexingStatus?.last_success) || "-"}
-      </TableCell> */}
       <TableCell>{getActivityBadge()}</TableCell>
       {isPaidEnterpriseFeaturesEnabled && (
-        <TableCell>
+        <TableCell className="flex gap-2 flex-wrap">
           {ccPairsIndexingStatus.access_type === "public" ? (
-            <Badge variant="secondary">
+            <Badge>
               <Unlock size={14} /> Public
             </Badge>
           ) : (
-            <Badge variant="secondary">
-              <Lock size={14} /> Private
-            </Badge>
+            ccPairsIndexingStatus.groups.map((group) => (
+              <Badge key={group.id} variant="secondary" className="truncate">
+                <Lock size={14} className="shrink-0" />{" "}
+                <span className="truncate">{group.name}</span>
+              </Badge>
+            ))
           )}
         </TableCell>
       )}
