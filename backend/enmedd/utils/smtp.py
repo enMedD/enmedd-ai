@@ -2,10 +2,40 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from sqlalchemy.orm import Session
+
+from ee.enmedd.utils.encryption import decrypt_password
 from enmedd.configs.app_configs import SMTP_PASS
 from enmedd.configs.app_configs import SMTP_PORT
 from enmedd.configs.app_configs import SMTP_SERVER
 from enmedd.configs.app_configs import SMTP_USER
+from enmedd.db.models import WorkspaceSettings
+
+
+def get_smtp_credentials(db_session: Session):
+    """Fetch SMTP credentials for a given workspace."""
+    workspace_settings = db_session.query(WorkspaceSettings).first()
+
+    if not workspace_settings:
+        raise ValueError("No SMTP settings found for workspace")
+
+    smtp_server = workspace_settings.smtp_server
+    smtp_port = workspace_settings.smtp_port
+    smtp_user = workspace_settings.smtp_username
+    smtp_password_encrypted = workspace_settings.smtp_password
+
+    # Decrypt the password
+    smtp_password = (
+        decrypt_password(smtp_password_encrypted) if smtp_password_encrypted else None
+    )
+
+    return {
+        "smtp_server": smtp_server,
+        "smtp_port": smtp_port,
+        "smtp_user": smtp_user,
+        "smtp_password": smtp_password,
+    }
+
 
 def send_mail(
     to_email: str,

@@ -153,6 +153,7 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+
 class EmailTemplates(BaseModel):
     id: int | None = None
     subject: str
@@ -160,6 +161,7 @@ class EmailTemplates(BaseModel):
     title: str
     description: str
     workspace_id: int
+
 
 class SendMailTemplate(BaseModel):
     subject: str

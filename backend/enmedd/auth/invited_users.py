@@ -1,8 +1,5 @@
-import smtplib
 from datetime import datetime
 from datetime import timedelta
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from typing import cast
 from typing import Optional
 
@@ -10,13 +7,8 @@ import jwt
 from sqlalchemy.orm import Session
 
 from enmedd.configs.app_configs import SECRET_KEY
-from enmedd.configs.app_configs import SMTP_PASS
-from enmedd.configs.app_configs import SMTP_PORT
-from enmedd.configs.app_configs import SMTP_SERVER
-from enmedd.configs.app_configs import SMTP_USER
-from enmedd.db.models import InviteToken
 from enmedd.db.email_template import get_active_email_template
-from enmedd.utils.smtp import send_mail
+from enmedd.db.models import InviteToken
 from enmedd.db.users import delete_user_by_email
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import JSON_ro
@@ -133,7 +125,7 @@ def decode_invite_token(token: str, email: str, db_session: Session):
 
 
 def generate_invite_email(signup_link: str, db_session: Session):
-    active_email_template = get_active_email_template(db_session)
+    active_email_template = get_active_email_template("invite", db_session)
     subject = active_email_template.subject
 
     # load the subject with the actual value
@@ -141,12 +133,3 @@ def generate_invite_email(signup_link: str, db_session: Session):
     body = body.replace("{{signup_link}}", signup_link)
 
     return subject, body
-
-
-def send_invite_user_email(
-    to_email: str,
-    subject: str,
-    body: str,
-    smtp_credentials: dict,
-) -> None:
-    send_mail(to_email, subject, body, smtp_credentials, True)
