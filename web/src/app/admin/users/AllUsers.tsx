@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
 import { InviteUserButton } from "./InviteUserButton";
 import { DeactivaterButton } from "@/components/DeactivaterButton";
+import { CustomPagination } from "./Pagination";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -77,14 +78,16 @@ export const AllUsers = ({
   teamspaceId?: string | string[];
 }) => {
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [q, setQ] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [teamspaceData, setTeamspaceData] = useState<Teamspace | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const { data, isLoading, error, refreshUsers } = useUsers(
-    "",
+    q,
     1,
     1,
     teamspaceId
@@ -216,7 +219,7 @@ export const AllUsers = ({
     ? useSWR<string[]>("/api/manage/admin/valid-domains", errorHandlingFetcher)
     : { data: [], isLoading: false, error: null };
 
-  if (isLoading || isLoadingDomains || loading) {
+  if (isLoadingDomains) {
     return <Loading />;
   }
 
@@ -229,7 +232,7 @@ export const AllUsers = ({
     );
   }
 
-  if (error || !data) {
+  if (error) {
     return (
       <ErrorCallout
         errorTitle="Error loading users"
@@ -238,19 +241,27 @@ export const AllUsers = ({
     );
   }
 
-  const { accepted } = data;
-
-  const filteredUsers = accepted
+  const filteredUsers = data?.accepted
     .filter(
       (user) =>
-        user.full_name!.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+        user.full_name!.toLowerCase().includes(q.toLowerCase()) ||
+        user.email.toLowerCase().includes(q.toLowerCase())
     )
     .sort((a, b) => {
       if (a.email === teamspaceData?.creator?.email) return -1;
       if (b.email === teamspaceData?.creator?.email) return 1;
       return a.id === user?.id ? -1 : 1;
     });
+
+  const totalPages = Math.ceil((filteredUsers?.length || 0) / usersPerPage);
+  const displayedUsers = filteredUsers?.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const handleRoleChange = async (userEmail: string, newRole: string) => {
     if (newRole === "admin") {
@@ -292,112 +303,126 @@ export const AllUsers = ({
         <div className="flex-1 space-y-4 overflow-x-auto p-1">
           <Input
             placeholder="Search user..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
           />
-          {filteredUsers.length > 0 ? (
-            <Card className="mt-4">
-              <CardContent className="p-0">
-                <Table className="">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User ({filteredUsers.length})</TableHead>
-                      <TableHead>Company</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((filteredUser) => (
-                      <TableRow key={filteredUser.id}>
-                        <TableCell>
-                          <div className="flex gap-4 items-center">
-                            <UserProfile user={filteredUser} />
-                            <div className="flex flex-col">
-                              <div className="flex gap-2 items-center">
-                                <span className="truncate max-w-44 font-medium">
-                                  {filteredUser.full_name}
-                                </span>
-                                {filteredUser?.id ===
-                                  teamspaceData?.creator.id && (
-                                  <Badge>Creator</Badge>
-                                )}
-                                {user?.email === filteredUser.email && (
-                                  <Badge>You</Badge>
-                                )}
-                              </div>
-                              <span className="text-sm text-subtle truncate max-w-44">
-                                {filteredUser.email}
-                              </span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="truncate max-w-48">
-                          {filteredUser?.company_name}
-                        </TableCell>
-                        <TableCell className="w-32">
-                          <Select
-                            onValueChange={(value) =>
-                              handleRoleChange(filteredUser.email, value)
-                            }
-                            value={filteredUser.role}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue>
-                                {filteredUser.role === "admin"
-                                  ? "Admin"
-                                  : "User"}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">User</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        {filteredUser?.email !==
-                          teamspaceData?.creator?.email &&
-                          user?.email !== filteredUser.email && (
-                            <TableCell>
-                              {teamspaceId ? (
-                                <CustomTooltip
-                                  trigger={
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => {
-                                        setIsDeleteModalOpen(true);
-                                        setUserToDelete(filteredUser.email);
-                                      }}
-                                    >
-                                      <Trash size={16} />
-                                    </Button>
-                                  }
-                                  variant="destructive"
-                                >
-                                  Remove
-                                </CustomTooltip>
-                              ) : (
-                                <div className="flex justify-end">
-                                  <DeactivaterButton
-                                    user={filteredUser}
-                                    deactivate={
-                                      filteredUser.status === UserStatus.live
-                                    }
-                                    mutate={refreshUsers}
-                                  />
-                                </div>
-                              )}
-                            </TableCell>
-                          )}
+          {isLoading || loading ? (
+            <Loading />
+          ) : displayedUsers && displayedUsers.length > 0 ? (
+            <div>
+              <Card className="mt-4">
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User ({filteredUsers?.length})</TableHead>
+                        <TableHead>Company</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead></TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {displayedUsers.map((filteredUser) => (
+                        <TableRow key={filteredUser.id}>
+                          <TableCell>
+                            <div className="flex gap-4 items-center">
+                              <UserProfile user={filteredUser} />
+                              <div className="flex flex-col">
+                                <div className="flex gap-2 items-center">
+                                  <span className="truncate max-w-44 font-medium">
+                                    {filteredUser.full_name}
+                                  </span>
+                                  {filteredUser?.id ===
+                                    teamspaceData?.creator.id && (
+                                    <Badge>Creator</Badge>
+                                  )}
+                                  {user?.email === filteredUser.email && (
+                                    <Badge>You</Badge>
+                                  )}
+                                </div>
+                                <span className="text-sm text-subtle truncate max-w-44">
+                                  {filteredUser.email}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="truncate max-w-48">
+                            {filteredUser?.company_name}
+                          </TableCell>
+                          <TableCell className="w-32">
+                            <Select
+                              onValueChange={(value) =>
+                                handleRoleChange(filteredUser.email, value)
+                              }
+                              value={filteredUser.role}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue>
+                                  {filteredUser.role === "admin"
+                                    ? "Admin"
+                                    : "User"}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="user">User</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          {filteredUser?.email !==
+                            teamspaceData?.creator?.email &&
+                            user?.email !== filteredUser.email && (
+                              <TableCell>
+                                {teamspaceId ? (
+                                  <CustomTooltip
+                                    trigger={
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => {
+                                          setIsDeleteModalOpen(true);
+                                          setUserToDelete(filteredUser.email);
+                                        }}
+                                      >
+                                        <Trash size={16} />
+                                      </Button>
+                                    }
+                                    variant="destructive"
+                                  >
+                                    Remove
+                                  </CustomTooltip>
+                                ) : (
+                                  <div className="flex justify-end">
+                                    <DeactivaterButton
+                                      user={filteredUser}
+                                      deactivate={
+                                        filteredUser.status === UserStatus.live
+                                      }
+                                      mutate={refreshUsers}
+                                    />
+                                  </div>
+                                )}
+                              </TableCell>
+                            )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {filteredUsers && filteredUsers?.length > 10 && (
+                <div className="flex justify-center mt-4">
+                  <CustomPagination
+                    totalItems={filteredUsers?.length || 0}
+                    itemsPerPage={usersPerPage}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </div>
           ) : (
-            <p>No users.</p>
+            <p>No users found.</p>
           )}
         </div>
       </div>

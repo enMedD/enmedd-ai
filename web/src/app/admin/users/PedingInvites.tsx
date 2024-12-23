@@ -23,6 +23,7 @@ import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
+import { CustomPagination } from "./Pagination";
 
 const RemoveUserButton = ({
   user,
@@ -58,13 +59,15 @@ export const PendingInvites = ({
   teamspaceId?: string | string[];
 }) => {
   const { toast } = useToast();
+  const [q, setQ] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
     teamspaceId
-      ? `/api/manage/users?q=${encodeURI("")}&accepted_page=0&invited_page=0&teamspace_id=${teamspaceId}`
-      : `/api/manage/users?q=${encodeURI("")}&accepted_page=0&invited_page=0`,
+      ? `/api/manage/users?q=${q}&accepted_page=0&invited_page=0&teamspace_id=${teamspaceId}`
+      : `/api/manage/users?q=${q}&accepted_page=0&invited_page=0`,
     errorHandlingFetcher
   );
 
@@ -88,8 +91,18 @@ export const PendingInvites = ({
   );
 
   const filteredUsers = finalInvited.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    user.email.toLowerCase().includes(q.toLowerCase())
   );
+
+  const totalPages = Math.ceil((filteredUsers?.length || 0) / usersPerPage);
+  const displayedUsers = filteredUsers?.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const onRemovalSuccess = () => {
     toast({
@@ -152,51 +165,63 @@ export const PendingInvites = ({
           <div className="flex-1 space-y-4 overflow-x-auto p-1">
             <Input
               placeholder="Search user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
             />
-            {filteredUsers.length > 0 ? (
-              <Card className="mt-4">
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-4">
-                              <div className="border rounded-full w-10 h-10 flex items-center justify-center">
-                                <UserIcon />
-                              </div>
-                              <span className="text-sm text-subtle truncate">
-                                {user.email}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2 justify-end">
-                              <Button
-                                onClick={() => {
-                                  setIsCancelModalVisible(true);
-                                  setSelectedUser(user);
-                                }}
-                                variant="destructive"
-                              >
-                                Cancel Invite
-                              </Button>
-                            </div>
-                          </TableCell>
+            {displayedUsers.length > 0 ? (
+              <div>
+                <Card className="mt-4">
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead></TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+                      </TableHeader>
+                      <TableBody>
+                        {displayedUsers.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-4">
+                                <div className="border rounded-full w-10 h-10 flex items-center justify-center">
+                                  <UserIcon />
+                                </div>
+                                <span className="text-sm text-subtle truncate">
+                                  {user.email}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  onClick={() => {
+                                    setIsCancelModalVisible(true);
+                                    setSelectedUser(user);
+                                  }}
+                                  variant="destructive"
+                                >
+                                  Cancel Invite
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                {filteredUsers.length > 10 && (
+                  <div className="flex justify-center mt-4">
+                    <CustomPagination
+                      totalItems={filteredUsers?.length || 0}
+                      itemsPerPage={usersPerPage}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                )}
+              </div>
             ) : (
               <p>No user found.</p>
             )}
