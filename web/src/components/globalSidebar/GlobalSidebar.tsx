@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import ArnoldAi from "../../../public/arnold_ai.png";
 
 import {
@@ -27,6 +27,7 @@ import { TeamspaceModal } from "./TeamspaceModal";
 import { useGradient } from "@/hooks/useGradient";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "../ui/skeleton";
+import { Compass } from "lucide-react";
 
 export function GlobalSidebar({
   user,
@@ -178,6 +179,21 @@ export function GlobalSidebar({
                     teamspaceId={teamspaceId}
                   />
                 )}
+
+                <SidebarMenuItem className="flex items-center justify-center mt-10">
+                  <SidebarMenuButton
+                    tooltip={{
+                      children: "More",
+                      hidden: false,
+                    }}
+                    className="!p-0 w-11 h-11 rounded-full flex items-center justify-center bg-brand-500 text-inverted hover:bg-brand-300 focus-visible:ring-brand-400"
+                    asChild
+                  >
+                    <Link href={`/discovery/workspaces`}>
+                      <Compass size={16} />
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
