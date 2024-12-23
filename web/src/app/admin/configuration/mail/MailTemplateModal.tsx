@@ -21,10 +21,12 @@ interface MailTemplateModalProps {
   open?: boolean;
   templateData?: EmailTemplates;
   setOpen?: (state: boolean) => void;
+  onUpdate?: () => void;
+  onClose?: () => void;
 }
 
 export default function MailTemplateModal(props: MailTemplateModalProps) {
-  const { open, templateData, setOpen } = props;
+  const { open, templateData, onClose, onUpdate, setOpen } = props;
 
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +61,7 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
     return parsedToHtml;
   };
 
+  // updates the selected mail template
   const updateMailFormat = async () => {
     setIsLoading(true);
     if (templateData) {
@@ -71,6 +74,7 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
       });
 
       if (response.status == 200) {
+        onUpdate && onUpdate();
         toast({
           title: "Email Template Update",
           description: "Successfuly updated email template!",
@@ -99,7 +103,10 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
         title="Update Mail Template"
         trigger
         open={open}
-        onClose={() => setOpen && setOpen(false)}
+        onClose={() => {
+          onClose && onClose();
+          setOpen && setOpen(false);
+        }}
       >
         <p className="mb-2 font-bold">Mail Subject</p>
         <Input

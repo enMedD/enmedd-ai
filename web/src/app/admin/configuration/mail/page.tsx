@@ -12,6 +12,7 @@ import { EmailTemplates } from "@/lib/types";
 
 function Main() {
   const [openMailTemplateModal, setOpenMailTemplateModal] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(0);
   const [templateList, setTempplateList] = useState<EmailTemplates[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplates>();
 
@@ -20,17 +21,24 @@ function Main() {
       const response = await getEmailTemplates();
       setTempplateList(response);
     })();
-  }, []);
+  }, [forceRefresh]);
+
+  const onMailTemplateUpdate = () => {
+    setSelectedTemplate(undefined);
+    setForceRefresh(forceRefresh + 1)
+  }
 
   return (
     <>
-      <MailTemplateModal
+      {selectedTemplate && <MailTemplateModal
         open={openMailTemplateModal}
         templateData={selectedTemplate}
         setOpen={setOpenMailTemplateModal}
-      />
+        onUpdate={onMailTemplateUpdate}
+        onClose={() => setSelectedTemplate(undefined)}
+      />}
       <h4 className="pb-2 mb-4 text-xl font-bold text-text-800 text-text">
-        Customize Your Invitation Email
+        Customize Your Email Templates
       </h4>
       <p className="text-text-600">
         In this section, you can easily edit the email template used to invite
@@ -50,17 +58,6 @@ function Main() {
             }}
           />
         ))}
-
-        <TemplateCard
-          disabled
-          title="User Verification Mail Template"
-          description="Mail template sent when a two-factor authentication is triggered during sign-in"
-        />
-        <TemplateCard
-          disabled
-          title="Password Reset Mail Template"
-          description="Mail template sent when forgot password is used"
-        />
       </div>
     </>
   );
