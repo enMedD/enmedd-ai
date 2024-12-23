@@ -254,36 +254,70 @@ export function AssistantEditor({
     enabledToolsMap[tool.id] = assistantCurrentToolIds.includes(tool.id);
   });
 
+  const cachedFormData = JSON.parse(
+    localStorage.getItem("assistantFormData") || "{}"
+  );
+
   const initialValues = {
-    name: existingAssistant?.name ?? "",
-    description: existingAssistant?.description ?? "",
-    system_prompt: existingPrompt?.system_prompt ?? "",
-    task_prompt: existingPrompt?.task_prompt ?? "",
-    is_public: existingAssistant?.is_public ?? defaultPublic,
+    name: existingAssistant?.name ?? cachedFormData.name ?? "",
+    description:
+      existingAssistant?.description ?? cachedFormData.description ?? "",
+    system_prompt:
+      existingPrompt?.system_prompt ?? cachedFormData.system_prompt ?? "",
+    task_prompt:
+      existingPrompt?.task_prompt ?? cachedFormData.task_prompt ?? "",
+    is_public:
+      existingAssistant?.is_public ?? cachedFormData.is_public ?? defaultPublic,
     document_set_ids:
       existingAssistant?.document_sets?.map((documentSet) => documentSet.id) ??
+      cachedFormData.document_set_ids ??
       [],
-    num_chunks: existingAssistant?.num_chunks ?? null,
+    num_chunks:
+      existingAssistant?.num_chunks ?? cachedFormData.num_chunks ?? null,
     search_start_date: existingAssistant?.search_start_date
       ? new Date(existingAssistant.search_start_date)
-      : null,
-    include_citations: existingAssistant?.prompts[0]?.include_citations ?? true,
-    llm_relevance_filter: existingAssistant?.llm_relevance_filter ?? false,
+      : cachedFormData.search_start_date
+        ? new Date(cachedFormData.search_start_date)
+        : null,
+    include_citations:
+      existingAssistant?.prompts[0]?.include_citations ??
+      cachedFormData.include_citations ??
+      true,
+    llm_relevance_filter:
+      existingAssistant?.llm_relevance_filter ??
+      cachedFormData.llm_relevance_filter ??
+      false,
     llm_model_provider_override:
-      existingAssistant?.llm_model_provider_override ?? null,
+      existingAssistant?.llm_model_provider_override ??
+      cachedFormData.llm_model_provider_override ??
+      null,
     llm_model_version_override:
-      existingAssistant?.llm_model_version_override ?? null,
+      existingAssistant?.llm_model_version_override ??
+      cachedFormData.llm_model_version_override ??
+      null,
     starter_messages:
       existingAssistant?.starter_messages?.map((starterMessage) => ({
         name: starterMessage.name ?? "",
         description: starterMessage.description ?? "",
         message: starterMessage.message ?? "",
-      })) ?? [],
-    enabled_tools_map: enabledToolsMap ?? {},
-    icon_color: existingAssistant?.icon_color ?? defautIconColor,
-    icon_shape: existingAssistant?.icon_shape ?? defaultIconShape,
+      })) ??
+      cachedFormData.starter_messages ??
+      [],
+    enabled_tools_map:
+      enabledToolsMap ?? cachedFormData.enabled_tools_map ?? {},
+    icon_color:
+      existingAssistant?.icon_color ??
+      cachedFormData.icon_color ??
+      defautIconColor,
+    icon_shape:
+      existingAssistant?.icon_shape ??
+      cachedFormData.icon_shape ??
+      defaultIconShape,
     uploaded_image: null,
-    groups: existingAssistant?.groups.map((group) => group) ?? [],
+    groups:
+      existingAssistant?.groups?.map((group) => group) ??
+      cachedFormData.groups ??
+      [],
   };
 
   const form = useForm<FormValues>({
@@ -292,6 +326,14 @@ export function AssistantEditor({
   });
 
   const [isRequestSuccessful, setIsRequestSuccessful] = useState(false);
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("assistantFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   async function checkAssistantNameExists(name: string) {
     const response = await fetch(`/api/assistant`);
@@ -453,6 +495,7 @@ export function AssistantEditor({
             description: `"${assistant.name}" has been added to your list.`,
             variant: "success",
           });
+          localStorage.removeItem("assistantFormData");
           await refreshAssistants();
           setLoading(false);
 
@@ -466,6 +509,7 @@ export function AssistantEditor({
         }
       }
 
+      localStorage.removeItem("assistantFormData");
       await refreshAssistants();
       const redirectUrl =
         redirectType === SuccessfulAssistantUpdateRedirectType.ADMIN
