@@ -333,7 +333,7 @@ export const TeamspaceSidebar = ({
               </span>
             </div>
 
-            <div className="w-full flex flex-col gap-4 pt-14">
+            <div className="w-full space-y-4 pt-14">
               <TeamspaceMember
                 teamspace={{
                   ...selectedTeamspace,
