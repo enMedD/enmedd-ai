@@ -119,7 +119,7 @@ export interface ConnectorIndexingStatus<
   credential: Credential<ConnectorCredentialType>;
   access_type: AccessType;
   owner: string;
-  groups: number[];
+  groups: { id: number; name: string }[];
   last_finished_status: ValidStatuses | null;
   last_status: ValidStatuses | null;
   last_success: string | null;
