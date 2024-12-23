@@ -641,6 +641,8 @@ async def get_user_role(user: User = Depends(current_user)) -> UserRoleResponse:
 def get_current_token_creation(
     user: User | None, db_session: Session
 ) -> datetime | None:
+    tenant_id = "public"
+    db_session_filter(tenant_id, db_session)
     if user is None:
         return None
     try:

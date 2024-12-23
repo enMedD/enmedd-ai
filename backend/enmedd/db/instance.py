@@ -109,7 +109,7 @@ def copy_filtered_data(db_session: Session, schema_name: str) -> None:
                 f"""
                 INSERT INTO {schema_name}.prompt
                 SELECT * FROM public.prompt
-                WHERE user_id = null;
+                WHERE id BETWEEN 0 AND 4;
             """
             )
         )
@@ -139,7 +139,7 @@ def copy_filtered_data(db_session: Session, schema_name: str) -> None:
                 f"""
                 INSERT INTO {schema_name}.inputprompt
                 SELECT * FROM public.inputprompt
-                WHERE user_id = null;
+                WHERE id BETWEEN -5 AND -2 ;
             """
             )
         )
@@ -149,7 +149,7 @@ def copy_filtered_data(db_session: Session, schema_name: str) -> None:
                 f"""
                 INSERT INTO {schema_name}.assistant
                 SELECT * FROM public.assistant
-                WHERE user_id = null;
+                WHERE id BETWEEN -2147483648 AND 0;
             """
             )
         )
@@ -301,12 +301,28 @@ def copy_users_to_new_schema(
             update_query = text(
                 f"""
                 UPDATE {schema_name}.user
-                SET role = :role
+                SET
+                    role = :role,
+                    is_superuser = false,
+                    is_verified = false,
+                    default_model = null,
+                    chosen_assistants = CAST(:chosen_assistants AS jsonb),
+                    visible_assistants = CAST(:visible_assistants AS jsonb),
+                    hidden_assistants = CAST(:hidden_assistants AS jsonb),
+                    created_at = NOW(),
+                    profile = null
                 WHERE id = :user_id;
             """
             )
             db_session.execute(
-                update_query, {"role": role, "user_id": str(user.user_id)}
+                update_query,
+                {
+                    "role": role,
+                    "chosen_assistants": "[-2, 1, 0]",
+                    "visible_assistants": "[]",
+                    "hidden_assistants": "[]",
+                    "user_id": str(user.user_id),
+                },
             )
 
         db_session.commit()
