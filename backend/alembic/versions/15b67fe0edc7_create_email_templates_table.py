@@ -45,7 +45,7 @@ If you have any questions or need assistance, feel free to reach out to our supp
         ),
         (
             1,
-            "password-reset",
+            "passreset",
             "Password Reset Mail Template",
             "Mail template sent when a password reset is requested",
             "Password Reset Request",
