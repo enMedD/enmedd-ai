@@ -130,7 +130,7 @@ export const TeamspaceContent = ({
           errorMsg={`Failed to fetch teamspace - ${isError}`}
         />
       ) : filteredTeamspaces.length > 0 ? (
-        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))]">
+        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
           {filteredTeamspaces
             .filter((teamspace) => !teamspace.is_up_for_deletion)
             .map((teamspace) => {
