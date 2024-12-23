@@ -100,6 +100,7 @@ from enmedd.server.features.tool.api import admin_router as admin_tool_router
 from enmedd.server.features.tool.api import router as tool_router
 from enmedd.server.gpts.api import router as gpts_router
 from enmedd.server.manage.administrative import router as admin_router
+from enmedd.server.manage.email_templates import router as email_templates_router
 from enmedd.server.manage.embedding.api import admin_router as embedding_admin_router
 from enmedd.server.manage.embedding.api import basic_router as embedding_router
 from enmedd.server.manage.get_state import router as state_router
@@ -108,7 +109,6 @@ from enmedd.server.manage.llm.api import basic_router as llm_router
 from enmedd.server.manage.llm.models import LLMProviderUpsertRequest
 from enmedd.server.manage.search_settings import router as search_settings_router
 from enmedd.server.manage.users import router as user_router
-from enmedd.server.manage.email_templates import router as email_templates_router
 from enmedd.server.middleware.latency_logging import add_latency_logging_middleware
 from enmedd.server.middleware.tenant_identification import (
     add_tenant_identification_middleware,

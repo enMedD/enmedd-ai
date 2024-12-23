@@ -268,7 +268,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )  # Temporary workspace_id
 
             reset_url = f"{WEB_DOMAIN}/auth/reset-password?token={token}"
-            subject, body = generate_password_reset_email(user.email, reset_ur, db_sessionl)
+            subject, body = generate_password_reset_email(
+                user.email, reset_url, db_session
+            )
             send_mail(user.email, subject, body, smtp_credentials, True)
 
     async def on_after_request_verify(
@@ -289,7 +291,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )  # Temporary workspace_id
 
             link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
-            subject, body = generate_user_verification_email(user.full_name, link, db_session)
+            subject, body = generate_user_verification_email(
+                user.full_name, link, db_session
+            )
             send_mail(user.email, subject, body, smtp_credentials)
 
     async def authenticate(

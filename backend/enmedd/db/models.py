@@ -610,6 +610,7 @@ class EmailTemplates(Base):
     body: Mapped[str] = mapped_column(Text)
     workspace_id: Mapped[int] = mapped_column(Integer)
 
+
 class Tag(Base):
     __tablename__ = "tag"
 

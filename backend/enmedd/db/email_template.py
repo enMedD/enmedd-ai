@@ -11,14 +11,12 @@ def get_all_email_templates(
     workspace_id: int | None, db_session: Session
 ) -> list[EmailTemplates]:
     if workspace_id is None:
-        return db_session.query(EmailTemplates).order_by(
-            EmailTemplates.id.asc()
-        )
+        return db_session.query(EmailTemplates).order_by(EmailTemplates.id.asc())
 
-    return db_session.query(EmailTemplates).filter(
-        EmailTemplates.workspace_id == workspace_id
-    ).order_by(
-        EmailTemplates.id.asc()
+    return (
+        db_session.query(EmailTemplates)
+        .filter(EmailTemplates.workspace_id == workspace_id)
+        .order_by(EmailTemplates.id.asc())
     )
 
 
