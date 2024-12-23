@@ -20,30 +20,33 @@ function Main() {
   const [retrieveLoading, setRetrieveLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      setRetrieveLoading(true);
-      const response = await getEmailTemplates();
+  const retrieveTemplateProcedure = async (filter?: string) => {
+    setRetrieveLoading(true);
+    const response = await getEmailTemplates();
 
-      setTempplateList(response);
-      setRetrieveLoading(false);
-    })();
+    if (filter)
+      setTempplateList(
+        response.filter(
+          (mailTmp) =>
+            mailTmp.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            mailTmp.description
+              .toLowerCase()
+              .includes(searchValue.toLowerCase())
+        )
+      );
+    else setTempplateList(response);
+    setRetrieveLoading(false);
+  };
+
+  useEffect(() => {
+    retrieveTemplateProcedure();
   }, [forceRefresh]);
 
   // debounce trigger when searching
   useEffect(() => {
     if (searchValue !== "") {
       const timer = setTimeout(() => {
-        (async () => {
-          setRetrieveLoading(true);
-          const response = await getEmailTemplates();
-          setTempplateList(
-            response.filter((mailTmp) =>
-              mailTmp.title.toLowerCase().includes(searchValue.toLowerCase())
-            )
-          );
-          setRetrieveLoading(false);
-        })();
+        retrieveTemplateProcedure(searchValue);
       }, 500);
 
       return () => clearTimeout(timer);
