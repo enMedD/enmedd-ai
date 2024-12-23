@@ -131,7 +131,7 @@ export default function MailTemplateModal(props: MailTemplateModalProps) {
             setHtmlData(parsedData);
           }}
           toolbarCustomButtons={[
-            <ModToolbarPlaceholder editorState={editorState} />,
+            <ModToolbarPlaceholder dropdownType={templateData?.type} editorState={editorState} />,
           ]}
         />
         <div className="pt-3 px-2 text-right">

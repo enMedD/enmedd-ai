@@ -158,6 +158,7 @@ class EmailTemplates(BaseModel):
     id: int | None = None
     subject: str
     body: str
+    type: str
     title: str
     description: str
     workspace_id: int

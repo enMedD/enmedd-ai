@@ -38,6 +38,7 @@ async def get_all_email_templates_route(
             subject=active.subject,
             title=active.title,
             workspace_id=active.workspace_id,
+            type=active.type,
         )
         for active in active_email_templates
     ]
@@ -66,6 +67,7 @@ async def update_email_template_route(
         subject=updated_email_template.subject,
         title=updated_email_template.title,
         workspace_id=updated_email_template.workspace_id,
+        type=active.type,
     )
 
 

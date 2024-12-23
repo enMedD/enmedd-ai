@@ -180,6 +180,7 @@ export interface EmailTemplates {
   title: string;
   description: string;
   workspace_id: number;
+  type?: "invite" | "passreset" | "2fa" | "verify";
 }
 
 export interface Tag {
