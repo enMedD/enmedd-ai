@@ -312,6 +312,7 @@ export function InputForm<T extends FieldValues>({
   onChange,
   onFocus,
   onBlur,
+  value,
 }: {
   formControl: Control<T>;
   disabled?: boolean;
@@ -330,6 +331,7 @@ export function InputForm<T extends FieldValues>({
   ) => void;
   onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  value?: string | number;
 }) {
   const Component = isTextarea ? Textarea : Input;
   return (
@@ -358,6 +360,7 @@ export function InputForm<T extends FieldValues>({
               className={className}
               type={type}
               {...field}
+              value={value ?? field.value}
               onChange={(e) => {
                 const value =
                   type === "number"

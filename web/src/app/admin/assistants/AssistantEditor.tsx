@@ -65,7 +65,8 @@ const formSchema = z.object({
     message: "Must be a boolean value",
   }),
   document_set_ids: z.array(z.number()).default([]),
-  num_chunks: z.number().nullable(),
+  // num_chunks: z.number().nullable(),
+  num_chunks: z.number().nullable().default(10),
   include_citations: z.boolean().refine((val) => val !== undefined, {
     message: "Must be a boolean value",
   }),
@@ -273,7 +274,7 @@ export function AssistantEditor({
       cachedFormData.document_set_ids ??
       [],
     num_chunks:
-      existingAssistant?.num_chunks ?? cachedFormData.num_chunks ?? null,
+      existingAssistant?.num_chunks ?? cachedFormData.num_chunks ?? 10,
     search_start_date: existingAssistant?.search_start_date
       ? new Date(existingAssistant.search_start_date)
       : cachedFormData.search_start_date
@@ -326,14 +327,6 @@ export function AssistantEditor({
   });
 
   const [isRequestSuccessful, setIsRequestSuccessful] = useState(false);
-
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      localStorage.setItem("assistantFormData", JSON.stringify(values));
-    });
-
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   async function checkAssistantNameExists(name: string) {
     const response = await fetch(`/api/assistant`);
@@ -524,6 +517,14 @@ export function AssistantEditor({
       setIsRequestSuccessful(true);
     }
   };
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      localStorage.setItem("assistantFormData", JSON.stringify(values));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   function toggleToolInValues(toolId: number) {
     const updatedEnabledToolsMap = {
@@ -1039,6 +1040,7 @@ export function AssistantEditor({
                                     );
                                   }
                                 }}
+                                value={form.watch("num_chunks") || 10}
                               />
 
                               <DatePicker
