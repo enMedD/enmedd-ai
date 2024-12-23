@@ -173,6 +173,15 @@ export interface DocumentSet {
   groups: { id: number; name: string; workspace: Workspace[] }[];
 }
 
+export interface EmailTemplates {
+  id: number;
+  subject: string;
+  body: string;
+  title: string;
+  description: string;
+  workspace_id: number;
+}
+
 export interface Tag {
   tag_key: string;
   tag_value: string;

@@ -8,6 +8,7 @@ import {
   Question,
   Gear,
   ArrowSquareOut,
+  Envelope,
 } from "@phosphor-icons/react";
 import {
   FiCheck,
@@ -121,6 +122,8 @@ export interface IconProps {
   size?: number;
   className?: string;
 }
+
+export const EnvelopeIcon = Envelope;
 
 export const AssistantsIconSkeleton = ({
   size,
