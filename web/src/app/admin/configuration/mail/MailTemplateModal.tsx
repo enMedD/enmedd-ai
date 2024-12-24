@@ -167,6 +167,7 @@ export default function MailTemplateModal(props: Props) {
           }}
           toolbarCustomButtons={[
             <ModToolbarPlaceholder
+              key={"mod_toolbar"}
               dropdownType={templateData?.type}
               editorState={editorState}
             />,

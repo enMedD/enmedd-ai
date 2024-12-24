@@ -96,8 +96,9 @@ function Main() {
             <>{" Retrieving Templates..."}</>
           </div>
         )}
-        {templateList.map((template) => (
+        {templateList.map((template, index) => (
           <TemplateCard
+            key={`template_card_${index}`}
             title={template.title}
             description={template.description}
             onClick={() => {

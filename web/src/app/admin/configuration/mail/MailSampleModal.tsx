@@ -62,7 +62,7 @@ export default function MailSampleModal(props: Props) {
       onClose={() => setOpen && setOpen(false)}
       headerClassName="py-0"
     >
-      Send a demo mail to the specified email to test the template's style.
+      Send a demo mail to the specified email to test the template&apos;s style.
       <br />
       <br />
       <Input
