@@ -74,8 +74,14 @@ const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
 
 export const AllUsers = ({
   teamspaceId,
+  isLoadingDomains,
+  validDomains,
+  domainsError,
 }: {
   teamspaceId?: string | string[];
+  isLoadingDomains: boolean;
+  validDomains?: string[] | never[] | undefined;
+  domainsError: any;
 }) => {
   const { toast } = useToast();
   const [q, setQ] = useState("");
@@ -210,14 +216,6 @@ export const AllUsers = ({
       }
     }
   };
-
-  const {
-    data: validDomains,
-    isLoading: isLoadingDomains,
-    error: domainsError,
-  } = !teamspaceId
-    ? useSWR<string[]>("/api/manage/admin/valid-domains", errorHandlingFetcher)
-    : { data: [], isLoading: false, error: null };
 
   if (isLoadingDomains) {
     return <Loading />;

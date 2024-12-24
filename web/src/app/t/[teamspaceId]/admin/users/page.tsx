@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { UserIcon } from "lucide-react";
 import { PendingInvites } from "@/app/admin/users/PedingInvites";
 import { Separator } from "@/components/ui/separator";
+import Main from "@/app/admin/users/Main";
 
 const Page = () => {
   const { teamspaceId } = useParams();
@@ -14,11 +15,7 @@ const Page = () => {
     <div className="h-full w-full overflow-y-auto">
       <div className="container">
         <AdminPageTitle title="Manage Users" icon={<UserIcon size={32} />} />
-        <div className="pb-20 w-full">
-          <AllUsers teamspaceId={teamspaceId} />
-          <Separator className="my-10" />
-          <PendingInvites teamspaceId={teamspaceId} />
-        </div>
+        <Main teamspaceId={teamspaceId} />
       </div>
     </div>
   );

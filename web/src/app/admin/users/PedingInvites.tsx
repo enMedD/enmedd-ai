@@ -55,8 +55,10 @@ const RemoveUserButton = ({
 
 export const PendingInvites = ({
   teamspaceId,
+  isLoadingDomains,
 }: {
   teamspaceId?: string | string[];
+  isLoadingDomains: boolean;
 }) => {
   const { toast } = useToast();
   const [q, setQ] = useState("");
@@ -71,11 +73,7 @@ export const PendingInvites = ({
     errorHandlingFetcher
   );
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (error || !data) {
+  if (error) {
     return (
       <ErrorCallout
         errorTitle="Error loading users"
@@ -84,13 +82,15 @@ export const PendingInvites = ({
     );
   }
 
-  const { accepted, invited } = data;
+  if (isLoadingDomains) {
+    return <Loading />;
+  }
 
-  const finalInvited = invited.filter(
-    (user) => !accepted.map((u) => u.email).includes(user.email)
+  const finalInvited = data?.invited.filter(
+    (user) => !data.accepted.map((u) => u.email).includes(user.email)
   );
 
-  const filteredUsers = finalInvited.filter((user) =>
+  const filteredUsers = finalInvited?.filter((user) =>
     user.email.toLowerCase().includes(q.toLowerCase())
   );
 
@@ -161,74 +161,73 @@ export const PendingInvites = ({
           <p className="text-sm mt-2">Invitations awaiting a response.</p>
         </div>
 
-        {finalInvited.length > 0 ? (
-          <div className="flex-1 space-y-4 overflow-x-auto p-1">
-            <Input
-              placeholder="Search user..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-            {displayedUsers.length > 0 ? (
-              <div>
-                <Card className="mt-4">
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {displayedUsers.map((user) => (
-                          <TableRow key={user.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-4">
-                                <div className="border rounded-full w-10 h-10 flex items-center justify-center">
-                                  <UserIcon />
-                                </div>
-                                <span className="text-sm text-subtle truncate">
-                                  {user.email}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2 justify-end">
-                                <Button
-                                  onClick={() => {
-                                    setIsCancelModalVisible(true);
-                                    setSelectedUser(user);
-                                  }}
-                                  variant="destructive"
-                                >
-                                  Cancel Invite
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
+        <div className="flex-1 space-y-4 overflow-x-auto p-1">
+          <Input
+            placeholder="Search user..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
 
-                {filteredUsers.length > 10 && (
-                  <div className="flex justify-center mt-4">
-                    <CustomPagination
-                      totalItems={filteredUsers?.length || 0}
-                      itemsPerPage={usersPerPage}
-                      onPageChange={handlePageChange}
-                    />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p>No user found.</p>
-            )}
-          </div>
-        ) : (
-          <p>No invited user.</p>
-        )}
+          {isLoading ? (
+            <Loading />
+          ) : displayedUsers && displayedUsers.length > 0 ? (
+            <div>
+              <Card className="mt-4">
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {displayedUsers.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-4">
+                              <div className="border rounded-full w-10 h-10 flex items-center justify-center">
+                                <UserIcon />
+                              </div>
+                              <span className="text-sm text-subtle truncate">
+                                {user.email}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                onClick={() => {
+                                  setIsCancelModalVisible(true);
+                                  setSelectedUser(user);
+                                }}
+                                variant="destructive"
+                              >
+                                Cancel Invite
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {filteredUsers && filteredUsers.length > 10 && (
+                <div className="flex justify-center mt-4">
+                  <CustomPagination
+                    totalItems={filteredUsers?.length || 0}
+                    itemsPerPage={usersPerPage}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>No user found.</p>
+          )}
+        </div>
       </div>
     </>
   );
