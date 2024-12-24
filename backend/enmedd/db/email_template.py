@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from enmedd.db.models import EmailTemplates
 from enmedd.utils.smtp import get_smtp_credentials
@@ -32,8 +33,12 @@ def get_active_email_template(
 ) -> EmailTemplates | None:
     return (
         db_session.query(EmailTemplates)
-        .filter(EmailTemplates.workspace_id == 0 and EmailTemplates.type == email_type)
-        .first()
+        .filter(
+            and_(
+                EmailTemplates.type == email_type,
+                EmailTemplates.workspace_id == 0
+            )
+        ).first()
     )
 
 
