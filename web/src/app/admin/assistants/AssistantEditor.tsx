@@ -1,7 +1,6 @@
 "use client";
 
 import { generateRandomIconShape, createSVG } from "@/lib/assistantIconUtils";
-
 import { CCPairBasicInfo, DocumentSet, User } from "@/lib/types";
 import { Divider } from "@tremor/react";
 import {
@@ -9,7 +8,6 @@ import {
   DatePicker,
   InputForm,
   Label,
-  SelectorFormField,
 } from "@/components/admin/connectors/Field";
 import { getDisplayNameForModel } from "@/lib/hooks";
 import { DocumentSetSelectable } from "@/components/documentSet/DocumentSetSelectable";
@@ -17,7 +15,6 @@ import { Option } from "@/components/Dropdown";
 import { addAssistantToList } from "@/lib/assistants/updateAssistantPreferences";
 import { checkLLMSupportsImageOutput, destructureValue } from "@/lib/llm/utils";
 import { ToolSnapshot } from "@/lib/tools/interfaces";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -65,7 +62,6 @@ const formSchema = z.object({
     message: "Must be a boolean value",
   }),
   document_set_ids: z.array(z.number()).default([]),
-  // num_chunks: z.number().nullable(),
   num_chunks: z.number().nullable().default(10),
   include_citations: z.boolean().refine((val) => val !== undefined, {
     message: "Must be a boolean value",
@@ -454,6 +450,7 @@ export function AssistantEditor({
         users: undefined,
         groups,
         tool_ids: enabledTools,
+        icon_shape: cachedFormData.icon_shape ?? defaultIconShape,
       });
     }
 
