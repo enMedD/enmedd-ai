@@ -599,6 +599,18 @@ class Document(Base):
     )
 
 
+class EmailTemplates(Base):
+    __tablename__ = "email_templates"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(String)
+    title: Mapped[str] = mapped_column(String)
+    description: Mapped[str] = mapped_column(String)
+    subject: Mapped[str] = mapped_column(String)
+    body: Mapped[str] = mapped_column(Text)
+    workspace_id: Mapped[int] = mapped_column(Integer)
+
+
 class Tag(Base):
     __tablename__ = "tag"
 

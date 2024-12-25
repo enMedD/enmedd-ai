@@ -38,9 +38,6 @@ from enmedd.auth.schemas import UserCreate
 from enmedd.auth.schemas import UserRole
 from enmedd.auth.utils import generate_password_reset_email
 from enmedd.auth.utils import generate_user_verification_email
-from enmedd.auth.utils import get_smtp_credentials
-from enmedd.auth.utils import send_reset_password_email
-from enmedd.auth.utils import send_user_verification_email
 from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import DISABLE_AUTH
 from enmedd.configs.app_configs import REQUIRE_EMAIL_VERIFICATION
@@ -68,6 +65,8 @@ from enmedd.db.users import get_user_by_email
 from enmedd.server.feature_flags.models import FeatureFlagsManager
 from enmedd.server.manage.models import OTPVerificationRequest
 from enmedd.utils.logger import setup_logger
+from enmedd.utils.smtp import get_smtp_credentials
+from enmedd.utils.smtp import send_mail
 from enmedd.utils.telemetry import optional_telemetry
 from enmedd.utils.telemetry import RecordType
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
@@ -269,8 +268,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )  # Temporary workspace_id
 
             reset_url = f"{WEB_DOMAIN}/auth/reset-password?token={token}"
-            subject, body = generate_password_reset_email(user.email, reset_url)
-            send_reset_password_email(user.email, subject, body, smtp_credentials)
+            subject, body = generate_password_reset_email(
+                user.email, reset_url, db_session
+            )
+            send_mail(user.email, subject, body, smtp_credentials, True)
 
     async def on_after_request_verify(
         self,
@@ -290,8 +291,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )  # Temporary workspace_id
 
             link = f"{WEB_DOMAIN}/auth/verify-email?token={token}"
-            subject, body = generate_user_verification_email(user.full_name, link)
-            send_user_verification_email(user.email, subject, body, smtp_credentials)
+            subject, body = generate_user_verification_email(
+                user.full_name, link, db_session
+            )
+            send_mail(user.email, subject, body, smtp_credentials)
 
     async def authenticate(
         self, credentials: OAuth2PasswordRequestForm
