@@ -18,6 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { DeleteModal } from "@/components/DeleteModal";
 
 interface MailTemplateModalProps {
+  title?: string;
   open: boolean;
   setOpen?: (state: boolean) => void;
   onUpdate?: () => void;
@@ -28,7 +29,7 @@ interface Props extends MailTemplateModalProps {
 }
 
 function MailConfirmModal(props: MailTemplateModalProps) {
-  const { open, onClose, onUpdate, setOpen } = props;
+  const { title, open, onClose, onUpdate, setOpen } = props;
 
   const closeCallback = () => {
     onClose && onClose();
@@ -47,7 +48,7 @@ function MailConfirmModal(props: MailTemplateModalProps) {
 }
 
 export default function MailTemplateModal(props: Props) {
-  const { open, templateData, onClose, onUpdate, setOpen } = props;
+  const { title, open, templateData, onClose, onUpdate, setOpen } = props;
 
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -135,7 +136,7 @@ export default function MailTemplateModal(props: Props) {
         onUpdate={updateMailCallback}
       />
       <CustomModal
-        title="Update Mail Template"
+        title={`Update "${title}"`}
         trigger
         open={open}
         onClose={() => {

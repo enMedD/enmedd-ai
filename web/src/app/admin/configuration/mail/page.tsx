@@ -64,6 +64,7 @@ function Main() {
     <>
       {selectedTemplate && (
         <MailTemplateModal
+          title={selectedTemplate.title}
           open={openMailTemplateModal}
           templateData={selectedTemplate}
           setOpen={setOpenMailTemplateModal}
