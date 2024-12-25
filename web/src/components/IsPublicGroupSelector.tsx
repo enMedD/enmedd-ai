@@ -6,8 +6,13 @@ import { FiUsers } from "react-icons/fi";
 import { Teamspace, UserRole } from "@/lib/types";
 import { useTeamspaces } from "@/lib/hooks";
 import { BooleanFormField } from "@/components/admin/connectors/Field";
-import { useUser } from "./user/UserProvider";
 import { Combobox } from "./Combobox";
+import {
+  CheckboxForm,
+  ComboboxForm,
+} from "@/components/admin/connectors/Field";
+import { useUser } from "./user/UserProvider";
+import { Control, Path } from "react-hook-form";
 
 export type IsPublicGroupSelectorFormType = {
   is_public: boolean;
@@ -145,6 +150,139 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
             />
           </>
         )}
+    </div>
+  );
+};
+
+export type IsPublicGroupSelector2FormType = {
+  is_public: boolean;
+  groups: number[];
+};
+
+export const IsPublicGroupSelector2 = <
+  T extends IsPublicGroupSelector2FormType,
+>({
+  formControl,
+  comboboxName,
+  checkboxName,
+  values,
+  setValue,
+  objectName,
+  publicToWhom = "Users",
+  enforceGroupSelection = true,
+}: {
+  formControl: Control<T>;
+  checkboxName: Path<T>;
+  comboboxName: Path<T>;
+  values: T;
+  setValue: any;
+  objectName: string;
+  publicToWhom?: string;
+  enforceGroupSelection?: boolean;
+}) => {
+  const { data: teamspaces, isLoading: teamspacesIsLoading } = useTeamspaces();
+  const { isAdmin, user, isLoadingUser } = useUser();
+  const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
+  const [shouldHideContent, setShouldHideContent] = useState(false);
+
+  useEffect(() => {
+    if (user && teamspaces && isPaidEnterpriseFeaturesEnabled) {
+      const isUserAdmin = user.role === UserRole.ADMIN;
+      if (!isUserAdmin) {
+        setValue("is_public", false);
+      }
+      if (teamspaces.length === 1 && !isUserAdmin) {
+        setValue("groups", [teamspaces[0].id]);
+        setShouldHideContent(true);
+      } else if (values.is_public) {
+        setValue("groups", []);
+        setShouldHideContent(false);
+      } else {
+        setShouldHideContent(false);
+      }
+    }
+  }, [user, teamspaces, setValue, values.is_public]);
+
+  if (isLoadingUser || teamspacesIsLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!isPaidEnterpriseFeaturesEnabled) {
+    return null;
+  }
+
+  if (shouldHideContent && enforceGroupSelection) {
+    return (
+      <>
+        {teamspaces && (
+          <div className="mb-1 text-base font-medium">
+            This {objectName} will be assigned to group{" "}
+            <b>{teamspaces[0].name}</b>.
+          </div>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <div>
+      <Divider />
+      {isAdmin && (
+        <>
+          <CheckboxForm
+            formControl={formControl}
+            name={checkboxName}
+            label={`Make this ${objectName} Public?`}
+            description={
+              <span className="block text-sm text-muted-foreground">
+                If set, then this {objectName} will be usable by{" "}
+                <b>All {publicToWhom}</b>. Otherwise, only <b>Admins</b> and{" "}
+                <b>{publicToWhom}</b> who have explicitly been given access to
+                this {objectName} (e.g. via a User Group) will have access.
+              </span>
+            }
+            disabled={!isAdmin}
+          />
+        </>
+      )}
+
+      {!values.is_public && teamspaces && teamspaces?.length > 0 && (
+        <>
+          <div className="mt-3 grid gap-1.5 pb-1.5">
+            <p className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Assign group access for this {objectName}
+            </p>
+            {teamspacesIsLoading ? (
+              <div className="w-32 h-8 bg-gray-200 rounded animate-pulse"></div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {isAdmin || !enforceGroupSelection ? (
+                  <>
+                    This {objectName} will be visible/accessible by the groups
+                    selected below
+                  </>
+                ) : (
+                  <>
+                    Curators must select one or more groups to give access to
+                    this {objectName}
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+
+          <ComboboxForm
+            formControl={formControl}
+            name={comboboxName}
+            comboboxLabel="Teamspaces"
+            placeholder="Select teamspaces"
+            items={teamspaces.map((teamspace) => ({
+              value: teamspace.id.toString(),
+              label: teamspace.name,
+            }))}
+            isOnModal
+          />
+        </>
+      )}
     </div>
   );
 };

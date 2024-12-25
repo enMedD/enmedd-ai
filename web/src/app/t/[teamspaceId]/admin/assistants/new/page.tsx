@@ -32,6 +32,7 @@ export default async function Page({
             defaultPublic={true}
             redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
             teamspaceId={params.teamspaceId}
+            shouldAddAssistantToUserPreferences={true}
           />
         </CardContent>
       </Card>
