@@ -152,3 +152,19 @@ class OTPVerificationRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class EmailTemplates(BaseModel):
+    id: int | None = None
+    type: str | None = None
+    subject: str
+    body: str
+    title: str
+    description: str
+    workspace_id: int
+
+
+class SendMailTemplate(BaseModel):
+    subject: str
+    email: str
+    body: str

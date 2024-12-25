@@ -264,6 +264,18 @@ code[class*="language-"] {
   @apply mx-auto max-w-[1400px] px-6 lg:px-14 xl:px-10 2xl:px-24 pb-24 md:pb-32 bg-background;
 } */
 
+.placeholder-ul {
+  visibility: hidden;
+}
+.placeholder-li:hover {
+  background: #f1f1f1;
+}
+
+/* apply default font size */
+.DraftEditor-root {
+  font-size: 14px;
+}
+
 @layer base {
   * {
     @apply border-border;

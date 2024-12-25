@@ -31,7 +31,6 @@ from enmedd.auth.invited_users import decode_invite_token
 from enmedd.auth.invited_users import generate_invite_email
 from enmedd.auth.invited_users import generate_invite_token
 from enmedd.auth.invited_users import get_invited_users
-from enmedd.auth.invited_users import send_invite_user_email
 from enmedd.auth.invited_users import write_invited_users
 from enmedd.auth.noauth_user import fetch_no_auth_user
 from enmedd.auth.noauth_user import set_no_auth_user_preferences
@@ -44,8 +43,6 @@ from enmedd.auth.users import current_user
 from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import optional_user
 from enmedd.auth.utils import generate_2fa_email
-from enmedd.auth.utils import get_smtp_credentials
-from enmedd.auth.utils import send_2fa_email
 from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
 from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
@@ -76,6 +73,8 @@ from enmedd.server.models import FullUserSnapshot
 from enmedd.server.models import InvitedUserSnapshot
 from enmedd.server.models import MinimalUserwithNameSnapshot
 from enmedd.utils.logger import setup_logger
+from enmedd.utils.smtp import get_smtp_credentials
+from enmedd.utils.smtp import send_mail
 
 logger = setup_logger()
 
@@ -101,8 +100,8 @@ async def generate_otp(
 
     smtp_credentials = get_smtp_credentials(db_session)
 
-    subject, body = generate_2fa_email(current_user.full_name, otp_code)
-    send_2fa_email(current_user.email, subject, body, smtp_credentials)
+    subject, body = generate_2fa_email(current_user.full_name, otp_code, db_session)
+    send_mail(current_user.email, subject, body, smtp_credentials, True)
 
     existing_otp = (
         db_session.query(TwofactorAuth)
@@ -387,8 +386,8 @@ def bulk_invite_users(
 
     for email in normalized_emails:
         signup_link = f"{WEB_DOMAIN}/auth/signup?email={email}&invitetoken={token}"
-        subject, body = generate_invite_email(signup_link)
-        send_invite_user_email(email, subject, body, smtp_credentials)
+        subject, body = generate_invite_email(signup_link, db_session)
+        send_mail(email, subject, body, smtp_credentials, True)
 
     all_emails = list(set(normalized_emails) | set(get_invited_users(teamspace_id)))
 
