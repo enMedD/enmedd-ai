@@ -76,7 +76,10 @@ export default function Main({
                   }
                   className="flex items-center"
                 >
-                  <Button className="mt-2">
+                  <Button
+                    className="mt-2"
+                    onClick={() => localStorage.removeItem("assistantFormData")}
+                  >
                     <SquarePlus size={16} />
                     New Assistant
                   </Button>
