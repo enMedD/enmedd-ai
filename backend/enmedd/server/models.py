@@ -57,6 +57,7 @@ class FullUserSnapshot(BaseModel):
 
 class InvitedUserSnapshot(BaseModel):
     email: str
+    is_expired: bool | None = None
 
 
 class DisplayPriorityRequest(BaseModel):

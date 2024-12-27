@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from enmedd.auth.schemas import UserRole
+from enmedd.db.models import InviteToken
 from enmedd.db.models import User
 from enmedd.db.models import User__Teamspace
 
@@ -135,6 +136,11 @@ def change_user_password(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {e}",
         )
+
+
+def update_invite_token_status(invite_token: InviteToken, db_session: Session):
+    invite_token.is_expired = True
+    db_session.add(invite_token)
 
 
 def delete_user_by_email(email: str, db_session: Session):
