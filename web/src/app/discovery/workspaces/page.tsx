@@ -11,7 +11,12 @@ import {
 import { CpuIcon, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { WorkspaceSidebar } from "../WorkspaceSidebar";
 import Link from "next/link";
 import { CustomModal } from "@/components/CustomModal";
@@ -111,9 +116,9 @@ const Inset = ({
               onClick={() => handleShowTeamspace(1)}
             >
               <CardHeader className="p-10 bg-brand-500"></CardHeader>
-              <CardContent className="relative flex flex-col justify-between h-56 bg-muted/50">
-                <div className="absolute top-0 w-12 h-12 -translate-y-1/2 right-4 flex items-center justify-center">
-                  <span className="text-xl uppercase font-bold h-full flex items-center justify-center rounded-lg text-inverted border-[5px] border-inverted w-full bg-brand-500">
+              <CardContent className="relative flex flex-col justify-between h-[275px] bg-muted/50">
+                <div className="absolute top-0 w-16 h-16 -translate-y-1/2 right-4 flex items-center justify-center">
+                  <span className="text-xl uppercase font-bold h-full flex items-center justify-center rounded-full text-inverted border-[5px] border-inverted w-full bg-brand-500">
                     L
                   </span>
                 </div>
@@ -131,10 +136,18 @@ const Inset = ({
 
                     <div className="flex items-center justify-between pt-2">
                       <p className="flex gap-2 items-center">
-                        <Users size={14} className="shrink-0" /> 20,023 Memebers
+                        <Users
+                          size={14}
+                          className="shrink-0 stroke-brand-500"
+                        />{" "}
+                        20,023 Memebers
                       </p>
                       <p className="flex gap-2 items-center">
-                        <CpuIcon size={14} className="shrink-0" /> 12 Assistants
+                        <CpuIcon
+                          size={14}
+                          className="shrink-0 stroke-brand-500"
+                        />{" "}
+                        12 Assistants
                       </p>
                     </div>
                   </div>
@@ -146,6 +159,13 @@ const Inset = ({
                     cumque non accusamus, esse laudantium!
                   </p>
                 </div>
+
+                <CardFooter className="pr-0 pt-4">
+                  <div className="flex justify-end gap-2 w-full">
+                    <Button variant="outline">Edit</Button>
+                    <Button variant="destructive">Delete</Button>
+                  </div>
+                </CardFooter>
               </CardContent>
             </Card>
           </div>
