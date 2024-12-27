@@ -18,7 +18,6 @@ from enmedd.search.models import IndexFilters
 from enmedd.search.preprocessing.access_filters import build_access_filters_for_user
 from enmedd.server.documents.models import ChunkInfo
 from enmedd.server.documents.models import DocumentInfo
-from enmedd.server.documents.models import FileRequest
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -116,12 +115,11 @@ def get_chunk_info(
 
 @router.get("/file")
 def fetch_documnet_file(
-    file_request: FileRequest,
+    file_name: str,
     db_session: Session = Depends(get_session),
     _: User | None = Depends(current_user),
 ) -> Response:
     try:
-        file_name = file_request.file_name
         file_store = get_default_file_store(db_session)
 
         # Retrieve file metadata to determine the file type
