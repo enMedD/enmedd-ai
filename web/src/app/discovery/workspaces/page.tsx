@@ -14,6 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { WorkspaceSidebar } from "../WorkspaceSidebar";
 import Link from "next/link";
+import { CustomModal } from "@/components/CustomModal";
+import CreateWorkspace from "./CreateWorkspace";
+import ChoosePlan from "./ChoosePlan";
 
 const Inset = ({
   open,
@@ -28,6 +31,8 @@ const Inset = ({
   selectedTeamspaceId: number | null;
   setSelectedTeamspaceId: (teamspaceId: number) => void;
 }) => {
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openPlanModal, setOpenPlanModal] = useState(false);
   const { toggleSidebar: toggleRightSidebar, isMobile } = useSidebar();
 
   const handleCloseSidebar = () => {
@@ -52,6 +57,33 @@ const Inset = ({
 
   return (
     <SidebarInset className="w-full overflow-hidden">
+      {openCreateModal && (
+        <CustomModal
+          trigger={null}
+          onClose={() => setOpenCreateModal(false)}
+          open={openCreateModal}
+          title="Create Workspace"
+          headerClassName="text-center text-3xl text-brand-500"
+        >
+          <CreateWorkspace
+            onClose={() => setOpenCreateModal(false)}
+            onOpenPlanModal={() => setOpenPlanModal(true)}
+          />
+        </CustomModal>
+      )}
+
+      {openPlanModal && (
+        <CustomModal
+          trigger={null}
+          onClose={() => setOpenPlanModal(false)}
+          open={openPlanModal}
+          title="Choose your plan"
+          headerClassName="text-center text-3xl text-brand-500"
+        >
+          <ChoosePlan onCancel={() => setOpenPlanModal(false)} />
+        </CustomModal>
+      )}
+
       <header className="flex h-16 shrink-0 items-center gap-2 px-4 absolute top-0 right-0">
         {open && (
           <SidebarTrigger className="-mr-1" onClick={handleCloseSidebar} />
@@ -63,12 +95,10 @@ const Inset = ({
             <h1 className="flex items-center font-bold text-xl md:text-[28px] text-strong gap-x-2">
               Workspace Management
             </h1>
-            <Link href="/discovery/create-workspace">
-              <Button>
-                <Plus size={16} />
-                Create Workspace
-              </Button>
-            </Link>
+            <Button onClick={() => setOpenCreateModal(true)}>
+              <Plus size={16} />
+              Create Workspace
+            </Button>
           </div>
 
           <div className="w-full flex items-center justify-center">

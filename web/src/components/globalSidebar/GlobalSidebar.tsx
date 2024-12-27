@@ -180,7 +180,7 @@ export function GlobalSidebar({
                   />
                 )}
 
-                <SidebarMenuItem className="flex items-center justify-center mt-10">
+                <SidebarMenuItem className="flex items-center justify-center !mt-10">
                   <SidebarMenuButton
                     tooltip={{
                       children: "More",

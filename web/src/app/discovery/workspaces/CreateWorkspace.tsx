@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
 import Link from "next/link";
+import { CustomModal } from "@/components/CustomModal";
+import ChoosePlan from "./ChoosePlan";
 
 const formSchema = z.object({
   workspace_name: z.string().min(1, {
@@ -41,7 +43,13 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function WorkspaceCreationForm() {
+export default function CreateWorkspace({
+  onClose,
+  onOpenPlanModal,
+}: {
+  onClose: () => void;
+  onOpenPlanModal: () => void;
+}) {
   const { toast } = useToast();
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
 
@@ -63,45 +71,53 @@ export default function WorkspaceCreationForm() {
   const onSubmit = async (values: FormValues) => {};
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 pt-20 md:w-3/5 mx-auto"
-      >
-        <InputForm
-          formControl={form.control}
-          name="workspace_name"
-          label="Workspace name"
-          placeholder="Enter workspace name..."
-        />
-        <InputForm
-          formControl={form.control}
-          name="company_name"
-          label="Company name"
-          placeholder="Enter company name..."
-        />
-        <InputForm
-          formControl={form.control}
-          name="description"
-          label="Workspace description"
-          placeholder="Type short description here..."
-          isTextarea
-          className="min-h-32 max-h-52"
-        />
+    <div>
+      {/* <div className="space-y-2">
+        <h1 className="text-center font-bold text-5xl">
+          Create a new workspace
+        </h1>
+        <p className="text-center text-xl font-semibold">
+          Workspace organizes projects, tasks, and collaboration for
+          productivity
+        </p>
+      </div> */}
 
-        <div>
-          <Label
-            htmlFor="custom_header_logo"
-            className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-2"
-          >
-            Company Logo
-          </Label>
-
-          <ImageUpload
-            selectedFile={selectedLogo}
-            setSelectedFile={setSelectedLogo}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <InputForm
+            formControl={form.control}
+            name="workspace_name"
+            label="Workspace name"
+            placeholder="Enter workspace name..."
           />
-          {/* {!selectedHeaderLogo && (
+          <InputForm
+            formControl={form.control}
+            name="company_name"
+            label="Company name"
+            placeholder="Enter company name..."
+          />
+          <InputForm
+            formControl={form.control}
+            name="description"
+            label="Workspace description"
+            placeholder="Type short description here..."
+            isTextarea
+            className="min-h-32 max-h-52"
+          />
+
+          <div>
+            <Label
+              htmlFor="custom_header_logo"
+              className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-2"
+            >
+              Company Logo
+            </Label>
+
+            <ImageUpload
+              selectedFile={selectedLogo}
+              setSelectedFile={setSelectedLogo}
+            />
+            {/* {!selectedHeaderLogo && (
                 <div className="space-y-2">
                   <SubLabel>Current Header Logo:</SubLabel>
                   {workspaces?.custom_header_logo ? (
@@ -130,26 +146,28 @@ export default function WorkspaceCreationForm() {
                   )}
                 </div>
               )} */}
-        </div>
+          </div>
 
-        <div>
-          <div className="flex gap-5 flex-col md:flex-row">
-            <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
-              <Label
-                htmlFor="workspace_description"
-                className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
-              >
-                Brand Theme
-              </Label>
-              <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
-                Select your customized brand color.
-              </p>
-            </div>
+          <div>
+            <div className="flex gap-5 flex-col md:flex-row">
+              <div className="leading-none md:w-96 lg:w-60 xl:w-[500px] shrink-0">
+                <Label
+                  htmlFor="workspace_description"
+                  className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed pb-1.5"
+                >
+                  Brand Theme
+                </Label>
+                <p className="text-sm text-muted-foreground pb-1.5 md:w-4/5">
+                  Select your customized brand color.
+                </p>
+              </div>
 
-            <div className="md:w-[600px] space-y-2">
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-subtle w-32">Primary color:</span>
-                {/* <div className="flex gap-2">
+              <div className="md:w-[600px] space-y-2">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-subtle w-32">
+                    Primary color:
+                  </span>
+                  {/* <div className="flex gap-2">
                   <InputForm
                     formControl={form.control}
                     name="brand_color"
@@ -181,13 +199,13 @@ export default function WorkspaceCreationForm() {
                     </PopoverContent>
                   </Popover>
                 </div> */}
-              </div>
+                </div>
 
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-subtle w-32">
-                  Secondary color:
-                </span>
-                {/* <div className="flex gap-2">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-subtle w-32">
+                    Secondary color:
+                  </span>
+                  {/* <div className="flex gap-2">
                   <InputForm
                     formControl={form.control}
                     name="secondary_color"
@@ -219,17 +237,24 @@ export default function WorkspaceCreationForm() {
                     </PopoverContent>
                   </Popover>
                 </div> */}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex justify-end pt-6">
-          <Link href="/discovery/choose-plan">
-            <Button type="submit">Next</Button>
-          </Link>
-        </div>
-      </form>
-    </Form>
+          <div className="flex justify-end pt-6">
+            <Button
+              type="submit"
+              onClick={() => {
+                onOpenPlanModal();
+                onClose();
+              }}
+            >
+              Next
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
