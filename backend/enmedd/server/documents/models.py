@@ -427,3 +427,7 @@ class GmailCallback(BaseModel):
 class GDriveCallback(BaseModel):
     state: str
     code: str
+
+
+class FileRequest(BaseModel):
+    file_name: str

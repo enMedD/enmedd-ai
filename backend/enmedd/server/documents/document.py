@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
+from fastapi import Response
 from sqlalchemy.orm import Session
 
 from enmedd.auth.users import current_user
@@ -10,13 +11,17 @@ from enmedd.db.models import User
 from enmedd.db.search_settings import get_current_search_settings
 from enmedd.document_index.factory import get_default_document_index
 from enmedd.document_index.interfaces import VespaChunkRequest
+from enmedd.file_store.file_store import get_default_file_store
 from enmedd.natural_language_processing.utils import get_tokenizer
 from enmedd.prompts.prompt_utils import build_doc_context_str
 from enmedd.search.models import IndexFilters
 from enmedd.search.preprocessing.access_filters import build_access_filters_for_user
 from enmedd.server.documents.models import ChunkInfo
 from enmedd.server.documents.models import DocumentInfo
+from enmedd.server.documents.models import FileRequest
+from enmedd.utils.logger import setup_logger
 
+logger = setup_logger()
 
 router = APIRouter(prefix="/document")
 
@@ -107,3 +112,45 @@ def get_chunk_info(
     return ChunkInfo(
         content=chunk_content, num_tokens=len(tokenizer_encode(chunk_content))
     )
+
+
+@router.get("/file")
+def fetch_documnet_file(
+    file_request: FileRequest,
+    db_session: Session = Depends(get_session),
+    _: User | None = Depends(current_user),
+) -> Response:
+    try:
+        file_name = file_request.file_name
+        file_store = get_default_file_store(db_session)
+
+        # Retrieve file metadata to determine the file type
+        file_record = file_store.read_file_record(file_name)
+        if not file_record:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        file_type = file_record.file_type.lower()
+        file_io = file_store.read_file(file_name, mode="b")
+
+        # Determine the correct media type
+        SUPPORTED_FILE_TYPES = {
+            "text/plain",
+            "application/pdf",
+            "text/csv",
+            "image/png",
+            "application/zip",
+            "image/webp",
+            "image/jpeg",
+            "image/jpg",
+        }
+
+        if file_type not in SUPPORTED_FILE_TYPES:
+            raise HTTPException(status_code=415, detail="Unsupported file type")
+
+        # Read and return the file content
+        return Response(content=file_io.read(), media_type=file_type)
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to retrieve file: {str(e)}"
+        )
