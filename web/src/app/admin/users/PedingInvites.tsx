@@ -12,7 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
-import { UsersResponse } from "@/lib/users/interfaces";
+import { InvitedUser, UsersResponse } from "@/lib/users/interfaces";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { Loading } from "@/components/Loading";
 import { ErrorCallout } from "@/components/ErrorCallout";
@@ -23,6 +23,7 @@ import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
+import { Badge } from "@/components/ui/badge";
 
 const RemoveUserButton = ({
   user,
@@ -58,7 +59,7 @@ export const PendingInvites = ({
   teamspaceId?: string | string[];
 }) => {
   const { toast } = useToast();
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<InvitedUser | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
@@ -166,8 +167,8 @@ export const PendingInvites = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
+                      {filteredUsers.map((user, idx) => (
+                        <TableRow key={idx}>
                           <TableCell>
                             <div className="flex items-center gap-4">
                               <div className="border rounded-full w-10 h-10 flex items-center justify-center">
@@ -176,19 +177,32 @@ export const PendingInvites = ({
                               <span className="text-sm text-subtle truncate">
                                 {user.email}
                               </span>
+                              {user.is_expired && (
+                                <Badge variant="destructive">Expired</Badge>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2 justify-end">
-                              <Button
-                                onClick={() => {
-                                  setIsCancelModalVisible(true);
-                                  setSelectedUser(user);
-                                }}
-                                variant="destructive"
-                              >
-                                Cancel Invite
-                              </Button>
+                              {user.is_expired ? (
+                                <Button
+                                  onClick={() => {
+                                    // add logic to reinvite user using the PUT manage/users endpoint
+                                  }}
+                                >
+                                  Reinvite
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() => {
+                                    setIsCancelModalVisible(true);
+                                    setSelectedUser(user);
+                                  }}
+                                  variant="destructive"
+                                >
+                                  Cancel Invite
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
