@@ -90,7 +90,7 @@ import { useChatContext } from "@/context/ChatContext";
 import Prism from "prismjs";
 import { useToast } from "@/hooks/use-toast";
 import { ChatSidebar } from "./sessionSidebar/ChatSidebar";
-import { HelperFab } from "@/components/HelperFab";
+import { HelperButton } from "@/components/HelperButton";
 import { CircleArrowDown } from "lucide-react";
 import { StarterMessage as StarterMessageType } from "../admin/assistants/interfaces";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1867,7 +1867,7 @@ Only used in the EE version of the app. */}
                         >
                           {/* <input {...getInputProps()} /> */}
 
-                          <HelperFab />
+                          {/* <HelperButton /> */}
 
                           {liveAssistant && (
                             <div className="relative shrink-0">

@@ -12,6 +12,7 @@ import { fetchFeatureFlagSS } from "@/components/feature_flag/lib";
 import { fetchAssistantData } from "@/lib/chat/fetchAssistantdata";
 import { getCurrentUserSS } from "@/lib/userSS";
 import { AppProvider } from "@/context/AppProvider";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -91,7 +92,12 @@ export default async function RootLayout({
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, interactive-widget=resizes-content"
         />
       </Head>
-
+      <Script
+        src="https://widget.cxgenie.ai/widget.js"
+        data-aid="5cb37935-c675-48ad-bb63-1e4236f6648d"
+        data-lang="en"
+        strategy="lazyOnload"
+      />
       {CUSTOM_ANALYTICS_ENABLED && combinedSettings.customAnalyticsScript && (
         <head>
           <script
