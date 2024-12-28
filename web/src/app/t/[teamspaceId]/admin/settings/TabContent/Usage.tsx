@@ -49,7 +49,7 @@ export default function Usage() {
         <Card>
           <CardContent className="space-y-2">
             <div className="bg-brand-100 inline-block p-2 rounded-sm">
-              <Globe className="stroke-primary" />
+              <Globe className="stroke-brand-500" />
             </div>
             <div>
               <h3 className="pt-2">Embedding Storage</h3>

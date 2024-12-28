@@ -36,7 +36,7 @@ function SourceTile({
       <CustomTooltip
         trigger={
           <div
-            className={`hover:border-primary border rounded-lg flex items-center justify-center p-[18px] w-16 h-16 ${
+            className={`hover:border-brand-500 border rounded-lg flex items-center justify-center p-[18px] w-16 h-16 ${
               category?.toLocaleLowerCase() === "coming soon"
                 ? "cursor-not-allowed grayscale"
                 : ""

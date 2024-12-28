@@ -32,6 +32,7 @@ import {
 } from "@/app/admin/connector/[ccPairId]/ConfigDisplay";
 import { IndexingAttemptsTable } from "@/app/admin/connector/[ccPairId]/IndexingAttemptsTable";
 import { DeletionButton } from "@/app/admin/connector/[ccPairId]/DeletionButton";
+import { DocumentViewerModal } from "../DocumentViewerModal";
 
 // since the uploaded files are cleaned up after some period of time
 // re-indexing will not work for the file connector. Also, it would not
@@ -164,6 +165,7 @@ export function Main({
     refresh_freq: refreshFreq,
     indexing_start: indexingStart,
   } = ccPair.connector;
+
   return (
     <>
       <div className="flex flex-col sm:flex-row items-start w-full gap-2 pb-5 lg:items-center">
@@ -218,6 +220,9 @@ export function Main({
                 }
                 isDeleting={isDeleting}
               />
+            )}
+            {ccPair.connector.source === "file" && (
+              <DocumentViewerModal ccPair={ccPair} />
             )}
             {!isDeleting && <ModifyStatusButtonCluster ccPair={ccPair} />}
           </div>
