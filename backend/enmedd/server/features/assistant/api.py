@@ -221,6 +221,7 @@ def list_assistants(
     include_deleted: bool = False,
     assistant_ids: list[int] = Query(None),
     teamspace_id: Optional[int] = None,
+    filter_assistants: bool = False,
 ) -> list[AssistantSnapshot]:
     assistants = get_assistants(
         user=user,
@@ -237,15 +238,16 @@ def list_assistants(
             f"Assistants after ID filter: {[assistant.id for assistant in assistants]}"
         )
 
-    # Filter out assistants with unavailable tools
-    assistants = [
-        p
-        for p in assistants
-        if not (
-            any(tool.in_code_tool_id == "ImageGenerationTool" for tool in p.tools)
-            and not is_image_generation_available(db_session=db_session)
-        )
-    ]
+    # Conditionally filter assistants with unavailable tools
+    if filter_assistants:
+        assistants = [
+            p
+            for p in assistants
+            if not (
+                any(tool.in_code_tool_id == "ImageGenerationTool" for tool in p.tools)
+                and not is_image_generation_available(db_session=db_session)
+            )
+        ]
 
     return [AssistantSnapshot.from_model(p) for p in assistants]
 
