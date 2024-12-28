@@ -4,12 +4,14 @@ from typing import cast
 from typing import Optional
 
 import jwt
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from enmedd.configs.app_configs import SECRET_KEY
 from enmedd.db.email_template import get_active_email_template
 from enmedd.db.models import InviteToken
 from enmedd.db.users import delete_user_by_email
+from enmedd.db.users import update_invite_token_status
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import JSON_ro
 from enmedd.key_value_store.interface import KvKeyNotFoundError
@@ -85,14 +87,16 @@ def write_invited_users(emails: list[str], teamspace_id: Optional[int] = None) -
 def generate_invite_token(
     teamspace_id: Optional[int], emails: list[str], db_session: Session
 ) -> str:
-    # Define token expiration (e.g., 1 day)
-    expiration = datetime.utcnow() + timedelta(hours=24)
+    # Define token expiration (e.g., 7 days)
+    expiration = datetime.utcnow() + timedelta(days=7)
 
     payload = {"teamspace_id": teamspace_id, "exp": expiration}
 
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-    invite_token = InviteToken(token=token, emails=emails, teamspace_id=teamspace_id)
+    invite_token = InviteToken(
+        token=token, emails=emails, teamspace_id=teamspace_id, expires_at=expiration
+    )
     db_session.add(invite_token)
     db_session.commit()
 
@@ -107,11 +111,14 @@ def decode_invite_token(token: str, email: str, db_session: Session):
 
         invite_token = db_session.query(InviteToken).filter_by(token=token).first()
 
-        if invite_token and email in invite_token.emails:
+        if invite_token.expires_at < datetime.utcnow():
+            update_invite_token_status(invite_token, db_session)
+            delete_user_by_email(email, db_session)
+            return "Token has expired"
+        elif invite_token and email in invite_token.emails:
             if not teamspace_id:
                 return "Missing teamspace_id"
             return teamspace_id
-
         else:
             delete_user_by_email(email, db_session)
             return "Invalid token"
@@ -133,3 +140,30 @@ def generate_invite_email(signup_link: str, db_session: Session):
     body = body.replace("{{signup_link}}", signup_link)
 
     return subject, body
+
+
+def get_token_status_by_email(
+    db: Session, email: str, teamspace_id: Optional[int] = None
+):
+    # Update is_expired to True if expires_at is in the past
+    db.query(InviteToken).filter(InviteToken.expires_at < datetime.utcnow()).update(
+        {"is_expired": True}, synchronize_session=False
+    )
+    db.commit()
+
+    query = db.query(InviteToken).filter(InviteToken.emails.contains([email]))
+
+    if teamspace_id is not None:
+        query = query.filter(InviteToken.teamspace_id == teamspace_id)
+    else:
+        query = query.filter(InviteToken.teamspace_id.is_(None))
+
+    invite_token = query.order_by(desc(InviteToken.created_at)).first()
+
+    if invite_token:
+        return {
+            "is_expired": invite_token.is_expired,
+            "expires_at": invite_token.expires_at,
+        }
+
+    return None
