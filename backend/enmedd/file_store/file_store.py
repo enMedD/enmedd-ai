@@ -68,6 +68,19 @@ class FileStore(ABC):
         - file_name: Name of file to delete
         """
 
+    @abstractmethod
+    def read_file_record(self, file_name: str) -> PGFileStore:
+        """
+        Read the file record from the database by the name
+
+        Parameters:
+        - file_name: Name of the file to read
+
+        Returns:
+            File record
+        """
+        raise NotImplementedError
+
 
 class PostgresBackedFileStore(FileStore):
     def __init__(self, db_session: Session):

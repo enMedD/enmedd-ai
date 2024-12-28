@@ -39,7 +39,7 @@ export function CustomModal({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className={className}>
         <DialogHeader className={`pb-8 ${headerClassName}`}>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className="w-3/4">{title}</DialogTitle>
           {description && (
             <DialogDescription className="text-base">
               {description}
