@@ -221,7 +221,9 @@ export function Main({
                 isDeleting={isDeleting}
               />
             )}
-            <DocumentViewerModal ccPair={ccPair} />
+            {ccPair.connector.source === "file" && (
+              <DocumentViewerModal ccPair={ccPair} />
+            )}
             {!isDeleting && <ModifyStatusButtonCluster ccPair={ccPair} />}
           </div>
         )}
