@@ -17,7 +17,7 @@ import {
 } from "./ui/dropdown-menu";
 import { useState } from "react";
 
-export function HelperFab() {
+export function HelperButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -129,11 +129,11 @@ export function HelperFab() {
       <DropdownMenu>
         <DropdownMenuTrigger
           asChild
-          className="absolute bottom-5 right-5 md:bottom-3 md:right-3 lg:bottom-5 lg:right-5 z-modal hidden md:flex cursor-pointer"
+          className="w-full flex items-center justify-center my-2"
         >
-          <CircleHelp size={20} />
+          <CircleHelp size={24} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="top" align="end">
+        <DropdownMenuContent side="right" align="end">
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <Link
