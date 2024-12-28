@@ -135,12 +135,13 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       if (token) {
         const validateToken = await validateInvite(values.email, token);
         if (!validateToken.ok) {
-          router.push("/auth/invalid-invite-token");
           toast({
             title: "Invalid Invite Token",
             description: "The invite token is invalid.",
             variant: "destructive",
           });
+          setIsLoading(false);
+          return;
         }
       }
       // TODO: the shouldVerify is not returning the correct value
