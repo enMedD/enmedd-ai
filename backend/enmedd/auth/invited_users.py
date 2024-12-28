@@ -145,6 +145,12 @@ def generate_invite_email(signup_link: str, db_session: Session):
 def get_token_status_by_email(
     db: Session, email: str, teamspace_id: Optional[int] = None
 ):
+    # Update is_expired to True if expires_at is in the past
+    db.query(InviteToken).filter(InviteToken.expires_at < datetime.utcnow()).update(
+        {"is_expired": True}, synchronize_session=False
+    )
+    db.commit()
+
     query = db.query(InviteToken).filter(InviteToken.emails.contains([email]))
 
     if teamspace_id is not None:
