@@ -6,14 +6,13 @@ import DocViewer, {
   DocViewerRenderers,
   IDocument,
 } from "@cyntler/react-doc-viewer";
-import {
-  buildConfigEntries,
-  convertObjectToString,
-} from "./[ccPairId]/ConfigDisplay";
+import { buildConfigEntries } from "./[ccPairId]/ConfigDisplay";
+import { useToast } from "@/hooks/use-toast";
 
 export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
   const [openDocumentModal, setOpenDocumentModal] = useState(false);
   const [documentData, setDocumentData] = useState<IDocument[]>([]);
+  const { toast } = useToast();
 
   const documents =
     ccPair.connector.connector_specific_config.file_locations.map(
@@ -22,14 +21,12 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
       })
     );
 
-  const fileLocation = documents[0].location;
-
   useEffect(() => {
     if (!openDocumentModal) return;
 
     async function fetchDocument() {
       try {
-        const fileLocation = documents[0].location;
+        const fileLocation = documents[0]?.location;
 
         if (!fileLocation) {
           throw new Error("No document found");
@@ -80,6 +77,18 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
     .map(([key, value]) => `${Array.isArray(value) ? value.join(", ") : value}`)
     .join(" | ");
 
+  const NoRenderer = ({ fileName }: { fileName: string }) => {
+    useEffect(() => {
+      toast({
+        title: "Cannot View File",
+        description: `The file type ${fileName || "unknown"} is unsupported.`,
+        variant: "destructive",
+      });
+    }, [fileName]);
+
+    return null;
+  };
+
   return (
     <div>
       <CustomModal
@@ -99,6 +108,9 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
           config={{
             header: {
               disableHeader: true,
+            },
+            noRenderer: {
+              overrideComponent: NoRenderer,
             },
           }}
           className="my-doc-viewer-style"
