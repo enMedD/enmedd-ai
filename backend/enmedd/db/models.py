@@ -236,6 +236,10 @@ class InviteToken(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    expires_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    is_expired: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 class ApiKey(Base):

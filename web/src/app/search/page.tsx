@@ -21,7 +21,7 @@ import { assistantComparator } from "../admin/assistants/lib";
 import { NoSourcesModal } from "@/components/initialSetup/search/NoSourcesModal";
 import { NoCompleteSourcesModal } from "@/components/initialSetup/search/NoCompleteSourceModal";
 import { SearchSidebar } from "./SearchSidebar";
-import { HelperFab } from "@/components/HelperFab";
+import { HelperButton } from "@/components/HelperButton";
 import {
   FetchAssistantsResponse,
   fetchAssistantsSS,
@@ -205,7 +205,7 @@ export default async function Home() {
           </div>
         </Sidebar>
       </SearchProvider>
-      <HelperFab />
+      <HelperButton />
     </>
   );
 }

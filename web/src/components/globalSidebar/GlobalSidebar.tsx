@@ -27,6 +27,7 @@ import { TeamspaceModal } from "./TeamspaceModal";
 import { useGradient } from "@/hooks/useGradient";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "../ui/skeleton";
+import { HelperButton } from "../HelperButton";
 
 export function GlobalSidebar({
   user,
@@ -183,6 +184,7 @@ export function GlobalSidebar({
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
+          <HelperButton />
           <UserSettingsButton defaultPage={defaultPage} />
         </SidebarFooter>
       </Sidebar>

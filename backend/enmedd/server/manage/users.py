@@ -31,6 +31,7 @@ from enmedd.auth.invited_users import decode_invite_token
 from enmedd.auth.invited_users import generate_invite_email
 from enmedd.auth.invited_users import generate_invite_token
 from enmedd.auth.invited_users import get_invited_users
+from enmedd.auth.invited_users import get_token_status_by_email
 from enmedd.auth.invited_users import write_invited_users
 from enmedd.auth.noauth_user import fetch_no_auth_user
 from enmedd.auth.noauth_user import set_no_auth_user_preferences
@@ -347,14 +348,50 @@ def list_all_users(
         email for email in invited_emails if email not in accepted_emails
     ]
 
+    invited_snapshots = []
+    for email in filtered_invited_emails:
+        token_status = get_token_status_by_email(db_session, email, teamspace_id)
+        invited_snapshots.append(
+            InvitedUserSnapshot(
+                email=email,
+                is_expired=token_status["is_expired"] if token_status else None,
+            )
+        )
+
+    invited_snapshots.sort(
+        key=lambda x: (
+            db_session.query(InviteToken)
+            .filter(InviteToken.emails.contains([x.email]))
+            .filter(
+                InviteToken.teamspace_id == teamspace_id
+                if teamspace_id is not None
+                else InviteToken.teamspace_id.is_(None)
+            )
+            .order_by(InviteToken.expires_at.asc())
+            .first()
+            .expires_at
+            if db_session.query(InviteToken)
+            .filter(InviteToken.emails.contains([x.email]))
+            .filter(
+                InviteToken.teamspace_id == teamspace_id
+                if teamspace_id is not None
+                else InviteToken.teamspace_id.is_(None)
+            )
+            .first()
+            else datetime.datetime.max
+        )
+    )
+
     if q:
-        invited_emails = [
-            email for email in invited_emails if re.search(r"{}".format(q), email, re.I)
+        invited_snapshots = [
+            snapshot
+            for snapshot in invited_snapshots
+            if re.search(r"{}".format(q), snapshot.email, re.I)
         ]
 
     return AllUsersResponse(
         accepted=accepted_users,
-        invited=[InvitedUserSnapshot(email=email) for email in filtered_invited_emails],
+        invited=invited_snapshots,
     )
 
 
@@ -411,6 +448,18 @@ def remove_email_from_invite_tokens(
             .where(InviteToken.teamspace_id.is_(None))
             .values(emails=InviteToken.emails.op("-")(user_email))
         )
+
+    db_session.execute(
+        delete(InviteToken).where(
+            (
+                InviteToken.teamspace_id == teamspace_id
+                if teamspace_id
+                else InviteToken.teamspace_id.is_(None)
+            )
+            & (InviteToken.emails == [])
+        )
+    )
+
     db_session.commit()
 
     return result.rowcount
