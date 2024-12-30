@@ -112,6 +112,44 @@ export const PendingInvites = ({
     setIsCancelModalVisible(false);
   };
 
+  const handleReInvite = async (userEmail: string) => {
+    try {
+      const response = await fetch(
+        teamspaceId
+          ? `/api/manage/admin/users?teamspace_id=${teamspaceId}`
+          : "/api/manage/admin/users",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            emails: [userEmail],
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail?.[0]?.msg || "Failed to invite user.");
+      }
+
+      toast({
+        title: "User Reinvited Successfully",
+        description: `${userEmail} has been re-invited.`,
+        variant: "success",
+      });
+
+      mutate();
+    } catch (error: any) {
+      toast({
+        title: "Reinvite Failed",
+        description: error.message || "An error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       {isCancelModalVisible && (
@@ -186,9 +224,7 @@ export const PendingInvites = ({
                             <div className="flex gap-2 justify-end">
                               {user.is_expired ? (
                                 <Button
-                                  onClick={() => {
-                                    // add logic to reinvite user using the PUT manage/users endpoint
-                                  }}
+                                  onClick={() => handleReInvite(user.email)}
                                 >
                                   Reinvite
                                 </Button>
