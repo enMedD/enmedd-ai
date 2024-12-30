@@ -6,15 +6,33 @@ import DocViewer, {
   DocViewerRenderers,
   IDocument,
 } from "@cyntler/react-doc-viewer";
-import {
-  buildConfigEntries,
-  convertObjectToString,
-} from "./[ccPairId]/ConfigDisplay";
+import { buildConfigEntries } from "./[ccPairId]/ConfigDisplay";
+import { Loading } from "@/components/Loading";
 
-export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
+function getFileType(fileName: string): string | undefined {
+  const fileExtension = fileName.split(".").pop()?.toLowerCase();
+  const fileTypes: Record<string, string> = {
+    doc: "Word Document (Legacy)",
+    docx: "Word Document",
+    ppt: "PowerPoint Presentation (Legacy)",
+    pptx: "PowerPoint Presentation",
+    xls: "Excel Spreadsheet (Legacy)",
+    xlsx: "Excel Spreadsheet",
+  };
+
+  return fileTypes[fileExtension || ""];
+}
+
+export function DocumentViewerModal({
+  ccPair,
+  teamspaceId,
+}: {
+  ccPair: CCPairFullInfo;
+  teamspaceId?: string | string[];
+}) {
   const [openDocumentModal, setOpenDocumentModal] = useState(false);
   const [documentData, setDocumentData] = useState<IDocument[]>([]);
-
+  const [loading, setLoading] = useState(false);
   const documents =
     ccPair.connector.connector_specific_config.file_locations.map(
       (location: string) => ({
@@ -22,12 +40,12 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
       })
     );
 
-  const fileLocation = documents[0].location;
-
   useEffect(() => {
     if (!openDocumentModal) return;
 
     async function fetchDocument() {
+      setLoading(true);
+
       try {
         const fileLocation = documents[0].location;
 
@@ -36,7 +54,7 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
         }
 
         const response = await fetch(
-          `/api/document/file?file_name=${fileLocation}`,
+          `/api/document/file?file_name=${fileLocation}&teamspace_id=${teamspaceId}`,
           {
             method: "GET",
             headers: {
@@ -52,14 +70,20 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
         const blob = await response.blob();
         const fileURL = URL.createObjectURL(blob);
 
-        setDocumentData([
-          {
-            uri: fileURL,
-            fileName: fileLocation,
-          },
-        ]);
+        const fileType = getFileType(fileLocation);
+
+        // Only include the fileType if it is a supported type
+        const document: IDocument = {
+          uri: fileURL,
+          fileName: fileLocation,
+          ...(fileType ? { fileType } : {}), // Conditionally include fileType
+        };
+
+        setDocumentData([document]);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -72,6 +96,7 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
       ccPair.connector.source
     )
   );
+
   if (!configEntries.length) {
     return null;
   }
@@ -92,17 +117,21 @@ export function DocumentViewerModal({ ccPair }: { ccPair: CCPairFullInfo }) {
         }
         title={modalTitle}
       >
-        <DocViewer
-          prefetchMethod="GET"
-          documents={documentData}
-          pluginRenderers={DocViewerRenderers}
-          config={{
-            header: {
-              disableHeader: true,
-            },
-          }}
-          className="my-doc-viewer-style"
-        />
+        {loading ? (
+          <Loading />
+        ) : (
+          <DocViewer
+            prefetchMethod="GET"
+            documents={documentData}
+            pluginRenderers={DocViewerRenderers}
+            config={{
+              header: {
+                disableHeader: true,
+              },
+            }}
+            className="my-doc-viewer-style"
+          />
+        )}
       </CustomModal>
     </div>
   );
