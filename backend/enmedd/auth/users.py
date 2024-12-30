@@ -294,7 +294,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             subject, body = generate_user_verification_email(
                 user.full_name, link, db_session
             )
-            send_mail(user.email, subject, body, smtp_credentials)
+            send_mail(user.email, subject, body, smtp_credentials, True)
 
     async def authenticate(
         self, credentials: OAuth2PasswordRequestForm
