@@ -441,3 +441,25 @@ URL_USERAGENT = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg\
     /131.0.2903.86",
 ]
+
+
+#####
+# list of the considered common smtp mail domains
+# this list will be considered as the domains that will be strictly checked
+# by the verifier to prevent random access from the random internet users
+#####
+CONSIDERED_COMMON_SMTP_DOMAINS = [
+    "gmail.com",
+    "mail.yahoo.com	",
+    "outlook.com",
+    "icloud.com",
+    "icloud.mail",
+    "comcast.net",
+    "att.net",
+    "aol.com",
+    "hotmail.com",
+    "proton.me",
+    "proton.com",
+    "pm.me",
+    "protonmail.ch",
+]
