@@ -222,7 +222,7 @@ export function Main({
               />
             )}
             {ccPair.connector.source === "file" && (
-              <DocumentViewerModal ccPair={ccPair} />
+              <DocumentViewerModal ccPair={ccPair} teamspaceId={teamspaceId} />
             )}
             {!isDeleting && <ModifyStatusButtonCluster ccPair={ccPair} />}
           </div>
