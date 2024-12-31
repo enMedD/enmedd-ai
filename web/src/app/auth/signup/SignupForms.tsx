@@ -116,9 +116,11 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       const errorDetail = (await response.json()).detail;
 
       let errorMsg = "Unknown error";
+      if (errorDetail) errorMsg = errorDetail;
       if (errorDetail === "REGISTER_USER_ALREADY_EXISTS") {
         errorMsg = "An account already exist with the specified email.";
       }
+
       toast({
         title: "Sign Up Failed",
         description: `Failed to sign up - ${errorMsg}`,
