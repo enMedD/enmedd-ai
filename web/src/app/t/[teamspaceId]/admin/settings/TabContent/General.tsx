@@ -11,6 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { InputForm } from "@/components/admin/connectors/Field";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
+import { useTeamspace } from "@/lib/hooks";
+import { ErrorCallout } from "@/components/ErrorCallout";
 
 interface GeneralProps {
   teamspaceId: string | string[];
@@ -39,31 +41,21 @@ export default function General({
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [teamspaceLogo, setTeamspaceLogo] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [teamspace, setTeamspace] = useState<Teamspace | undefined>();
+  const {
+    isLoading: loading,
+    error,
+    data: teamspace,
+    refreshTeamspace,
+  } = useTeamspace(teamspaceId);
 
-  useEffect(() => {
-    const fetchTeamspace = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `/api/manage/admin/teamspace/${teamspaceId}`
-        );
-        if (response.ok) {
-          const data: Teamspace = await response.json();
-          setTeamspace(data);
-        } else {
-          console.error("Failed to fetch teamspace data");
-        }
-      } catch (error) {
-        console.error("Error fetching teamspace:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTeamspace();
-  }, [teamspaceId]);
+  if (error) {
+    return (
+      <ErrorCallout
+        errorTitle={`Failed to fetch teamspace`}
+        errorMsg={error || "Unknown error"}
+      />
+    );
+  }
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -120,13 +112,13 @@ export default function General({
           return;
         }
       }
-
-      router.refresh();
       toast({
         title: "Success",
         description: "Teamspace updated successfully.",
         variant: "success",
       });
+      refreshTeamspace();
+      router.refresh();
       setIsEditing(false);
     } catch (error) {
       toast({
@@ -170,7 +162,7 @@ export default function General({
       if (response.ok) {
         form.setValue("logo", null); // Update form state
         setSelectedFile(null); // Reset selected file
-        setTeamspace({ ...teamspace, logo: undefined }); // Update teamspace state
+        refreshTeamspace();
         router.refresh(); // Refresh to reflect changes
         toast({
           title: "Success",
@@ -214,16 +206,18 @@ export default function General({
           </div>
 
           <Section title="Teamspace Name" isEditing>
-            {isEditing ? (
+            {loading ? (
+              <Skeleton className="w-full h-8 rounded-md" />
+            ) : isEditing ? (
               <InputForm
                 formControl={form.control}
                 name="teamspace_name"
-                placeholder="Enter Teamspace Name"
+                placeholder="Enter teamspace name"
               />
-            ) : form.getValues("teamspace_name") ? (
-              <h3 className="truncate">{form.getValues("teamspace_name")}</h3>
+            ) : teamspace?.name ? (
+              <h3 className="truncate">{teamspace?.name}</h3>
             ) : (
-              <Skeleton className="w-full h-8 rounded-md" />
+              <p className="mt-2 text-gray-500">No name available</p>
             )}
           </Section>
 
@@ -236,10 +230,8 @@ export default function General({
                 name="teamspace_description"
                 placeholder="Enter Teamspace Description"
               />
-            ) : form.getValues("teamspace_description") ? (
-              <h3 className="truncate">
-                {form.getValues("teamspace_description")}
-              </h3>
+            ) : teamspace?.description ? (
+              <h3 className="truncate">{teamspace?.description}</h3>
             ) : (
               <p className="mt-2 text-gray-500">No description available</p>
             )}
@@ -254,7 +246,9 @@ export default function General({
                 onClick={handleLogoUpload}
                 className="h-16 w-16 rounded-full overflow-hidden"
               >
-                {selectedFile ? (
+                {loading ? (
+                  <Skeleton className="w-full h-full rounded-full" />
+                ) : selectedFile ? (
                   <img
                     src={selectedFile ? URL.createObjectURL(selectedFile) : ""}
                     alt="selected_teamspace_logo"
@@ -269,11 +263,11 @@ export default function General({
                 ) : (
                   <div
                     style={{
-                      background: useGradient(form.getValues("teamspace_name")),
+                      background: useGradient(teamspace?.name || ""),
                     }}
                     className="font-bold text-inverted bg-brand-500 text-2xl flex justify-center items-center uppercase w-full h-full"
                   >
-                    {form.getValues("teamspace_name").charAt(0)}
+                    {teamspace?.name.charAt(0)}
                   </div>
                 )}
               </div>
@@ -296,7 +290,10 @@ export default function General({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setSelectedFile(null);
+                  }}
                   disabled={form.formState.isSubmitting}
                 >
                   Cancel
