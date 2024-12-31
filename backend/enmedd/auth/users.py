@@ -1,4 +1,3 @@
-import json
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime
@@ -39,6 +38,7 @@ from enmedd.auth.schemas import UserRole
 from enmedd.auth.utils import generate_password_reset_email
 from enmedd.auth.utils import generate_user_verification_email
 from enmedd.configs.app_configs import AUTH_TYPE
+from enmedd.configs.app_configs import CONSIDERED_COMMON_SMTP_DOMAINS
 from enmedd.configs.app_configs import DISABLE_AUTH
 from enmedd.configs.app_configs import REQUIRE_EMAIL_VERIFICATION
 from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
@@ -111,10 +111,10 @@ def user_needs_to_be_verified() -> bool:
     return AUTH_TYPE != AuthType.BASIC or REQUIRE_EMAIL_VERIFICATION
 
 
-def verify_email_is_invited(email: str) -> None:
+def verify_email_is_invited(email: str) -> bool | None:
     whitelist = get_invited_users(all=True)
     if not whitelist:
-        return
+        raise PermissionError("No Users are invited yet")
 
     if not email:
         raise PermissionError("Email must be specified")
@@ -132,7 +132,7 @@ def verify_email_is_invited(email: str) -> None:
         # oddly, normalization does not include lowercasing the user part of the
         # email address ... which we want to allow
         if email_info.normalized.lower() == email_info_whitelist.normalized.lower():
-            return
+            return True
 
     raise PermissionError("User not on allowed user whitelist")
 
@@ -144,18 +144,38 @@ def verify_email_in_whitelist(email: str) -> None:
 
 
 def verify_email_domain(email: str) -> None:
+    if email.count("@") != 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is not valid",
+        )
+
+    # check if the email is in the environ whitelist
+    domain = email.split("@")[-1]
     if VALID_EMAIL_DOMAINS:
-        if email.count("@") != 1:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email is not valid",
-            )
-        domain = email.split("@")[-1]
-        if domain not in VALID_EMAIL_DOMAINS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email domain is not valid",
-            )
+        if domain in VALID_EMAIL_DOMAINS:
+            return
+
+    # retrieve the existing company emails
+    registered_mails = get_invited_users(all=True)
+    whitelisted_domains = set()
+
+    # retrieve only the email domains that are not common (gmail, etc.)
+    for mails in registered_mails:
+        logger.debug(f"mails: {mails}")
+        if mails.count("@") == 1:
+            registered_domain = mails.split("@")[-1]
+            if registered_domain not in CONSIDERED_COMMON_SMTP_DOMAINS:
+                whitelisted_domains.add(registered_domain)
+
+    if domain not in whitelisted_domains:
+        if verify_email_is_invited(email):
+            return
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The email domain provided is not allowed to sign up (not invited)",
+        )
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -169,21 +189,15 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         safe: bool = False,
         request: Optional[Request] = None,
     ) -> User:
-        # additional checks for user that is being invited
-        if request is not None:
-            requestBody: str = await request.body()
-            requestBody: dict = json.loads(requestBody)
-            if "token" in requestBody.keys() and requestBody.get("token") != "":
-                verify_email_is_invited(user_create.email)
-
         # strict checking of allowed domain (invited or not)
-        verify_email_domain(user_create.email)
+        user_count = await get_user_count()
+        if user_count > 0 and user_create.email not in get_default_admin_user_emails():
+            verify_email_domain(user_create.email)
 
         # condition to check if the account created is the first account
         # first account -> set it to admin by default
         # other condition -> set the role based on the given role param (BASIC is the default)
         if hasattr(user_create, "role"):
-            user_count = await get_user_count()
             if user_count == 0 or user_create.email in get_default_admin_user_emails():
                 user_create.role = UserRole.ADMIN
             else:
