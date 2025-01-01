@@ -54,7 +54,7 @@ export function DocumentViewerModal({
         }
 
         const response = await fetch(
-          `/api/document/file?file_name=${fileLocation}&teamspace_id=${teamspaceId}`,
+          `/api/document/file?file_name=${fileLocation}`,
           {
             method: "GET",
             headers: {
