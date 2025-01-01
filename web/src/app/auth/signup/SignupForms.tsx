@@ -116,9 +116,11 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       const errorDetail = (await response.json()).detail;
 
       let errorMsg = "Unknown error";
+      if (errorDetail) errorMsg = errorDetail;
       if (errorDetail === "REGISTER_USER_ALREADY_EXISTS") {
         errorMsg = "An account already exist with the specified email.";
       }
+
       toast({
         title: "Sign Up Failed",
         description: `Failed to sign up - ${errorMsg}`,
@@ -135,12 +137,13 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       if (token) {
         const validateToken = await validateInvite(values.email, token);
         if (!validateToken.ok) {
-          router.push("/auth/invalid-invite-token");
           toast({
             title: "Invalid Invite Token",
             description: "The invite token is invalid.",
             variant: "destructive",
           });
+          setIsLoading(false);
+          return;
         }
       }
       // TODO: the shouldVerify is not returning the correct value

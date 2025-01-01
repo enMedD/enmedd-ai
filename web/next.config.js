@@ -8,6 +8,7 @@ const version = env_version || package_version;
 const nextConfig = {
   output: "standalone",
   swcMinify: true,
+  reactStrictMode: false,
   publicRuntimeConfig: {
     version,
   },

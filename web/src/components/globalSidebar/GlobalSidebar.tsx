@@ -27,6 +27,7 @@ import { TeamspaceModal } from "./TeamspaceModal";
 import { useGradient } from "@/hooks/useGradient";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "../ui/skeleton";
+import { HelperButton } from "../HelperButton";
 
 export function GlobalSidebar({
   user,
@@ -90,16 +91,7 @@ export function GlobalSidebar({
                         href={`/${defaultPage}`}
                         className="flex items-center justify-center"
                       >
-                        {workspaces?.use_custom_logo ? (
-                          <Logo width={44} height={44} />
-                        ) : (
-                          <Image
-                            src={VanguardAi}
-                            alt="Vanguard AI Logo"
-                            width={44}
-                            height={44}
-                          />
-                        )}
+                        <Logo width={44} height={44} />
                       </Link>
                     }
                     side="right"
@@ -192,6 +184,7 @@ export function GlobalSidebar({
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
+          <HelperButton />
           <UserSettingsButton defaultPage={defaultPage} />
         </SidebarFooter>
       </Sidebar>

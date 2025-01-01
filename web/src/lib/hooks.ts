@@ -302,6 +302,38 @@ export const useTeamspaces = (): {
   };
 };
 
+export const useTeamspace = (
+  teamspaceId: string | string[]
+): {
+  data: Teamspace | undefined;
+  isLoading: boolean;
+  error: string;
+  refreshTeamspace: () => void;
+} => {
+  const url = `${TEAMSPACE_URL}/${teamspaceId}`;
+
+  const swrResponse = useSWR<Teamspace>(url, errorHandlingFetcher);
+  const isPaidEnterpriseFeaturesEnabled = usePaidEnterpriseFeaturesEnabled();
+
+  if (!isPaidEnterpriseFeaturesEnabled) {
+    return {
+      data: undefined,
+      isLoading: false,
+      error: "",
+      refreshTeamspace: () => {},
+    };
+  }
+
+  const { data, error, isValidating, mutate } = swrResponse;
+
+  return {
+    data,
+    isLoading: isValidating,
+    error: error ? error.message : "",
+    refreshTeamspace: () => mutate(),
+  };
+};
+
 const USER_TEAMSPACES_URL = "/api/teamspace/user-list";
 
 export const useUserTeamspaces = (): {

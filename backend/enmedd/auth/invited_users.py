@@ -1,24 +1,23 @@
-import smtplib
 from datetime import datetime
 from datetime import timedelta
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from typing import cast
 from typing import Optional
 
 import jwt
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from enmedd.configs.app_configs import SECRET_KEY
-from enmedd.configs.app_configs import SMTP_PASS
-from enmedd.configs.app_configs import SMTP_PORT
-from enmedd.configs.app_configs import SMTP_SERVER
-from enmedd.configs.app_configs import SMTP_USER
+from enmedd.db.email_template import get_active_email_template
 from enmedd.db.models import InviteToken
 from enmedd.db.users import delete_user_by_email
+from enmedd.db.users import update_invite_token_status
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.key_value_store.interface import JSON_ro
 from enmedd.key_value_store.interface import KvKeyNotFoundError
+from enmedd.utils.logger import setup_logger
+
+logger = setup_logger()
 
 USER_STORE_KEY = "INVITED_USERS"
 TEAMSPACE_INVITE_USER = "TEAMSPACE_INVITE_USER"
@@ -88,14 +87,16 @@ def write_invited_users(emails: list[str], teamspace_id: Optional[int] = None) -
 def generate_invite_token(
     teamspace_id: Optional[int], emails: list[str], db_session: Session
 ) -> str:
-    # Define token expiration (e.g., 1 day)
-    expiration = datetime.utcnow() + timedelta(hours=24)
+    # Define token expiration (e.g., 7 days)
+    expiration = datetime.utcnow() + timedelta(days=7)
 
     payload = {"teamspace_id": teamspace_id, "exp": expiration}
 
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-    invite_token = InviteToken(token=token, emails=emails, teamspace_id=teamspace_id)
+    invite_token = InviteToken(
+        token=token, emails=emails, teamspace_id=teamspace_id, expires_at=expiration
+    )
     db_session.add(invite_token)
     db_session.commit()
 
@@ -110,11 +111,14 @@ def decode_invite_token(token: str, email: str, db_session: Session):
 
         invite_token = db_session.query(InviteToken).filter_by(token=token).first()
 
-        if invite_token and email in invite_token.emails:
+        if invite_token.expires_at < datetime.utcnow():
+            update_invite_token_status(invite_token, db_session)
+            delete_user_by_email(email, db_session)
+            return "Token has expired"
+        elif invite_token and email in invite_token.emails:
             if not teamspace_id:
                 return "Missing teamspace_id"
             return teamspace_id
-
         else:
             delete_user_by_email(email, db_session)
             return "Invalid token"
@@ -127,55 +131,39 @@ def decode_invite_token(token: str, email: str, db_session: Session):
         return "Invalid token"
 
 
-def generate_invite_email(signup_link: str):
-    subject = "You're Invite to Join The AI Platform - Activate Your Account Now!"
+def generate_invite_email(signup_link: str, db_session: Session):
+    active_email_template = get_active_email_template("invite", db_session)
+    subject = active_email_template.subject
 
-    body = f"""
-    Hi,
-
-    We're excited to invite you to join The AI Platform!
-
-    To get started, simply click the link below to activate your account
-    {signup_link}
-
-    If you didn't request this invitation or believe this email was sent by mistake, please disregard it.
-
-    If you have any questions or need assistance, feel free to reach out to our support team at tech@vanguardai.io.
-
-    We look forward to having you with us!
-
-    Best regards,
-    The AI Platform Team
-    """
+    # load the subject with the actual value
+    body = active_email_template.body
+    body = body.replace("{{signup_link}}", signup_link)
 
     return subject, body
 
 
-def send_invite_user_email(
-    to_email: str,
-    subject: str,
-    body: str,
-    smtp_credentials: dict,
-) -> None:
-    sender_email = smtp_credentials["smtp_user"] or SMTP_USER
-    sender_password = smtp_credentials["smtp_password"] or SMTP_PASS
-    smtp_server = smtp_credentials["smtp_server"] or SMTP_SERVER
-    smtp_port = smtp_credentials["smtp_port"] or SMTP_PORT
+def get_token_status_by_email(
+    db: Session, email: str, teamspace_id: Optional[int] = None
+):
+    # Update is_expired to True if expires_at is in the past
+    db.query(InviteToken).filter(InviteToken.expires_at < datetime.utcnow()).update(
+        {"is_expired": True}, synchronize_session=False
+    )
+    db.commit()
 
-    # Create MIME message
-    message = MIMEMultipart()
-    message["To"] = to_email
-    message["Subject"] = subject
-    if sender_email:
-        message["From"] = sender_email
-    message.attach(MIMEText(body, "plain"))
+    query = db.query(InviteToken).filter(InviteToken.emails.contains([email]))
 
-    # Send email
-    try:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(message)
-        print(f"Invite email has been send to {to_email}")
-    except Exception as e:
-        print(f"Failed to send email invitation to {to_email}: {str(e)}")
+    if teamspace_id is not None:
+        query = query.filter(InviteToken.teamspace_id == teamspace_id)
+    else:
+        query = query.filter(InviteToken.teamspace_id.is_(None))
+
+    invite_token = query.order_by(desc(InviteToken.created_at)).first()
+
+    if invite_token:
+        return {
+            "is_expired": invite_token.is_expired,
+            "expires_at": invite_token.expires_at,
+        }
+
+    return None

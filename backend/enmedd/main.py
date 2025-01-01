@@ -100,6 +100,7 @@ from enmedd.server.features.tool.api import admin_router as admin_tool_router
 from enmedd.server.features.tool.api import router as tool_router
 from enmedd.server.gpts.api import router as gpts_router
 from enmedd.server.manage.administrative import router as admin_router
+from enmedd.server.manage.email_templates import router as email_templates_router
 from enmedd.server.manage.embedding.api import admin_router as embedding_admin_router
 from enmedd.server.manage.embedding.api import basic_router as embedding_router
 from enmedd.server.manage.get_state import router as state_router
@@ -515,6 +516,7 @@ def get_application() -> FastAPI:
     include_router_with_global_prefix_prepended(application, document_router)
     include_router_with_global_prefix_prepended(application, admin_query_router)
     include_router_with_global_prefix_prepended(application, admin_router)
+    include_router_with_global_prefix_prepended(application, email_templates_router)
     include_router_with_global_prefix_prepended(application, user_router)
     include_router_with_global_prefix_prepended(application, connector_router)
     include_router_with_global_prefix_prepended(application, credential_router)

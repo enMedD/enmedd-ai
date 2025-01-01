@@ -18,12 +18,7 @@ export function Logo({
   height = height || 40;
   width = width || 40;
 
-  if (
-    !settings ||
-    !settings.workspaces ||
-    !settings.workspaces.use_custom_logo ||
-    !settings.workspaces.custom_logo
-  ) {
+  if (!settings || !settings.workspaces || !settings.workspaces.custom_logo) {
     return (
       <div style={{ height, width }} className={className}>
         <Image
@@ -31,7 +26,7 @@ export function Logo({
           alt="Logo"
           width={width}
           height={height}
-          className="object-contain rounded-regular"
+          className="object-contain rounded-full"
         />
       </div>
     );
@@ -42,7 +37,7 @@ export function Logo({
       <img
         src={"/api/workspace/logo?workspace_id=" + 0}
         alt="Logo"
-        style={{ objectFit: "cover", height, width, borderRadius: "8px" }}
+        style={{ objectFit: "cover", height, width, borderRadius: "100%" }}
         width={width}
         height={height}
       />

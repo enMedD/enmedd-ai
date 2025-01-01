@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SettingsContext } from "../settings/SettingsProvider";
 import { useParams, usePathname } from "next/navigation";
-import { GroupsIcon, RobotIcon } from "../icons/icons";
+import { EnvelopeIcon, GroupsIcon, RobotIcon } from "../icons/icons";
 import Image from "next/image";
 import VanguardAi from "../../../public/logo.png";
 import { useFeatureFlag } from "../feature_flag/FeatureFlagContext";
@@ -323,6 +323,15 @@ export function AdminSidebar({ ...props }: AdminSidebarProps) {
                   </div>
                 ),
                 link: "/admin/settings",
+              },
+              {
+                name: (
+                  <div className="flex items-center gap-2">
+                    <EnvelopeIcon className="my-auto" size={18} />
+                    <div>Mailing Configuration</div>
+                  </div>
+                ),
+                link: "/admin/configuration/mail",
               },
             ]),
       ],

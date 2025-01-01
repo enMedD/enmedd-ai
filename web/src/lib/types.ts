@@ -119,7 +119,7 @@ export interface ConnectorIndexingStatus<
   credential: Credential<ConnectorCredentialType>;
   access_type: AccessType;
   owner: string;
-  groups: number[];
+  groups: { id: number; name: string }[];
   last_finished_status: ValidStatuses | null;
   last_status: ValidStatuses | null;
   last_success: string | null;
@@ -171,6 +171,16 @@ export interface DocumentSet {
   is_public: boolean;
   users: string[];
   groups: { id: number; name: string; workspace: Workspace[] }[];
+}
+
+export interface EmailTemplates {
+  id: number;
+  subject: string;
+  body: string;
+  title: string;
+  description: string;
+  workspace_id: number;
+  type?: "invite" | "passreset" | "2fa" | "verify";
 }
 
 export interface Tag {

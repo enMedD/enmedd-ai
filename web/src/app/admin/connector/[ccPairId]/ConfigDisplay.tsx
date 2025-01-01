@@ -3,7 +3,7 @@ import { getNameFromPath } from "@/lib/fileUtils";
 import { ValidSources } from "@/lib/types";
 import { List, ListItem, Title } from "@tremor/react";
 
-function convertObjectToString(obj: any): string | any {
+export function convertObjectToString(obj: any): string | any {
   // Check if obj is an object and not an array or null
   if (typeof obj === "object" && obj !== null) {
     if (!Array.isArray(obj)) {
@@ -21,7 +21,7 @@ function convertObjectToString(obj: any): string | any {
   return obj;
 }
 
-function buildConfigEntries(
+export function buildConfigEntries(
   obj: any,
   sourceType: ValidSources
 ): { [key: string]: string } {

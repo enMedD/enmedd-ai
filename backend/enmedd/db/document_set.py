@@ -526,7 +526,7 @@ def fetch_document_sets_by_teamspace_non_admin(
     """Fetch document sets and associated connector-credential pairs for a specific teamspace."""
     document_set_data = (
         db_session.query(DocumentSetDBModel, ConnectorCredentialPair)
-        .join(
+        .outerjoin(
             DocumentSet__Teamspace,
             DocumentSetDBModel.id == DocumentSet__Teamspace.document_set_id,
         )
@@ -540,7 +540,10 @@ def fetch_document_sets_by_teamspace_non_admin(
             DocumentSet__ConnectorCredentialPair.connector_credential_pair_id
             == ConnectorCredentialPair.id,
         )
-        .filter(DocumentSet__Teamspace.teamspace_id == teamspace_id)
+        .filter(
+            (DocumentSet__Teamspace.teamspace_id == teamspace_id)
+            | (DocumentSetDBModel.is_public)
+        )
         .all()
     )
 
