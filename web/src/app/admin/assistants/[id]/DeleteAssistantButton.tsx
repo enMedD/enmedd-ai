@@ -6,15 +6,19 @@ import { SuccessfulAssistantUpdateRedirectType } from "../enums";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/success";
+import { ASSISTANT_ERROR_MESSAGES } from "@/constants/error";
 
 export function DeleteAssistantButton({
   assistantId,
   redirectType,
   teamspaceId,
+  assistantName,
 }: {
   assistantId: number;
   redirectType: SuccessfulAssistantUpdateRedirectType;
   teamspaceId?: string | string[];
+  assistantName: string;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -25,8 +29,11 @@ export function DeleteAssistantButton({
         const response = await deleteAssistant(assistantId);
         if (response.ok) {
           toast({
-            title: "Assistant deleted",
-            description: "The assistant has been successfully deleted.",
+            title: ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_DELETED.title,
+            description:
+              ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_DELETED.description(
+                assistantName
+              ),
             variant: "success",
           });
           const redirectUrl =
@@ -41,8 +48,11 @@ export function DeleteAssistantButton({
           router.push(redirectUrl);
         } else {
           toast({
-            title: "Failed to delete assistant",
-            description: `There was an issue deleting the assistant. Details: ${await response.text()}`,
+            title: ASSISTANT_ERROR_MESSAGES.ASSISTANT_DELETE_FAILURE.title(),
+            description:
+              ASSISTANT_ERROR_MESSAGES.ASSISTANT_DELETE_FAILURE.description(
+                await response.text()
+              ),
             variant: "destructive",
           });
         }

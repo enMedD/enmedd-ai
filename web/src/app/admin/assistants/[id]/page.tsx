@@ -33,6 +33,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         <div className="mt-12 flex justify-center">
           <DeleteAssistantButton
             assistantId={values.existingAssistant!.id}
+            assistantName={values.existingAssistant!.name}
             redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
           />
         </div>

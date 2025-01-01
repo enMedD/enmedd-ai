@@ -2,6 +2,8 @@ import { CustomModal } from "@/components/CustomModal";
 import { Loading } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MAIL_ERROR_MESSAGES } from "@/constants/error";
+import { MAIL_SUCCESS_MESSAGES } from "@/constants/success";
 import { useToast } from "@/hooks/use-toast";
 import { sendSampleEmailTemplate } from "@/lib/email_templates";
 import { useState } from "react";
@@ -23,9 +25,9 @@ export default function MailSampleModal(props: Props) {
   const sendSampleMail = async () => {
     setIsLoading(true);
     if (body === "" || email === "" || subject === "") {
-      return toast({
-        title: "Sample Mail Error",
-        description: "Make sure to add values on email, subject, and body",
+      toast({
+        title: MAIL_ERROR_MESSAGES.INCOMPLETE_EMAIL.title,
+        description: MAIL_ERROR_MESSAGES.INCOMPLETE_EMAIL.description,
         variant: "destructive",
       });
     }
@@ -39,14 +41,16 @@ export default function MailSampleModal(props: Props) {
     if (response.status === 200) {
       setOpen && setOpen(false);
       toast({
-        title: "Sample Mail",
-        description: "Sample mail successfully sent!",
+        title: MAIL_SUCCESS_MESSAGES.SENT_SUCCESS.title,
+        description: MAIL_SUCCESS_MESSAGES.SENT_SUCCESS.description,
         variant: "success",
       });
     } else {
       toast({
-        title: "Sample Mail Error",
-        description: `An error occured in sending sample mail (status-code=${response.status})`,
+        title: MAIL_ERROR_MESSAGES.MAIL_ERROR.title,
+        description: MAIL_ERROR_MESSAGES.MAIL_ERROR.description(
+          response.status
+        ),
         variant: "destructive",
       });
     }

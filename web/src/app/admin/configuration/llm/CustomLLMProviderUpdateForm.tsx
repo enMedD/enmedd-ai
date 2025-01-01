@@ -30,6 +30,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { LLM_ERROR_MESSAGES } from "@/constants/error";
+import { LLM_SUCCESS_MESSAGES } from "@/constants/success";
 
 function customConfigProcessing(customConfigsList: [string, string][]) {
   const customConfig: { [key: string]: string } = {};
@@ -102,10 +104,9 @@ export function CustomLLMProviderUpdateForm({
         setSubmitting(true);
 
         if (values.model_names.length === 0) {
-          const fullErrorMsg = "At least one model name is required";
           toast({
-            title: "Input Error",
-            description: fullErrorMsg,
+            title: LLM_ERROR_MESSAGES.REQUIRED_MODEL_NAME.title,
+            description: LLM_ERROR_MESSAGES.REQUIRED_MODEL_NAME.description,
             variant: "destructive",
           });
           setSubmitting(false);
@@ -148,12 +149,12 @@ export function CustomLLMProviderUpdateForm({
 
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
-          const fullErrorMsg = existingLlmProvider
-            ? `Failed to update provider: ${errorMsg}`
-            : `Failed to enable provider: ${errorMsg}`;
           toast({
-            title: "Update Error",
-            description: fullErrorMsg,
+            title: LLM_ERROR_MESSAGES.UPDATE_LLM.title(existingLlmProvider),
+            description: LLM_ERROR_MESSAGES.UPDATE_LLM.description(
+              existingLlmProvider,
+              errorMsg
+            ),
             variant: "destructive",
           });
           return;
@@ -169,10 +170,9 @@ export function CustomLLMProviderUpdateForm({
           );
           if (!setDefaultResponse.ok) {
             const errorMsg = (await setDefaultResponse.json()).detail;
-            const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
             toast({
-              title: "Default Provider Error",
-              description: fullErrorMsg,
+              title: LLM_ERROR_MESSAGES.PROVIDER.title,
+              description: LLM_ERROR_MESSAGES.PROVIDER.description(errorMsg),
               variant: "destructive",
             });
             return;
@@ -182,13 +182,14 @@ export function CustomLLMProviderUpdateForm({
         mutate(LLM_PROVIDERS_ADMIN_URL);
         onClose();
 
-        const successMsg = existingLlmProvider
-          ? "Provider updated successfully!"
-          : "Provider enabled successfully!";
         if (!hideSuccess) {
           toast({
-            title: "Success",
-            description: successMsg,
+            title:
+              LLM_SUCCESS_MESSAGES.UPDATE_PROVIDER.title(existingLlmProvider),
+            description:
+              LLM_SUCCESS_MESSAGES.UPDATE_PROVIDER.description(
+                existingLlmProvider
+              ),
             variant: "success",
           });
         }

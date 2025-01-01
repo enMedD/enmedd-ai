@@ -19,6 +19,7 @@ import { FailedReIndexAttempts } from "@/components/embedding/FailedReIndexAttem
 import { useToast } from "@/hooks/use-toast";
 import { DeleteModal } from "@/components/DeleteModal";
 import { Button } from "@/components/ui/button";
+import { EMBEDDING_ERROR_MESSAGES } from "@/constants/error";
 
 export default function UpgradingPage({
   futureEmbeddingModel,
@@ -59,8 +60,10 @@ export default function UpgradingPage({
       mutate("/api/search-settings/get-secondary-search-settings");
     } else {
       toast({
-        title: "Cancellation Failed",
-        description: `Failed to cancel embedding model update - ${await response.text()}`,
+        title: EMBEDDING_ERROR_MESSAGES.CANCELLATION.title,
+        description: EMBEDDING_ERROR_MESSAGES.CANCELLATION.description(
+          await response.text()
+        ),
         variant: "destructive",
       });
     }

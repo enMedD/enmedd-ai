@@ -18,6 +18,8 @@ import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/Divider";
+import { LLM_ERROR_MESSAGES } from "@/constants/error";
+import { LLM_SUCCESS_MESSAGES } from "@/constants/success";
 
 export function LLMProviderUpdateForm({
   llmProviderDescriptor,
@@ -161,12 +163,12 @@ export function LLMProviderUpdateForm({
 
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
-          const fullErrorMsg = existingLlmProvider
-            ? `Failed to update provider: ${errorMsg}`
-            : `Failed to enable provider: ${errorMsg}`;
           toast({
-            title: "Error",
-            description: fullErrorMsg,
+            title: LLM_ERROR_MESSAGES.UPDATE_LLM.title(existingLlmProvider),
+            description: LLM_ERROR_MESSAGES.UPDATE_LLM.description(
+              existingLlmProvider,
+              errorMsg
+            ),
             variant: "destructive",
           });
           return;
@@ -184,8 +186,11 @@ export function LLMProviderUpdateForm({
             const errorMsg = (await setDefaultResponse.json()).detail;
             const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
             toast({
-              title: "Error",
-              description: fullErrorMsg,
+              title: LLM_ERROR_MESSAGES.SET_DEFAULT_PROVIDER.title,
+              description: LLM_ERROR_MESSAGES.SET_DEFAULT_PROVIDER.description(
+                existingLlmProvider!.name,
+                errorMsg
+              ),
               variant: "destructive",
             });
             return;
@@ -195,13 +200,14 @@ export function LLMProviderUpdateForm({
         mutate(LLM_PROVIDERS_ADMIN_URL);
         onClose();
 
-        const successMsg = existingLlmProvider
-          ? "Provider updated successfully!"
-          : "Provider enabled successfully!";
         if (!hideSuccess) {
           toast({
-            title: "Success",
-            description: successMsg,
+            title:
+              LLM_SUCCESS_MESSAGES.UPDATE_PROVIDER.title(existingLlmProvider),
+            description:
+              LLM_SUCCESS_MESSAGES.UPDATE_PROVIDER.description(
+                existingLlmProvider
+              ),
             variant: "success",
           });
         }

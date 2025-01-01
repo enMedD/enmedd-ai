@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
+import { LLM_ERROR_MESSAGES } from "@/constants/error";
+import { LLM_SUCCESS_MESSAGES } from "@/constants/success";
 
 function LLMProviderUpdateModal({
   llmProviderDescriptor,
@@ -81,8 +83,12 @@ function LLMProviderDisplay({
               if (!response.ok) {
                 const errorMsg = (await response.json()).detail;
                 toast({
-                  title: "Failed to Set Default Provider",
-                  description: `Unable to set "${existingLlmProvider.name}" as the default provider: ${errorMsg}`,
+                  title: LLM_ERROR_MESSAGES.SET_DEFAULT_PROVIDER.title,
+                  description:
+                    LLM_ERROR_MESSAGES.SET_DEFAULT_PROVIDER.description(
+                      existingLlmProvider.name,
+                      errorMsg
+                    ),
                   variant: "destructive",
                 });
                 return;
@@ -90,8 +96,11 @@ function LLMProviderDisplay({
 
               mutate(LLM_PROVIDERS_ADMIN_URL);
               toast({
-                title: "Default Provider Set",
-                description: `"${existingLlmProvider.name}" is now the default provider!`,
+                title: LLM_SUCCESS_MESSAGES.SET_DEFAULT_PROVIDER.title,
+                description:
+                  LLM_SUCCESS_MESSAGES.SET_DEFAULT_PROVIDER.description(
+                    existingLlmProvider.name
+                  ),
                 variant: "success",
               });
             }}

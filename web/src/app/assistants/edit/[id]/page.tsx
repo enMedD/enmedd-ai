@@ -70,6 +70,7 @@ export default async function Page({ params }: { params: { id: string } }) {
             <div className="flex mt-6">
               <DeleteAssistantButton
                 assistantId={values.existingAssistant!.id}
+                assistantName={values.existingAssistant!.name}
                 redirectType={SuccessfulAssistantUpdateRedirectType.CHAT}
               />
             </div>
