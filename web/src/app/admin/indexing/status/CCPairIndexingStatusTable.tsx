@@ -349,11 +349,6 @@ export function CCPairIndexingStatusTable({
     localStorage.removeItem(key);
   };
 
-  // Remove filter from localStorage
-  const removeFilterFromLocalStorage = (key: string) => {
-    localStorage.removeItem(key);
-  };
-
   useEffect(() => {
     if (searchInputRef.current) {
       searchInputRef.current.focus();
