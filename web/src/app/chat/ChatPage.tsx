@@ -254,12 +254,13 @@ export function ChatPage({
 
   const noAssistants = liveAssistant == null || liveAssistant == undefined;
 
-  if (noAssistants && teamspaceId) {
+  if (noAssistants) {
     return (
       <NoValidAssistantModal
         assistants={liveAssistant}
         teamspaceId={teamspaceId}
         isTeamspaceAdmin={isTeamspaceAdmin}
+        isAdmin={isAdmin}
       />
     );
   }

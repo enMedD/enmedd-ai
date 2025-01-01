@@ -60,92 +60,96 @@ export const TeamspaceContent = ({
 
   return (
     <div>
-      <div className="pb-10 md:pb-12 xl:pb-20">
-        <AdminPageTitle
-          icon={<Users size={32} />}
-          title="Teamspaces"
-          farRightElement={
-            <CustomModal
-              trigger={
-                <Button onClick={() => setShowForm(true)}>
-                  <div className="flex items-center">
-                    <Users size={20} />
-                    <Plus size={12} className="-ml-0.5" strokeWidth={4} />
-                  </div>
-                  Create team
-                </Button>
-              }
+      <AdminPageTitle
+        icon={<Users size={32} />}
+        title="Teamspaces"
+        farRightElement={
+          <CustomModal
+            trigger={
+              <Button onClick={() => setShowForm(true)}>
+                <div className="flex items-center">
+                  <Users size={20} />
+                  <Plus size={12} className="-ml-0.5" strokeWidth={4} />
+                </div>
+                Create team
+              </Button>
+            }
+            onClose={() => {
+              setShowForm(false);
+              localStorage.removeItem("teamspaceFormData");
+            }}
+            open={showForm}
+            title="Create a new Teamspace"
+            description="Streamline team collaboration and communication."
+          >
+            <TeamspaceCreationForm
               onClose={() => {
+                refreshTeamspaces();
                 setShowForm(false);
                 localStorage.removeItem("teamspaceFormData");
               }}
-              open={showForm}
-              title="Create a new Teamspace"
-              description="Streamline team collaboration and communication."
-            >
-              <TeamspaceCreationForm
-                onClose={() => {
-                  refreshTeamspaces();
-                  setShowForm(false);
-                  localStorage.removeItem("teamspaceFormData");
-                }}
-                users={users.accepted}
-                ccPairs={ccPairs}
-                assistants={assistants}
-                documentSets={documentSets}
-              />
-            </CustomModal>
-          }
-        />
-
-        <div className="flex gap-4">
-          <Input
-            placeholder="Type a command or search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Select>
-            <SelectTrigger className="w-64">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1"></SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <Skeleton
-              key={index}
-              className="relative w-full max-w-[400px] h-[275px]"
+              users={users.accepted}
+              ccPairs={ccPairs}
+              assistants={assistants}
+              documentSets={documentSets}
             />
-          ))}
-        </div>
-      ) : isError ? (
-        <ErrorCallout
-          errorTitle="Something went wrong :("
-          errorMsg={`Failed to fetch teamspace - ${isError}`}
-        />
-      ) : filteredTeamspaces.length > 0 ? (
-        <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
-          {filteredTeamspaces
-            .filter((teamspace) => !teamspace.is_up_for_deletion)
-            .map((teamspace) => {
-              return (
-                <TeamspacesCard
-                  key={teamspace.id}
-                  onClick={onClick}
-                  teamspace={teamspace}
-                  refresh={refreshTeamspaces}
-                />
-              );
-            })}
-        </div>
+          </CustomModal>
+        }
+      />
+
+      {data.length === 0 ? (
+        <div>No teamspaces available.</div>
       ) : (
-        <div>No teamspaces match your search.</div>
+        <>
+          <div className="pb-10 md:pb-12 xl:pb-20 flex gap-4">
+            <Input
+              placeholder="Type a command or search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Select>
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1"></SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {isLoading ? (
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
+              {Array.from({ length: 12 }).map((_, index) => (
+                <Skeleton
+                  key={index}
+                  className="relative w-full max-w-[400px] h-[275px]"
+                />
+              ))}
+            </div>
+          ) : isError ? (
+            <ErrorCallout
+              errorTitle="Something went wrong :("
+              errorMsg={`Failed to fetch teamspace - ${isError}`}
+            />
+          ) : filteredTeamspaces.length > 0 ? (
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(250px,381px))] justify-center">
+              {filteredTeamspaces
+                .filter((teamspace) => !teamspace.is_up_for_deletion)
+                .map((teamspace) => {
+                  return (
+                    <TeamspacesCard
+                      key={teamspace.id}
+                      onClick={onClick}
+                      teamspace={teamspace}
+                      refresh={refreshTeamspaces}
+                    />
+                  );
+                })}
+            </div>
+          ) : (
+            <div>No teamspaces match your search.</div>
+          )}
+        </>
       )}
     </div>
   );
