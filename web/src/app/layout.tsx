@@ -94,7 +94,7 @@ export default async function RootLayout({
       </Head>
       <Script
         src="https://widget.cxgenie.ai/widget.js"
-        data-aid="5cb37935-c675-48ad-bb63-1e4236f6648d"
+        data-aid="65066894-63df-4c88-8bc0-544e70aadbb4"
         data-lang="en"
         strategy="lazyOnload"
       />
