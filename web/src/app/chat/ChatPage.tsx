@@ -260,6 +260,7 @@ export function ChatPage({
         assistants={liveAssistant}
         teamspaceId={teamspaceId}
         isTeamspaceAdmin={isTeamspaceAdmin}
+        isAdmin={isAdmin}
       />
     );
   }
