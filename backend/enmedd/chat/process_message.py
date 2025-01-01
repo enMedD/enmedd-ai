@@ -725,7 +725,9 @@ def stream_chat_message_objects(
                     )
 
                     ai_message_files = [
-                        FileDescriptor(id=str(file_id), type=ChatFileType.IMAGE, name=str(file_id))
+                        FileDescriptor(
+                            id=str(file_id), type=ChatFileType.IMAGE, name=str(file_id)
+                        )
                         for file_id in file_ids
                     ]
                     yield ImageGenerationDisplay(
