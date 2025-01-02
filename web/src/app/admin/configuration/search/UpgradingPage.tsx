@@ -19,7 +19,7 @@ import { FailedReIndexAttempts } from "@/components/embedding/FailedReIndexAttem
 import { useToast } from "@/hooks/use-toast";
 import { DeleteModal } from "@/components/DeleteModal";
 import { Button } from "@/components/ui/button";
-import { EMBEDDING_ERROR_MESSAGES } from "@/constants/error";
+import { EMBEDDING_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export default function UpgradingPage({
   futureEmbeddingModel,

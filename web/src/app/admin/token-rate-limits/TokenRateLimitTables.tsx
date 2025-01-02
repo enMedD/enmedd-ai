@@ -19,8 +19,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DeleteModal } from "@/components/DeleteModal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { TOKEN_RATE_SUCCESS_MESSAGES } from "@/constants/success";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { TOKEN_RATE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 type TokenRateLimitTableArgs = {
   tokenRateLimits: TokenRateLimitDisplay[];

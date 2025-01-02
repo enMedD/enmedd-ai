@@ -18,11 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { SETTINGS_SUCCESS_MESSAGES } from "@/constants/success";
+import { SETTINGS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import {
   OPERATION_ERROR_MESSAGES,
   SETTINGS_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 function CheckboxComponent({
   label,

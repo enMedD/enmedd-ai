@@ -29,7 +29,7 @@ import {
   PASSWORD_ERROR_MESSAGES,
   RECAPTCHA_MISSING,
   SIGNUP_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);

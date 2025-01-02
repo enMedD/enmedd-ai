@@ -36,8 +36,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
 import { SidebarMenuItem } from "@/components/ui/sidebar";
-import { CHAT_SESSION_SUCCESS_MESSAGES } from "@/constants/success";
-import { CHAT_SESSION_ERROR_MESSAGES } from "@/constants/error";
+import { CHAT_SESSION_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { CHAT_SESSION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function ChatSessionDisplay({
   chatSession,

@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { InputForm } from "@/components/admin/connectors/Field";
-import { PROMPT_SUCCESS_MESSAGES } from "@/constants/success";
-import { PROMPT_ERROR_MESSAGES } from "@/constants/error";
+import { PROMPT_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const formSchema = z.object({
   title: z.string().min(1, {

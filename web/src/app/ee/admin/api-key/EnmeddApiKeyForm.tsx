@@ -11,8 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { CheckboxForm, InputForm } from "@/components/admin/connectors/Field";
 import { useEffect } from "react";
-import { API_KEY_SUCCESS_MESSAGES } from "@/constants/success";
-import { API_KEY_ERROR_MESSAGES } from "@/constants/error";
+import { API_KEY_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { API_KEY_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface EnmeddApiKeyFormProps {
   onClose: () => void;

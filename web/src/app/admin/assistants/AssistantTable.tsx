@@ -16,8 +16,8 @@ import { CustomTooltip } from "@/components/CustomTooltip";
 import { useUser } from "@/components/user/UserProvider";
 import Link from "next/link";
 import { DeleteModal } from "@/components/DeleteModal";
-import { ASSISTANT_ERROR_MESSAGES } from "@/constants/error";
-import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/success";
+import { ASSISTANT_ERROR_MESSAGES } from "@/constants/toast/error";
+import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 function AssistantTypeDisplay({ assistant }: { assistant: Assistant }) {
   if (assistant.builtin_assistant) {

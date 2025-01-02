@@ -5,8 +5,8 @@ import { User } from "@/lib/types";
 import { Button } from "./ui/button";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
-import { USERS_SUCCESS_MESSAGES } from "@/constants/success";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export const DeactivaterButton = ({
   user,

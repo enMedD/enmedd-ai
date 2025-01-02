@@ -11,7 +11,7 @@ import {
 import { createEditingValidationSchema, createInitialValues } from "../lib";
 import { dictionaryType, formType } from "../types";
 import { useToast } from "@/hooks/use-toast";
-import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const EditCredential = ({
   credential,

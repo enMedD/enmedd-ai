@@ -17,8 +17,8 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "./ui/sidebar";
-import { FOLDER_SUCCESS_MESSAGES } from "@/constants/success";
-import { FOLDER_ERROR_MESSAGES } from "@/constants/error";
+import { FOLDER_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { FOLDER_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function PageTab({
   existingChats,

@@ -24,8 +24,8 @@ import { InputForm } from "@/components/admin/connectors/Field";
 import {
   GLOBAL_ERROR_MESSAGES,
   PASSWORD_ERROR_MESSAGES,
-} from "@/constants/error";
-import { PASSWORD_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { PASSWORD_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const formSchema = z
   .object({

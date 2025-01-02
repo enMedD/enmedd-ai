@@ -34,8 +34,8 @@ import { InviteUserButton } from "@/app/admin/users/InviteUserButton";
 import {
   GLOBAL_ERROR_MESSAGES,
   TEAMSPACE_MEMBER_ERROR_MESSAGES,
-} from "@/constants/error";
-import { TEAMSPACE_MEMBER_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { TEAMSPACE_MEMBER_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface MemberContentProps {
   isGlobal?: boolean;

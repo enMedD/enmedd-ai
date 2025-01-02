@@ -33,8 +33,8 @@ import {
 import { IndexingAttemptsTable } from "@/app/admin/connector/[ccPairId]/IndexingAttemptsTable";
 import { DeletionButton } from "@/app/admin/connector/[ccPairId]/DeletionButton";
 import { DocumentViewerModal } from "../DocumentViewerModal";
-import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
-import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 // since the uploaded files are cleaned up after some period of time
 // re-indexing will not work for the file connector. Also, it would not

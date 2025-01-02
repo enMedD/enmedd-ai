@@ -40,8 +40,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FOLDER_ERROR_MESSAGES } from "@/constants/error";
-import { FOLDER_SUCCESS_MESSAGES } from "@/constants/success";
+import { FOLDER_ERROR_MESSAGES } from "@/constants/toast/error";
+import { FOLDER_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export const ChatSidebar = ({
   existingChats,

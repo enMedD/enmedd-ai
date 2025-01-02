@@ -17,8 +17,8 @@ import { Globe, Shield, User, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
-import { TOKEN_RATE_SUCCESS_MESSAGES } from "@/constants/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
+import { TOKEN_RATE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const BASE_URL = "/api/admin/token-rate-limits";
 const GLOBAL_TOKEN_FETCH_URL = `${BASE_URL}/global`;

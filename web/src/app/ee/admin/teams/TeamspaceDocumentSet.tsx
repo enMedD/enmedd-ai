@@ -9,8 +9,8 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface TeamspaceDocumentSetProps {
   teamspace: Teamspace & { gradient: string };

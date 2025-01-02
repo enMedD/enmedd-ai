@@ -28,8 +28,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { CustomModal } from "@/components/CustomModal";
-import { EMBEDDING_SUCCESS_MESSAGES } from "@/constants/success";
-import { EMBEDDING_ERROR_MESSAGES } from "@/constants/error";
+import { EMBEDDING_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { EMBEDDING_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export default function EmbeddingForm() {
   const { toast } = useToast();

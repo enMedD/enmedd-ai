@@ -108,8 +108,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { CHAT_PAGE_ERROR_MESSAGES } from "@/constants/error";
-import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/success";
+import { CHAT_PAGE_ERROR_MESSAGES } from "@/constants/toast/error";
+import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;

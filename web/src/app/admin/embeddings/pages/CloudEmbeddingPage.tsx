@@ -23,8 +23,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { DeleteModal } from "@/components/DeleteModal";
-import { EMBEDDING_ERROR_MESSAGES } from "@/constants/error";
-import { EMBEDDING_SUCCESS_MESSAGES } from "@/constants/success";
+import { EMBEDDING_ERROR_MESSAGES } from "@/constants/toast/error";
+import { EMBEDDING_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export default function CloudEmbeddingPage({
   currentModel,

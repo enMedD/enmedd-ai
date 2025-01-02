@@ -10,8 +10,8 @@ import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { useUser } from "@/components/user/UserProvider";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
-import { DEFAULT_CHAT_MODEL_SUCCESS_MESSAGES } from "@/constants/success";
-import { DEFAULT_CHAT_MODEL_ERROR_MESSAGES } from "@/constants/error";
+import { DEFAULT_CHAT_MODEL_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DEFAULT_CHAT_MODEL_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function SetDefaultModelModal({
   llmProviders,

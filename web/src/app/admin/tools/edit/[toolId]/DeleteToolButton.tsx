@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { TOOL_SUCCESS_MESSAGES } from "@/constants/success";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { TOOL_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function DeleteToolButton({
   toolId,

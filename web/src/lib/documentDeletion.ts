@@ -1,12 +1,12 @@
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { DeletionAttemptSnapshot } from "./types";
 import { toast } from "@/hooks/use-toast";
-import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import {
   DATA_SOURCE_ERROR_MESSAGES,
   GLOBAL_ERROR_MESSAGES,
   OPERATION_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 export async function scheduleDeletionJobForConnector(
   connectorId: number,

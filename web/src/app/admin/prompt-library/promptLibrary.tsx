@@ -33,7 +33,7 @@ import {
 import { CustomModal } from "@/components/CustomModal";
 import { Combobox } from "@/components/Combobox";
 import { DeleteModal } from "@/components/DeleteModal";
-import { PROMPT_ERROR_MESSAGES } from "@/constants/error";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const CategoryBubble = ({
   name,

@@ -23,8 +23,8 @@ import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
-import { USERS_SUCCESS_MESSAGES } from "@/constants/success";
-import { USERS_ERROR_MESSAGES } from "@/constants/error";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { USERS_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const RemoveUserButton = ({
   user,

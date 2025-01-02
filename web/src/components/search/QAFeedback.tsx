@@ -4,7 +4,7 @@ import { ThumbsDownIcon, ThumbsUpIcon } from "../icons/icons";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
 import { CustomTooltip } from "../CustomTooltip";
-import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/success";
+import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 type Feedback = "like" | "dislike";
 

@@ -2,8 +2,8 @@
 
 import { requestEmailVerification } from "../lib";
 import { Spinner } from "@/components/Spinner";
-import { NEW_VERIFICATION_EMAIL_ERROR_MESSAGES } from "@/constants/error";
-import { NEW_VERIFICATION_EMAIL_SUCCESS_MESSAGES } from "@/constants/success";
+import { NEW_VERIFICATION_EMAIL_ERROR_MESSAGES } from "@/constants/toast/error";
+import { NEW_VERIFICATION_EMAIL_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 

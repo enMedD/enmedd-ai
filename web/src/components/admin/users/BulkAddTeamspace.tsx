@@ -14,8 +14,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTeamspaceUsers } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
-import { GLOBAL_ERROR_MESSAGES, USERS_ERROR_MESSAGES } from "@/constants/error";
-import { USERS_SUCCESS_MESSAGES } from "@/constants/success";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  USERS_ERROR_MESSAGES,
+} from "@/constants/toast/error";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export const BulkAddTeamspace = ({
   teamspaceId,

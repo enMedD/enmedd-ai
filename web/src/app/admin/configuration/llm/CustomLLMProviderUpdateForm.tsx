@@ -30,8 +30,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { LLM_ERROR_MESSAGES } from "@/constants/error";
-import { LLM_SUCCESS_MESSAGES } from "@/constants/success";
+import { LLM_ERROR_MESSAGES } from "@/constants/toast/error";
+import { LLM_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 function customConfigProcessing(customConfigsList: [string, string][]) {
   const customConfig: { [key: string]: string } = {};

@@ -36,8 +36,8 @@ import { Plus } from "lucide-react";
 import {
   OPERATION_ERROR_MESSAGES,
   TOOL_ERROR_MESSAGES,
-} from "@/constants/error";
-import { TOOL_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { TOOL_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 function parseJsonWithTrailingCommas(jsonString: string) {
   // Regular expression to remove trailing commas before } or ]

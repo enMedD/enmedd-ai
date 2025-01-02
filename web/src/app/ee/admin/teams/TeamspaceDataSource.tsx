@@ -10,8 +10,8 @@ import { ConnectorIndexingStatus, Teamspace } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
-import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface SimplifiedDataSource {
   id: number;

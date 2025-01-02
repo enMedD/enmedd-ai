@@ -28,11 +28,11 @@ import { InputForm } from "@/components/admin/connectors/Field";
 import {
   LOGO_SUCCESS_MESSAGES,
   SETTINGS_SUCCESS_MESSAGES,
-} from "@/constants/success";
+} from "@/constants/toast/success";
 import {
   GLOBAL_ERROR_MESSAGES,
   OPERATION_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 const formSchema = z.object({
   workspace_name: z.string().nullable(),

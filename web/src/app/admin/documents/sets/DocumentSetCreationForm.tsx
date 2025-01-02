@@ -14,8 +14,8 @@ import {
   ComboboxForm,
   InputForm,
 } from "@/components/admin/connectors/Field";
-import { DOCUMENT_SET_SUCCESS_MESSAGES } from "@/constants/success";
-import { DOCUMENT_SET_ERROR_MESSAGES } from "@/constants/error";
+import { DOCUMENT_SET_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_SET_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];

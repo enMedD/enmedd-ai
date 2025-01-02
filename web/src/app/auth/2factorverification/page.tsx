@@ -15,8 +15,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/Spinner";
 import { HealthCheckBanner } from "@/components/health/healthcheck";
-import { TWOFACTOR_SUCCESS_MESSAGES } from "@/constants/success";
-import { TWOFACTOR_ERROR_MESSAGES } from "@/constants/error";
+import { TWOFACTOR_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { TWOFACTOR_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const Page = () => {
   const { toast } = useToast();

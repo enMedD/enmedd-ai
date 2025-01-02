@@ -18,8 +18,8 @@ import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/Divider";
-import { LLM_ERROR_MESSAGES } from "@/constants/error";
-import { LLM_SUCCESS_MESSAGES } from "@/constants/success";
+import { LLM_ERROR_MESSAGES } from "@/constants/toast/error";
+import { LLM_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export function LLMProviderUpdateForm({
   llmProviderDescriptor,

@@ -18,8 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
-import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const DeleteArchiveModal = ({
   trigger,

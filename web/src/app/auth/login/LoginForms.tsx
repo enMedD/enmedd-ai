@@ -20,7 +20,10 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputForm } from "@/components/admin/connectors/Field";
-import { LOGIN_ERROR_MESSAGES, RECAPTCHA_MISSING } from "@/constants/error";
+import {
+  LOGIN_ERROR_MESSAGES,
+  RECAPTCHA_MISSING,
+} from "@/constants/toast/error";
 
 export function LogInForms({}: {}) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);

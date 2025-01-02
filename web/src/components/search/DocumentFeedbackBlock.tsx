@@ -9,8 +9,8 @@ import {
 } from "../icons/icons";
 import { useToast } from "@/hooks/use-toast";
 import { CustomTooltip } from "../CustomTooltip";
-import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/success";
-import { CHAT_PAGE_ERROR_MESSAGES } from "@/constants/error";
+import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { CHAT_PAGE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 type DocumentFeedbackType = "endorse" | "reject" | "hide" | "unhide";
 

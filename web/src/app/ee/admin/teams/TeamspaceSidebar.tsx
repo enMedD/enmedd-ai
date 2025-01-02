@@ -17,8 +17,8 @@ import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 import { TeamspaceDataSource } from "./TeamspaceDataSource";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
-import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface TeamspaceSidebarProps {
   selectedTeamspace?: Teamspace;

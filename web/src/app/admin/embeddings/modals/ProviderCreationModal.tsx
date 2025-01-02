@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   EMBEDDING_ERROR_MESSAGES,
   GLOBAL_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 export function ProviderCreationModal({
   selectedProvider,

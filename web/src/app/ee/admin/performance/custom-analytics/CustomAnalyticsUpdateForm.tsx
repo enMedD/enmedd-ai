@@ -2,8 +2,8 @@
 
 import { Label, SubLabel } from "@/components/admin/connectors/Field";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { CUSTOM_ANALYTICS_ERROR_MESSAGES } from "@/constants/error";
-import { CUSTOM_ANALYTICS_SUCCESS_MESSAGES } from "@/constants/success";
+import { CUSTOM_ANALYTICS_ERROR_MESSAGES } from "@/constants/toast/error";
+import { CUSTOM_ANALYTICS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import { useToast } from "@/hooks/use-toast";
 import { Button, Callout, Text } from "@tremor/react";
 import { useContext, useState } from "react";

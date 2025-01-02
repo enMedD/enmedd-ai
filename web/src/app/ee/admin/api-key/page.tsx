@@ -30,8 +30,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
-import { API_KEY_SUCCESS_MESSAGES } from "@/constants/success";
-import { API_KEY_ERROR_MESSAGES } from "@/constants/error";
+import { API_KEY_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { API_KEY_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const API_KEY_TEXT = `
 API Keys allow you to access Arnold AI APIs programmatically. Click the button below to generate a new API Key.

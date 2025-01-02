@@ -1,8 +1,8 @@
 import { useToast } from "@/hooks/use-toast";
 import { updateBoost } from "./lib";
 import { EditableValue } from "@/components/EditableValue";
-import { SCORE_EDITOR_ERROR_MESSAGES } from "@/constants/error";
-import { SCORE_EDITOR_SUCCESS_MESSAGES } from "@/constants/success";
+import { SCORE_EDITOR_ERROR_MESSAGES } from "@/constants/toast/error";
+import { SCORE_EDITOR_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export const ScoreSection = ({
   documentId,

@@ -35,11 +35,11 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
 import { InviteUserButton } from "./InviteUserButton";
 import { DeactivaterButton } from "@/components/DeactivaterButton";
-import { USERS_SUCCESS_MESSAGES } from "@/constants/success";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import {
   GLOBAL_ERROR_MESSAGES,
   OPERATION_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {

@@ -10,8 +10,8 @@ import { useRouter } from "next/navigation";
 import {
   GLOBAL_ERROR_MESSAGES,
   OPERATION_ERROR_MESSAGES,
-} from "@/constants/error";
-import { PROFILE_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { PROFILE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export default function ProfileTab({ user }: { user: UserTypes | null }) {
   const { toast } = useToast();

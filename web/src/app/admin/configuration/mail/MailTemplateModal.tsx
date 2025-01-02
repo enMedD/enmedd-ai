@@ -16,8 +16,8 @@ import ModToolbarPlaceholder from "./ToolbarPlaceholder";
 import { updateEmailTemplate } from "@/lib/email_templates";
 import { toast } from "@/hooks/use-toast";
 import { DeleteModal } from "@/components/DeleteModal";
-import { MAIL_ERROR_MESSAGES } from "@/constants/error";
-import { MAIL_SUCCESS_MESSAGES } from "@/constants/success";
+import { MAIL_ERROR_MESSAGES } from "@/constants/toast/error";
+import { MAIL_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface MailTemplateModalProps {
   title?: string;

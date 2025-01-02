@@ -28,8 +28,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "../CustomModal";
 import { Button } from "../ui/button";
-import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
-import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export default function CredentialSection({
   ccPair,

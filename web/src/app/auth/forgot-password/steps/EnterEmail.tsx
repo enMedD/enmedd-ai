@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { InputForm } from "@/components/admin/connectors/Field";
-import { GLOBAL_ERROR_MESSAGES } from "@/constants/error";
+import { GLOBAL_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const formSchema = z.object({
   email: z

@@ -18,8 +18,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
-import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 type GoogleDriveCredentialJsonTypes = "authorized_user" | "service_account";
 

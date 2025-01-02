@@ -29,8 +29,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createCredential } from "@/lib/credential";
-import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
-import { GLOBAL_ERROR_MESSAGES } from "@/constants/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { GLOBAL_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export async function submitCredential<T>(
   credential: CredentialBase<T>

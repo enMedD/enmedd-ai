@@ -17,11 +17,11 @@ import {
   GLOBAL_ERROR_MESSAGES,
   OPERATION_ERROR_MESSAGES,
   SETTINGS_LOGO_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 import {
   LOGO_SUCCESS_MESSAGES,
   TEAMSPACE_SUCCESS_MESSAGES,
-} from "@/constants/success";
+} from "@/constants/toast/success";
 
 interface GeneralProps {
   teamspaceId: string | string[];

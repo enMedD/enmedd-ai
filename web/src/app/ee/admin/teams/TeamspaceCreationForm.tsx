@@ -28,8 +28,8 @@ import { ComboboxForm, InputForm } from "@/components/admin/connectors/Field";
 import {
   TEAMSPACE_ASSISTANT_ERROR_MESSAGES,
   TEAMSPACE_CREATION_ERROR_MESSAGES,
-} from "@/constants/error";
-import { TEAMSPACE_CREATION_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { TEAMSPACE_CREATION_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;

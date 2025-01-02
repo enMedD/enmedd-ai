@@ -31,8 +31,8 @@ import { deleteDocumentSet } from "@/app/admin/documents/sets/lib";
 import { DeleteModal } from "@/components/DeleteModal";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Loading } from "@/components/Loading";
-import { DOCUMENT_SET_SUCCESS_MESSAGES } from "@/constants/success";
-import { DOCUMENT_SET_ERROR_MESSAGES } from "@/constants/error";
+import { DOCUMENT_SET_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_SET_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const numToDisplay = 50;
 

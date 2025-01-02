@@ -1,6 +1,6 @@
 import { SubLabel } from "@/components/admin/connectors/Field";
 import { Button } from "@/components/ui/button";
-import { IMAGE_UPLOAD_ERROR_MESSAGES } from "@/constants/error";
+import { IMAGE_UPLOAD_ERROR_MESSAGES } from "@/constants/toast/error";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { useEffect, useState } from "react";

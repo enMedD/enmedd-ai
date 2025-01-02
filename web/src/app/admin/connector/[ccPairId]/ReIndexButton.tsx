@@ -11,8 +11,8 @@ import { Divider } from "@/components/Divider";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Button } from "@/components/ui/button";
 import { CustomModal } from "@/components/CustomModal";
-import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
-import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 function ReIndexPopup({
   connectorId,

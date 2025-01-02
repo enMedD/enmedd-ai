@@ -20,8 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Connector } from "@/lib/connectors/connectors";
-import { DOCUMENT_EXPLORER_SUCCESS_MESSAGES } from "@/constants/success";
-import { DOCUMENT_EXPLORER_ERROR_MESSAGES } from "@/constants/error";
+import { DOCUMENT_EXPLORER_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_EXPLORER_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const DocumentDisplay = ({
   document,

@@ -14,8 +14,8 @@ import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import {
   OPERATION_ERROR_MESSAGES,
   TEAMSPACE_ASSISTANT_ERROR_MESSAGES,
-} from "@/constants/error";
-import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface TeamspaceAssistantProps {
   teamspace: Teamspace & { gradient: string };

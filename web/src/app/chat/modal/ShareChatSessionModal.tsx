@@ -7,8 +7,8 @@ import Link from "next/link";
 import { CustomModal } from "@/components/CustomModal";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useToast } from "@/hooks/use-toast";
-import { SHARE_CHAT_SESSION_SUCCESS_MESSAGES } from "@/constants/success";
-import { SHARE_CHAT_SESSION_ERROR_MESSAGES } from "@/constants/error";
+import { SHARE_CHAT_SESSION_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { SHARE_CHAT_SESSION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 function buildShareLink(chatSessionId: number) {
   const baseUrl = `${window.location.protocol}//${window.location.host}`;

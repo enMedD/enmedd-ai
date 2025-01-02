@@ -10,8 +10,8 @@ import { CircleCheck } from "lucide-react";
 import {
   GLOBAL_ERROR_MESSAGES,
   PASSWORD_ERROR_MESSAGES,
-} from "@/constants/error";
-import { PASSWORD_SUCCESS_MESSAGES } from "@/constants/success";
+} from "@/constants/toast/error";
+import { PASSWORD_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export default function SecurityTab() {
   const { toast } = useToast();

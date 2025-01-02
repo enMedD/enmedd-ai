@@ -13,11 +13,11 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import {
   GLOBAL_ERROR_MESSAGES,
   TEAMSPACE_ERROR_MESSAGES,
-} from "@/constants/error";
+} from "@/constants/toast/error";
 
 export default function UserTeamspace() {
   const router = useRouter();

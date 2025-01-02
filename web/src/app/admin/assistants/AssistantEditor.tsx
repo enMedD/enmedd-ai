@@ -50,8 +50,8 @@ import { FullLLMProvider } from "../configuration/llm/interfaces";
 import { IsPublicGroupSelector2 } from "@/components/IsPublicGroupSelector";
 import { LlmList } from "@/components/llm/LLMList";
 import { useAssistants } from "@/context/AssistantsContext";
-import { ASSISTANT_ERROR_MESSAGES } from "@/constants/error";
-import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/success";
+import { ASSISTANT_ERROR_MESSAGES } from "@/constants/toast/error";
+import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const formSchema = z.object({
   name: z.string().min(1, "Must provide a name for the Assistant"),

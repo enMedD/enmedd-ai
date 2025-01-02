@@ -20,8 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Settings } from "../interfaces";
-import { SETTINGS_SUCCESS_MESSAGES } from "@/constants/success";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { SETTINGS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 function CheckboxComponent({
   label,

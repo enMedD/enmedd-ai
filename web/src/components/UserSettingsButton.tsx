@@ -32,7 +32,7 @@ import { useParams, useRouter } from "next/navigation";
 import { LOGOUT_DISABLED } from "@/lib/constants";
 import { FeatureFlagWrapper } from "./feature_flag/FeatureFlagWrapper";
 import { UserProfile } from "./UserProfile";
-import { LOGOUT_ERROR_MESSAGES } from "@/constants/error";
+import { LOGOUT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
   const router = useRouter();

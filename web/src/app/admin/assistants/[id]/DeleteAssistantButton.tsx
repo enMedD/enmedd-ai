@@ -6,8 +6,8 @@ import { SuccessfulAssistantUpdateRedirectType } from "../enums";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/success";
-import { ASSISTANT_ERROR_MESSAGES } from "@/constants/error";
+import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { ASSISTANT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function DeleteAssistantButton({
   assistantId,

@@ -20,8 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useState } from "react";
 import { DeleteModal } from "@/components/DeleteModal";
-import { TOOL_SUCCESS_MESSAGES } from "@/constants/success";
-import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { TOOL_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function ToolsTable({
   tools,

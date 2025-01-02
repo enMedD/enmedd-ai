@@ -19,8 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-import { DOCUMENT_FEEDBACK_SUCCESS_MESSAGES } from "@/constants/success";
-import { DOCUMENT_FEEDBACK_ERROR_MESSAGES } from "@/constants/error";
+import { DOCUMENT_FEEDBACK_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_FEEDBACK_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const IsVisibleSection = ({
   document,

@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { CheckboxForm, InputForm } from "@/components/admin/connectors/Field";
-import { PROMPT_SUCCESS_MESSAGES } from "@/constants/success";
-import { PROMPT_ERROR_MESSAGES } from "@/constants/error";
+import { PROMPT_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
