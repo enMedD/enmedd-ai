@@ -224,9 +224,11 @@ export const PendingInvites = ({
                 </div>
               )}
             </div>
-          ) : (
+          ) : filteredUsers && filteredUsers.length === 0 && q !== "" ? (
             <p>No user found.</p>
-          )}
+          ) : filteredUsers && filteredUsers.length === 0 ? (
+            <p>No invited user.</p>
+          ) : null}
         </div>
       </div>
     </>
