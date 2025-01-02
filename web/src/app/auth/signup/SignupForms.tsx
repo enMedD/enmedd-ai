@@ -25,7 +25,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { InputForm } from "@/components/admin/connectors/Field";
-import { RECAPTCHA_MISSING, SIGNUP_ERROR_MESSAGES } from "@/constants/error";
+import {
+  PASSWORD_ERROR_MESSAGES,
+  RECAPTCHA_MISSING,
+  SIGNUP_ERROR_MESSAGES,
+} from "@/constants/error";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -96,8 +100,9 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     ) {
       setPasswordFocused(true);
       toast({
-        title: SIGNUP_ERROR_MESSAGES.PASSWORD_REQUIREMENTS.title,
-        description: SIGNUP_ERROR_MESSAGES.PASSWORD_REQUIREMENTS.description,
+        title: PASSWORD_ERROR_MESSAGES.REQUIREMENTS.title,
+        description:
+          PASSWORD_ERROR_MESSAGES.REQUIREMENTS.description(passwordWarning),
         variant: "destructive",
       });
       return;

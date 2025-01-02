@@ -10,6 +10,8 @@ import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { useUser } from "@/components/user/UserProvider";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
+import { DEFAULT_CHAT_MODEL_SUCCESS_MESSAGES } from "@/constants/success";
+import { DEFAULT_CHAT_MODEL_ERROR_MESSAGES } from "@/constants/error";
 
 export function SetDefaultModelModal({
   llmProviders,
@@ -105,8 +107,8 @@ export function SetDefaultModelModal({
           setLlmOverride(destructureValue(defaultModel));
         }
         toast({
-          title: "Default Model Updated",
-          description: "The default model has been successfully updated.",
+          title: DEFAULT_CHAT_MODEL_SUCCESS_MESSAGES.UPDATE.title,
+          description: DEFAULT_CHAT_MODEL_SUCCESS_MESSAGES.UPDATE.description,
           variant: "success",
         });
         refreshUser();
@@ -116,9 +118,8 @@ export function SetDefaultModelModal({
       }
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description:
-          "There was an issue updating the default model. Please try again.",
+        title: DEFAULT_CHAT_MODEL_ERROR_MESSAGES.UPDATE.title,
+        description: DEFAULT_CHAT_MODEL_ERROR_MESSAGES.UPDATE.description,
         variant: "destructive",
       });
     }

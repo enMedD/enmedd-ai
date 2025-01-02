@@ -68,8 +68,8 @@ export function Main({
 
   const finishConnectorDeletion = () => {
     toast({
-      title: DATA_SOURCE_SUCCESS_MESSAGES.DELETION.title,
-      description: DATA_SOURCE_SUCCESS_MESSAGES.DELETION.description,
+      title: DATA_SOURCE_SUCCESS_MESSAGES.CONNECTOR_DELETION.title,
+      description: DATA_SOURCE_SUCCESS_MESSAGES.CONNECTOR_DELETION.description,
       variant: "success",
     });
     setTimeout(() => {

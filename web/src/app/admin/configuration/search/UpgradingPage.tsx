@@ -60,8 +60,8 @@ export default function UpgradingPage({
       mutate("/api/search-settings/get-secondary-search-settings");
     } else {
       toast({
-        title: EMBEDDING_ERROR_MESSAGES.CANCELLATION.title,
-        description: EMBEDDING_ERROR_MESSAGES.CANCELLATION.description(
+        title: EMBEDDING_ERROR_MESSAGES.CANCEL_MODEL_UPDATE.title,
+        description: EMBEDDING_ERROR_MESSAGES.CANCEL_MODEL_UPDATE.description(
           await response.text()
         ),
         variant: "destructive",

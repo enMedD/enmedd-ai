@@ -4,6 +4,7 @@ import { ThumbsDownIcon, ThumbsUpIcon } from "../icons/icons";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
 import { CustomTooltip } from "../CustomTooltip";
+import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/success";
 
 type Feedback = "like" | "dislike";
 
@@ -42,9 +43,8 @@ const QAFeedback = ({ messageId, feedbackType }: QAFeedbackIconProps) => {
             const isSuccessful = await giveFeedback(messageId, feedbackType);
             if (isSuccessful) {
               toast({
-                title: "Feedback Submitted!",
-                description:
-                  "Thank you for your feedback! We appreciate your input.",
+                title: CHAT_PAGE_SUCCESS_MESSAGES.FEEDBACK.title,
+                description: CHAT_PAGE_SUCCESS_MESSAGES.FEEDBACK.description,
                 variant: "success",
               });
             }

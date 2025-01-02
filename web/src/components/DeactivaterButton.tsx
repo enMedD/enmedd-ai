@@ -5,6 +5,8 @@ import { User } from "@/lib/types";
 import { Button } from "./ui/button";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
 
 export const DeactivaterButton = ({
   user,
@@ -25,15 +27,20 @@ export const DeactivaterButton = ({
       onSuccess: () => {
         mutate();
         toast({
-          title: "User Status Updated",
-          description: `User has been successfully ${deactivate ? "deactivated" : "activated"}.`,
+          title: USERS_SUCCESS_MESSAGES.DEACTIVATE.title,
+          description:
+            USERS_SUCCESS_MESSAGES.DEACTIVATE.description(deactivate),
           variant: "success",
         });
       },
       onError: (errorMsg) =>
         toast({
-          title: "Operation Failed",
-          description: `Unable to ${deactivate ? "deactivate" : "activate"} user: ${errorMsg}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Deactivate"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "user",
+            deactivate ? "deactivate" : "activate",
+            errorMsg
+          ),
           variant: "destructive",
         }),
     }

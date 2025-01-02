@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { InputForm } from "@/components/admin/connectors/Field";
+import { PROMPT_SUCCESS_MESSAGES } from "@/constants/success";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/error";
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -50,8 +52,8 @@ const AddPromptModal = ({ onClose, onSubmit }: AddPromptModalProps) => {
       });
 
       toast({
-        title: "Prompt Created Successfully",
-        description: "Prompt created successfully!",
+        title: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.title(),
+        description: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.description(),
         variant: "success",
       });
 
@@ -59,8 +61,8 @@ const AddPromptModal = ({ onClose, onSubmit }: AddPromptModalProps) => {
       localStorage.removeItem("promptFormData");
     } catch (error) {
       toast({
-        title: "Prompt Creation Failed",
-        description: "Failed to create the prompt.",
+        title: PROMPT_ERROR_MESSAGES.CREATE_FAILED.title,
+        description: PROMPT_ERROR_MESSAGES.CREATE_FAILED.description,
         variant: "destructive",
       });
     }

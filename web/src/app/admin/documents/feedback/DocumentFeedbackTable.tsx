@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+import { DOCUMENT_FEEDBACK_SUCCESS_MESSAGES } from "@/constants/success";
+import { DOCUMENT_FEEDBACK_ERROR_MESSAGES } from "@/constants/error";
 
 const IsVisibleSection = ({
   document,
@@ -123,16 +125,23 @@ export const DocumentFeedbackTable = ({
                           onUpdate={async (response) => {
                             if (response.ok) {
                               toast({
-                                title: "Status Updated",
+                                title:
+                                  DOCUMENT_FEEDBACK_SUCCESS_MESSAGES.UPDATE
+                                    .title,
                                 description:
-                                  "The visibility status has been successfully updated.",
+                                  DOCUMENT_FEEDBACK_SUCCESS_MESSAGES.UPDATE
+                                    .description,
                                 variant: "success",
                               });
                               refresh();
                             } else {
                               toast({
-                                title: "Update Failed",
-                                description: `Unable to update hidden status - ${getErrorMsg(response)}`,
+                                title:
+                                  DOCUMENT_FEEDBACK_ERROR_MESSAGES.UPDATE.title,
+                                description:
+                                  DOCUMENT_FEEDBACK_ERROR_MESSAGES.UPDATE.description(
+                                    getErrorMsg(response)
+                                  ),
                                 variant: "destructive",
                               });
                             }

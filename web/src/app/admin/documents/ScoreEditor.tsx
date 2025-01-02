@@ -1,6 +1,8 @@
 import { useToast } from "@/hooks/use-toast";
 import { updateBoost } from "./lib";
 import { EditableValue } from "@/components/EditableValue";
+import { SCORE_EDITOR_ERROR_MESSAGES } from "@/constants/error";
+import { SCORE_EDITOR_SUCCESS_MESSAGES } from "@/constants/success";
 
 export const ScoreSection = ({
   documentId,
@@ -19,8 +21,8 @@ export const ScoreSection = ({
     const numericScore = Number(value);
     if (isNaN(numericScore)) {
       toast({
-        title: "Invalid Input",
-        description: "Please enter a valid number for the score.",
+        title: SCORE_EDITOR_ERROR_MESSAGES.INVALID_INPUT.title,
+        description: SCORE_EDITOR_ERROR_MESSAGES.INVALID_INPUT.description,
         variant: "destructive",
       });
       return false;
@@ -29,15 +31,15 @@ export const ScoreSection = ({
     const errorMsg = await updateBoost(documentId, numericScore);
     if (errorMsg) {
       toast({
-        title: "Update Failed",
-        description: errorMsg,
+        title: SCORE_EDITOR_ERROR_MESSAGES.UPDATE.title,
+        description: SCORE_EDITOR_ERROR_MESSAGES.UPDATE.description(errorMsg),
         variant: "destructive",
       });
       return false;
     } else {
       toast({
-        title: "Score Updated",
-        description: "The score has been successfully updated.",
+        title: SCORE_EDITOR_SUCCESS_MESSAGES.UPDATE.title,
+        description: SCORE_EDITOR_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
       refresh();

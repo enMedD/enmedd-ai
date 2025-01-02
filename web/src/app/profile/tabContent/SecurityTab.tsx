@@ -7,6 +7,11 @@ import { User as UserTypes } from "@/lib/types";
 import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 import { useState } from "react";
 import { CircleCheck } from "lucide-react";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  PASSWORD_ERROR_MESSAGES,
+} from "@/constants/error";
+import { PASSWORD_SUCCESS_MESSAGES } from "@/constants/success";
 
 export default function SecurityTab() {
   const { toast } = useToast();
@@ -26,9 +31,9 @@ export default function SecurityTab() {
   const handleSaveChanges = async () => {
     if (newPassword.length < 8 || !hasUppercase || !hasNumberOrSpecialChar) {
       toast({
-        title: "Password doesn't meet requirements",
+        title: PASSWORD_ERROR_MESSAGES.REQUIREMENTS.title,
         description:
-          passwordWarning || "Ensure your password meets all the criteria.",
+          PASSWORD_ERROR_MESSAGES.REQUIREMENTS.description(passwordWarning),
         variant: "destructive",
       });
       return;
@@ -36,8 +41,8 @@ export default function SecurityTab() {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Your new password and confirm password do not match",
-        description: `New password and confirm password must match. Please try again.`,
+        title: PASSWORD_ERROR_MESSAGES.NOT_MATCH.title,
+        description: PASSWORD_ERROR_MESSAGES.NOT_MATCH.description,
         variant: "destructive",
       });
       return;
@@ -57,21 +62,24 @@ export default function SecurityTab() {
 
     if (response.status === 200) {
       toast({
-        title: "Successfully updated your password",
-        description: "Your password has been changed. Please log in again.",
+        title: PASSWORD_SUCCESS_MESSAGES.CHANGE.title,
+        description: PASSWORD_SUCCESS_MESSAGES.CHANGE.description,
         variant: "success",
       });
       setIsEditing(false);
     } else if (response.status === 400) {
       toast({
-        title: "Incorrect current password",
-        description: "Please check your current password and try again.",
+        title: PASSWORD_ERROR_MESSAGES.INCORRECT_CURRENT_PASSWORD.title,
+        description:
+          PASSWORD_ERROR_MESSAGES.INCORRECT_CURRENT_PASSWORD.description,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Something went wrong",
-        description: `Updating your password failed: ${response.status} ${response.statusText}`,
+        title: GLOBAL_ERROR_MESSAGES.UNEXPECTED.title,
+        description: GLOBAL_ERROR_MESSAGES.UNEXPECTED.description(
+          `${response.status} - ${response.statusText}`
+        ),
         variant: "destructive",
       });
     }

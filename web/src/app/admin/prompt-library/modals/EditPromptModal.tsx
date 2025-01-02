@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { CheckboxForm, InputForm } from "@/components/admin/connectors/Field";
+import { PROMPT_SUCCESS_MESSAGES } from "@/constants/success";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/error";
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
@@ -67,14 +69,14 @@ const EditPromptModal = ({
       await editInputPrompt(promptId, values);
 
       toast({
-        title: "Prompt Updated Successfully",
-        description: "Prompt updated successfully!",
+        title: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.title(true),
+        description: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.description(true),
         variant: "success",
       });
     } catch (error) {
       toast({
-        title: "Prompt Update Failed",
-        description: "Failed to update the prompt.",
+        title: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.title(true),
+        description: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.description(true),
         variant: "destructive",
       });
     }

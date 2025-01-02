@@ -2,6 +2,8 @@
 
 import { requestEmailVerification } from "../lib";
 import { Spinner } from "@/components/Spinner";
+import { NEW_VERIFICATION_EMAIL_ERROR_MESSAGES } from "@/constants/error";
+import { NEW_VERIFICATION_EMAIL_SUCCESS_MESSAGES } from "@/constants/success";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -26,17 +28,20 @@ export function RequestNewVerificationEmail({
 
         if (response.ok) {
           toast({
-            title: "Verification Email Sent",
+            title: NEW_VERIFICATION_EMAIL_SUCCESS_MESSAGES.SENT.title,
             description:
-              "We've sent a new verification email to your inbox. Please check your email.",
+              NEW_VERIFICATION_EMAIL_SUCCESS_MESSAGES.SENT.description,
             variant: "success",
           });
         } else {
           const errorDetail = (await response.json()).detail;
 
           toast({
-            title: "Email Verification Failed",
-            description: `Unable to send verification email: ${errorDetail}. Please try again later.`,
+            title: NEW_VERIFICATION_EMAIL_ERROR_MESSAGES.SENT.title,
+            description:
+              NEW_VERIFICATION_EMAIL_ERROR_MESSAGES.SENT.description(
+                errorDetail
+              ),
             variant: "destructive",
           });
         }

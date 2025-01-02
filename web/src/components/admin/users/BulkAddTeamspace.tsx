@@ -14,6 +14,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTeamspaceUsers } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
+import { GLOBAL_ERROR_MESSAGES, USERS_ERROR_MESSAGES } from "@/constants/error";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/success";
 
 export const BulkAddTeamspace = ({
   teamspaceId,
@@ -35,8 +37,8 @@ export const BulkAddTeamspace = ({
   const handleInvite = async () => {
     if (selectedEmails.length === 0) {
       toast({
-        title: "No Users Selected",
-        description: "Please select users to invite.",
+        title: USERS_ERROR_MESSAGES.NO_USER.title,
+        description: USERS_ERROR_MESSAGES.NO_USER.description,
         variant: "destructive",
       });
       return;
@@ -61,16 +63,17 @@ export const BulkAddTeamspace = ({
       onClose();
       router.refresh();
       toast({
-        title: "Success",
-        description: "Users invited successfully",
+        title: USERS_SUCCESS_MESSAGES.TEAMSPACE_INVITE.title(selectedEmails),
+        description:
+          USERS_SUCCESS_MESSAGES.TEAMSPACE_INVITE.description(selectedEmails),
         variant: "success",
       });
       setSelectedEmails([]);
     } catch (error) {
       console.error(error);
       toast({
-        title: "Error",
-        description: "Error inviting users",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     }

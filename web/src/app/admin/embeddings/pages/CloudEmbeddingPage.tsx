@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { DeleteModal } from "@/components/DeleteModal";
+import { EMBEDDING_ERROR_MESSAGES } from "@/constants/error";
+import { EMBEDDING_SUCCESS_MESSAGES } from "@/constants/success";
 
 export default function CloudEmbeddingPage({
   currentModel,
@@ -419,8 +421,8 @@ export function CloudModelCard({
   const deleteModel = async () => {
     if (!model.id) {
       toast({
-        title: "Deletion Error",
-        description: "Model cannot be deleted",
+        title: EMBEDDING_ERROR_MESSAGES.DELETE_ERROR.title,
+        description: EMBEDDING_ERROR_MESSAGES.DELETE_ERROR.description,
         variant: "destructive",
       });
       return;
@@ -430,16 +432,15 @@ export function CloudModelCard({
 
     if (response.ok) {
       toast({
-        title: "Success",
-        description: "Model deleted successfully",
+        title: EMBEDDING_SUCCESS_MESSAGES.DELETE_MODEL.title,
+        description: EMBEDDING_SUCCESS_MESSAGES.DELETE_MODEL.description,
         variant: "success",
       });
       setShowDeleteModel(false);
     } else {
       toast({
-        title: "Deletion Failed",
-        description:
-          "Failed to delete model. Ensure you are not attempting to delete a currently active model.",
+        title: EMBEDDING_ERROR_MESSAGES.DELETE_FAILED.title,
+        description: EMBEDDING_ERROR_MESSAGES.DELETE_FAILED.description,
         variant: "destructive",
       });
     }

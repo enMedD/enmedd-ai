@@ -10,6 +10,8 @@ import { ConnectorIndexingStatus, Teamspace } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
 
 interface SimplifiedDataSource {
   id: number;
@@ -164,8 +166,12 @@ export const TeamspaceDataSource = ({
 
       if (!response.ok) {
         toast({
-          title: "Update Failed",
-          description: `Unable to update data source: ${responseJson.detail || "Unknown error."}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "data source",
+            "update",
+            responseJson.detail || "Unknown error."
+          ),
           variant: "destructive",
         });
         return;
@@ -175,16 +181,20 @@ export const TeamspaceDataSource = ({
       setGlobalDataSources(tempGlobalDataSources);
       router.refresh();
       toast({
-        title: "Data Source Updated",
+        title: TEAMSPACE_SUCCESS_MESSAGES.UPDATE_TYPE.title("Data Source"),
         description:
-          "Data Source have been successfully updated in the teamspace.",
+          TEAMSPACE_SUCCESS_MESSAGES.UPDATE_TYPE.description("Data Source"),
         variant: "success",
       });
       refreshTeamspaces();
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description: "An error occurred while updating data source.",
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "data source",
+          "update",
+          error || "Unknown error."
+        ),
         variant: "destructive",
       });
     }

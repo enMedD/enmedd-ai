@@ -50,6 +50,8 @@ import { useRouter } from "next/navigation";
 import Stepper from "./Stepper";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
 
 const BASE_CONNECTOR_URL = "/api/manage/admin/connector";
 
@@ -183,15 +185,18 @@ export default function AddConnector({
     const response = await deleteCredential(credential.id, true);
     if (response.ok) {
       toast({
-        title: "Deletion Successful",
-        description: "Credential deleted successfully!",
+        title: DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_DELETION.title,
+        description:
+          DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_DELETION.description,
         variant: "success",
       });
     } else {
       const errorData = await response.json();
       toast({
-        title: "Deletion Failed",
-        description: errorData.message,
+        title: DATA_SOURCE_ERROR_MESSAGES.CREDENTIAL_DELETION.title,
+        description: DATA_SOURCE_ERROR_MESSAGES.CREDENTIAL_DELETION.description(
+          errorData.message
+        ),
         variant: "destructive",
       });
     }
@@ -201,8 +206,8 @@ export default function AddConnector({
     setCurrentCredential(selectedCredential);
     setAlowCreate(true);
     toast({
-      title: "Swap Successful",
-      description: "Swapped credential successfully!",
+      title: DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_SWAP.title,
+      description: DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_SWAP.description,
       variant: "success",
     });
     refresh();
@@ -210,9 +215,8 @@ export default function AddConnector({
 
   const onSuccess = () => {
     toast({
-      title: "Data Source Created",
-      description:
-        "Successfully added data source. Redirecting to Add Data Source page",
+      title: DATA_SOURCE_SUCCESS_MESSAGES.CREATE.title,
+      description: DATA_SOURCE_SUCCESS_MESSAGES.CREATE.description,
       variant: "success",
     });
     router.push(
@@ -290,14 +294,14 @@ export default function AddConnector({
           if (response) {
             onSuccess();
             toast({
-              title: "Google Site Submitted",
-              description: "Your Google site has been successfully submitted!",
+              title: DATA_SOURCE_SUCCESS_MESSAGES.GOOGLE_SITE.title,
+              description: DATA_SOURCE_SUCCESS_MESSAGES.GOOGLE_SITE.description,
               variant: "success",
             });
           } else {
             toast({
-              title: "Error",
-              description: response,
+              title: DATA_SOURCE_ERROR_MESSAGES.GOOGLE_SITE.title,
+              description: DATA_SOURCE_ERROR_MESSAGES.GOOGLE_SITE.description,
               variant: "destructive",
             });
           }
@@ -316,14 +320,14 @@ export default function AddConnector({
           if (response) {
             onSuccess();
             toast({
-              title: "Success",
-              description: "Successfully uploaded files!",
+              title: DATA_SOURCE_SUCCESS_MESSAGES.FILE_UPLOAD.title,
+              description: DATA_SOURCE_SUCCESS_MESSAGES.FILE_UPLOAD.description,
               variant: "success",
             });
           } else {
             toast({
-              title: "Error",
-              description: response,
+              title: DATA_SOURCE_ERROR_MESSAGES.FILE_UPLOAD.title,
+              description: DATA_SOURCE_ERROR_MESSAGES.FILE_UPLOAD.description,
               variant: "destructive",
             });
           }
@@ -350,10 +354,16 @@ export default function AddConnector({
         if (!credentialActivated) {
           if (isSuccess) {
             onSuccess();
+            toast({
+              title: DATA_SOURCE_SUCCESS_MESSAGES.SUBMIT.title,
+              description: DATA_SOURCE_SUCCESS_MESSAGES.SUBMIT.description,
+              variant: "success",
+            });
           } else {
             toast({
-              title: "Error",
-              description: message,
+              title: DATA_SOURCE_ERROR_MESSAGES.SUBMIT.title,
+              description:
+                DATA_SOURCE_ERROR_MESSAGES.SUBMIT.description(message),
               variant: "destructive",
             });
           }
@@ -373,20 +383,32 @@ export default function AddConnector({
           );
           if (linkCredentialResponse.ok) {
             onSuccess();
+            toast({
+              title: DATA_SOURCE_SUCCESS_MESSAGES.LINKED.title,
+              description: DATA_SOURCE_SUCCESS_MESSAGES.LINKED.description,
+              variant: "success",
+            });
           } else {
             const errorData = await linkCredentialResponse.json();
             toast({
-              title: "Error",
-              description: errorData.message,
+              title: DATA_SOURCE_ERROR_MESSAGES.LINKED.title,
+              description: DATA_SOURCE_ERROR_MESSAGES.LINKED.description(
+                errorData.message
+              ),
               variant: "destructive",
             });
           }
         } else if (isSuccess) {
+          toast({
+            title: DATA_SOURCE_SUCCESS_MESSAGES.CREATE.title,
+            description: DATA_SOURCE_SUCCESS_MESSAGES.CREATE.description,
+            variant: "success",
+          });
           onSuccess();
         } else {
           toast({
-            title: "Error",
-            description: message,
+            title: DATA_SOURCE_ERROR_MESSAGES.SUBMIT.title,
+            description: DATA_SOURCE_ERROR_MESSAGES.SUBMIT.description(message),
             variant: "destructive",
           });
         }

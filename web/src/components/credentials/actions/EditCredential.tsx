@@ -11,6 +11,7 @@ import {
 import { createEditingValidationSchema, createInitialValues } from "../lib";
 import { dictionaryType, formType } from "../types";
 import { useToast } from "@/hooks/use-toast";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
 
 const EditCredential = ({
   credential,
@@ -41,8 +42,8 @@ const EditCredential = ({
     } catch (error) {
       console.error("Error updating credential:", error);
       toast({
-        title: "Update Failed",
-        description: "Error updating credential. Please try again.",
+        title: DATA_SOURCE_ERROR_MESSAGES.UPDATE.title,
+        description: DATA_SOURCE_ERROR_MESSAGES.UPDATE.description,
         variant: "destructive",
       });
     } finally {

@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
+import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/error";
 
 const DeleteArchiveModal = ({
   trigger,
@@ -118,15 +120,18 @@ export const TeamspacesCard = ({
             const response = await deleteTeamspace(teamspace.id);
             if (response.ok) {
               toast({
-                title: "Teamspace Deleted!",
-                description: `Successfully deleted the teamspace: "${teamspace.name}".`,
+                title: TEAMSPACE_SUCCESS_MESSAGES.DELETE.title,
+                description: TEAMSPACE_SUCCESS_MESSAGES.DELETE.description(
+                  teamspace.name
+                ),
                 variant: "success",
               });
             } else {
               const errorMsg = (await response.json()).detail;
               toast({
-                title: "Deletion Error",
-                description: `Failed to delete the teamspace: ${errorMsg}. Please try again.`,
+                title: TEAMSPACE_ERROR_MESSAGES.DELETE.title,
+                description:
+                  TEAMSPACE_ERROR_MESSAGES.DELETE.description(errorMsg),
                 variant: "destructive",
               });
             }

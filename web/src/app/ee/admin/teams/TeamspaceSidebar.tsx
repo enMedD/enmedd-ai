@@ -17,6 +17,8 @@ import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 import { TeamspaceDataSource } from "./TeamspaceDataSource";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
+import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/error";
 
 interface TeamspaceSidebarProps {
   selectedTeamspace?: Teamspace;
@@ -88,17 +90,18 @@ export const TeamspaceSidebar = ({
       refreshTeamspaces();
 
       toast({
-        title: "Description Updated",
-        description: `The description for "${selectedTeamspace.name}" has been updated successfully.`,
+        title: TEAMSPACE_SUCCESS_MESSAGES.DESCRIPTION.title,
+        description: TEAMSPACE_SUCCESS_MESSAGES.DESCRIPTION.description(
+          selectedTeamspace.description
+        ),
         variant: "success",
       });
     } catch (error) {
       console.error("Error updating teamspace description:", error);
 
       toast({
-        title: "Update Failed",
-        description:
-          "An error occurred while updating the description. Please try again.",
+        title: TEAMSPACE_ERROR_MESSAGES.DESCRIPTION.title,
+        description: TEAMSPACE_ERROR_MESSAGES.DESCRIPTION.description,
         variant: "destructive",
       });
     } finally {
@@ -137,17 +140,16 @@ export const TeamspaceSidebar = ({
       refreshTeamspaces();
 
       toast({
-        title: "Name Updated",
-        description: `The name for "${tempName}" has been updated successfully.`,
+        title: TEAMSPACE_SUCCESS_MESSAGES.NAME.title,
+        description: TEAMSPACE_SUCCESS_MESSAGES.NAME.description(tempName),
         variant: "success",
       });
     } catch (error) {
       console.error("Error updating teamspace name:", error);
 
       toast({
-        title: "Update Failed",
-        description:
-          "An error occurred while updating the teamspace name. Please try again.",
+        title: TEAMSPACE_ERROR_MESSAGES.NAME.title,
+        description: TEAMSPACE_ERROR_MESSAGES.NAME.description,
         variant: "destructive",
       });
     } finally {

@@ -1,5 +1,6 @@
 import { SubLabel } from "@/components/admin/connectors/Field";
 import { Button } from "@/components/ui/button";
+import { IMAGE_UPLOAD_ERROR_MESSAGES } from "@/constants/error";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -30,8 +31,8 @@ export function ImageUpload({
       onDrop={(acceptedFiles) => {
         if (acceptedFiles.length !== 1) {
           toast({
-            title: "Upload Error",
-            description: "Please upload only one file at a time.",
+            title: IMAGE_UPLOAD_ERROR_MESSAGES.UPLOAD_FAILED.title,
+            description: IMAGE_UPLOAD_ERROR_MESSAGES.UPLOAD_FAILED.description,
             variant: "destructive",
           });
         }

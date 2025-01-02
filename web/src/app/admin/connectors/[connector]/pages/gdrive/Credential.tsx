@@ -18,6 +18,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/success";
 
 type GoogleDriveCredentialJsonTypes = "authorized_user" | "service_account";
 
@@ -88,8 +90,9 @@ export const DriveJsonUpload = () => {
             }
           } catch (e) {
             toast({
-              title: "Error",
-              description: `Invalid file provided - ${e}`,
+              title: DATA_SOURCE_ERROR_MESSAGES.INVALID_FILE.title,
+              description:
+                DATA_SOURCE_ERROR_MESSAGES.INVALID_FILE.description(e),
               variant: "destructive",
             });
             return;
@@ -108,15 +111,19 @@ export const DriveJsonUpload = () => {
             );
             if (response.ok) {
               toast({
-                title: "Success",
-                description: "Successfully uploaded app credentials",
+                title: DATA_SOURCE_SUCCESS_MESSAGES.APP_CREDENTIAL.title,
+                description:
+                  DATA_SOURCE_SUCCESS_MESSAGES.APP_CREDENTIAL.description,
                 variant: "success",
               });
             } else {
               const errorMsg = await response.text();
               toast({
-                title: "Error",
-                description: `Failed to upload app credentials - ${errorMsg}`,
+                title: DATA_SOURCE_ERROR_MESSAGES.APP_CREDENTIAL.title,
+                description:
+                  DATA_SOURCE_ERROR_MESSAGES.APP_CREDENTIAL.description(
+                    errorMsg
+                  ),
                 variant: "destructive",
               });
             }
@@ -136,15 +143,19 @@ export const DriveJsonUpload = () => {
             );
             if (response.ok) {
               toast({
-                title: "Success",
-                description: "Successfully uploaded app credentials",
+                title: DATA_SOURCE_SUCCESS_MESSAGES.APP_CREDENTIAL.title,
+                description:
+                  DATA_SOURCE_SUCCESS_MESSAGES.APP_CREDENTIAL.description,
                 variant: "success",
               });
             } else {
               const errorMsg = await response.text();
               toast({
-                title: "Error",
-                description: `Failed to upload app credentials - ${errorMsg}`,
+                title: DATA_SOURCE_ERROR_MESSAGES.APP_CREDENTIAL.title,
+                description:
+                  DATA_SOURCE_ERROR_MESSAGES.APP_CREDENTIAL.description(
+                    errorMsg
+                  ),
                 variant: "destructive",
               });
             }
@@ -203,15 +214,24 @@ export const DriveJsonUploadSection = ({
                     "/api/manage/admin/connector/google-drive/service-account-key"
                   );
                   toast({
-                    title: "Success",
-                    description: "Successfully deleted service account key",
+                    title:
+                      DATA_SOURCE_SUCCESS_MESSAGES.DELETE_SERVICE_ACCOUNT_KEY
+                        .title,
+                    description:
+                      DATA_SOURCE_SUCCESS_MESSAGES.DELETE_SERVICE_ACCOUNT_KEY
+                        .description,
                     variant: "success",
                   });
                 } else {
                   const errorMsg = await response.text();
                   toast({
-                    title: "Error",
-                    description: `Failed to delete service account key - ${errorMsg}`,
+                    title:
+                      DATA_SOURCE_ERROR_MESSAGES.DELETE_SERVICE_ACCOUNT_KEY
+                        .title,
+                    description:
+                      DATA_SOURCE_ERROR_MESSAGES.DELETE_SERVICE_ACCOUNT_KEY.description(
+                        errorMsg
+                      ),
                     variant: "destructive",
                   });
                 }
@@ -260,15 +280,21 @@ export const DriveJsonUploadSection = ({
                     "/api/manage/admin/connector/google-drive/app-credential"
                   );
                   toast({
-                    title: "Success",
-                    description: "Successfully deleted app credentials",
+                    title:
+                      DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_DELETION.title,
+                    description:
+                      DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_DELETION
+                        .description,
                     variant: "success",
                   });
                 } else {
                   const errorMsg = await response.text();
                   toast({
-                    title: "Error",
-                    description: `Failed to delete app credential - ${errorMsg}`,
+                    title: DATA_SOURCE_ERROR_MESSAGES.CREDENTIAL_DELETION.title,
+                    description:
+                      DATA_SOURCE_ERROR_MESSAGES.CREDENTIAL_DELETION.description(
+                        errorMsg
+                      ),
                     variant: "destructive",
                   });
                 }
@@ -362,9 +388,9 @@ export const DriveOAuthSection = ({
           onClick={async () => {
             if (connectorExists) {
               toast({
-                title: "Access Revocation Error",
+                title: DATA_SOURCE_ERROR_MESSAGES.ACCESS_REVOKE.title,
                 description:
-                  "Cannot revoke access to Google Drive while any connector is still setup. Please delete all connectors, then try again.",
+                  DATA_SOURCE_ERROR_MESSAGES.ACCESS_REVOKE.description,
                 variant: "destructive",
               });
               return;
@@ -372,8 +398,9 @@ export const DriveOAuthSection = ({
 
             await adminDeleteCredential(existingCredential.id);
             toast({
-              title: "Success",
-              description: "Successfully revoked access to Google Drive!",
+              title: DATA_SOURCE_SUCCESS_MESSAGES.ACCESS_REVOKE.title,
+              description:
+                DATA_SOURCE_SUCCESS_MESSAGES.ACCESS_REVOKE.description,
               variant: "success",
             });
             refreshCredentials();
@@ -401,15 +428,19 @@ export const DriveOAuthSection = ({
 
     if (response.ok) {
       toast({
-        title: "Success",
-        description: "Successfully created service account credential",
+        title: DATA_SOURCE_SUCCESS_MESSAGES.CREATE_SERVICE_ACCOUNT_KEY.title,
+        description:
+          DATA_SOURCE_SUCCESS_MESSAGES.CREATE_SERVICE_ACCOUNT_KEY.description,
         variant: "success",
       });
     } else {
       const errorMsg = await response.text();
       toast({
-        title: "Error",
-        description: `Failed to create service account credential - ${errorMsg}`,
+        title: DATA_SOURCE_ERROR_MESSAGES.CREATE_SERVICE_ACCOUNT_KEY.title,
+        description:
+          DATA_SOURCE_ERROR_MESSAGES.CREATE_SERVICE_ACCOUNT_KEY.description(
+            errorMsg
+          ),
         variant: "destructive",
       });
     }
@@ -473,8 +504,9 @@ export const DriveOAuthSection = ({
             }
 
             toast({
-              title: "Authentication Error",
-              description: errorMsg,
+              title: DATA_SOURCE_ERROR_MESSAGES.AUTHENTICATION.title,
+              description:
+                DATA_SOURCE_ERROR_MESSAGES.AUTHENTICATION.description(errorMsg),
               variant: "destructive",
             });
           }}

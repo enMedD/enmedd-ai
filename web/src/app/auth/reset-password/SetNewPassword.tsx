@@ -21,6 +21,11 @@ import {
 } from "@/components/ui/form";
 import { PasswordRequirements } from "../signup/PasswordRequirements";
 import { InputForm } from "@/components/admin/connectors/Field";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  PASSWORD_ERROR_MESSAGES,
+} from "@/constants/error";
+import { PASSWORD_SUCCESS_MESSAGES } from "@/constants/success";
 
 const formSchema = z
   .object({
@@ -70,9 +75,9 @@ export const SetNewPasswordForms = () => {
   const handleSubmit = async (values: FormValues) => {
     if (!(hasUppercase && hasNumberOrSpecialChar)) {
       toast({
-        title: "Password doesn't meet requirements",
+        title: PASSWORD_ERROR_MESSAGES.REQUIREMENTS.title,
         description:
-          passwordWarning || "Ensure your password meets all the criteria.",
+          PASSWORD_ERROR_MESSAGES.REQUIREMENTS.description(passwordWarning),
         variant: "destructive",
       });
       return;
@@ -90,12 +95,18 @@ export const SetNewPasswordForms = () => {
     });
 
     if (response.status === 200) {
-      toast({ title: "Password reset successful", variant: "success" });
+      toast({
+        title: PASSWORD_SUCCESS_MESSAGES.CHANGE.title,
+        description: PASSWORD_SUCCESS_MESSAGES.CHANGE.description,
+        variant: "success",
+      });
       router.push("/auth/reset-password/success");
     } else {
       toast({
-        title: "Something went wrong",
-        description: `Error: ${response.statusText}`,
+        title: GLOBAL_ERROR_MESSAGES.UNEXPECTED.title,
+        description: GLOBAL_ERROR_MESSAGES.UNEXPECTED.description(
+          response.statusText
+        ),
         variant: "destructive",
       });
     }

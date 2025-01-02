@@ -36,6 +36,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FeatureFlagWrapper } from "@/components/feature_flag/FeatureFlagWrapper";
 import { SidebarMenuItem } from "@/components/ui/sidebar";
+import { CHAT_SESSION_SUCCESS_MESSAGES } from "@/constants/success";
+import { CHAT_SESSION_ERROR_MESSAGES } from "@/constants/error";
 
 export function ChatSessionDisplay({
   chatSession,
@@ -88,14 +90,14 @@ export function ChatSessionDisplay({
       setIsRenamingChat(false);
       router.refresh();
       toast({
-        title: "Chat session renamed",
-        description: "The chat session has been successfully renamed.",
+        title: CHAT_SESSION_SUCCESS_MESSAGES.RENAME.title,
+        description: CHAT_SESSION_SUCCESS_MESSAGES.RENAME.description,
         variant: "success",
       });
     } else {
       toast({
-        title: "Failed to rename chat session",
-        description: "There was an issue renaming the chat session.",
+        title: CHAT_SESSION_ERROR_MESSAGES.RENAME.title,
+        description: CHAT_SESSION_ERROR_MESSAGES.RENAME.description,
         variant: "destructive",
       });
     }
@@ -280,16 +282,20 @@ export function ChatSessionDisplay({
                                 }
 
                                 toast({
-                                  title: "Chat session deleted",
+                                  title:
+                                    CHAT_SESSION_SUCCESS_MESSAGES.DELETE.title,
                                   description:
-                                    "The chat session has been successfully deleted.",
+                                    CHAT_SESSION_SUCCESS_MESSAGES.DELETE
+                                      .description,
                                   variant: "success",
                                 });
                               } else {
                                 toast({
-                                  title: "Failed to delete chat session",
+                                  title:
+                                    CHAT_SESSION_ERROR_MESSAGES.DELETE.title,
                                   description:
-                                    "There was an issue deleting the chat session.",
+                                    CHAT_SESSION_ERROR_MESSAGES.DELETE
+                                      .description,
                                   variant: "destructive",
                                 });
                               }

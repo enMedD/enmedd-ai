@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { InputForm } from "@/components/admin/connectors/Field";
+import { GLOBAL_ERROR_MESSAGES } from "@/constants/error";
 
 const formSchema = z.object({
   email: z
@@ -53,15 +54,18 @@ export const EnterEmail = () => {
         router.push("/auth/forgot-password/success");
       } else {
         toast({
-          title: "Something went wrong",
-          description: `Error: ${response.statusText}`,
+          title: GLOBAL_ERROR_MESSAGES.UNEXPECTED.title,
+          description: GLOBAL_ERROR_MESSAGES.UNEXPECTED.description(
+            response.statusText
+          ),
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.log(error);
       toast({
-        title: "Network Error",
-        description: "Please try again later.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     } finally {

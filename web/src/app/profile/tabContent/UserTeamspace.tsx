@@ -13,6 +13,11 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/success";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  TEAMSPACE_ERROR_MESSAGES,
+} from "@/constants/error";
 
 export default function UserTeamspace() {
   const router = useRouter();
@@ -27,7 +32,7 @@ export default function UserTeamspace() {
     teamspace.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const deleteTeamspace = async (teamspaceId: number) => {
+  const leaveTeamspace = async (teamspaceId: number) => {
     try {
       const response = await fetch(`/api/teamspace/leave/${teamspaceId}`, {
         method: "DELETE",
@@ -41,23 +46,25 @@ export default function UserTeamspace() {
       router.refresh();
       if (response.ok) {
         toast({
-          title: "Teamspace Left",
-          description: "You have successfully left the teamspace.",
+          title: TEAMSPACE_SUCCESS_MESSAGES.LEAVE.title,
+          description: TEAMSPACE_SUCCESS_MESSAGES.LEAVE.description,
           variant: "success",
         });
       } else {
         const errorData = await response.json();
         toast({
-          title: "Failed to leave teamspace",
-          description: `Error: ${errorData.detail}`,
+          title: TEAMSPACE_ERROR_MESSAGES.LEAVE.title,
+          description: TEAMSPACE_ERROR_MESSAGES.LEAVE.description(
+            errorData.details
+          ),
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.log(error);
       toast({
-        title: "An Error Occurred",
-        description:
-          "An unexpected error occurred while leaving the teamspace.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     }
@@ -78,7 +85,7 @@ export default function UserTeamspace() {
           </Button>
           <Button
             onClick={() =>
-              selectedTeamspace && deleteTeamspace(selectedTeamspace.id)
+              selectedTeamspace && leaveTeamspace(selectedTeamspace.id)
             }
           >
             Leave

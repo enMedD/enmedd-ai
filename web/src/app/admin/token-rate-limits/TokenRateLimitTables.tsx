@@ -19,6 +19,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DeleteModal } from "@/components/DeleteModal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { TOKEN_RATE_SUCCESS_MESSAGES } from "@/constants/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
 
 type TokenRateLimitTableArgs = {
   tokenRateLimits: TokenRateLimitDisplay[];
@@ -91,8 +93,10 @@ export const TokenRateLimitTable = ({
 
             if (response.ok) {
               toast({
-                title: "Deletion Success",
-                description: `Token rate "${tokenRateToDelete.group_name}" deletion success.`,
+                title: TOKEN_RATE_SUCCESS_MESSAGES.DELETE.title,
+                description: TOKEN_RATE_SUCCESS_MESSAGES.DELETE.description(
+                  tokenRateToDelete.group_name
+                ),
                 variant: "success",
               });
 
@@ -102,8 +106,12 @@ export const TokenRateLimitTable = ({
             } else {
               const errorMsg = (await response.json()).detail;
               toast({
-                title: "Deletion Failed",
-                description: `Failed to delete token rate - ${errorMsg}`,
+                title: OPERATION_ERROR_MESSAGES.ACTION.title("Deletion"),
+                description: OPERATION_ERROR_MESSAGES.ACTION.description(
+                  "token rate",
+                  "delete",
+                  errorMsg
+                ),
                 variant: "destructive",
               });
             }

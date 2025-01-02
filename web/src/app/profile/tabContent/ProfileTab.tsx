@@ -7,6 +7,11 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  OPERATION_ERROR_MESSAGES,
+} from "@/constants/error";
+import { PROFILE_SUCCESS_MESSAGES } from "@/constants/success";
 
 export default function ProfileTab({ user }: { user: UserTypes | null }) {
   const { toast } = useToast();
@@ -54,8 +59,12 @@ export default function ProfileTab({ user }: { user: UserTypes | null }) {
       if (!updateResponse.ok) {
         const error = await updateResponse.json();
         toast({
-          title: "Update Failed",
-          description: error.detail || "Failed to update profile.",
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "profile",
+            "update",
+            error.detail
+          ),
           variant: "destructive",
         });
         return;
@@ -75,8 +84,12 @@ export default function ProfileTab({ user }: { user: UserTypes | null }) {
           const error = await uploadResponse.json();
 
           toast({
-            title: "Profile Upload Failed",
-            description: error.detail,
+            title: OPERATION_ERROR_MESSAGES.ACTION.title("Profile Upload"),
+            description: OPERATION_ERROR_MESSAGES.ACTION.description(
+              "profile",
+              "upload",
+              error.detail
+            ),
             variant: "destructive",
           });
           return;
@@ -85,15 +98,16 @@ export default function ProfileTab({ user }: { user: UserTypes | null }) {
 
       router.refresh();
       toast({
-        title: "Success",
-        description: "Profile updated successfully.",
+        title: PROFILE_SUCCESS_MESSAGES.UPDATE.title,
+        description: PROFILE_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
       setIsEditing(false);
     } catch (error) {
+      console.log(error);
       toast({
-        title: "Error",
-        description: "An error occurred. Please try again.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     } finally {
@@ -122,15 +136,19 @@ export default function ProfileTab({ user }: { user: UserTypes | null }) {
       router.refresh();
       setProfileImageUrl(null);
       toast({
-        title: "Profile photo removed",
-        description: "Your profile photo has been successfully removed.",
+        title: PROFILE_SUCCESS_MESSAGES.REMOVE_PHOTO.title,
+        description: PROFILE_SUCCESS_MESSAGES.REMOVE_PHOTO.description,
         variant: "success",
       });
     } else {
       const errorMsg = (await response.json()).detail;
       toast({
-        title: "Failed to remove profile photo.",
-        description: errorMsg,
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Removing Photo"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "photo",
+          "remove",
+          errorMsg
+        ),
         variant: "destructive",
       });
     }

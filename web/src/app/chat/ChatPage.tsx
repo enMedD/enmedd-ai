@@ -108,6 +108,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { CHAT_PAGE_ERROR_MESSAGES } from "@/constants/error";
+import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/success";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1024,8 +1026,8 @@ export function ChatPage({
 
     if (currentChatState() != "input") {
       toast({
-        title: "Error",
-        description: "Please wait for the response to complete",
+        title: CHAT_PAGE_ERROR_MESSAGES.CHAT_BLOCKED.title,
+        description: CHAT_PAGE_ERROR_MESSAGES.CHAT_BLOCKED.description,
         variant: "destructive",
       });
 
@@ -1079,9 +1081,8 @@ export function ChatPage({
 
     if (!messageToResend && messageIdToResend !== undefined) {
       toast({
-        title: "Message Resend Failed",
-        description:
-          "Failed to re-send message - please refresh the page and try again.",
+        title: CHAT_PAGE_ERROR_MESSAGES.RESEND.title,
+        description: CHAT_PAGE_ERROR_MESSAGES.RESEND.description,
         variant: "destructive",
       });
       resetRegenerationState(currentSessionId());
@@ -1488,16 +1489,16 @@ export function ChatPage({
 
     if (response.ok) {
       toast({
-        title: "Feedback Submitted",
-        description: "Thank you for sharing your thoughts with us!",
+        title: CHAT_PAGE_SUCCESS_MESSAGES.FEEDBACK.title,
+        description: CHAT_PAGE_SUCCESS_MESSAGES.FEEDBACK.description,
         variant: "success",
       });
     } else {
       const responseJson = await response.json();
       const errorMsg = responseJson.detail || responseJson.message;
       toast({
-        title: "Submission Failed",
-        description: `We're sorry, but we couldn't submit your feedback: ${errorMsg}`,
+        title: CHAT_PAGE_ERROR_MESSAGES.FEEDBACK.title,
+        description: CHAT_PAGE_ERROR_MESSAGES.FEEDBACK.description(errorMsg),
         variant: "destructive",
       });
     }
@@ -1532,9 +1533,8 @@ export function ChatPage({
     );
     if (imageFiles.length > 0 && !llmAcceptsImages) {
       toast({
-        title: "Unsupported Input",
-        description:
-          "The current Assistant does not support image input. Please choose an assistant that has Vision capabilities.",
+        title: CHAT_PAGE_ERROR_MESSAGES.UNSUPPORTED_INPUT.title,
+        description: CHAT_PAGE_ERROR_MESSAGES.UNSUPPORTED_INPUT.description,
         variant: "destructive",
       });
       return;
@@ -1564,8 +1564,9 @@ export function ChatPage({
       if (error) {
         setCurrentMessageFiles((prev) => removeTempFiles(prev));
         toast({
-          title: "Upload Failed",
-          description: `Unable to upload files: ${error}`,
+          title: CHAT_PAGE_ERROR_MESSAGES.UPLOAD_FILE_FOR_CHAT.title,
+          description:
+            CHAT_PAGE_ERROR_MESSAGES.UPLOAD_FILE_FOR_CHAT.description(error),
           variant: "destructive",
         });
       } else {
@@ -2163,9 +2164,13 @@ Only used in the EE version of the app. */}
                                             ? (newQuery) => {
                                                 if (!previousMessage) {
                                                   toast({
-                                                    title: "Edit Error",
+                                                    title:
+                                                      CHAT_PAGE_ERROR_MESSAGES
+                                                        .EDIT_FIRST_QUERY.title,
                                                     description:
-                                                      "Cannot edit query of the first message - please refresh the page and try again.",
+                                                      CHAT_PAGE_ERROR_MESSAGES
+                                                        .EDIT_FIRST_QUERY
+                                                        .description,
                                                     variant: "destructive",
                                                   });
                                                   return;
@@ -2175,9 +2180,14 @@ Only used in the EE version of the app. */}
                                                   null
                                                 ) {
                                                   toast({
-                                                    title: "Pending Message",
+                                                    title:
+                                                      CHAT_PAGE_ERROR_MESSAGES
+                                                        .EDIT_PENDING_QUERY
+                                                        .title,
                                                     description:
-                                                      "Cannot edit query of a pending message - please wait a few seconds and try again.",
+                                                      CHAT_PAGE_ERROR_MESSAGES
+                                                        .EDIT_PENDING_QUERY
+                                                        .description,
                                                     variant: "destructive",
                                                   });
                                                   return;
@@ -2257,9 +2267,12 @@ Only used in the EE version of the app. */}
                                             });
                                           } else {
                                             toast({
-                                              title: "Force Search Error",
+                                              title:
+                                                CHAT_PAGE_ERROR_MESSAGES
+                                                  .FORCE_SEARCH.title,
                                               description:
-                                                "Failed to force search - please refresh the page and try again.",
+                                                CHAT_PAGE_ERROR_MESSAGES
+                                                  .FORCE_SEARCH.description,
                                               variant: "destructive",
                                             });
                                           }

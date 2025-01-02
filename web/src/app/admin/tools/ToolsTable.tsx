@@ -20,6 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useState } from "react";
 import { DeleteModal } from "@/components/DeleteModal";
+import { TOOL_SUCCESS_MESSAGES } from "@/constants/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
 
 export function ToolsTable({
   tools,
@@ -50,8 +52,8 @@ export function ToolsTable({
             const response = await deleteCustomTool(toolToDelete.id);
             if (response.data) {
               toast({
-                title: "Tool Deleted",
-                description: "The custom tool has been successfully deleted.",
+                title: TOOL_SUCCESS_MESSAGES.DELETE.title,
+                description: TOOL_SUCCESS_MESSAGES.DELETE.description,
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
@@ -59,8 +61,12 @@ export function ToolsTable({
               router.refresh();
             } else {
               toast({
-                title: "Deletion Failed",
-                description: `Unable to delete the tool: ${response.error}`,
+                title: OPERATION_ERROR_MESSAGES.ACTION.title("Deletion"),
+                description: OPERATION_ERROR_MESSAGES.ACTION.description(
+                  "tool",
+                  "delete",
+                  response.error
+                ),
                 variant: "destructive",
               });
             }

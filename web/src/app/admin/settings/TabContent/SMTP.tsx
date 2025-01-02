@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/error";
+import { SMTP_SETTINGS_SUCCESS_MESSAGES } from "@/constants/success";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useContext, useState } from "react";
@@ -69,15 +71,19 @@ export function SMTP() {
     setLoading(false);
     if (response.ok) {
       toast({
-        title: "SMTP Settings Updated",
-        description: "The SMTP settings have been successfully updated.",
+        title: SMTP_SETTINGS_SUCCESS_MESSAGES.UPDATE.title,
+        description: SMTP_SETTINGS_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
     } else {
       const errorMsg = (await response.json()).detail;
       toast({
-        title: "Failed to update SMTP settings.",
-        description: errorMsg,
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "SMTP",
+          "update",
+          errorMsg
+        ),
         variant: "destructive",
       });
     }

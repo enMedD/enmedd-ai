@@ -40,6 +40,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { FOLDER_ERROR_MESSAGES } from "@/constants/error";
+import { FOLDER_SUCCESS_MESSAGES } from "@/constants/success";
 
 export const ChatSidebar = ({
   existingChats,
@@ -89,13 +91,21 @@ export const ChatSidebar = ({
         createFolder("New Folder")
           .then((folderId) => {
             console.log(`Folder created with ID: ${folderId}`);
+            toast({
+              title: FOLDER_SUCCESS_MESSAGES.CREATION.title,
+              description:
+                FOLDER_SUCCESS_MESSAGES.CREATION.description(folderId),
+              variant: "success",
+            });
             router.refresh();
           })
           .catch((error) => {
             console.error("Failed to create folder:", error);
             toast({
-              title: "Folder Creation Failed",
-              description: `Unable to create the folder: ${error.message}. Please try again.`,
+              title: FOLDER_ERROR_MESSAGES.CREATION.title,
+              description: FOLDER_ERROR_MESSAGES.CREATION.description(
+                error.message
+              ),
               variant: "destructive",
             });
           });
@@ -240,13 +250,21 @@ export const ChatSidebar = ({
                 createFolder("New Folder", teamspaceId)
                   .then((folderId) => {
                     console.log(`Folder created with ID: ${folderId}`);
+                    toast({
+                      title: FOLDER_SUCCESS_MESSAGES.CREATION.title,
+                      description:
+                        FOLDER_SUCCESS_MESSAGES.CREATION.description(folderId),
+                      variant: "success",
+                    });
                     router.refresh();
                   })
                   .catch((error) => {
                     console.error("Failed to create folder:", error);
                     toast({
-                      title: "Folder Creation Failed",
-                      description: `Unable to create the folder: ${error.message}. Please try again.`,
+                      title: FOLDER_ERROR_MESSAGES.CREATION.title,
+                      description: FOLDER_ERROR_MESSAGES.CREATION.description(
+                        error.message
+                      ),
                       variant: "destructive",
                     });
                   })
