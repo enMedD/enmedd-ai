@@ -126,6 +126,8 @@ def decode_invite_token(token: str, email: str, db_session: Session):
             if not teamspace_id:
                 return "Missing teamspace_id"
             return teamspace_id
+        elif invite_token.emails == ["invite_link"]:
+            return teamspace_id
         else:
             delete_user_by_email(email, db_session)
             return "Invalid token"
