@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timezone
 from typing import Optional
 
+import jwt
 from email_validator import validate_email
 from fastapi import APIRouter
 from fastapi import Body
@@ -45,6 +46,7 @@ from enmedd.auth.users import current_workspace_admin_user
 from enmedd.auth.users import optional_user
 from enmedd.auth.utils import generate_2fa_email
 from enmedd.configs.app_configs import AUTH_TYPE
+from enmedd.configs.app_configs import SECRET_KEY
 from enmedd.configs.app_configs import SESSION_EXPIRE_TIME_SECONDS
 from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
 from enmedd.configs.app_configs import WEB_DOMAIN
@@ -62,6 +64,7 @@ from enmedd.db.models import User__Teamspace
 from enmedd.db.users import change_user_password
 from enmedd.db.users import get_user_by_email
 from enmedd.db.users import list_users
+from enmedd.db.users import update_invite_token_status
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.key_value_store.factory import get_kv_store
 from enmedd.server.feature_flags.models import feature_flag
@@ -165,6 +168,61 @@ async def validate_token_invite(
             )
         )
         db_session.commit()
+
+    return HTTPException(status_code=200, detail="Token is valid from teamspace")
+
+
+@router.post("/users/generate-invite-link")
+async def generate_invite_token_api(
+    teamspace_id: Optional[int] = None,
+    _: User = Depends(current_admin_user_based_on_teamspace_id),
+    db_session: Session = Depends(get_session),
+):
+    token = generate_invite_token(teamspace_id=teamspace_id, db_session=db_session)
+
+    invite_link = f"{WEB_DOMAIN}/join?invitetoken={token}"
+
+    return invite_link
+
+
+@router.post("/users/validate-invite-link")
+async def validate_invite_link(
+    token: str,
+    user: User = Depends(current_user),
+    db_session: Session = Depends(get_session),
+):
+    if not user:
+        # proceed to signup
+        raise HTTPException(status_code=404, detail="User not found")
+
+    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
+    invite_token = db_session.query(InviteToken).filter_by(token=token).first()
+
+    if not invite_token:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    if invite_token.expires_at < datetime.now(timezone.utc):
+        update_invite_token_status(invite_token, db_session)
+        raise HTTPException(status_code=400, detail="Token has expired")
+
+    teamspace_id = payload.get("teamspace_id")
+
+    teamspace = (
+        db_session.query(User__Teamspace)
+        .filter_by(teamspace_id=teamspace_id, user_id=user.id)
+        .first()
+    )
+    if not teamspace:
+        db_session.add(
+            User__Teamspace(
+                teamspace_id=teamspace_id, user_id=user.id, role=UserRole.BASIC
+            )
+        )
+    else:
+        raise HTTPException(status_code=400, detail="User already in teamspace")
+
+    db_session.commit()
 
     return HTTPException(status_code=200, detail="Token is valid from teamspace")
 
