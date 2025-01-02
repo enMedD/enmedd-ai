@@ -20,7 +20,7 @@ class FileDescriptor(TypedDict):
 
     id: str
     type: ChatFileType
-    name: str | None
+    name: str | None = None
 
 
 class InMemoryChatFile(BaseModel):
