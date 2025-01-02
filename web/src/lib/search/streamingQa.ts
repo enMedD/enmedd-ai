@@ -41,6 +41,11 @@ export const searchRequestStreamed = async ({
   let relevantDocuments: EnmeddDocument[] | null = null;
   try {
     const filters = buildFilters(sources, documentSets, timeRange, tags);
+    if (assistant === undefined || !assistant) {
+      throw Error(
+        "No assistant detected: Make sure the search tool is enabled for the selected assistant."
+      );
+    }
 
     const threadMessage = {
       message: query,
