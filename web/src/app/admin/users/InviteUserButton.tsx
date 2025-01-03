@@ -4,6 +4,8 @@ import BulkAdd from "@/components/admin/users/BulkAdd";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -35,16 +37,20 @@ export const InviteUserButton = ({
     }
     setIsModalOpen(false);
     toast({
-      title: "Users Invited",
-      description: "The users have been successfully invited.",
+      title: USERS_SUCCESS_MESSAGES.INVITE.title,
+      description: USERS_SUCCESS_MESSAGES.INVITE.description,
       variant: "success",
     });
   };
   const onFailure = async (res: Response) => {
     const error = (await res.json()).detail;
     toast({
-      title: "Invitation Failed",
-      description: `Unable to invite users: ${error}`,
+      title: OPERATION_ERROR_MESSAGES.ACTION.title("Invitation"),
+      description: OPERATION_ERROR_MESSAGES.ACTION.description(
+        "users",
+        "invite",
+        error
+      ),
       variant: "destructive",
     });
   };

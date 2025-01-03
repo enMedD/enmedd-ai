@@ -13,6 +13,15 @@ import { InputForm } from "@/components/admin/connectors/Field";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { useTeamspace } from "@/lib/hooks";
 import { ErrorCallout } from "@/components/ErrorCallout";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  OPERATION_ERROR_MESSAGES,
+  SETTINGS_LOGO_ERROR_MESSAGES,
+} from "@/constants/toast/error";
+import {
+  LOGO_SUCCESS_MESSAGES,
+  TEAMSPACE_SUCCESS_MESSAGES,
+} from "@/constants/toast/success";
 
 interface GeneralProps {
   teamspaceId: string | string[];
@@ -85,8 +94,12 @@ export default function General({
         const error = await updateResponse.json();
 
         toast({
-          title: "Update Failed",
-          description: error.detail || "Failed to update teamspace.",
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "teamspace",
+            "update",
+            error.detail
+          ),
           variant: "destructive",
         });
         return;
@@ -105,25 +118,30 @@ export default function General({
         if (!uploadResponse.ok) {
           const error = await uploadResponse.json();
           toast({
-            title: "Logo Upload Failed",
-            description: error.detail,
+            title: OPERATION_ERROR_MESSAGES.ACTION.title("Logo Upload"),
+            description: OPERATION_ERROR_MESSAGES.ACTION.description(
+              "logo",
+              "upload",
+              error.detail
+            ),
             variant: "destructive",
           });
           return;
         }
       }
       toast({
-        title: "Success",
-        description: "Teamspace updated successfully.",
+        title: TEAMSPACE_SUCCESS_MESSAGES.UPDATE.title,
+        description: TEAMSPACE_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
       refreshTeamspace();
       router.refresh();
       setIsEditing(false);
     } catch (error) {
+      console.log(error);
       toast({
-        title: "Error",
-        description: "An error occurred. Please try again.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     }
@@ -140,8 +158,8 @@ export default function General({
         setSelectedFile(file);
       } else {
         toast({
-          title: "Invalid file type",
-          description: "Please upload a valid image file.",
+          title: SETTINGS_LOGO_ERROR_MESSAGES.INVALID_TYPE.title,
+          description: SETTINGS_LOGO_ERROR_MESSAGES.INVALID_TYPE.description,
           variant: "destructive",
         });
       }
@@ -165,22 +183,27 @@ export default function General({
         refreshTeamspace();
         router.refresh(); // Refresh to reflect changes
         toast({
-          title: "Success",
-          description: "Logo removed successfully.",
+          title: LOGO_SUCCESS_MESSAGES.TEAMSPACE_LOGO.title,
+          description: LOGO_SUCCESS_MESSAGES.TEAMSPACE_LOGO.description,
           variant: "success",
         });
       } else {
         const error = await response.json();
         toast({
-          title: "Removal Failed",
-          description: error.detail,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Logo Removal"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "logo",
+            "remove",
+            error.detail
+          ),
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.log(error);
       toast({
-        title: "Error",
-        description: "An error occurred. Please try again.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     }

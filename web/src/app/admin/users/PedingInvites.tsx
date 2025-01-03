@@ -23,6 +23,8 @@ import { CustomModal } from "@/components/CustomModal";
 import { useToast } from "@/hooks/use-toast";
 import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { USERS_ERROR_MESSAGES } from "@/constants/toast/error";
 import { CustomPagination } from "./Pagination";
 
 const RemoveUserButton = ({
@@ -106,8 +108,8 @@ export const PendingInvites = ({
 
   const onRemovalSuccess = () => {
     toast({
-      title: "User Removed Successfully",
-      description: "The invited user has been removed from your list",
+      title: USERS_SUCCESS_MESSAGES.REMOVE_INVITED.title,
+      description: USERS_SUCCESS_MESSAGES.REMOVE_INVITED.description,
       variant: "success",
     });
     mutate();
@@ -116,9 +118,8 @@ export const PendingInvites = ({
 
   const onRemovalError = () => {
     toast({
-      title: "Failed to Remove User",
-      description:
-        "We encountered an issue while attempting to remove the invited user. Please try again or contact support if the problem persists",
+      title: USERS_ERROR_MESSAGES.REMOVE_INVITED.title,
+      description: USERS_ERROR_MESSAGES.REMOVE_INVITED.description,
       variant: "destructive",
     });
     setIsCancelModalVisible(false);

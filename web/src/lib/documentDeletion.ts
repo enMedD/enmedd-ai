@@ -1,6 +1,12 @@
 import { PopupSpec } from "@/components/admin/connectors/Popup";
 import { DeletionAttemptSnapshot } from "./types";
 import { toast } from "@/hooks/use-toast";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import {
+  DATA_SOURCE_ERROR_MESSAGES,
+  GLOBAL_ERROR_MESSAGES,
+  OPERATION_ERROR_MESSAGES,
+} from "@/constants/toast/error";
 
 export async function scheduleDeletionJobForConnector(
   connectorId: number,
@@ -36,15 +42,16 @@ export async function deleteCCPair(
   );
   if (deletionScheduleError) {
     toast({
-      title: "Error",
-      description:
-        "Failed to schedule deletion of connector - " + deletionScheduleError,
+      title: DATA_SOURCE_ERROR_MESSAGES.SCHEDULED_REMOVE.title,
+      description: DATA_SOURCE_ERROR_MESSAGES.SCHEDULED_REMOVE.description(
+        deletionScheduleError
+      ),
       variant: "destructive",
     });
   } else {
     toast({
-      title: "Success",
-      description: "Scheduled deletion of connector!",
+      title: DATA_SOURCE_SUCCESS_MESSAGES.SCHEDULED_REMOVE.title,
+      description: DATA_SOURCE_SUCCESS_MESSAGES.SCHEDULED_REMOVE.description,
       variant: "success",
     });
   }
@@ -80,22 +87,27 @@ export const removeCCPair = async (
 
     if (response.ok) {
       toast({
-        title: "Success",
-        description: "Connector removed successfully!",
+        title: DATA_SOURCE_SUCCESS_MESSAGES.DELETE.title,
+        description: DATA_SOURCE_SUCCESS_MESSAGES.DELETE.description,
         variant: "success",
       });
     } else {
       const errorData = await response.json();
       toast({
-        title: "Error",
-        description: `Failed to remove connector - ${errorData.detail}`,
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Connector Removal"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "connector",
+          "removing",
+          errorData.detail
+        ),
         variant: "destructive",
       });
     }
   } catch (error) {
+    console.log(error);
     toast({
-      title: "Error",
-      description: "An error occurred while removing the connector.",
+      title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+      description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
       variant: "destructive",
     });
   }

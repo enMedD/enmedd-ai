@@ -31,6 +31,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InviteUserButton } from "@/app/admin/users/InviteUserButton";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  TEAMSPACE_MEMBER_ERROR_MESSAGES,
+} from "@/constants/toast/error";
+import { TEAMSPACE_MEMBER_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface MemberContentProps {
   isGlobal?: boolean;
@@ -106,8 +111,11 @@ const MemberContent = ({
         }),
       });
       toast({
-        title: "Success",
-        description: `Role updated to ${newRole}`,
+        title: TEAMSPACE_MEMBER_SUCCESS_MESSAGES.CHANGE_ROLE.title,
+        description: TEAMSPACE_MEMBER_SUCCESS_MESSAGES.CHANGE_ROLE.description(
+          userEmail,
+          newRole
+        ),
         variant: "success",
       });
       refreshTeamspaceUsers();
@@ -115,8 +123,9 @@ const MemberContent = ({
     } catch (error) {
       console.error("Failed to update role", error);
       toast({
-        title: "Error",
-        description: "Failed to update user role",
+        title: TEAMSPACE_MEMBER_ERROR_MESSAGES.CHANGE_ROLE.title,
+        description:
+          TEAMSPACE_MEMBER_ERROR_MESSAGES.CHANGE_ROLE.description(userEmail),
         variant: "destructive",
       });
     }
@@ -285,9 +294,8 @@ export const TeamspaceMember = ({
       selectedUsers.includes(remainingAdmins[0].email)
     ) {
       toast({
-        title: "Action Forbidden",
-        description:
-          "At least one admin must remain in the teamspace. You cannot remove the last admin.",
+        title: TEAMSPACE_MEMBER_ERROR_MESSAGES.NO_ADMIN.title,
+        description: TEAMSPACE_MEMBER_ERROR_MESSAGES.NO_ADMIN.description,
         variant: "destructive",
       });
       return;
@@ -311,9 +319,9 @@ export const TeamspaceMember = ({
       }
 
       toast({
-        title: "User Removed",
+        title: TEAMSPACE_MEMBER_SUCCESS_MESSAGES.REMOVE.title,
         description:
-          "The user has been successfully removed from the teamspace.",
+          TEAMSPACE_MEMBER_SUCCESS_MESSAGES.REMOVE.description(selectedUsers),
         variant: "success",
       });
       refreshUsers();
@@ -323,15 +331,20 @@ export const TeamspaceMember = ({
       router.refresh();
     } catch (error) {
       if (error instanceof Error) {
+        console.log(error);
         toast({
-          title: "Error",
-          description: `Failed to remove the user: ${error.message}`,
+          title: TEAMSPACE_MEMBER_ERROR_MESSAGES.REMOVE.title,
+          description: TEAMSPACE_MEMBER_ERROR_MESSAGES.REMOVE.description(
+            selectedUsers,
+            error.message
+          ),
           variant: "destructive",
         });
       } else {
+        console.log(error);
         toast({
-          title: "Error",
-          description: "An unknown error occurred while removing the user.",
+          title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+          description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
           variant: "destructive",
         });
       }
@@ -352,8 +365,9 @@ export const TeamspaceMember = ({
       if (!response.ok) throw new Error("Failed to add users");
 
       toast({
-        title: "Success",
-        description: "Users added successfully",
+        title: TEAMSPACE_MEMBER_SUCCESS_MESSAGES.ADD.title,
+        description:
+          TEAMSPACE_MEMBER_SUCCESS_MESSAGES.ADD.description(selectedUsers),
         variant: "success",
       });
       refreshUsers();
@@ -364,8 +378,9 @@ export const TeamspaceMember = ({
     } catch (error) {
       console.error(error);
       toast({
-        title: "Error",
-        description: "Failed to add users",
+        title: TEAMSPACE_MEMBER_ERROR_MESSAGES.ADD.title,
+        description:
+          TEAMSPACE_MEMBER_ERROR_MESSAGES.ADD.description(selectedUsers),
         variant: "destructive",
       });
     }

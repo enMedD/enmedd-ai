@@ -20,6 +20,10 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InputForm } from "@/components/admin/connectors/Field";
+import {
+  LOGIN_ERROR_MESSAGES,
+  RECAPTCHA_MISSING,
+} from "@/constants/toast/error";
 
 export function LogInForms({}: {}) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -51,8 +55,8 @@ export function LogInForms({}: {}) {
     const captchaValue = recaptchaRef.current?.getValue();
     if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
       toast({
-        title: "ReCAPTCHA Missing",
-        description: "Please complete the ReCAPTCHA to proceed.",
+        title: RECAPTCHA_MISSING.title,
+        description: RECAPTCHA_MISSING.description,
         variant: "destructive",
       });
       return;
@@ -79,8 +83,8 @@ export function LogInForms({}: {}) {
       }
     } catch (err) {
       toast({
-        title: "Login Failed",
-        description: "An unexpected error occurred",
+        title: LOGIN_ERROR_MESSAGES.LOGIN_FAILED.title,
+        description: LOGIN_ERROR_MESSAGES.LOGIN_FAILED.description,
         variant: "destructive",
       });
     } finally {
@@ -101,20 +105,21 @@ export function LogInForms({}: {}) {
           }
 
           toast({
-            title: "Login Failed",
+            title: LOGIN_ERROR_MESSAGES.LOGIN_FAILED.title,
             description: `Failed to login - ${errorMsg}`,
             variant: "destructive",
           });
         })
         .catch(() => {
           toast({
-            title: "Login Failed",
-            description: "An unexpected error occurred",
+            title: LOGIN_ERROR_MESSAGES.LOGIN_FAILED.title,
+            description: LOGIN_ERROR_MESSAGES.LOGIN_FAILED.description,
             variant: "destructive",
           });
         });
     }
   }
+
   return (
     <>
       {isLoading && <Spinner />}

@@ -11,6 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { CheckboxForm, InputForm } from "@/components/admin/connectors/Field";
 import { useEffect } from "react";
+import { API_KEY_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { API_KEY_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface EnmeddApiKeyFormProps {
   onClose: () => void;
@@ -72,10 +74,9 @@ export const EnmeddApiKeyForm = ({
       if (response.ok) {
         const result = await response.json();
         toast({
-          title: "Success",
-          description: isUpdate
-            ? "API key updated successfully!"
-            : "API key created successfully!",
+          title: API_KEY_SUCCESS_MESSAGES.UPDATE_CREATE.title(isUpdate),
+          description:
+            API_KEY_SUCCESS_MESSAGES.UPDATE_CREATE.description(isUpdate),
           variant: "success",
         });
         if (!isUpdate) {
@@ -86,14 +87,22 @@ export const EnmeddApiKeyForm = ({
       } else {
         const error = await response.json();
         const errorMessage = error.detail || error.message || "Unknown error";
-        throw new Error(errorMessage);
+        toast({
+          title: API_KEY_ERROR_MESSAGES.UPDATE_CREATE.title(isUpdate),
+          description: API_KEY_ERROR_MESSAGES.UPDATE_CREATE.description(
+            isUpdate,
+            errorMessage
+          ),
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: `Failed to ${
-          isUpdate ? "update" : "create"
-        } API key: ${error.message}`,
+        title: API_KEY_ERROR_MESSAGES.UPDATE_CREATE.title(isUpdate),
+        description: API_KEY_ERROR_MESSAGES.UPDATE_CREATE.description(
+          isUpdate,
+          error.message
+        ),
         variant: "destructive",
       });
     }

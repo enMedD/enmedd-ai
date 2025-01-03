@@ -129,7 +129,7 @@ export function HelperButton() {
       <DropdownMenu>
         <DropdownMenuTrigger
           asChild
-          className="w-full flex items-center justify-center my-2"
+          className="w-full flex items-center justify-center my-2 cursor-pointer"
         >
           <CircleHelp size={24} />
         </DropdownMenuTrigger>

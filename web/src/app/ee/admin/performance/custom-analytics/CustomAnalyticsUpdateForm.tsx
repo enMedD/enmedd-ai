@@ -2,6 +2,8 @@
 
 import { Label, SubLabel } from "@/components/admin/connectors/Field";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
+import { CUSTOM_ANALYTICS_ERROR_MESSAGES } from "@/constants/toast/error";
+import { CUSTOM_ANALYTICS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import { useToast } from "@/hooks/use-toast";
 import { Button, Callout, Text } from "@tremor/react";
 import { useContext, useState } from "react";
@@ -41,16 +43,16 @@ export function CustomAnalyticsUpdateForm() {
           );
           if (response.ok) {
             toast({
-              title: "Update Successful",
-              description:
-                "Custom analytics script has been updated successfully",
+              title: CUSTOM_ANALYTICS_SUCCESS_MESSAGES.UPDATE.title,
+              description: CUSTOM_ANALYTICS_SUCCESS_MESSAGES.UPDATE.description,
               variant: "success",
             });
           } else {
             const errorMsg = (await response.json()).detail;
             toast({
-              title: "Update Failed",
-              description: `Unable to update the custom analytics script: "${errorMsg}". Please try again.`,
+              title: CUSTOM_ANALYTICS_ERROR_MESSAGES.UPDATE.title,
+              description:
+                CUSTOM_ANALYTICS_ERROR_MESSAGES.UPDATE.description(errorMsg),
               variant: "destructive",
             });
           }
