@@ -35,6 +35,11 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
 import { InviteUserButton } from "./InviteUserButton";
 import { DeactivaterButton } from "@/components/DeactivaterButton";
+import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  OPERATION_ERROR_MESSAGES,
+} from "@/constants/toast/error";
 import { CustomPagination } from "./Pagination";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
@@ -132,15 +137,19 @@ export const AllUsers = ({
       onSuccess: () => {
         refreshUsers();
         toast({
-          title: "User Promotion Successful",
-          description: "The user has been successfully promoted to admin.",
+          title: USERS_SUCCESS_MESSAGES.PROMOTION.title,
+          description: USERS_SUCCESS_MESSAGES.PROMOTION.description,
           variant: "success",
         });
       },
       onError: (errorMsg) => {
         toast({
-          title: "Promotion Failed",
-          description: `Failed to promote the user: ${errorMsg}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Promotion"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "user",
+            "promote",
+            errorMsg
+          ),
           variant: "destructive",
         });
       },
@@ -156,16 +165,19 @@ export const AllUsers = ({
       onSuccess: () => {
         refreshUsers();
         toast({
-          title: "Demotion Successful",
-          description:
-            "The user has been successfully demoted to a basic user.",
+          title: USERS_SUCCESS_MESSAGES.DEMOTION.title,
+          description: USERS_SUCCESS_MESSAGES.DEMOTION.description,
           variant: "success",
         });
       },
       onError: (errorMsg) => {
         toast({
-          title: "Demotion Failed",
-          description: `Unable to demote the user: ${errorMsg}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Demotion"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "user",
+            "demote",
+            errorMsg
+          ),
           variant: "destructive",
         });
       },
@@ -195,22 +207,26 @@ export const AllUsers = ({
       refreshUsers();
       setIsDeleteModalOpen(false);
       toast({
-        title: "User Removed",
-        description:
-          "The user has been successfully removed from the teamspace.",
+        title: USERS_SUCCESS_MESSAGES.REMOVE.title,
+        description: USERS_SUCCESS_MESSAGES.REMOVE.description,
         variant: "success",
       });
     } catch (error) {
       if (error instanceof Error) {
         toast({
-          title: "Error",
-          description: `Failed to remove the user: ${error.message}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Remove"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "user",
+            "remove",
+            error.message
+          ),
           variant: "destructive",
         });
       } else {
+        console.log(error);
         toast({
-          title: "Error",
-          description: "An unknown error occurred while removing the user.",
+          title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+          description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
           variant: "destructive",
         });
       }

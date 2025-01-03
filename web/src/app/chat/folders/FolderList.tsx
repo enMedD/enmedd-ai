@@ -30,6 +30,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { FOLDER_ERROR_MESSAGES } from "@/constants/toast/error";
+import { FOLDER_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const FolderItem = ({
   folder,
@@ -101,8 +103,8 @@ const FolderItem = ({
       router.refresh(); // Refresh values to update the sidebar
     } catch (error) {
       toast({
-        title: "Folder Name Update Failed",
-        description: "Unable to save the folder name. Please try again.",
+        title: FOLDER_ERROR_MESSAGES.UPDATE_FOLDER_NAME.title,
+        description: FOLDER_ERROR_MESSAGES.UPDATE_FOLDER_NAME.description,
         variant: "destructive",
       });
     }
@@ -123,16 +125,15 @@ const FolderItem = ({
       router.refresh();
 
       toast({
-        title: "Folder Deleted",
-        description: "The folder has been successfully deleted.",
+        title: FOLDER_SUCCESS_MESSAGES.FOLDER_DELETE.title,
+        description: FOLDER_SUCCESS_MESSAGES.FOLDER_DELETE.description,
         variant: "success",
       });
     } catch (error) {
       setShowDeleteConfirm(false);
       toast({
-        title: "Chat Session Addition Failed",
-        description:
-          "Unable to add the chat session to the folder. Please try again.",
+        title: FOLDER_ERROR_MESSAGES.FOLDER_DELETE.title,
+        description: FOLDER_ERROR_MESSAGES.FOLDER_DELETE.description,
         variant: "destructive",
       });
     }
@@ -146,12 +147,21 @@ const FolderItem = ({
     const chatSessionId = event.dataTransfer.getData(CHAT_SESSION_ID_KEY);
     try {
       await addChatToFolder(folder.folder_id, chatSessionId);
+      toast({
+        title: FOLDER_SUCCESS_MESSAGES.DROP_FOLDER.title,
+        description: FOLDER_SUCCESS_MESSAGES.DROP_FOLDER.description(
+          folder.folder_name
+        ),
+        variant: "success",
+      });
       refreshChatSessions(teamspaceId);
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to add chat session to folder",
+        title: FOLDER_ERROR_MESSAGES.DROP_FOLDER.title,
+        description: FOLDER_ERROR_MESSAGES.DROP_FOLDER.description(
+          folder.folder_name
+        ),
         variant: "destructive",
       });
     }

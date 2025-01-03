@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { CustomModal } from "@/components/CustomModal";
 import { BookstackIcon } from "@/components/icons/icons";
 import { useToast } from "@/hooks/use-toast";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/toast/error";
+import { PROMPT_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export const PromptSection = ({
   promptLibrary,
@@ -46,14 +48,19 @@ export const PromptSection = ({
     if (!response.ok) {
       const errorMsg = await response.text();
       toast({
-        title: "Input Prompt Creation Failed",
-        description: `Error: ${errorMsg}`,
+        title: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.title(),
+        description: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.description(errorMsg),
         variant: "destructive",
       });
       throw new Error(errorMsg);
     }
 
     refreshPrompts();
+    toast({
+      title: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.title(),
+      description: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.description(),
+      variant: "destructive",
+    });
     return response.json();
   };
 
@@ -73,8 +80,11 @@ export const PromptSection = ({
       if (!response.ok) {
         const errorMsg = await response.text();
         toast({
-          title: "Prompt Update Failed",
-          description: `Error: ${errorMsg}`,
+          title: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.title(true),
+          description: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.description(
+            errorMsg,
+            true
+          ),
           variant: "destructive",
         });
         return;
@@ -82,10 +92,16 @@ export const PromptSection = ({
 
       setNewPromptId(null);
       refreshPrompts();
+
+      toast({
+        title: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.title(true),
+        description: PROMPT_SUCCESS_MESSAGES.UPDATE_CREATE.description(true),
+        variant: "destructive",
+      });
     } catch (err) {
       toast({
-        title: "Update Error",
-        description: `Failed to update prompt: ${err}`,
+        title: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.title(true),
+        description: PROMPT_ERROR_MESSAGES.UPDATE_CREATE.description(err, true),
         variant: "destructive",
       });
     }

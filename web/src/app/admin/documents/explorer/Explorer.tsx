@@ -18,9 +18,10 @@ import { DocumentSet } from "@/lib/types";
 import { SourceIcon } from "@/components/SourceIcon";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Connector } from "@/lib/connectors/connectors";
+import { DOCUMENT_EXPLORER_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_EXPLORER_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const DocumentDisplay = ({
   document,
@@ -74,16 +75,22 @@ const DocumentDisplay = ({
             );
             if (response.ok) {
               toast({
-                title: "Status Updated",
-                description: `Document is now ${newHiddenStatus ? "Hidden" : "Visible"}.`,
+                title: DOCUMENT_EXPLORER_SUCCESS_MESSAGES.UPDATE.title,
+                description:
+                  DOCUMENT_EXPLORER_SUCCESS_MESSAGES.UPDATE.description(
+                    newHiddenStatus
+                  ),
                 variant: "success",
               });
 
               refresh();
             } else {
               toast({
-                title: "Update Failed",
-                description: `Unable to update document status - ${getErrorMsg(response)}`,
+                title: DOCUMENT_EXPLORER_ERROR_MESSAGES.UPDATE.title,
+                description:
+                  DOCUMENT_EXPLORER_ERROR_MESSAGES.UPDATE.description(
+                    getErrorMsg(response)
+                  ),
                 variant: "destructive",
               });
             }

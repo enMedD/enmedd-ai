@@ -1,7 +1,6 @@
 import { CSS } from "@dnd-kit/utilities";
 
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { AssistantTools } from "@/app/assistants/ToolsDisplay";
 import { Bubble } from "@/components/Bubble";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { getDisplayNameForModel } from "@/lib/hooks";
@@ -10,6 +9,7 @@ import React, { useState } from "react";
 import { FiBookmark } from "react-icons/fi";
 import { MdDragIndicator } from "react-icons/md";
 import { Badge } from "../ui/badge";
+import { AssistantTools } from "./AssistantTools";
 
 export const AssistantCard = ({
   assistant,

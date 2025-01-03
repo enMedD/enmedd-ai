@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { TOOL_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function DeleteToolButton({
   toolId,
@@ -27,14 +29,18 @@ export function DeleteToolButton({
               : `/admin/tools?u=${Date.now()}`
           );
           toast({
-            title: "Tool deleted",
-            description: "The tool has been successfully deleted.",
+            title: TOOL_SUCCESS_MESSAGES.DELETE.title,
+            description: TOOL_SUCCESS_MESSAGES.DELETE.description,
             variant: "success",
           });
         } else {
           toast({
-            title: "Failed to delete tool",
-            description: `Error details: ${response.error}`,
+            title: OPERATION_ERROR_MESSAGES.ACTION.title("Deletion"),
+            description: OPERATION_ERROR_MESSAGES.ACTION.description(
+              "tool",
+              "delete",
+              response.error
+            ),
             variant: "destructive",
           });
         }

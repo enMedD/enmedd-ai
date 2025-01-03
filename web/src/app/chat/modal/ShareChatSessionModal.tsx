@@ -7,6 +7,8 @@ import Link from "next/link";
 import { CustomModal } from "@/components/CustomModal";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { useToast } from "@/hooks/use-toast";
+import { SHARE_CHAT_SESSION_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { SHARE_CHAT_SESSION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 function buildShareLink(chatSessionId: number) {
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
@@ -128,15 +130,18 @@ export function ShareChatSessionModal({
                   setShareLink("");
                   onShare && onShare(false);
                   toast({
-                    title: "Share link deleted",
+                    title:
+                      SHARE_CHAT_SESSION_SUCCESS_MESSAGES.DELETE_LINK.title,
                     description:
-                      "The share link has been successfully deleted.",
+                      SHARE_CHAT_SESSION_SUCCESS_MESSAGES.DELETE_LINK
+                        .description,
                     variant: "success",
                   });
                 } else {
                   toast({
-                    title: "Failed to delete share link",
-                    description: "There was an issue deleting the share link.",
+                    title: SHARE_CHAT_SESSION_ERROR_MESSAGES.DELETE_LINK.title,
+                    description:
+                      SHARE_CHAT_SESSION_ERROR_MESSAGES.DELETE_LINK.description,
                     variant: "destructive",
                   });
                 }
@@ -175,9 +180,11 @@ export function ShareChatSessionModal({
                   const shareLink = await generateShareLink(chatSessionId);
                   if (!shareLink) {
                     toast({
-                      title: "Failed to generate share link",
+                      title:
+                        SHARE_CHAT_SESSION_ERROR_MESSAGES.GENERATE_LINK.title,
                       description:
-                        "There was an issue generating the share link.",
+                        SHARE_CHAT_SESSION_ERROR_MESSAGES.GENERATE_LINK
+                          .description,
                       variant: "destructive",
                     });
                   } else {
@@ -185,18 +192,20 @@ export function ShareChatSessionModal({
                     onShare && onShare(true);
                     navigator.clipboard.writeText(shareLink);
                     toast({
-                      title: "Share link generated and copied",
+                      title:
+                        SHARE_CHAT_SESSION_SUCCESS_MESSAGES.GENERATE_LINK.title,
                       description:
-                        "The share link has been successfully copied to the clipboard.",
+                        SHARE_CHAT_SESSION_SUCCESS_MESSAGES.GENERATE_LINK
+                          .description,
                       variant: "success",
                     });
                   }
                 } catch (e) {
                   console.error(e);
                   toast({
-                    title: "Error",
+                    title: SHARE_CHAT_SESSION_ERROR_MESSAGES.UNEXPECTED.title,
                     description:
-                      "An unexpected error occurred while generating the share link.",
+                      SHARE_CHAT_SESSION_ERROR_MESSAGES.UNEXPECTED.description,
                     variant: "destructive",
                   });
                 }

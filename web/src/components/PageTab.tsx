@@ -17,6 +17,8 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "./ui/sidebar";
+import { FOLDER_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { FOLDER_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function PageTab({
   existingChats,
@@ -59,13 +61,17 @@ export function PageTab({
     if (folderId && refreshChatSessions) {
       try {
         await removeChatFromFolder(parseInt(folderId, 10), chatSessionId);
+        toast({
+          title: FOLDER_SUCCESS_MESSAGES.REMOVE.title,
+          description: FOLDER_SUCCESS_MESSAGES.REMOVE.description,
+          variant: "success",
+        });
         refreshChatSessions(teamspaceId);
         router.refresh();
       } catch (error) {
         toast({
-          title: "Removal Failed",
-          description:
-            "Unable to remove the chat from the folder. Please try again.",
+          title: FOLDER_ERROR_MESSAGES.REMOVE.title,
+          description: FOLDER_ERROR_MESSAGES.REMOVE.description,
           variant: "destructive",
         });
       }

@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface TeamspaceDocumentSetProps {
   teamspace: Teamspace & { gradient: string };
@@ -159,8 +161,12 @@ export const TeamspaceDocumentSet = ({
 
       if (!response.ok) {
         toast({
-          title: "Update Failed",
-          description: `Unable to update document sets: ${responseJson.detail || "Unknown error."}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "document sets",
+            "update",
+            responseJson.detail || "Unknown error."
+          ),
           variant: "destructive",
         });
         return;
@@ -169,16 +175,20 @@ export const TeamspaceDocumentSet = ({
       setCurrentDocumentSets(tempCurrentDocumentSets);
       setGlobalDocumentSets(tempGlobalDocumentSets);
       toast({
-        title: "Document Sets Updated",
+        title: TEAMSPACE_SUCCESS_MESSAGES.UPDATE_TYPE.title("Document Sets"),
         description:
-          "Document Sets have been successfully updated in the teamspace.",
+          TEAMSPACE_SUCCESS_MESSAGES.UPDATE_TYPE.description("Document Sets"),
         variant: "success",
       });
       refreshTeamspaces();
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description: "An error occurred while updating document sets.",
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "document sets",
+          "update",
+          error || "Unknown error."
+        ),
         variant: "destructive",
       });
     }

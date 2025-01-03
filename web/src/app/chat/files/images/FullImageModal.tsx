@@ -22,7 +22,7 @@ export function FullImageModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-background-inverted bg-opacity-80 z-50" />
+        <Dialog.Overlay className="fixed inset-0 bg-background-inverted bg-opacity-80 z-modal" />
         <Dialog.Content
           className={`fixed 
             inset-0 
@@ -30,7 +30,7 @@ export function FullImageModal({
             items-center 
             justify-center
             p-4 
-            z-masked
+            z-modal
             max-w-screen-lg 
             h-fit 
             top-1/2 
@@ -41,7 +41,7 @@ export function FullImageModal({
           <img
             src={buildImgUrl(fileId)}
             alt="Uploaded image"
-            className="max-w-full max-h-full"
+            className="max-w-full max-h-full rounded-md"
           />
         </Dialog.Content>
       </Dialog.Portal>

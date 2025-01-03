@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Settings } from "../interfaces";
+import { SETTINGS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
 
 function CheckboxComponent({
   label,
@@ -148,8 +150,8 @@ export default function Configuration() {
 
       router.refresh();
       toast({
-        title: "Settings Updated",
-        description: "Your settings have been successfully updated!",
+        title: SETTINGS_SUCCESS_MESSAGES.UPDATE.title,
+        description: SETTINGS_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
     } catch (error) {
@@ -157,8 +159,12 @@ export default function Configuration() {
       setSettings(settings);
       console.error("Error updating settings:", error);
       toast({
-        title: "Update Failed",
-        description: `Unable to update settings. Reason: ${error}`,
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "settings",
+          "update",
+          error
+        ),
         variant: "destructive",
       });
     }

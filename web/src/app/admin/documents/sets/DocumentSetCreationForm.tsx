@@ -14,6 +14,8 @@ import {
   ComboboxForm,
   InputForm,
 } from "@/components/admin/connectors/Field";
+import { DOCUMENT_SET_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_SET_ERROR_MESSAGES } from "@/constants/toast/error";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -121,10 +123,9 @@ export const DocumentSetCreationForm = ({
 
     if (response.ok) {
       toast({
-        title: isUpdate ? "Document Set Updated" : "New Document Set Created",
-        description: isUpdate
-          ? "Your document set has been updated successfully."
-          : "Your new document set has been created successfully.",
+        title: DOCUMENT_SET_SUCCESS_MESSAGES.UPDATE_CREATE.title(isUpdate),
+        description:
+          DOCUMENT_SET_SUCCESS_MESSAGES.UPDATE_CREATE.description(isUpdate),
         variant: "success",
       });
       onClose();
@@ -132,10 +133,11 @@ export const DocumentSetCreationForm = ({
     } else {
       const errorMsg = await response.text();
       toast({
-        title: "Action Failed",
-        description: isUpdate
-          ? `Failed to update document set: ${errorMsg}`
-          : `Failed to create document set: ${errorMsg}`,
+        title: DOCUMENT_SET_ERROR_MESSAGES.UPDATE_CREATE.title,
+        description: DOCUMENT_SET_ERROR_MESSAGES.UPDATE_CREATE.description(
+          isUpdate,
+          errorMsg
+        ),
         variant: "destructive",
       });
     }

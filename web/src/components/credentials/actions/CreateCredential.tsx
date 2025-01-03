@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ValidSources } from "@/lib/types";
 import { FaAccusoft } from "react-icons/fa";
-import { submitCredential } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { Form, Formik, FormikHelpers } from "formik";
 import { getSourceDocLink } from "@/lib/sources";
@@ -9,6 +8,7 @@ import GDriveMain from "@/app/admin/connectors/[connector]/pages/gdrive/GoogleDr
 import { Connector } from "@/lib/connectors/connectors";
 import {
   Credential,
+  CredentialBase,
   credentialTemplates,
   getDisplayNameForCredentialKey,
 } from "@/lib/connectors/credentials";
@@ -28,6 +28,34 @@ import { useUser } from "@/components/user/UserProvider";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { createCredential } from "@/lib/credential";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { GLOBAL_ERROR_MESSAGES } from "@/constants/toast/error";
+
+export async function submitCredential<T>(
+  credential: CredentialBase<T>
+): Promise<{
+  credential?: Credential<any>;
+  message: string;
+  isSuccess: boolean;
+}> {
+  let isSuccess = false;
+  try {
+    const response = await createCredential(credential);
+
+    if (response.ok) {
+      const parsed_response = await response.json();
+      const credential = parsed_response.credential;
+      isSuccess = true;
+      return { credential, message: "Success!", isSuccess: true };
+    } else {
+      const errorData = await response.json();
+      return { message: `Error: ${errorData.detail}`, isSuccess: false };
+    }
+  } catch (error) {
+    return { message: `Error: ${error}`, isSuccess: false };
+  }
+}
 
 const CreateButton = ({
   onClick,
@@ -135,16 +163,23 @@ export default function CreateCredential({
           onSwap(credential, swapConnector.id);
         } else {
           toast({
-            title: "Success",
-            description: "Created new credential!",
+            title: DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_CREATE.title,
+            description:
+              DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_CREATE.description(
+                credential.name
+              ),
             variant: "success",
           });
         }
         onClose();
       } else {
         toast({
-          title: isSuccess ? "Success" : "Error",
-          description: message,
+          title:
+            DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_OPERATION.title(isSuccess),
+          description:
+            DATA_SOURCE_SUCCESS_MESSAGES.CREDENTIAL_OPERATION.description(
+              message
+            ),
           variant: isSuccess ? "success" : "destructive",
         });
       }
@@ -160,8 +195,8 @@ export default function CreateCredential({
     } catch (error) {
       console.error("Error submitting credential:", error);
       toast({
-        title: "Error",
-        description: "Error submitting credential",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     } finally {

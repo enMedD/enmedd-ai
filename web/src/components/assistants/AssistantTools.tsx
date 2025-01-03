@@ -1,6 +1,6 @@
 import { FiImage, FiSearch } from "react-icons/fi";
-import { Assistant } from "../admin/assistants/interfaces";
 import { Badge } from "@/components/ui/badge";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 export function AssistantTools({
   assistant,
