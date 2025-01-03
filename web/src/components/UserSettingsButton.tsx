@@ -32,6 +32,7 @@ import { useParams, useRouter } from "next/navigation";
 import { LOGOUT_DISABLED } from "@/lib/constants";
 import { FeatureFlagWrapper } from "./feature_flag/FeatureFlagWrapper";
 import { UserProfile } from "./UserProfile";
+import { LOGOUT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
   const router = useRouter();
@@ -49,8 +50,8 @@ export function UserSettingsButton({ defaultPage }: { defaultPage?: string }) {
     logout().then((isSuccess) => {
       if (!isSuccess) {
         toast({
-          title: "Logout Failed",
-          description: "There was an issue logging out. Please try again.",
+          title: LOGOUT_ERROR_MESSAGES.FAILED.title,
+          description: LOGOUT_ERROR_MESSAGES.FAILED.description,
           variant: "destructive",
         });
       }

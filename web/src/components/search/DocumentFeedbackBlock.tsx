@@ -9,6 +9,8 @@ import {
 } from "../icons/icons";
 import { useToast } from "@/hooks/use-toast";
 import { CustomTooltip } from "../CustomTooltip";
+import { CHAT_PAGE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { CHAT_PAGE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 type DocumentFeedbackType = "endorse" | "reject" | "hide" | "unhide";
 
@@ -84,14 +86,15 @@ const DocumentFeedback = ({
         );
         if (!errorMsg) {
           toast({
-            title: "Feedback Submitted",
-            description: "Thanks for your feedback!",
+            title: CHAT_PAGE_SUCCESS_MESSAGES.FEEDBACK.title,
+            description: CHAT_PAGE_SUCCESS_MESSAGES.FEEDBACK.description,
             variant: "success",
           });
         } else {
           toast({
-            title: "Feedback Error",
-            description: `Error giving feedback - ${errorMsg}`,
+            title: CHAT_PAGE_ERROR_MESSAGES.FEEDBACK.title,
+            description:
+              CHAT_PAGE_ERROR_MESSAGES.FEEDBACK.description(errorMsg),
             variant: "destructive",
           });
         }

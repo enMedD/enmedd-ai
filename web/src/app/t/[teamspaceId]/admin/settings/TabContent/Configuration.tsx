@@ -18,6 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { SETTINGS_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import {
+  OPERATION_ERROR_MESSAGES,
+  SETTINGS_ERROR_MESSAGES,
+} from "@/constants/toast/error";
 
 function CheckboxComponent({
   label,
@@ -127,8 +132,12 @@ export default function Configuration() {
       } catch (error) {
         console.error("Error fetching settings:", error);
         toast({
-          title: "Error",
-          description: `Error fetching settings: ${error}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Fetching"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "setting",
+            "fetch",
+            error
+          ),
           variant: "destructive",
         });
       }
@@ -149,9 +158,8 @@ export default function Configuration() {
           (fieldName === "chat_page_enabled" && !searchPageEnabled))
       ) {
         toast({
-          title: "Error",
-          description:
-            "You cannot disable both Chat and Search page visibility.",
+          title: SETTINGS_ERROR_MESSAGES.DISABLED.title,
+          description: SETTINGS_ERROR_MESSAGES.DISABLED.description,
           variant: "destructive",
         });
         return;
@@ -184,9 +192,8 @@ export default function Configuration() {
 
     if (defaultPage === "chat" && !chatPageEnabled) {
       toast({
-        title: "Error",
-        description:
-          "The default page cannot be 'chat' if the chat page is disabled.",
+        title: SETTINGS_ERROR_MESSAGES.DEFAULT_PAGE.title,
+        description: SETTINGS_ERROR_MESSAGES.DEFAULT_PAGE.description("chat"),
         variant: "destructive",
       });
       return;
@@ -194,9 +201,8 @@ export default function Configuration() {
 
     if (defaultPage === "search" && !searchPageEnabled) {
       toast({
-        title: "Error",
-        description:
-          "The default page cannot be 'search' if the search page is disabled.",
+        title: SETTINGS_ERROR_MESSAGES.DEFAULT_PAGE.title,
+        description: SETTINGS_ERROR_MESSAGES.DEFAULT_PAGE.description("search"),
         variant: "destructive",
       });
       return;
@@ -228,14 +234,14 @@ export default function Configuration() {
 
       const result = await response.json();
       toast({
-        title: "Success",
-        description: "Settings updated successfully!",
+        title: SETTINGS_SUCCESS_MESSAGES.UPDATE.title,
+        description: SETTINGS_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update settings.",
+        title: SETTINGS_ERROR_MESSAGES.UPDATE.title,
+        description: SETTINGS_ERROR_MESSAGES.UPDATE.description,
         variant: "destructive",
       });
     }

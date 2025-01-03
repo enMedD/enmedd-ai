@@ -50,6 +50,8 @@ import { FullLLMProvider } from "../configuration/llm/interfaces";
 import { IsPublicGroupSelector2 } from "@/components/IsPublicGroupSelector";
 import { LlmList } from "@/components/llm/LLMList";
 import { useAssistants } from "@/context/AssistantsContext";
+import { ASSISTANT_ERROR_MESSAGES } from "@/constants/toast/error";
+import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const formSchema = z.object({
   name: z.string().min(1, "Must provide a name for the Assistant"),
@@ -338,8 +340,8 @@ export function AssistantEditor({
   const onSubmit = async (values: FormValues) => {
     if (finalPromptError) {
       toast({
-        title: "Submission Blocked",
-        description: "Please resolve the errors in the form before submitting.",
+        title: ASSISTANT_ERROR_MESSAGES.SUBMISSION_BLOCKED.title,
+        description: ASSISTANT_ERROR_MESSAGES.SUBMISSION_BLOCKED.description,
         variant: "destructive",
       });
       return;
@@ -350,9 +352,9 @@ export function AssistantEditor({
       !values.llm_model_version_override
     ) {
       toast({
-        title: "Model Selection Required",
+        title: ASSISTANT_ERROR_MESSAGES.MODEL_SELECTION_REQUIRED.title,
         description:
-          "Please select a model when choosing a non-default LLM provider.",
+          ASSISTANT_ERROR_MESSAGES.MODEL_SELECTION_REQUIRED.description,
         variant: "destructive",
       });
       return;
@@ -362,8 +364,11 @@ export function AssistantEditor({
       const assistantNameExists = await checkAssistantNameExists(values.name);
       if (assistantNameExists) {
         toast({
-          title: "Assistant Name Taken",
-          description: `"${values.name}" is already taken. Please choose a different name.`,
+          title: ASSISTANT_ERROR_MESSAGES.ASSISTANT_NAME_TAKEN.title,
+          description:
+            ASSISTANT_ERROR_MESSAGES.ASSISTANT_NAME_TAKEN.description(
+              values.name
+            ),
           variant: "destructive",
         });
         return;
@@ -431,8 +436,10 @@ export function AssistantEditor({
 
       if (assistantResponse?.ok) {
         toast({
-          title: "Assistant Updated",
-          description: `"${values.name}" has been successfully updated.`,
+          title: ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_UPDATED.title,
+          description: ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_UPDATED.description(
+            values.name
+          ),
           variant: "success",
         });
       }
@@ -466,8 +473,9 @@ export function AssistantEditor({
 
     if (error || !assistantResponse) {
       toast({
-        title: "Assistant Creation Failed",
-        description: `Failed to create Assistant - ${error}`,
+        title: ASSISTANT_ERROR_MESSAGES.ASSISTANT_CREATION_FAILED.title,
+        description:
+          ASSISTANT_ERROR_MESSAGES.ASSISTANT_CREATION_FAILED.description(error),
         variant: "destructive",
       });
     } else {
@@ -481,8 +489,10 @@ export function AssistantEditor({
         const success = await addAssistantToList(assistantId);
         if (success) {
           toast({
-            title: "Assistant Added",
-            description: `"${assistant.name}" has been added to your list.`,
+            title: ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_ADDED.title,
+            description: ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_ADDED.description(
+              assistant.name
+            ),
             variant: "success",
           });
           localStorage.removeItem("assistantFormData");
@@ -492,8 +502,11 @@ export function AssistantEditor({
           router.refresh();
         } else {
           toast({
-            title: "Failed to Add Assistant",
-            description: `"${assistant.name}" could not be added to your list.`,
+            title: ASSISTANT_ERROR_MESSAGES.ASSISTANT_ADD_FAILED.title,
+            description:
+              ASSISTANT_ERROR_MESSAGES.ASSISTANT_ADD_FAILED.description(
+                assistant.name
+              ),
             variant: "destructive",
           });
         }

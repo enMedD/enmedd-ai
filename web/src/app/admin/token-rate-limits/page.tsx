@@ -17,6 +17,8 @@ import { Globe, Shield, User, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "@/components/CustomModal";
 import { Button } from "@/components/ui/button";
+import { OPERATION_ERROR_MESSAGES } from "@/constants/toast/error";
+import { TOKEN_RATE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 const BASE_URL = "/api/admin/token-rate-limits";
 const GLOBAL_TOKEN_FETCH_URL = `${BASE_URL}/global`;
@@ -93,9 +95,8 @@ function Main() {
       .then(() => {
         setModalIsOpen(false);
         toast({
-          title: "Token Rate Limit Created",
-          description:
-            "The token rate limit has been successfully established.",
+          title: TOKEN_RATE_SUCCESS_MESSAGES.CREATE.title,
+          description: TOKEN_RATE_SUCCESS_MESSAGES.CREATE.description,
           variant: "success",
         });
         updateTable(target_scope);
@@ -103,8 +104,12 @@ function Main() {
       })
       .catch((error) => {
         toast({
-          title: "Creation Failed",
-          description: `Unable to create token rate limit: ${error.message}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Creation"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "token rate",
+            "create",
+            error.message
+          ),
           variant: "destructive",
         });
       });

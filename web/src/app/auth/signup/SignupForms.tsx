@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { basicLogin, basicSignup, validateInvite } from "@/lib/user";
 import { generateOtp } from "@/lib/user";
@@ -25,6 +25,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { InputForm } from "@/components/admin/connectors/Field";
+import {
+  PASSWORD_ERROR_MESSAGES,
+  RECAPTCHA_MISSING,
+  SIGNUP_ERROR_MESSAGES,
+} from "@/constants/toast/error";
 
 export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -83,8 +88,8 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     const captchaValue = recaptchaRef.current?.getValue();
     if (!captchaValue && NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
       toast({
-        title: "ReCAPTCHA Missing",
-        description: "Please complete the ReCAPTCHA to proceed.",
+        title: RECAPTCHA_MISSING.title,
+        description: RECAPTCHA_MISSING.description,
         variant: "destructive",
       });
       return;
@@ -95,8 +100,9 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
     ) {
       setPasswordFocused(true);
       toast({
-        title: "Password doesn't meet requirements",
-        description: "Ensure your password meets all the criteria.",
+        title: PASSWORD_ERROR_MESSAGES.REQUIREMENTS.title,
+        description:
+          PASSWORD_ERROR_MESSAGES.REQUIREMENTS.description(passwordWarning),
         variant: "destructive",
       });
       return;
@@ -122,8 +128,8 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
       }
 
       toast({
-        title: "Sign Up Failed",
-        description: `Failed to sign up - ${errorMsg}`,
+        title: SIGNUP_ERROR_MESSAGES.SIGNUP_FAILED.title,
+        description: SIGNUP_ERROR_MESSAGES.SIGNUP_FAILED.description(errorMsg),
         variant: "destructive",
       });
 
@@ -138,8 +144,8 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
         const validateToken = await validateInvite(values.email, token);
         if (!validateToken.ok) {
           toast({
-            title: "Invalid Invite Token",
-            description: "The invite token is invalid.",
+            title: SIGNUP_ERROR_MESSAGES.INVALID_INVITE_TOKEN.title,
+            description: SIGNUP_ERROR_MESSAGES.INVALID_INVITE_TOKEN.description,
             variant: "destructive",
           });
           setIsLoading(false);
@@ -153,8 +159,9 @@ export function SignupForms({ shouldVerify }: { shouldVerify?: boolean }) {
           router.push(`/auth/2factorverification/?email=${values.email}`);
         } else {
           toast({
-            title: "Failed to generate OTP",
-            description: "An unexpected error occurred",
+            title: SIGNUP_ERROR_MESSAGES.OTP_GENERATION_FAILED.title,
+            description:
+              SIGNUP_ERROR_MESSAGES.OTP_GENERATION_FAILED.description,
             variant: "destructive",
           });
         }

@@ -16,6 +16,8 @@ import ModToolbarPlaceholder from "./ToolbarPlaceholder";
 import { updateEmailTemplate } from "@/lib/email_templates";
 import { toast } from "@/hooks/use-toast";
 import { DeleteModal } from "@/components/DeleteModal";
+import { MAIL_ERROR_MESSAGES } from "@/constants/toast/error";
+import { MAIL_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface MailTemplateModalProps {
   title?: string;
@@ -88,8 +90,8 @@ export default function MailTemplateModal(props: Props) {
     if (templateData) {
       if (subject === "" || htmlData === "") {
         toast({
-          title: "Email Template Value Error",
-          description: "Email subject and body must contain any value",
+          title: MAIL_ERROR_MESSAGES.TEMPLATE_VALUE.title,
+          description: MAIL_ERROR_MESSAGES.TEMPLATE_VALUE.description,
           variant: "destructive",
         });
         return;
@@ -108,14 +110,16 @@ export default function MailTemplateModal(props: Props) {
       if (response.status == 200) {
         onUpdate && onUpdate();
         toast({
-          title: "Email Template Update",
-          description: "Successfuly updated email template!",
+          title: MAIL_SUCCESS_MESSAGES.TEMPLATE_UPDATE.title,
+          description: MAIL_SUCCESS_MESSAGES.TEMPLATE_UPDATE.description,
           variant: "success",
         });
       } else {
         toast({
-          title: "Email Template Update",
-          description: `Error occured in updating email (status-code=${response.status})`,
+          title: MAIL_ERROR_MESSAGES.TEMPLATE_UPDATE.title,
+          description: MAIL_ERROR_MESSAGES.TEMPLATE_UPDATE.description(
+            response.status
+          ),
           variant: "destructive",
         });
       }

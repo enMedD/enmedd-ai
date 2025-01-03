@@ -25,6 +25,11 @@ import {
 } from "@/components/ui/form";
 import { createTeamspace } from "./lib";
 import { ComboboxForm, InputForm } from "@/components/admin/connectors/Field";
+import {
+  TEAMSPACE_ASSISTANT_ERROR_MESSAGES,
+  TEAMSPACE_CREATION_ERROR_MESSAGES,
+} from "@/constants/toast/error";
+import { TEAMSPACE_CREATION_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -132,8 +137,8 @@ export const TeamspaceCreationForm = ({
   const onSubmit = async (values: FormValues) => {
     if (values.users.length === 0) {
       toast({
-        title: "Operation Failed",
-        description: "Please select at least one user with a role",
+        title: TEAMSPACE_CREATION_ERROR_MESSAGES.TITLE,
+        description: TEAMSPACE_CREATION_ERROR_MESSAGES.NO_USER.description,
         variant: "destructive",
       });
       return;
@@ -144,8 +149,8 @@ export const TeamspaceCreationForm = ({
     );
     if (!hasAdmin) {
       toast({
-        title: "Teamspace Creation Failed",
-        description: "Please include at least one admin in the users list",
+        title: TEAMSPACE_CREATION_ERROR_MESSAGES.TITLE,
+        description: TEAMSPACE_CREATION_ERROR_MESSAGES.NO_ADMIN.description,
         variant: "destructive",
       });
       return;
@@ -153,8 +158,9 @@ export const TeamspaceCreationForm = ({
 
     if (values.assistant_ids.length === 0) {
       toast({
-        title: "Operation Failed",
-        description: "Please select an assistant",
+        title: TEAMSPACE_CREATION_ERROR_MESSAGES.TITLE,
+        description:
+          TEAMSPACE_ASSISTANT_ERROR_MESSAGES.NO_ASSISTANT.description,
         variant: "destructive",
       });
       return;
@@ -178,10 +184,12 @@ export const TeamspaceCreationForm = ({
 
         router.refresh();
         toast({
-          title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
-          description: isUpdate
-            ? "Your teamspace has been updated successfully."
-            : "Your new teamspace has been created successfully.",
+          title:
+            TEAMSPACE_CREATION_SUCCESS_MESSAGES.UPDATE_CREATE.title(isUpdate),
+          description:
+            TEAMSPACE_CREATION_SUCCESS_MESSAGES.UPDATE_CREATE.description(
+              isUpdate
+            ),
           variant: "success",
         });
 
@@ -191,10 +199,12 @@ export const TeamspaceCreationForm = ({
         const responseJson = await response.json();
         const errorMsg = responseJson.detail || responseJson.message;
         toast({
-          title: "Operation Failed",
-          description: isUpdate
-            ? `Could not update the teamspace: ${errorMsg}`
-            : `Could not create the teamspace: ${errorMsg}`,
+          title: TEAMSPACE_CREATION_ERROR_MESSAGES.TITLE,
+          description:
+            TEAMSPACE_CREATION_ERROR_MESSAGES.UPDATE_CREATE.description(
+              isUpdate,
+              errorMsg
+            ),
           variant: "destructive",
         });
       }
