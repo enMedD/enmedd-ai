@@ -28,6 +28,13 @@ import { useGradient } from "@/hooks/useGradient";
 import { useUserTeamspaces } from "@/lib/hooks";
 import { Skeleton } from "../ui/skeleton";
 import { HelperButton } from "../HelperButton";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "../ui/context-menu";
+import { TeamspaceInvite } from "@/app/ee/admin/teams/TeamspaceInvite";
 
 export function GlobalSidebar({
   user,
@@ -40,6 +47,7 @@ export function GlobalSidebar({
   isProfile?: boolean;
 }) {
   const { teamspaceId } = useParams();
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -128,7 +136,7 @@ export function GlobalSidebar({
                         <SidebarMenuButton
                           tooltip={{
                             children: teamspace.name,
-                            hidden: false,
+                            hidden: isContextMenuOpen,
                           }}
                           className={`!p-0 w-11 h-11 rounded-full ${
                             Number(teamspaceId) === teamspace.id
@@ -137,37 +145,56 @@ export function GlobalSidebar({
                           }`}
                           isActive={teamspace.id.toString() === teamspaceId}
                         >
-                          <Link
-                            href={`/t/${teamspace.id}/${defaultPage}`}
-                            className="w-full h-full flex items-center justify-center"
+                          <ContextMenu
+                            onOpenChange={(open) => setIsContextMenuOpen(open)}
+                            modal={false}
                           >
-                            {teamspace.logo ? (
-                              <img
-                                src={buildImgUrl(teamspace.logo)}
-                                alt="Teamspace Logo"
-                                className={`object-cover shrink-0 ${
-                                  Number(teamspaceId) === teamspace.id
-                                    ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full"
-                                    : "w-full h-full"
-                                }`}
-                                width={40}
-                                height={40}
-                              />
-                            ) : (
-                              <div
-                                style={{
-                                  background: useGradient(teamspace.name),
-                                }}
-                                className={`font-bold text-inverted text-lg shrink-0 bg-brand-500 flex justify-center items-center uppercase ${
-                                  Number(teamspaceId) === teamspace.id
-                                    ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full"
-                                    : "w-full h-full"
-                                }`}
+                            <ContextMenuTrigger className="w-full h-full">
+                              <Link
+                                href={`/t/${teamspace.id}/${defaultPage}`}
+                                className="w-full h-full flex items-center justify-center"
                               >
-                                {teamspace.name.charAt(0)}
-                              </div>
-                            )}
-                          </Link>
+                                {teamspace.logo ? (
+                                  <img
+                                    src={buildImgUrl(teamspace.logo)}
+                                    alt="Teamspace Logo"
+                                    className={`object-cover shrink-0 ${
+                                      Number(teamspaceId) === teamspace.id
+                                        ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full"
+                                        : "w-full h-full"
+                                    }`}
+                                    width={40}
+                                    height={40}
+                                  />
+                                ) : (
+                                  <div
+                                    style={{
+                                      background: useGradient(teamspace.name),
+                                    }}
+                                    className={`font-bold text-inverted text-lg shrink-0 bg-brand-500 flex justify-center items-center uppercase ${
+                                      Number(teamspaceId) === teamspace.id
+                                        ? "h-[calc(100%_-_6px)] w-[calc(100%_-_6px)] rounded-full"
+                                        : "w-full h-full"
+                                    }`}
+                                  >
+                                    {teamspace.name.charAt(0)}
+                                  </div>
+                                )}
+                              </Link>
+                            </ContextMenuTrigger>
+                            <ContextMenuContent>
+                              <ContextMenuItem asChild className="p-0">
+                                <div className="w-full h-full cursor-pointer">
+                                  <TeamspaceInvite
+                                    teamspaceId={teamspace.id}
+                                    contextMenu
+                                  >
+                                    Invite People
+                                  </TeamspaceInvite>
+                                </div>
+                              </ContextMenuItem>
+                            </ContextMenuContent>
+                          </ContextMenu>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}

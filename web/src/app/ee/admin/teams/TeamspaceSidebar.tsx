@@ -6,7 +6,7 @@ import { useGradient } from "@/hooks/useGradient";
 import { SidebarContent } from "@/components/ui/sidebar";
 import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { Check, Pen, Shield, X } from "lucide-react";
+import { Check, Pen, Plus, Shield, UserRoundPlus, X } from "lucide-react";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { buildImgUrl } from "@/app/chat/files/images/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
 import { TeamspaceDataSource } from "./TeamspaceDataSource";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { TeamspaceInvite } from "./TeamspaceInvite";
 import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import { TEAMSPACE_ERROR_MESSAGES } from "@/constants/toast/error";
 
@@ -368,6 +369,14 @@ export const TeamspaceSidebar = ({
                 refreshTeamspaces={refreshTeamspaces}
               />
             </div>
+          </div>
+
+          <div className="mt-auto p-6">
+            <TeamspaceInvite teamspaceId={selectedTeamspace.id}>
+              <Button className="w-full">
+                <Plus size={16} /> Invite People
+              </Button>
+            </TeamspaceInvite>
           </div>
         </>
       )}
