@@ -59,7 +59,12 @@ const AddUserFormRenderer = ({
         <div className="text-error text-sm">{errors.emails}</div>
       )}
       <div className="flex justify-end gap-2 mt-4">
-        <Button variant="ghost" type="button" onClick={onClose}>
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>

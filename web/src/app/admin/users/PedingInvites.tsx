@@ -25,6 +25,7 @@ import useSWRMutation from "swr/mutation";
 import userMutationFetcher from "@/lib/admin/users/userMutationFetcher";
 import { USERS_SUCCESS_MESSAGES } from "@/constants/toast/success";
 import { USERS_ERROR_MESSAGES } from "@/constants/toast/error";
+import { CustomPagination } from "./Pagination";
 
 const RemoveUserButton = ({
   user,
@@ -56,25 +57,25 @@ const RemoveUserButton = ({
 
 export const PendingInvites = ({
   teamspaceId,
+  isLoadingDomains,
 }: {
   teamspaceId?: string | string[];
+  isLoadingDomains: boolean;
 }) => {
   const { toast } = useToast();
+  const [q, setQ] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const { data, isLoading, mutate, error } = useSWR<UsersResponse>(
     teamspaceId
-      ? `/api/manage/users?q=${encodeURI("")}&accepted_page=0&invited_page=0&teamspace_id=${teamspaceId}`
-      : `/api/manage/users?q=${encodeURI("")}&accepted_page=0&invited_page=0`,
+      ? `/api/manage/users?q=${q}&accepted_page=0&invited_page=0&teamspace_id=${teamspaceId}`
+      : `/api/manage/users?q=${q}&accepted_page=0&invited_page=0`,
     errorHandlingFetcher
   );
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (error || !data) {
+  if (error) {
     return (
       <ErrorCallout
         errorTitle="Error loading users"
@@ -83,15 +84,27 @@ export const PendingInvites = ({
     );
   }
 
-  const { accepted, invited } = data;
+  if (isLoadingDomains) {
+    return <Loading />;
+  }
 
-  const finalInvited = invited.filter(
-    (user) => !accepted.map((u) => u.email).includes(user.email)
+  const finalInvited = data?.invited.filter(
+    (user) => !data.accepted.map((u) => u.email).includes(user.email)
   );
 
-  const filteredUsers = finalInvited.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = finalInvited?.filter((user) =>
+    user.email.toLowerCase().includes(q.toLowerCase())
   );
+
+  const totalPages = Math.ceil((filteredUsers?.length || 0) / usersPerPage);
+  const displayedUsers = filteredUsers?.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const onRemovalSuccess = () => {
     toast({
@@ -149,14 +162,17 @@ export const PendingInvites = ({
           <p className="text-sm mt-2">Invitations awaiting a response.</p>
         </div>
 
-        {finalInvited.length > 0 ? (
-          <div className="flex-1 space-y-4 overflow-x-auto p-1">
-            <Input
-              placeholder="Search user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {filteredUsers.length > 0 ? (
+        <div className="flex-1 space-y-4 overflow-x-auto p-1">
+          <Input
+            placeholder="Search user..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+
+          {isLoading ? (
+            <Loading />
+          ) : displayedUsers && displayedUsers.length > 0 ? (
+            <div>
               <Card className="mt-4">
                 <CardContent className="p-0">
                   <Table>
@@ -167,7 +183,7 @@ export const PendingInvites = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.map((user) => (
+                      {displayedUsers.map((user) => (
                         <TableRow key={user.id}>
                           <TableCell>
                             <div className="flex items-center gap-4">
@@ -198,13 +214,23 @@ export const PendingInvites = ({
                   </Table>
                 </CardContent>
               </Card>
-            ) : (
-              <p>No user found.</p>
-            )}
-          </div>
-        ) : (
-          <p>No invited user.</p>
-        )}
+
+              {filteredUsers && filteredUsers.length > 10 && (
+                <div className="flex justify-center mt-4">
+                  <CustomPagination
+                    totalItems={filteredUsers?.length || 0}
+                    itemsPerPage={usersPerPage}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </div>
+          ) : filteredUsers && filteredUsers.length === 0 && q !== "" ? (
+            <p>No user found.</p>
+          ) : filteredUsers && filteredUsers.length === 0 ? (
+            <p>No invited user.</p>
+          ) : null}
+        </div>
       </div>
     </>
   );
