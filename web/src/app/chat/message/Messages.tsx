@@ -395,7 +395,7 @@ export const AIMessage = ({
             )}
         </div>
 
-        <div className="pl-1.5 md:pl-14 break-words w-full">
+        <div className="pl-1.5 md:pl-14 break-words w-full pt-4">
           {!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME ? (
             <>
               {query !== undefined &&
