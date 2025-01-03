@@ -1,4 +1,5 @@
 import { CustomModal } from "@/components/CustomModal";
+import { Loading } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -80,8 +81,8 @@ export const TeamspaceInvite = ({
         Share this link to others to grant access to this teamspace
       </Label>
       {loading ? (
-        <p className="text-sm h-12 flex items-center">
-          Generating invite link...
+        <p className="text-sm h-12 flex items-center gap-2">
+          Generating invite link <Loading />
         </p>
       ) : inviteLink ? (
         <div className="p-1 bg-background-subtle rounded-md flex items-center justify-between gap-2">
