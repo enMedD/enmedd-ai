@@ -222,6 +222,7 @@ def list_assistants(
     assistant_ids: list[int] = Query(None),
     teamspace_id: Optional[int] = None,
     filter_assistants: bool = False,
+    is_public: bool = False,
 ) -> list[AssistantSnapshot]:
     assistants = get_assistants(
         user=user,
@@ -230,6 +231,7 @@ def list_assistants(
         db_session=db_session,
         get_editable=False,
         joinedload_all=True,
+        is_public=is_public,
     )
 
     if assistant_ids:

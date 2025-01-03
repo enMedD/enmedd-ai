@@ -249,6 +249,7 @@ def get_assistants(
     include_default: bool = True,
     include_deleted: bool = False,
     joinedload_all: bool = False,
+    is_public: bool = False,
 ) -> Sequence[Assistant]:
     stmt = select(Assistant).distinct()
     stmt = _add_user_filters(stmt=stmt, user=user, get_editable=get_editable)
@@ -257,6 +258,8 @@ def get_assistants(
         stmt = stmt.join(Assistant__Teamspace).where(
             Assistant__Teamspace.teamspace_id == teamspace_id
         )
+    elif is_public:
+        stmt = stmt.where(Assistant.is_public.is_(True))
 
     if not include_default:
         stmt = stmt.where(Assistant.builtin_assistant.is_(False))

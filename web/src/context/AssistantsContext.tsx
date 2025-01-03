@@ -39,7 +39,7 @@ export const AssistantsProvider: React.FC<{
 
   const refreshAssistants = async () => {
     try {
-      const response = await fetch("/api/assistant", {
+      const response = await fetch("/api/assistant?is_public=true", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
