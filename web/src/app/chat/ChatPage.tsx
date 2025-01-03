@@ -251,7 +251,8 @@ export function ChatPage({
   const liveAssistant =
     alternativeAssistant ||
     selectedAssistant ||
-    finalAssistants[0] ||
+    // Set the general as default assistant
+    finalAssistants.find((assistant) => assistant.display_priority === 0) ||
     availableAssistants[0];
 
   const noAssistants = liveAssistant == null || liveAssistant == undefined;
