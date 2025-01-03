@@ -16,7 +16,6 @@ export default function Page() {
         </div>
 
         <InstanceBranding />
-
         <SMTP />
       </div>
     </div>
