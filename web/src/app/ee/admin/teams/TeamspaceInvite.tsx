@@ -41,12 +41,6 @@ export const TeamspaceInvite = ({
 
       const data = await response.json();
       setInviteLink(data);
-
-      // toast({
-      //   title: "Invite Link Generated",
-      //   description: "The invite link has been successfully generated.",
-      //   variant: "success",
-      // });
     } catch (err: any) {
       toast({
         title: "Invite Link Generation Failed",
