@@ -73,7 +73,7 @@ export const AssistantsProvider: React.FC<{
 
   useEffect(() => {
     fetchAssistants();
-  }, []);
+  }, [teamspaceId]);
 
   const refreshAssistants = async () => {
     try {
