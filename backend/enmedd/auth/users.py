@@ -161,21 +161,27 @@ def verify_email_domain(email: str) -> None:
     whitelisted_domains = set()
 
     # retrieve only the email domains that are not common (gmail, etc.)
-    for mails in registered_mails:
-        logger.debug(f"mails: {mails}")
-        if mails.count("@") == 1:
-            registered_domain = mails.split("@")[-1]
-            if registered_domain not in CONSIDERED_COMMON_SMTP_DOMAINS:
-                whitelisted_domains.add(registered_domain)
-
-    if domain not in whitelisted_domains:
-        if verify_email_is_invited(email):
-            return
-
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="The email domain provided is not allowed to sign up (not invited)",
+    if (
+        FeatureFlagsManager.is_feature_enabled(
+            feature="company_email_only", default=True
         )
+        is True
+    ):
+        for mails in registered_mails:
+            logger.debug(f"mails: {mails}")
+            if mails.count("@") == 1:
+                registered_domain = mails.split("@")[-1]
+                if registered_domain not in CONSIDERED_COMMON_SMTP_DOMAINS:
+                    whitelisted_domains.add(registered_domain)
+
+        if domain not in whitelisted_domains:
+            if verify_email_is_invited(email):
+                return
+
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="The email domain provided is not allowed to sign up (not invited)",
+            )
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):

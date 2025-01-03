@@ -39,6 +39,8 @@ class FeatureFlagsManager:
     def is_feature_enabled(feature: str, default: bool = False) -> bool:
         try:
             features = FeatureFlagsManager._reload_features()
+            if feature not in features:
+                FeatureFlagsManager.store_feature(feature, default)
             return not not features.get(feature)
         except TypeError:
             return default
