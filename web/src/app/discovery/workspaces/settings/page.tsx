@@ -1,3 +1,6 @@
+import InstanceBranding from "./InstanceBranding";
+import { SMTP } from "./SMTP";
+
 export default function Page() {
   return (
     <div className="h-full w-full overflow-y-auto">
@@ -12,9 +15,9 @@ export default function Page() {
           </p>
         </div>
 
-        <h2 className="font-bold text-lg md:text-xl">General Information</h2>
+        <InstanceBranding />
 
-        <div></div>
+        <SMTP />
       </div>
     </div>
   );
