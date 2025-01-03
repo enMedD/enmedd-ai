@@ -28,6 +28,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { CustomModal } from "@/components/CustomModal";
+import { EMBEDDING_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { EMBEDDING_ERROR_MESSAGES } from "@/constants/toast/error";
 
 export default function EmbeddingForm() {
   const { toast } = useToast();
@@ -184,16 +186,17 @@ export default function EmbeddingForm() {
     const response = await updateSearchSettings(values);
     if (response.ok) {
       toast({
-        title: "Success",
-        description: "Updated search settings successfully",
+        title: EMBEDDING_SUCCESS_MESSAGES.UPDATE_SEARCH_SETTING.title,
+        description:
+          EMBEDDING_SUCCESS_MESSAGES.UPDATE_SEARCH_SETTING.description,
         variant: "success",
       });
       mutate("/api/search-settings/get-current-search-settings");
       return true;
     } else {
       toast({
-        title: "Error",
-        description: "Failed to update search settings",
+        title: EMBEDDING_ERROR_MESSAGES.UPDATE_SEARCH_SETTING.title,
+        description: EMBEDDING_ERROR_MESSAGES.UPDATE_SEARCH_SETTING.description,
         variant: "destructive",
       });
       return false;
@@ -244,9 +247,8 @@ export default function EmbeddingForm() {
 
     if (response.ok) {
       toast({
-        title: "Provider Change Successful",
-        description:
-          "You have successfully changed the provider. Redirecting to the embedding page...",
+        title: EMBEDDING_SUCCESS_MESSAGES.CHANGE_PROVIDER.title,
+        description: EMBEDDING_SUCCESS_MESSAGES.CHANGE_PROVIDER.description,
         variant: "success",
       });
       mutate("/api/search-settings/get-secondary-search-settings");
@@ -256,8 +258,9 @@ export default function EmbeddingForm() {
     } else {
       const errorMsg = await response.text();
       toast({
-        title: "Update Failed",
-        description: `Could not update the embedding model: ${errorMsg}`,
+        title: EMBEDDING_ERROR_MESSAGES.CHANGE_PROVIDER.title,
+        description:
+          EMBEDDING_ERROR_MESSAGES.CHANGE_PROVIDER.description(errorMsg),
         variant: "destructive",
       });
     }

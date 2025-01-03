@@ -31,6 +31,8 @@ import { deleteDocumentSet } from "@/app/admin/documents/sets/lib";
 import { DeleteModal } from "@/components/DeleteModal";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Loading } from "@/components/Loading";
+import { DOCUMENT_SET_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DOCUMENT_SET_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const numToDisplay = 50;
 
@@ -149,8 +151,10 @@ const DocumentSetTable = ({
             );
             if (response.ok) {
               toast({
-                title: "Deletion Scheduled",
-                description: `Document set "${documentSetToDelete.name}" scheduled for deletion.`,
+                title: DOCUMENT_SET_SUCCESS_MESSAGES.DELETION.title,
+                description: DOCUMENT_SET_SUCCESS_MESSAGES.DELETION.description(
+                  documentSetToDelete.name
+                ),
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
@@ -158,8 +162,9 @@ const DocumentSetTable = ({
             } else {
               const errorMsg = (await response.json()).detail;
               toast({
-                title: "Deletion Failed",
-                description: `Failed to schedule document set for deletion - ${errorMsg}`,
+                title: DOCUMENT_SET_ERROR_MESSAGES.DELETION.title,
+                description:
+                  DOCUMENT_SET_ERROR_MESSAGES.DELETION.description(errorMsg),
                 variant: "destructive",
               });
             }

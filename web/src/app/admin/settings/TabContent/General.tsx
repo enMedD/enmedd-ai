@@ -25,6 +25,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { InputForm } from "@/components/admin/connectors/Field";
+import {
+  LOGO_SUCCESS_MESSAGES,
+  SETTINGS_SUCCESS_MESSAGES,
+} from "@/constants/toast/success";
+import {
+  GLOBAL_ERROR_MESSAGES,
+  OPERATION_ERROR_MESSAGES,
+} from "@/constants/toast/error";
 
 const formSchema = z.object({
   workspace_name: z.string().nullable(),
@@ -176,23 +184,28 @@ export default function General() {
 
       if (response.ok) {
         toast({
-          title: "Workspace Logo Deleted",
-          description: "The workspace logo has been successfully removed.",
+          title: LOGO_SUCCESS_MESSAGES.WORKSPACE_LOGO_DELETE.title,
+          description: LOGO_SUCCESS_MESSAGES.WORKSPACE_LOGO_DELETE.description,
           variant: "success",
         });
         window.location.reload();
       } else {
         const errorMsg = (await response.json()).detail;
         toast({
-          title: "Failed to delete workspace logo",
-          description: `Error: ${errorMsg}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Delete"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "Logo",
+            "delete",
+            errorMsg
+          ),
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.log(error);
       toast({
-        title: "Error",
-        description: "Something went wrong while deleting the workspace logo.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     }
@@ -209,23 +222,29 @@ export default function General() {
 
       if (response.ok) {
         toast({
-          title: "Header Logo Deleted",
-          description: "The header logo has been successfully removed.",
+          title: LOGO_SUCCESS_MESSAGES.WORKSPACE_HEADER_LOGO_DELETE.title,
+          description:
+            LOGO_SUCCESS_MESSAGES.WORKSPACE_HEADER_LOGO_DELETE.description,
           variant: "success",
         });
         window.location.reload();
       } else {
         const errorMsg = (await response.json()).detail;
         toast({
-          title: "Failed to delete header logo",
-          description: `Error: ${errorMsg}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Delete"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "Header Logo",
+            "delete",
+            errorMsg
+          ),
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.log(error);
       toast({
-        title: "Error",
-        description: "Something went wrong while deleting the header logo.",
+        title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+        description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
         variant: "destructive",
       });
     }
@@ -256,8 +275,12 @@ export default function General() {
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
           toast({
-            title: "Failed to upload logo",
-            description: `Error: ${errorMsg}`,
+            title: OPERATION_ERROR_MESSAGES.ACTION.title("Upload"),
+            description: OPERATION_ERROR_MESSAGES.ACTION.description(
+              "Logo",
+              "upload",
+              errorMsg
+            ),
             variant: "destructive",
           });
           return;
@@ -277,8 +300,12 @@ export default function General() {
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
           toast({
-            title: "Failed to upload header logo",
-            description: `Error: ${errorMsg}`,
+            title: OPERATION_ERROR_MESSAGES.ACTION.title("Upload"),
+            description: OPERATION_ERROR_MESSAGES.ACTION.description(
+              "Header Logo",
+              "upload",
+              errorMsg
+            ),
             variant: "destructive",
           });
           return;
@@ -299,15 +326,15 @@ export default function General() {
       window.location.reload();
       router.refresh();
       toast({
-        title: "Settings updated",
-        description: "The workspace settings have been successfully updated.",
+        title: SETTINGS_SUCCESS_MESSAGES.UPDATE.title,
+        description: SETTINGS_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
     } else {
       const errorMsg = (await response.json()).detail;
       toast({
-        title: "Failed to update settings.",
-        description: errorMsg,
+        title: GLOBAL_ERROR_MESSAGES.UNEXPECTED.title,
+        description: GLOBAL_ERROR_MESSAGES.UNEXPECTED.description(errorMsg),
         variant: "destructive",
       });
     }

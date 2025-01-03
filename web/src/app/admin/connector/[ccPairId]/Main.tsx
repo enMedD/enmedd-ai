@@ -33,6 +33,8 @@ import {
 import { IndexingAttemptsTable } from "@/app/admin/connector/[ccPairId]/IndexingAttemptsTable";
 import { DeletionButton } from "@/app/admin/connector/[ccPairId]/DeletionButton";
 import { DocumentViewerModal } from "../DocumentViewerModal";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
 
 // since the uploaded files are cleaned up after some period of time
 // re-indexing will not work for the file connector. Also, it would not
@@ -66,8 +68,8 @@ export function Main({
 
   const finishConnectorDeletion = () => {
     toast({
-      title: "Deletion Successful",
-      description: "Connector deleted successfully",
+      title: DATA_SOURCE_SUCCESS_MESSAGES.CONNECTOR_DELETION.title,
+      description: DATA_SOURCE_SUCCESS_MESSAGES.CONNECTOR_DELETION.description,
       variant: "success",
     });
     setTimeout(() => {
@@ -118,14 +120,14 @@ export function Main({
       mutate(buildCCPairInfoUrl(ccPairId));
       setIsEditing(false);
       toast({
-        title: "Update Successful",
-        description: "Connector name updated successfully",
+        title: DATA_SOURCE_SUCCESS_MESSAGES.NAME_UPDATE.title,
+        description: DATA_SOURCE_SUCCESS_MESSAGES.NAME_UPDATE.description,
         variant: "success",
       });
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description: "Failed to update connector name",
+        title: DATA_SOURCE_ERROR_MESSAGES.NAME_UPDATE.title,
+        description: DATA_SOURCE_ERROR_MESSAGES.NAME_UPDATE.description,
         variant: "destructive",
       });
     }

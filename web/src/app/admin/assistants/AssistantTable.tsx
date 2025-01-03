@@ -16,6 +16,8 @@ import { CustomTooltip } from "@/components/CustomTooltip";
 import { useUser } from "@/components/user/UserProvider";
 import Link from "next/link";
 import { DeleteModal } from "@/components/DeleteModal";
+import { ASSISTANT_ERROR_MESSAGES } from "@/constants/toast/error";
+import { ASSISTANT_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 function AssistantTypeDisplay({ assistant }: { assistant: Assistant }) {
   if (assistant.builtin_assistant) {
@@ -88,8 +90,11 @@ export function AssistantsTable({
 
     if (!response.ok) {
       toast({
-        title: "Failed to Update Assistant Order",
-        description: `There was an issue updating the assistant order. Details: ${await response.text()}`,
+        title: ASSISTANT_ERROR_MESSAGES.ASSISTANT_ORDER_FAILED.title,
+        description:
+          ASSISTANT_ERROR_MESSAGES.ASSISTANT_ORDER_FAILED.description(
+            await response.text()
+          ),
         variant: "destructive",
       });
       setFinalAssistants(allAssistants);
@@ -120,8 +125,14 @@ export function AssistantsTable({
             );
             if (response.ok) {
               toast({
-                title: `Assistant ${teamspaceId ? "removed" : "deleted"}`,
-                description: `The assistant has been successfully ${teamspaceId ? "removed" : "deleted"}.`,
+                title:
+                  ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_ACTION.title(
+                    teamspaceId
+                  ),
+                description:
+                  ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_ACTION.description(
+                    teamspaceId
+                  ),
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
@@ -129,8 +140,15 @@ export function AssistantsTable({
               router.refresh();
             } else {
               toast({
-                title: `Failed to ${teamspaceId ? "remove" : "delete"} assistant`,
-                description: `There was an issue ${teamspaceId ? "removing" : "deleting"} the assistant. Details: ${await response.text()}`,
+                title:
+                  ASSISTANT_ERROR_MESSAGES.ASSISTANT_DELETE_FAILURE.title(
+                    teamspaceId
+                  ),
+                description:
+                  ASSISTANT_ERROR_MESSAGES.ASSISTANT_DELETE_FAILURE.description(
+                    await response.text(),
+                    teamspaceId
+                  ),
                 variant: "destructive",
               });
             }
@@ -201,16 +219,27 @@ export function AssistantsTable({
                       );
                       if (response.ok) {
                         toast({
-                          title: "Visibility Updated",
-                          description: `The visibility of "${assistant.name}" has been successfully updated.`,
+                          title:
+                            ASSISTANT_SUCCESS_MESSAGES
+                              .ASSISTANT_VISIBILITY_UPDATED.title,
+                          description:
+                            ASSISTANT_SUCCESS_MESSAGES.ASSISTANT_VISIBILITY_UPDATED.description(
+                              assistant.name
+                            ),
                           variant: "success",
                         });
                         refreshAllAssistants();
                         router.refresh();
                       } else {
                         toast({
-                          title: "Failed to Update Assistant Visibility",
-                          description: `Unable to update visibility for "${assistant.name}". Details: ${await response.text()}`,
+                          title:
+                            ASSISTANT_ERROR_MESSAGES
+                              .ASSISTANT_UPDATE_VISIBILITY_FAILED.title,
+                          description:
+                            ASSISTANT_ERROR_MESSAGES.ASSISTANT_UPDATE_VISIBILITY_FAILED.description(
+                              assistant.name,
+                              await response.text()
+                            ),
                           variant: "destructive",
                         });
                       }

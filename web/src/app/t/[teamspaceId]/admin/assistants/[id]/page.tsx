@@ -40,6 +40,7 @@ export default async function Page({
         <div className="mt-12">
           <DeleteAssistantButton
             assistantId={values.existingAssistant!.id}
+            assistantName={values.existingAssistant!.name}
             redirectType={SuccessfulAssistantUpdateRedirectType.ADMIN}
           />
         </div>

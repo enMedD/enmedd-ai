@@ -14,6 +14,10 @@ import { Form } from "@/components/ui/form";
 import { InputForm } from "@/components/admin/connectors/Field";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import {
+  EMBEDDING_ERROR_MESSAGES,
+  GLOBAL_ERROR_MESSAGES,
+} from "@/constants/toast/error";
 
 export function ProviderCreationModal({
   selectedProvider,
@@ -137,8 +141,9 @@ export function ProviderCreationModal({
       if (!initialResponse.ok) {
         const errorMsg = (await initialResponse.json()).detail;
         toast({
-          title: "Error",
-          description: errorMsg,
+          title: EMBEDDING_ERROR_MESSAGES.TEST_PROVIDER.title,
+          description:
+            EMBEDDING_ERROR_MESSAGES.TEST_PROVIDER.description(errorMsg),
           variant: "destructive",
         });
         setIsProcessing(false);
@@ -171,23 +176,27 @@ export function ProviderCreationModal({
       }
 
       toast({
-        title: "Success",
-        description: "Provider configuration updated successfully.",
+        title: EMBEDDING_ERROR_MESSAGES.UPDATE_PROVIDER.title,
+        description: EMBEDDING_ERROR_MESSAGES.UPDATE_PROVIDER.description,
         variant: "success",
       });
 
       onConfirm();
     } catch (error: unknown) {
       if (error instanceof Error) {
+        console.log(error);
         toast({
-          title: "Error",
-          description: error.message,
+          title: GLOBAL_ERROR_MESSAGES.UNEXPECTED.title,
+          description: GLOBAL_ERROR_MESSAGES.UNEXPECTED.description(
+            error.message
+          ),
           variant: "destructive",
         });
       } else {
+        console.log(error);
         toast({
-          title: "Error",
-          description: "An unknown error occurred.",
+          title: GLOBAL_ERROR_MESSAGES.UNKNOWN.title,
+          description: GLOBAL_ERROR_MESSAGES.UNKNOWN.description,
           variant: "destructive",
         });
       }

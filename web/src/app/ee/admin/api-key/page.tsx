@@ -30,6 +30,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DeleteModal } from "@/components/DeleteModal";
+import { API_KEY_SUCCESS_MESSAGES } from "@/constants/toast/success";
+import { API_KEY_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const API_KEY_TEXT = `
 API Keys allow you to access Arnold AI APIs programmatically. Click the button below to generate a new API Key.
@@ -146,16 +148,17 @@ function Main() {
 
             if (response.ok) {
               toast({
-                title: "Deletion Success",
-                description: `API Key deleted successfully.`,
+                title: API_KEY_SUCCESS_MESSAGES.DELETE.title,
+                description: API_KEY_SUCCESS_MESSAGES.DELETE.description,
                 variant: "success",
               });
               setIsDeleteModalOpen(false);
             } else {
               const errorMsg = (await response.json()).detail;
               toast({
-                title: "Deletion Failed",
-                description: `Failed to delete API Key: ${errorMsg}`,
+                title: API_KEY_ERROR_MESSAGES.DELETE.title,
+                description:
+                  API_KEY_ERROR_MESSAGES.DELETE.description(errorMsg),
                 variant: "destructive",
               });
             }
@@ -284,8 +287,11 @@ function Main() {
                         if (!response.ok) {
                           const errorMsg = await response.text();
                           toast({
-                            title: "Regeneration Failed",
-                            description: `Failed to regenerate API Key: ${errorMsg}`,
+                            title: API_KEY_ERROR_MESSAGES.REGENERATE.title,
+                            description:
+                              API_KEY_ERROR_MESSAGES.REGENERATE.description(
+                                errorMsg
+                              ),
                             variant: "destructive",
                           });
                           return;

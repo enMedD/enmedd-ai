@@ -33,6 +33,7 @@ import {
 import { CustomModal } from "@/components/CustomModal";
 import { Combobox } from "@/components/Combobox";
 import { DeleteModal } from "@/components/DeleteModal";
+import { PROMPT_ERROR_MESSAGES } from "@/constants/toast/error";
 
 const CategoryBubble = ({
   name,
@@ -134,8 +135,8 @@ export const PromptLibraryTable = ({
     if (!response.ok) {
       const errorMsg = await response.text();
       toast({
-        title: "Delete Failed",
-        description: `Error: ${errorMsg}`,
+        title: PROMPT_ERROR_MESSAGES.DELETE.title,
+        description: PROMPT_ERROR_MESSAGES.DELETE.description(errorMsg),
         variant: "destructive",
       });
     }

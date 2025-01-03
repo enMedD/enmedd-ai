@@ -33,6 +33,11 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Plus } from "lucide-react";
+import {
+  OPERATION_ERROR_MESSAGES,
+  TOOL_ERROR_MESSAGES,
+} from "@/constants/toast/error";
+import { TOOL_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 function parseJsonWithTrailingCommas(jsonString: string) {
   // Regular expression to remove trailing commas before } or ]
@@ -137,8 +142,12 @@ function ToolForm({
     }
     if (response.error) {
       toast({
-        title: "Tool Creation Failed",
-        description: `Unable to create the tool: ${response.error}`,
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Tool Creation"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "tool",
+          "create",
+          response.error
+        ),
         variant: "destructive",
       });
       return;
@@ -179,15 +188,14 @@ function ToolForm({
                 );
                 setFieldValue("definition", formatted);
                 toast({
-                  title: "Definition formatted",
-                  description:
-                    "The definition has been successfully formatted.",
+                  title: TOOL_SUCCESS_MESSAGES.FORMAT.title,
+                  description: TOOL_SUCCESS_MESSAGES.FORMAT.description,
                   variant: "success",
                 });
               } catch (error) {
                 toast({
-                  title: "Invalid JSON format",
-                  description: "Please check the JSON syntax and try again.",
+                  title: TOOL_ERROR_MESSAGES.FORMAT.title,
+                  description: TOOL_ERROR_MESSAGES.FORMAT.description,
                   variant: "destructive",
                 });
               }

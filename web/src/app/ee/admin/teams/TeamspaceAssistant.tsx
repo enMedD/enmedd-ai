@@ -11,6 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
+import {
+  OPERATION_ERROR_MESSAGES,
+  TEAMSPACE_ASSISTANT_ERROR_MESSAGES,
+} from "@/constants/toast/error";
+import { TEAMSPACE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 interface TeamspaceAssistantProps {
   teamspace: Teamspace & { gradient: string };
@@ -143,8 +148,9 @@ export const TeamspaceAssistant = ({
   const handleSaveChanges = async () => {
     if (tempCurrentAssistants.length === 0) {
       toast({
-        title: "Update Failed",
-        description: "You need to select at least one assistant.",
+        title: TEAMSPACE_ASSISTANT_ERROR_MESSAGES.NO_ASSISTANT.title,
+        description:
+          TEAMSPACE_ASSISTANT_ERROR_MESSAGES.NO_ASSISTANT.description,
         variant: "destructive",
       });
       return;
@@ -173,8 +179,12 @@ export const TeamspaceAssistant = ({
 
       if (!response.ok) {
         toast({
-          title: "Update Failed",
-          description: `Unable to update assistants: ${responseJson.detail || "Unknown error."}`,
+          title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+          description: OPERATION_ERROR_MESSAGES.ACTION.description(
+            "assistants",
+            "update",
+            responseJson.detail || "Unknown error."
+          ),
           variant: "destructive",
         });
         return;
@@ -183,16 +193,20 @@ export const TeamspaceAssistant = ({
       setCurrentAssistants(tempCurrentAssistants);
       setGlobalAssistants(tempGlobalAssistants);
       toast({
-        title: "Assistants Updated",
+        title: TEAMSPACE_SUCCESS_MESSAGES.UPDATE_TYPE.title("Assistant"),
         description:
-          "Assistants have been successfully updated in the teamspace.",
+          TEAMSPACE_SUCCESS_MESSAGES.UPDATE_TYPE.description("Assistant"),
         variant: "success",
       });
       refreshTeamspaces();
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description: "An error occurred while updating assistants.",
+        title: OPERATION_ERROR_MESSAGES.ACTION.title("Update"),
+        description: OPERATION_ERROR_MESSAGES.ACTION.description(
+          "assistants",
+          "update",
+          error || "Unknown error."
+        ),
         variant: "destructive",
       });
     }

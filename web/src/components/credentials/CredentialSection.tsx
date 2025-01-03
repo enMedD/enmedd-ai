@@ -28,6 +28,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { CustomModal } from "../CustomModal";
 import { Button } from "../ui/button";
+import { DATA_SOURCE_ERROR_MESSAGES } from "@/constants/toast/error";
+import { DATA_SOURCE_SUCCESS_MESSAGES } from "@/constants/toast/success";
 
 export default function CredentialSection({
   ccPair,
@@ -64,9 +66,8 @@ export default function CredentialSection({
     refresh();
 
     toast({
-      title: "Swap Failed",
-      description:
-        "There was an issue swapping the credential. Please try again.",
+      title: DATA_SOURCE_ERROR_MESSAGES.SWAP.title,
+      description: DATA_SOURCE_ERROR_MESSAGES.SWAP.description,
       variant: "destructive",
     });
   };
@@ -79,15 +80,15 @@ export default function CredentialSection({
     const response = await updateCredential(selectedCredential.id, details);
     if (response.ok) {
       toast({
-        title: "Success",
-        description: "Credential updated successfully!",
+        title: DATA_SOURCE_SUCCESS_MESSAGES.UPDATE.title,
+        description: DATA_SOURCE_SUCCESS_MESSAGES.UPDATE.description,
         variant: "success",
       });
       onSucces();
     } else {
       toast({
-        title: "Update Failed",
-        description: `Issue updating credential`,
+        title: DATA_SOURCE_ERROR_MESSAGES.UPDATE.title,
+        description: DATA_SOURCE_ERROR_MESSAGES.UPDATE.description,
         variant: "destructive",
       });
     }
