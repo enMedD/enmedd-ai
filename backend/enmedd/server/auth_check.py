@@ -40,6 +40,7 @@ PUBLIC_ENDPOINT_SPECS = [
     ("/auth/verify-otp", {"POST"}),
     ("/users/generate-otp", {"PATCH"}),
     ("/users/validate-token-invite", {"POST"}),
+    ("/users/validate-invite-link", {"POST"}),
     ("/users/me", {"GET"}),
     ("/users/me", {"PATCH"}),
     ("/users/{id}", {"GET"}),
