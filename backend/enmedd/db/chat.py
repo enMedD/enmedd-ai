@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
 from datetime import timedelta
+from datetime import timezone
 from typing import Optional
 from uuid import UUID
 
@@ -306,7 +307,7 @@ def delete_chat_session(
 
 
 def delete_chat_sessions_older_than(days_old: int, db_session: Session) -> None:
-    cutoff_time = datetime.utcnow() - timedelta(days=days_old)
+    cutoff_time = datetime.now(timezone.utc) - timedelta(days=days_old)
     old_sessions = db_session.execute(
         select(ChatSession.user_id, ChatSession.id).where(
             ChatSession.time_created < cutoff_time

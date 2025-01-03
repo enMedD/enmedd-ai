@@ -128,7 +128,9 @@ class XenforoConnector(LoadConnector):
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url
         self.initial_run = not XenforoConnector.has_been_run_before
-        self.start = datetime.utcnow().replace(tzinfo=pytz.utc) - timedelta(days=1)
+        self.start = datetime.now(timezone.utc).replace(tzinfo=pytz.utc) - timedelta(
+            days=1
+        )
         self.cookies: dict[str, str] = {}
         # mimic user browser to avoid being blocked by the website (see: https://www.useragents.me/)
         self.headers = {
