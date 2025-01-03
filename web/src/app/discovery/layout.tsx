@@ -10,6 +10,8 @@ import Sidebar from "@/components/Sidebar";
 import { User } from "@/lib/types";
 import { fetchSS } from "@/lib/utilsSS";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Layout({
   children,
@@ -56,7 +58,16 @@ export default async function Layout({
   }
 
   return (
-    <Sidebar user={user} sidebar={<div></div>}>
+    <Sidebar
+      user={user}
+      sidebar={
+        <div className="p-6 w-full">
+          <Link href="/discovery/workspaces/settings" passHref>
+            <Button className="w-full">Settings</Button>
+          </Link>
+        </div>
+      }
+    >
       {children}
     </Sidebar>
   );
