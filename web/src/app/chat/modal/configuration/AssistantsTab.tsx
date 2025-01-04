@@ -26,15 +26,17 @@ export function AssistantsTab({
   selectedAssistant,
   llmProviders,
   onSelect,
+  assistants,
 }: {
   selectedAssistant: Assistant;
   llmProviders: LLMProviderDescriptor[];
   onSelect: (assistant: Assistant) => void;
+  assistants: Assistant[];
 }) {
   const { refreshUser } = useUser();
   const [_, llmName] = getFinalLLM(llmProviders, null, null);
   // TODO Final assitant tandaan mo
-  const { assistants, refreshAssistants } = useAssistants();
+  const { refreshAssistants } = useAssistants();
   const [assistant, setAssistants] = useState(assistants);
 
   const sensors = useSensors(

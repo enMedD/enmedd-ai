@@ -206,7 +206,9 @@ export function AssistantsTable({
                     key="is_visible"
                     onClick={async () => {
                       const response = await fetch(
-                        `/api/admin/assistant/${assistant.id}/visible`,
+                        teamspaceId
+                          ? `/api/admin/assistant/${assistant.id}/visible?teamspace_id=${teamspaceId}`
+                          : `/api/admin/assistant/${assistant.id}/visible`,
                         {
                           method: "PATCH",
                           headers: {

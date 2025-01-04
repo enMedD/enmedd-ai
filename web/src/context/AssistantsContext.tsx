@@ -1,5 +1,12 @@
 "use client";
-import React, { createContext, useState, useContext, useMemo } from "react";
+
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useMemo,
+  useEffect,
+} from "react";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import {
   classifyAssistants,
@@ -7,6 +14,7 @@ import {
   getUserCreatedAssistants,
 } from "@/lib/assistants/utils";
 import { useUser } from "@/components/user/UserProvider";
+import { useParams } from "next/navigation";
 
 interface AssistantsContextProps {
   assistants: Assistant[];
@@ -32,19 +40,54 @@ export const AssistantsProvider: React.FC<{
   hasAnyConnectors,
   hasImageCompatibleModel,
 }) => {
+  const { teamspaceId } = useParams();
   const [assistants, setAssistants] = useState<Assistant[]>(
     initialAssistants || []
   );
   const { user } = useUser();
 
+  const fetchAssistants = async () => {
+    try {
+      const response = await fetch(
+        teamspaceId
+          ? `/api/assistant?is_public=true&teamspace_id=${teamspaceId}`
+          : "/api/assistant?is_public=true",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const allAssistants = await response.json();
+        setAssistants(allAssistants);
+      } else {
+        console.error("Error fetching assistants:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching assistants:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssistants();
+  }, [teamspaceId, user]);
+
   const refreshAssistants = async () => {
     try {
-      const response = await fetch("/api/assistant", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        teamspaceId
+          ? `/api/assistant?is_public=true&teamspace_id=${teamspaceId}`
+          : "/api/assistant?is_public=true",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) throw new Error("Failed to fetch assistants");
       let assistants: Assistant[] = await response.json();
       if (!hasImageCompatibleModel) {
@@ -61,6 +104,8 @@ export const AssistantsProvider: React.FC<{
         );
       }
       setAssistants(assistants);
+
+      await fetchAssistants();
     } catch (error) {
       console.error("Error refreshing assistants:", error);
     }
@@ -72,9 +117,13 @@ export const AssistantsProvider: React.FC<{
     finalAssistants,
     ownedButHiddenAssistants,
   } = useMemo(() => {
+    const filteredAssistants = assistants.filter(
+      (assistant) => assistant.is_visible
+    );
+
     const { visibleAssistants, hiddenAssistants } = classifyAssistants(
       user,
-      assistants
+      filteredAssistants
     );
 
     const finalAssistants = user

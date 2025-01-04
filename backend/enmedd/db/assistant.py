@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
 from functools import lru_cache
+from typing import Optional
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -249,6 +250,7 @@ def get_assistants(
     include_default: bool = True,
     include_deleted: bool = False,
     joinedload_all: bool = False,
+    is_public: bool = False,
 ) -> Sequence[Assistant]:
     stmt = select(Assistant).distinct()
     stmt = _add_user_filters(stmt=stmt, user=user, get_editable=get_editable)
@@ -257,6 +259,8 @@ def get_assistants(
         stmt = stmt.join(Assistant__Teamspace).where(
             Assistant__Teamspace.teamspace_id == teamspace_id
         )
+    elif is_public:
+        stmt = stmt.where(Assistant.is_public.is_(True))
 
     if not include_default:
         stmt = stmt.where(Assistant.builtin_assistant.is_(False))
@@ -613,13 +617,38 @@ def update_assistant_visibility(
     assistant_id: int,
     is_visible: bool,
     db_session: Session,
+    teamspace_id: Optional[int] = None,
     user: User | None = None,
 ) -> None:
-    assistant = fetch_assistant_by_id(
-        db_session=db_session, assistant_id=assistant_id, user=user, get_editable=True
-    )
+    if teamspace_id:
+        teamspace__assistant_smtp = (
+            select(Assistant__Teamspace)
+            .where(Assistant__Teamspace.assistant_id == assistant_id)
+            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+        )
 
-    assistant.is_visible = is_visible
+        if teamspace__assistant_smtp is None:
+            raise PermissionError(
+                "There is no Assistant with the specified ID in the specified Teamspace"
+            )
+
+        db_session.execute(
+            update(Assistant__Teamspace)
+            .where(Assistant__Teamspace.assistant_id == assistant_id)
+            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+            .values(is_visible=is_visible)
+        )
+
+    else:
+        assistant = fetch_assistant_by_id(
+            db_session=db_session,
+            assistant_id=assistant_id,
+            user=user,
+            get_editable=True,
+        )
+
+        assistant.is_visible = is_visible
+
     db_session.commit()
 
 

@@ -23,6 +23,7 @@ from enmedd.db.assistant import update_assistant_public_status
 from enmedd.db.assistant import update_assistant_shared_users
 from enmedd.db.assistant import update_assistant_visibility
 from enmedd.db.engine import get_session
+from enmedd.db.models import Assistant__Teamspace
 from enmedd.db.models import User
 from enmedd.file_store.file_store import get_default_file_store
 from enmedd.file_store.models import ChatFileType
@@ -54,7 +55,8 @@ class IsPublicRequest(BaseModel):
 def patch_assistant_visibility(
     assistant_id: int,
     is_visible_request: IsVisibleRequest,
-    user: User | None = Depends(current_workspace_admin_user),
+    teamspace_id: Optional[int] = None,
+    user: User | None = Depends(current_admin_user_based_on_teamspace_id),
     db_session: Session = Depends(get_session),
 ) -> None:
     update_assistant_visibility(
@@ -62,6 +64,7 @@ def patch_assistant_visibility(
         is_visible=is_visible_request.is_visible,
         db_session=db_session,
         user=user,
+        teamspace_id=teamspace_id,
     )
 
 
@@ -104,18 +107,43 @@ def list_assistants_admin(
     get_editable: bool = Query(
         False, description="If true, return editable assistants"
     ),
+    is_public: bool = False,
     user: User | None = Depends(current_admin_user_based_on_teamspace_id),
 ) -> list[AssistantSnapshot]:
-    return [
-        AssistantSnapshot.from_model(assistant)
-        for assistant in get_assistants(
-            teamspace_id=teamspace_id,
-            db_session=db_session,
-            user=user,
-            get_editable=get_editable,
-            include_deleted=include_deleted,
-            joinedload_all=True,
+    assistants = get_assistants(
+        teamspace_id=teamspace_id,
+        db_session=db_session,
+        user=user,
+        get_editable=get_editable,
+        include_deleted=include_deleted,
+        joinedload_all=True,
+        is_public=is_public,
+    )
+
+    teamspace_visibility = {}
+    if teamspace_id is not None:
+        results = (
+            db_session.query(
+                Assistant__Teamspace.assistant_id, Assistant__Teamspace.is_visible
+            )
+            .filter(Assistant__Teamspace.teamspace_id == teamspace_id)
+            .all()
         )
+        teamspace_visibility = {
+            assistant_id: is_visible for assistant_id, is_visible in results
+        }
+
+    return [
+        AssistantSnapshot.from_model(assistant).model_copy(
+            update={
+                "is_visible": teamspace_visibility.get(
+                    assistant.id, assistant.is_visible
+                )
+                if teamspace_id is not None
+                else assistant.is_visible
+            }
+        )
+        for assistant in assistants
     ]
 
 
@@ -222,6 +250,7 @@ def list_assistants(
     assistant_ids: list[int] = Query(None),
     teamspace_id: Optional[int] = None,
     filter_assistants: bool = False,
+    is_public: bool = False,
 ) -> list[AssistantSnapshot]:
     assistants = get_assistants(
         user=user,
@@ -230,7 +259,21 @@ def list_assistants(
         db_session=db_session,
         get_editable=False,
         joinedload_all=True,
+        is_public=is_public,
     )
+
+    teamspace_visibility = {}
+    if teamspace_id is not None:
+        results = (
+            db_session.query(
+                Assistant__Teamspace.assistant_id, Assistant__Teamspace.is_visible
+            )
+            .filter(Assistant__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+        teamspace_visibility = {
+            assistant_id: is_visible for assistant_id, is_visible in results
+        }
 
     if assistant_ids:
         assistants = [p for p in assistants if p.id in assistant_ids]
@@ -249,7 +292,18 @@ def list_assistants(
             )
         ]
 
-    return [AssistantSnapshot.from_model(p) for p in assistants]
+    return [
+        AssistantSnapshot.from_model(assistant).model_copy(
+            update={
+                "is_visible": teamspace_visibility.get(
+                    assistant.id, assistant.is_visible
+                )
+                if teamspace_id is not None
+                else assistant.is_visible
+            }
+        )
+        for assistant in assistants
+    ]
 
 
 @basic_router.get("/{assistant_id}")
