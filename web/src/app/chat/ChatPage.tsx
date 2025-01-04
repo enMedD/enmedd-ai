@@ -196,7 +196,11 @@ export function ChatPage({
   // Useful for determining which session has been loaded (i.e. still on `new, empty session` or `previous session`)
   const loadedIdSessionRef = useRef<number | null>(existingChatSessionId);
 
-  const { assistants: availableAssistants, finalAssistants } = useAssistants();
+  const {
+    assistants: availableAssistants,
+    finalAssistants,
+    visibleAssistants,
+  } = useAssistants();
 
   const existingChatSessionAssistantId = selectedChatSession?.assistant_id;
   const [selectedAssistant, setSelectedAssistant] = useState<
@@ -2402,7 +2406,7 @@ Only used in the EE version of the app. */}
                                 inputPrompts={userInputPrompts}
                                 selectedDocuments={selectedDocuments}
                                 // assistant stuff
-                                assistantOptions={availableAssistants}
+                                assistantOptions={visibleAssistants}
                                 selectedAssistant={liveAssistant}
                                 setSelectedAssistant={onAssistantChange}
                                 setAlternativeAssistant={

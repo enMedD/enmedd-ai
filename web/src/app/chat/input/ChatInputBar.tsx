@@ -100,6 +100,8 @@ export function ChatInputBar({
   onSubmit: () => void;
   filterManager: FilterManager;
   llmOverrideManager: LlmOverrideManager;
+
+  // assistants
   selectedAssistant: Assistant;
   alternativeAssistant: Assistant | null;
   files: FileDescriptor[];
@@ -351,6 +353,7 @@ export function ChatInputBar({
             llmProviders={llmProviders}
             selectedAssistant={selectedAssistant}
             onSelect={handleSelectAssistant}
+            assistants={assistantOptions}
           />
         </CustomModal>
       )}

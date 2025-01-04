@@ -117,9 +117,13 @@ export const AssistantsProvider: React.FC<{
     finalAssistants,
     ownedButHiddenAssistants,
   } = useMemo(() => {
+    const filteredAssistants = assistants.filter(
+      (assistant) => assistant.is_visible
+    );
+
     const { visibleAssistants, hiddenAssistants } = classifyAssistants(
       user,
-      assistants
+      filteredAssistants
     );
 
     const finalAssistants = user
