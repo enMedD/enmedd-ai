@@ -1659,6 +1659,7 @@ class Assistant__Teamspace(Base):
     teamspace_id: Mapped[int] = mapped_column(
         ForeignKey("teamspace.id", ondelete="CASCADE"), primary_key=True
     )
+    is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
 class LLMProvider__Teamspace(Base):

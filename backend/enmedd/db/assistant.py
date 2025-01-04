@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
 from functools import lru_cache
+from typing import Optional
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -616,13 +617,38 @@ def update_assistant_visibility(
     assistant_id: int,
     is_visible: bool,
     db_session: Session,
+    teamspace_id: Optional[int] = None,
     user: User | None = None,
 ) -> None:
-    assistant = fetch_assistant_by_id(
-        db_session=db_session, assistant_id=assistant_id, user=user, get_editable=True
-    )
+    if teamspace_id:
+        teamspace__assistant_smtp = (
+            select(Assistant__Teamspace)
+            .where(Assistant__Teamspace.assistant_id == assistant_id)
+            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+        )
 
-    assistant.is_visible = is_visible
+        if teamspace__assistant_smtp is None:
+            raise PermissionError(
+                "There is no Assistant with the specified ID in the specified Teamspace"
+            )
+
+        db_session.execute(
+            update(Assistant__Teamspace)
+            .where(Assistant__Teamspace.assistant_id == assistant_id)
+            .where(Assistant__Teamspace.teamspace_id == teamspace_id)
+            .values(is_visible=is_visible)
+        )
+
+    else:
+        assistant = fetch_assistant_by_id(
+            db_session=db_session,
+            assistant_id=assistant_id,
+            user=user,
+            get_editable=True,
+        )
+
+        assistant.is_visible = is_visible
+
     db_session.commit()
 
 
