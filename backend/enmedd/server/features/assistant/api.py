@@ -262,6 +262,19 @@ def list_assistants(
         is_public=is_public,
     )
 
+    teamspace_visibility = {}
+    if teamspace_id is not None:
+        results = (
+            db_session.query(
+                Assistant__Teamspace.assistant_id, Assistant__Teamspace.is_visible
+            )
+            .filter(Assistant__Teamspace.teamspace_id == teamspace_id)
+            .all()
+        )
+        teamspace_visibility = {
+            assistant_id: is_visible for assistant_id, is_visible in results
+        }
+
     if assistant_ids:
         assistants = [p for p in assistants if p.id in assistant_ids]
         print(
@@ -279,7 +292,18 @@ def list_assistants(
             )
         ]
 
-    return [AssistantSnapshot.from_model(p) for p in assistants]
+    return [
+        AssistantSnapshot.from_model(assistant).model_copy(
+            update={
+                "is_visible": teamspace_visibility.get(
+                    assistant.id, assistant.is_visible
+                )
+                if teamspace_id is not None
+                else assistant.is_visible
+            }
+        )
+        for assistant in assistants
+    ]
 
 
 @basic_router.get("/{assistant_id}")
